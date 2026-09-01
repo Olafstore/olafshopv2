@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="สินค้าเพิ่มเติมของ OLAF SHOP พร้อมหมวด Windows Keys และช่องทางสั่งซื้อกับแอดมิน" />
+  <title>สินค้าเพิ่มเติม | OLAF SHOP</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="preconnect" href="https://wtvfgwacodfrzxapwoxj.supabase.co" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=20260716-admin-minecraft-v112" />
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="supabase-client.js?v=20260717-live-catalog-v116" defer></script>
+  <script src="platform-store.js?v=20260605-admin-users" defer></script>
+  <script src="image-performance.js?v=20260713-media-brand-v89" defer></script>
+  <script src="notifications.js?v=20260716-qr-alignment-v111" defer></script>
+  <script src="site-navigation.js?v=20260717-live-catalog-v116" defer></script>
+  <script src="extra-products.js?v=20260717-live-catalog-v116" defer></script>
+  <script src="more-products.js?v=20260717-live-catalog-v116" defer></script>
+</head>
+<body class="extras-page">
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="OLAF SHOP">
+        <span class="brand-mark">O</span>
+        <span>
+          <strong>OLAF SHOP</strong>
+          <small>Steam Game Store</small>
+        </span>
+      </a>
+
+      <nav class="main-nav" aria-label="เมนูหลัก">
+        <a href="index.html">หน้าแรก</a>
+        <a href="index.html#catalog">สินค้า</a>
+        <a href="more-products.html" class="is-active">หมวดหมู่</a>
+        <a href="point-topup.html">เติม Point</a>
+        <a href="profile.html#inventory">คลังสินค้า</a>
+        <a href="https://www.facebook.com/byOlafshop" target="_blank" rel="noopener noreferrer">ติดต่อ</a>
+      </nav>
+
+      <div class="topbar-actions">
+        <div class="language-switcher">
+          <button class="icon-button lang-toggle" id="lang-toggle" type="button" aria-label="เปลี่ยนภาษา"
+            aria-expanded="false">
+            <i data-lucide="globe"></i>
+          </button>
+          <div class="language-popover" id="language-popover" hidden>
+            <button type="button" data-lang-option="th"><strong>ภาษาไทย</strong><span>TH</span></button>
+            <button type="button" data-lang-option="en"><strong>English</strong><span>EN</span></button>
+          </div>
+        </div>
+        <div class="notification-wrap" style="position:relative">
+          <button class="icon-button notification-button" id="open-notifications" type="button" aria-label="แจ้งเตือน">
+            <i data-lucide="bell"></i>
+            <span class="notification-badge" id="notification-badge" hidden></span>
+          </button>
+          <div class="notification-popover" id="notification-popover" hidden>
+            <div class="notification-header"><h3>แจ้งเตือน</h3></div>
+            <div class="notification-body" id="notification-list">
+              <div class="notification-empty"><i data-lucide="bell"></i><p>ยังไม่มีแจ้งเตือน</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="user-popover-wrap" style="position:relative">
+          <button class="account-button is-auth-loading" id="open-auth" type="button" aria-busy="true">
+            <i data-lucide="loader-circle"></i>
+            <span id="account-label">กำลังโหลดข้อมูล</span>
+          </button>
+          <div class="user-popover" id="user-popover" hidden></div>
+        </div>
+        <a class="primary-button register-button" href="register.html"
+          style="display:none; padding: 0 14px; min-height: 38px; gap: 8px;">
+          <i data-lucide="user-plus"></i>
+          <span>สมัครสมาชิก</span>
+        </a>
+      </div>
+    </header>
+
+    <main class="extras-main">
+      <section class="extras-hero">
+        <div class="extras-hero-copy">
+          <p class="eyebrow">Extra Catalog</p>
+          <h1>เลือกหมวดสินค้าเพิ่มเติม</h1>
+          <p>
+            รวม Key Windows, Minecraft และบัญชี Rockstar สำหรับ FiveM
+            แต่ละหมวดมีรูปแบบการจัดส่งและเงื่อนไขแตกต่างกัน กรุณาอ่านรายละเอียดก่อนสั่งซื้อ
+          </p>
+          <div class="extras-category-pills" role="navigation" aria-label="หมวดสินค้าเพิ่มเติม">
+            <a class="extras-category-pill is-active" href="#windows-keys">
+              <i data-lucide="monitor-smartphone"></i>
+              Key Windows
+            </a>
+            <a class="extras-category-pill" href="#minecraft-products">
+              <i data-lucide="box"></i>
+              Minecraft
+            </a>
+            <a class="extras-category-pill" href="#rockstar-products">
+              <i data-lucide="star"></i>
+              Rockstar
+            </a>
+          </div>
+        </div>
+        <aside class="extras-hero-panel">
+          <span class="extras-hero-panel-icon"><i data-lucide="layout-grid"></i></span>
+          <strong>3 หมวดสินค้าในหน้าเดียว</strong>
+          <p>Windows เป็นพรีออเดอร์ที่ชำระเงินในเว็บและแอดมินจัดส่ง, Minecraft เป็นพรีออเดอร์ และ Rockstar/FiveM ใช้สต็อกจริงแบบเดียวกับ Steam Offline</p>
+        </aside>
+      </section>
+
+      <section class="extras-category-hub" aria-label="เลือกหมวดสินค้า">
+        <a class="extras-category-card extras-category-card-windows" href="#windows-keys">
+          <span class="extras-category-card-icon"><i data-lucide="monitor-cog"></i></span>
+          <div>
+            <small>Software License</small>
+            <h2>Key Windows</h2>
+            <p>Windows 10 และ 11 ทั้งรุ่น Home / Pro แบบพรีออเดอร์ ชำระเงินในเว็บแล้วแอดมินจัดส่ง</p>
+          </div>
+          <i data-lucide="arrow-right" class="extras-category-arrow"></i>
+        </a>
+        <a class="extras-category-card extras-category-card-minecraft" href="#minecraft-products">
+          <span class="extras-category-card-icon"><i data-lucide="box"></i></span>
+          <div>
+            <small>Java &amp; Bedrock</small>
+            <h2>Minecraft</h2>
+            <p>เลือกได้ทั้งบัญชี Microsoft และ Redeem Key แบบพรีออเดอร์</p>
+          </div>
+          <i data-lucide="arrow-right" class="extras-category-arrow"></i>
+        </a>
+        <a class="extras-category-card extras-category-card-rockstar" href="#rockstar-products">
+          <span class="extras-category-card-icon extras-rockstar-mark">R★</span>
+          <div>
+            <small>FiveM Access</small>
+            <h2>Rockstar</h2>
+            <p>บัญชี FiveM และ GTA V Download Access จากสต็อกจริง</p>
+          </div>
+          <i data-lucide="arrow-right" class="extras-category-arrow"></i>
+        </a>
+      </section>
+
+      <section class="extras-section" id="windows-keys">
+        <div class="extras-section-head">
+          <div>
+            <p class="eyebrow">Windows Category</p>
+            <h2>Windows 10 &amp; 11 Keys</h2>
+            <p>คีย์ Windows แท้แบบพรีออเดอร์ ชำระเงินผ่านเว็บและรอแอดมินจัดส่งหลังตรวจสลิป</p>
+          </div>
+        </div>
+
+        <div class="olaf-license-promise-row extras-license-promise-row">
+          <article class="olaf-license-promise">
+            <span class="olaf-license-promise-icon"><i data-lucide="key-round"></i></span>
+            <div>
+              <strong>คีย์แท้พร้อมใช้งาน</strong>
+              <small>ผลิตภัณฑ์ลิขสิทธิ์สำหรับเปิดใช้งาน Windows ตามรุ่นที่เลือก</small>
+            </div>
+          </article>
+          <article class="olaf-license-promise">
+            <span class="olaf-license-promise-icon"><i data-lucide="message-circle-more"></i></span>
+            <div>
+              <strong>ชำระเงินในเว็บ</strong>
+              <small>สร้างคำสั่งซื้อ แนบสลิป และรอแอดมินจัดส่งคีย์หลังตรวจสอบ</small>
+            </div>
+          </article>
+          <article class="olaf-license-promise">
+            <span class="olaf-license-promise-icon"><i data-lucide="layout-grid"></i></span>
+            <div>
+              <strong>เลือกได้ 4 แบบ</strong>
+              <small>มี Windows 10 และ Windows 11 ครบทั้งรุ่น Home และ Pro</small>
+            </div>
+          </article>
+          <article class="olaf-license-promise">
+            <span class="olaf-license-promise-icon"><i data-lucide="headset"></i></span>
+            <div>
+              <strong>มีแอดมินช่วยดูแล</strong>
+              <small>ให้คำแนะนำด้านการเลือกผลิตภัณฑ์และขั้นตอนเปิดใช้งานเบื้องต้น</small>
+            </div>
+          </article>
+        </div>
+
+        <div class="olaf-license-grid extras-license-grid" id="windows-product-grid">
+          <article class="olaf-license-card">
+            <a class="license-card-media" href="product.html?id=windows-10-home" aria-label="ดูรายละเอียด Windows 10 Home">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows11/windows11-original.svg" alt="Windows 10 Home" loading="lazy" decoding="async" />
+            </a>
+            <div class="license-card-top">
+              <div class="license-type-badges">
+                <span class="license-type-badge">OEM</span>
+              </div>
+              <h3>Windows 10 Home</h3>
+              <p>คีย์สำหรับ Windows 10 Home แท้ 100%</p>
+            </div>
+            <div class="license-price"><strong>฿199</strong><del>฿4,385</del></div>
+            <ul>
+              <li><i data-lucide="check"></i>ลิขสิทธิ์แท้สำหรับใช้งานส่วนตัว</li>
+              <li><i data-lucide="check"></i>ได้ License Key Code</li>
+              <li><i data-lucide="check"></i>ติดตั้งได้ 1 เครื่อง</li>
+              <li><i data-lucide="check"></i>มีแอดมินช่วยแนะนำ</li>
+            </ul>
+            <div class="license-card-actions">
+              <a class="license-card-action" href="product.html?id=windows-10-home">
+                <i data-lucide="shopping-cart"></i>
+                <span>สั่งซื้อเลย</span>
+              </a>
+              <small class="license-ready-note"><i data-lucide="shield-check"></i>พร้อมตอบกลับ</small>
+            </div>
+          </article>
+
+          <article class="olaf-license-card is-highlight">
+            <a class="license-card-media" href="product.html?id=windows-10-pro" aria-label="ดูรายละเอียด Windows 10 Pro">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows11/windows11-original.svg" alt="Windows 10 Pro" loading="lazy" decoding="async" />
+            </a>
+            <div class="license-card-top">
+              <div class="license-type-badges">
+                <span class="license-type-badge">Retail</span>
+                <span class="license-hot-badge">ยอดนิยม</span>
+              </div>
+              <h3>Windows 10 Pro</h3>
+              <p>คีย์สำหรับ Windows 10 Professional แท้ 100%</p>
+            </div>
+            <div class="license-price"><strong>฿199</strong><del>฿4,890</del></div>
+            <ul>
+              <li><i data-lucide="check"></i>รองรับฟีเจอร์ Pro ครบ</li>
+              <li><i data-lucide="check"></i>รองรับ BitLocker และ Remote Desktop</li>
+              <li><i data-lucide="check"></i>ย้ายเครื่องได้</li>
+              <li><i data-lucide="check"></i>เหมาะกับสายทำงาน</li>
+            </ul>
+            <div class="license-card-actions">
+              <a class="license-card-action" href="product.html?id=windows-10-pro">
+                <i data-lucide="shopping-cart"></i>
+                <span>สั่งซื้อเลย</span>
+              </a>
+              <small class="license-ready-note"><i data-lucide="sparkles"></i>ตัวเลือกแนะนำ</small>
+            </div>
+          </article>
+
+          <article class="olaf-license-card">
+            <a class="license-card-media" href="product.html?id=windows-11-home" aria-label="ดูรายละเอียด Windows 11 Home">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows11/windows11-original.svg" alt="Windows 11 Home" loading="lazy" decoding="async" />
+            </a>
+            <div class="license-card-top">
+              <div class="license-type-badges">
+                <span class="license-type-badge">OEM</span>
+              </div>
+              <h3>Windows 11 Home</h3>
+              <p>คีย์สำหรับ Windows 11 Home แท้ 100%</p>
+            </div>
+            <div class="license-price"><strong>฿199</strong><del>฿4,385</del></div>
+            <ul>
+              <li><i data-lucide="check"></i>รองรับ Windows 11 ล่าสุด</li>
+              <li><i data-lucide="check"></i>ได้ License Key Code</li>
+              <li><i data-lucide="check"></i>ติดตั้งได้ 1 เครื่อง</li>
+              <li><i data-lucide="check"></i>ใช้งานได้เหมาะกับเครื่องใหม่</li>
+            </ul>
+            <div class="license-card-actions">
+              <a class="license-card-action" href="product.html?id=windows-11-home">
+                <i data-lucide="shopping-cart"></i>
+                <span>สั่งซื้อเลย</span>
+              </a>
+              <small class="license-ready-note"><i data-lucide="monitor-check"></i>พร้อมใช้งานทันที</small>
+            </div>
+          </article>
+
+          <article class="olaf-license-card is-highlight">
+            <a class="license-card-media" href="product.html?id=windows-11-pro" aria-label="ดูรายละเอียด Windows 11 Pro">
+              <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows11/windows11-original.svg" alt="Windows 11 Pro" loading="lazy" decoding="async" />
+            </a>
+            <div class="license-card-top">
+              <div class="license-type-badges">
+                <span class="license-type-badge">Retail</span>
+                <span class="license-hot-badge">ยอดนิยม</span>
+              </div>
+              <h3>Windows 11 Pro</h3>
+              <p>คีย์สำหรับ Windows 11 Professional แท้ 100%</p>
+            </div>
+            <div class="license-price"><strong>฿199</strong><del>฿4,850</del></div>
+            <ul>
+              <li><i data-lucide="check"></i>รองรับฟีเจอร์ Pro ครบ</li>
+              <li><i data-lucide="check"></i>รองรับ Hyper-V และ Windows Sandbox</li>
+              <li><i data-lucide="check"></i>ย้ายเครื่องได้</li>
+              <li><i data-lucide="check"></i>เหมาะกับสายมืออาชีพ</li>
+            </ul>
+            <div class="license-card-actions">
+              <a class="license-card-action" href="product.html?id=windows-11-pro">
+                <i data-lucide="shopping-cart"></i>
+                <span>สั่งซื้อเลย</span>
+              </a>
+              <small class="license-ready-note"><i data-lucide="badge-check"></i>พร้อมตอบแชต</small>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="extras-section extras-minecraft-section" id="minecraft-products">
+        <div class="extras-branded-hero minecraft-branded-hero">
+          <div>
+            <p class="eyebrow">Minecraft for PC</p>
+            <h2>สร้างโลกของคุณใน Java &amp; Bedrock Edition</h2>
+            <p>เลือกแบบบัญชี Microsoft พร้อมเกม หรือ Key สำหรับ Redeem เข้าบัญชีของคุณเอง สินค้าทั้งสองแบบเป็นพรีออเดอร์และแอดมินจัดส่งด้วยตนเอง</p>
+          </div>
+          <span class="extras-brand-status"><i data-lucide="clock-3"></i> Pre-order</span>
+        </div>
+        <div class="extras-product-grid" id="minecraft-product-grid">
+          <div class="extras-product-loading">กำลังโหลดสินค้า Minecraft...</div>
+        </div>
+      </section>
+
+      <section class="extras-section extras-rockstar-section" id="rockstar-products">
+        <div class="extras-branded-hero rockstar-branded-hero">
+          <span class="rockstar-hero-mark">R★</span>
+          <div>
+            <p class="eyebrow">Rockstar Games / FiveM</p>
+            <h2>Rockstar / FiveM Stock</h2>
+            <p>เลือกได้ทั้งบัญชี Rockstar สำหรับเข้า FiveM และสินค้า GTA V Download Access สำหรับใช้โหลดตัวเกมเท่านั้น</p>
+          </div>
+          <span class="extras-brand-status"><i data-lucide="package-check"></i> Stock item</span>
+        </div>
+        <div class="extras-product-grid" id="rockstar-product-grid">
+          <div class="extras-product-loading">กำลังโหลดสินค้า Rockstar...</div>
+        </div>
+        <details class="extras-usage-accordion">
+          <summary>
+            <span><i data-lucide="list-checks"></i> ขั้นตอนการใช้งาน Rockstar สำหรับ FiveM</span>
+            <i data-lucide="chevron-down" class="accordion-chevron"></i>
+          </summary>
+          <ol>
+            <li>หลังได้รับสินค้า กรุณาเปลี่ยนข้อมูลบัญชีให้เรียบร้อย</li>
+            <li>Login Rockstar ให้เรียบร้อย (ต้องมีตัวเกม GTA V ก่อน)</li>
+            <li>Login บัญชี Steam ใหม่ที่ไม่เคยเข้า FiveM มาก่อน (บัญชีไม่จำเป็นต้องมีตัวเกม)</li>
+            <li>เข้า FiveM และเล่นได้เลย</li>
+          </ol>
+        </details>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="index.html" class="brand">
+            <span class="brand-mark">O</span>
+            <span class="brand-text">OLAF SHOP</span>
+          </a>
+          <p>รวมสินค้าสำหรับเกมและซอฟต์แวร์ พร้อมช่องทางติดต่อแอดมินและการดูแลหลังสั่งซื้อในสไตล์เดียวกับหน้าหลักของร้าน</p>
+        </div>
+
+        <div class="footer-links">
+          <h4>ลิงก์ด่วน</h4>
+          <ul>
+            <li><a href="index.html#catalog">ดูสินค้าหน้าหลัก</a></li>
+            <li><a href="profile.html#inventory">คลังสินค้าและสถานะคำสั่งซื้อ</a></li>
+            <li><a href="https://www.facebook.com/byOlafshop" target="_blank" rel="noopener noreferrer">ติดต่อแอดมิน</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-payments">
+          <h4>การชำระเงิน</h4>
+          <div class="payment-badges">
+            <span class="payment-badge">PromptPay</span>
+            <span class="payment-badge">TrueMoney Wallet</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 OLAF SHOP copyright reserved.</p>
+      </div>
+    </footer>
+  </div>
+
+  <a class="discord-floating-link" href="https://discord.gg/6axb2QbDHN" target="_blank" rel="noopener noreferrer" aria-label="ติดต่อ Discord">
+    <span>
+      <i data-lucide="message-circle"></i>
+    </span>
+    <strong>Discord</strong>
+    <small>คุยกับทีมร้าน</small>
+  </a>
+
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      window.lucide?.createIcons?.();
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

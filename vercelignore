@@ -1,0 +1,42 @@
+# Local development files
+dev-server.ps1
+dev-server-*.log
+fix.ps1
+fix.js
+fix-profile.js
+fix*.cjs
+fix_*.cjs
+fix_*.py
+reconstruct.cjs
+reconstructed.txt
+recover.cjs
+node_modules/
+.vercel/
+host-upload*/
+host-upload*.zip
+dev-server-*.log
+
+# Database/setup files should be run manually, not served publicly
+*.sql
+*.md
+
+# Editor/system noise
+.git
+.gitignore
+.vscode
+.idea
+Thumbs.db
+desktop.ini
+# Steam Offline account secrets and generated local import artifacts
+ID STEAM OFFLINE.txt
+*STEAM*OFFLINE*.txt
+offline-stock-import/
+generated-offline-stock*
+.env
+.env.*
+.agents/
+backups/
+reports/
+scripts/import-offline-stock.js
+tests/
+*.sql

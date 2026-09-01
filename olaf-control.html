@@ -1,0 +1,1589 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>หลังบ้าน | OLAF SHOP</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+    <link rel="preconnect" href="https://wtvfgwacodfrzxapwoxj.supabase.co" />
+    <link rel="stylesheet" href="admin.css?v=20260717-admin-history-v116" />
+    <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+    <script src="supabase-client.js?v=20260717-admin-history-v116" defer></script>
+    <script src="platform-store.js?v=20260605-admin-users" defer></script>
+    <script src="image-performance.js?v=20260607-performance" defer></script>
+<script src="delivery-payload.js?v=20260716-qr-alignment-v111" defer></script>
+    <script src="admin.js?v=20260717-admin-history-v116" defer></script>
+  </head>
+  <body>
+    <section class="admin-login-screen" id="admin-login-screen">
+      <form class="admin-login-card" id="admin-login-form">
+        <span class="admin-brand-mark">O</span>
+        <p class="eyebrow">Admin Secure Access</p>
+        <h1>OLAF SHOP Control Center</h1>
+        <label>อีเมลแอดมิน <input name="email" type="email" placeholder="admin@example.com" autocomplete="email" required /></label>
+        <label>Password <input name="password" type="password" required /></label>
+        <button class="primary-button" type="submit"><i data-lucide="lock-keyhole"></i> เข้าหลังบ้าน</button>
+        <p class="form-message" id="admin-login-message"></p>
+      </form>
+    </section>
+
+    <div class="admin-shell" id="admin-shell" hidden>
+      <aside class="admin-sidebar" id="admin-sidebar" aria-label="เมนูจัดการร้าน">
+        <div class="admin-sidebar-head">
+          <a class="admin-brand" href="index.html">
+            <span>O</span>
+            <strong>OLAF SHOP</strong>
+          </a>
+          <button class="admin-sidebar-close" id="admin-sidebar-close" type="button" aria-label="ปิดเมนู">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <nav class="admin-nav" aria-label="เมนูหลังบ้าน">
+          <div class="nav-section">
+            <p class="nav-section-label">Overview</p>
+            <button class="is-active" type="button" data-panel-target="dashboard">
+              <i data-lucide="layout-dashboard"></i>
+              ภาพรวม
+            </button>
+          </div>
+          <div class="nav-section">
+            <p class="nav-section-label">Commerce</p>
+            <button type="button" data-panel-target="products">
+              <i data-lucide="package"></i>
+              สินค้า
+            </button>
+            <button type="button" data-panel-target="stock">
+              <i data-lucide="boxes"></i>
+              สต็อก
+            </button>
+            <button type="button" data-panel-target="orders">
+              <i data-lucide="receipt-text"></i>
+              Orders
+            </button>
+            <button type="button" data-panel-target="finance">
+              <i data-lucide="wallet-cards"></i>
+              การเงินลูกค้า
+            </button>
+          </div>
+          <div class="nav-section">
+            <button type="button" data-panel-target="free-random">
+              <i data-lucide="sparkles"></i>
+              สุ่ม 1 Point
+            </button>
+          </div>
+          <div class="nav-section">
+            <p class="nav-section-label">Customer</p>
+            <button type="button" data-panel-target="users">
+              <i data-lucide="users-round"></i>
+              Users
+            </button>
+            <button type="button" data-panel-target="reviews">
+              <i data-lucide="message-square-text"></i>
+              รีวิว
+            </button>
+          </div>
+          <div class="nav-section">
+            <p class="nav-section-label">System</p>
+            <button type="button" data-panel-target="widgets">
+              <i data-lucide="blocks"></i>
+              Widgets
+            </button>
+            <button type="button" data-panel-target="payment">
+              <i data-lucide="qr-code"></i>
+              ชำระเงิน
+            </button>
+            <button type="button" data-panel-target="activity">
+              <i data-lucide="megaphone"></i>
+              กิจกรรมหน้าเว็บ
+            </button>
+            <button type="button" data-panel-target="coupons">
+              <i data-lucide="ticket-percent"></i>
+              โค้ดส่วนลด
+            </button>
+            <button type="button" data-panel-target="data">
+              <i data-lucide="database"></i>
+              ข้อมูล
+            </button>
+          </div>
+        </nav>
+        <a class="store-link" href="index.html">
+          <i data-lucide="store"></i>
+          กลับหน้าร้าน
+        </a>
+      </aside>
+
+      <main class="admin-main">
+        <header class="admin-header">
+          <div class="admin-header-main">
+            <button class="admin-mobile-menu" id="admin-mobile-menu" type="button" aria-controls="admin-sidebar" aria-expanded="false">
+              <i data-lucide="menu"></i>
+              <span>เมนู</span>
+            </button>
+            <div>
+              <p class="eyebrow" id="admin-panel-eyebrow">Admin Console</p>
+              <h1 id="admin-panel-title">ภาพรวมธุรกิจ</h1>
+            </div>
+          </div>
+          <div class="admin-actions">
+            <span class="save-state" id="save-state">กำลังโหลดข้อมูล</span>
+            <button class="ghost-button" id="reload-data" type="button">
+              <i data-lucide="refresh-cw"></i>
+              โหลดใหม่
+            </button>
+            <a class="primary-link" href="index.html">
+              <i data-lucide="external-link"></i>
+              ดูหน้าร้าน
+            </a>
+            <button class="danger-button" id="admin-logout" type="button">
+              <i data-lucide="log-out"></i>
+              Logout
+            </button>
+          </div>
+        </header>
+
+        <section class="admin-panel is-visible" data-panel="dashboard">
+          <section class="admin-dashboard-hero" aria-labelledby="dashboard-hero-title">
+            <div class="admin-dashboard-hero-copy">
+              <span class="admin-live-pill"><i data-lucide="activity"></i> ระบบพร้อมใช้งาน</span>
+              <p class="eyebrow">OLAF SHOP BUSINESS OVERVIEW</p>
+              <h2 id="dashboard-hero-title">ศูนย์ควบคุมร้านค้า</h2>
+              <p>ติดตามยอดขาย สต็อก ออเดอร์ และงานสำคัญจากหน้าจอเดียว</p>
+            </div>
+            <div class="admin-dashboard-hero-side">
+              <time id="dashboard-current-date">-</time>
+              <div class="admin-quick-actions" aria-label="เมนูด่วน">
+                <button type="button" data-dashboard-panel="products"><i data-lucide="package-plus"></i> เพิ่มสินค้า</button>
+                <button type="button" data-dashboard-panel="orders"><i data-lucide="receipt-text"></i> ดูออเดอร์</button>
+                <button type="button" data-dashboard-panel="finance"><i data-lucide="chart-column-big"></i> การเงิน</button>
+              </div>
+            </div>
+          </section>
+
+          <div class="metric-grid">
+            <article class="metric-card accent-blue">
+              <div class="metric-card-top">
+                <span>สินค้าทั้งหมด</span>
+                <i data-lucide="package-check"></i>
+              </div>
+              <strong id="metric-products">0</strong>
+              <small>รายการที่พร้อมจัดการ</small>
+            </article>
+            <article class="metric-card accent-emerald">
+              <div class="metric-card-top">
+                <span>สต็อกพร้อมขาย</span>
+                <i data-lucide="warehouse"></i>
+              </div>
+              <strong id="metric-stock">0</strong>
+              <small>รวมทุกหมวดสินค้า</small>
+            </article>
+            <article class="metric-card accent-amber">
+              <div class="metric-card-top">
+                <span>สินค้าใกล้หมด</span>
+                <i data-lucide="triangle-alert"></i>
+              </div>
+              <strong id="metric-low-stock">0</strong>
+              <small>ควรตรวจและเติมสต็อก</small>
+            </article>
+            <article class="metric-card accent-violet">
+              <div class="metric-card-top">
+                <span>ขายแล้ว</span>
+                <i data-lucide="badge-dollar-sign"></i>
+              </div>
+              <strong id="metric-sold">0</strong>
+              <small>ยอดขายสะสม</small>
+            </article>
+            <article class="metric-card accent-blue">
+              <div class="metric-card-top">
+                <span>สินค้าที่เปิดขาย</span>
+                <i data-lucide="circle-check-big"></i>
+              </div>
+              <strong id="metric-active-products">0</strong>
+              <small>รายการที่ active และแสดงหน้าร้าน</small>
+            </article>
+            <article class="metric-card accent-emerald">
+              <div class="metric-card-top">
+                <span>ส่งมอบแล้ว</span>
+                <i data-lucide="package-open"></i>
+              </div>
+              <strong id="metric-delivered-stock">0</strong>
+              <small>หน่วย Offline ที่ส่งมอบและเก็บประวัติแล้ว</small>
+            </article>
+            <article class="metric-card accent-blue">
+              <div class="metric-card-top">
+                <span>รายได้ออเดอร์</span>
+                <i data-lucide="chart-no-axes-combined"></i>
+              </div>
+              <strong id="metric-revenue">฿0</strong>
+              <small>รวมออเดอร์ที่ไม่ถูกยกเลิก</small>
+            </article>
+            <article class="metric-card accent-violet">
+              <div class="metric-card-top">
+                <span>Point ในระบบ</span>
+                <i data-lucide="coins"></i>
+              </div>
+              <strong id="metric-point-balance">0</strong>
+              <small>ยอด Point คงเหลือลูกค้าทั้งหมด</small>
+            </article>
+            <article class="metric-card accent-amber">
+              <div class="metric-card-top">
+                <span>ออเดอร์ทั้งหมด</span>
+                <i data-lucide="shopping-bag"></i>
+              </div>
+              <strong id="metric-orders">0</strong>
+              <small>ประวัติคำสั่งซื้อในระบบ</small>
+            </article>
+          </div>
+
+          <div class="admin-executive-grid">
+            <section class="admin-card admin-recent-orders-card">
+              <div class="card-heading">
+                <div>
+                  <h2>คำสั่งซื้อล่าสุด</h2>
+                  <span>รายการขายที่เพิ่งเข้ามาและสถานะปัจจุบัน</span>
+                </div>
+                <button class="text-button" type="button" data-dashboard-panel="orders">ดูทั้งหมด</button>
+              </div>
+              <div class="dashboard-recent-orders" id="dashboard-recent-orders"></div>
+            </section>
+            <section class="admin-card admin-business-health-card">
+              <div class="card-heading">
+                <div>
+                  <h2>สุขภาพธุรกิจ</h2>
+                  <span>ภาพรวมสินค้าและขั้นตอนออเดอร์</span>
+                </div>
+              </div>
+              <div class="dashboard-pipeline" id="dashboard-order-pipeline"></div>
+              <div class="dashboard-category-performance" id="dashboard-category-performance"></div>
+            </section>
+          </div>
+
+          <div class="admin-pro-overview">
+            <section class="admin-card admin-command-card">
+              <div class="card-heading">
+                <div>
+                  <h2>Command Center</h2>
+                  <span>งานสำคัญที่แอดมินควรจัดการก่อน</span>
+                </div>
+                <span class="status-pill warn" id="dashboard-command-count">0 งาน</span>
+              </div>
+              <div class="admin-command-list" id="dashboard-command-list"></div>
+            </section>
+            <section class="admin-card">
+              <div class="card-heading">
+                <div>
+                  <h2>Top Customers</h2>
+                  <span>ลูกค้าที่มียอดซื้อสูงสุด</span>
+                </div>
+              </div>
+              <div class="admin-rank-list" id="dashboard-top-customers"></div>
+            </section>
+            <section class="admin-card">
+              <div class="card-heading">
+                <div>
+                  <h2>Payment Health</h2>
+                  <span>ภาพรวมสลิปและ point</span>
+                </div>
+              </div>
+              <div class="admin-health-grid" id="dashboard-payment-health"></div>
+            </section>
+          </div>
+
+          <div class="admin-grid two-cols">
+            <section class="admin-card">
+              <div class="card-heading">
+                <h2>Revenue Trend</h2>
+                <span>คำสั่งซื้อ 7 รายการล่าสุด</span>
+              </div>
+              <canvas class="analytics-chart" id="revenue-chart" width="560" height="260"></canvas>
+            </section>
+            <section class="admin-card">
+              <div class="card-heading">
+                <h2>Stock by Category</h2>
+                <span>สัดส่วนสต็อกสินค้า</span>
+              </div>
+              <canvas class="analytics-chart" id="stock-chart" width="560" height="260"></canvas>
+            </section>
+            <section class="admin-card">
+              <div class="card-heading">
+                <h2>สินค้าที่ต้องเช็ก</h2>
+                <span id="stock-alert-count">0 รายการ</span>
+              </div>
+              <div class="compact-list" id="stock-alert-list"></div>
+            </section>
+            <section class="admin-card">
+              <div class="card-heading">
+                <h2>รายการปรับสต็อกล่าสุด</h2>
+                <button class="text-button" id="clear-stock-log" type="button">ล้างประวัติ</button>
+              </div>
+              <div class="compact-list" id="stock-log-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-panel" data-panel="products">
+          <div class="admin-grid products-grid">
+            <section class="admin-card">
+              <div class="card-heading">
+                <h2>รายการสินค้า</h2>
+                <button class="primary-button" id="new-product" type="button">
+                  <i data-lucide="plus"></i>
+                  เพิ่มสินค้า
+                </button>
+              </div>
+              <label class="search-control">
+                <i data-lucide="search"></i>
+                <input id="admin-search" type="search" placeholder="ค้นหาสินค้าในหลังบ้าน" />
+              </label>
+              <div class="category-tabs" id="admin-category-tabs"></div>
+              <div class="table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>สินค้า</th>
+                      <th>หมวด</th>
+                      <th>ราคา</th>
+                      <th>พร้อมขาย</th>
+                      <th>ขายแล้ว</th>
+                      <th>สถานะ</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="products-table"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="admin-card sticky-card admin-product-editor" id="admin-product-editor" role="dialog" aria-modal="false" aria-labelledby="product-form-title">
+              <div class="card-heading">
+                <div>
+                  <h2 id="product-form-title">แก้ไขสินค้า</h2>
+                  <span id="editing-product-id">ยังไม่ได้เลือก</span>
+                </div>
+                <button class="admin-product-editor-close" id="close-product-editor" type="button" aria-label="ปิดหน้าต่างแก้ไขสินค้า">
+                  <i data-lucide="x"></i>
+                </button>
+              </div>
+              <form class="admin-form" id="product-form">
+                <div class="form-row">
+                  <label>
+                    Product ID
+                    <input name="id" type="text" placeholder="elden-ring" required />
+                  </label>
+                  <label>
+                    หมวดสินค้า
+                    <select name="category" id="category-select"></select>
+                  </label>
+                </div>
+                <label>
+                  ชื่อสินค้า
+                  <input name="name" type="text" placeholder="ชื่อเกมหรือแพ็ก" required />
+                </label>
+                <div class="form-row">
+                  <label>
+                    ผู้จัดจำหน่าย
+                    <input name="publisher" type="text" placeholder="Publisher" />
+                  </label>
+                  <label>
+                    ป้ายสินค้า
+                    <input name="label" type="text" placeholder="ขายดี, ลดราคา" />
+                  </label>
+                </div>
+                <section class="admin-badge-editor" aria-label="ป้ายหน้าเว็บ">
+                  <div class="admin-mini-heading">
+                    <strong>ป้ายหน้าเว็บ 2 ช่อง</strong>
+                    <span>ปล่อยว่างเพื่อใช้ป้ายตามหมวดสินค้า / Offline จะใช้ STEAM + OFFLINE เดิม</span>
+                  </div>
+                  <div class="form-row">
+                    <label>
+                      ป้าย 1
+                      <input name="badge1Label" type="text" placeholder="STEAM" maxlength="18" />
+                    </label>
+                    <label>
+                      สีป้าย 1
+                      <select name="badge1Tone"></select>
+                    </label>
+                  </div>
+                  <div class="form-row">
+                    <label>
+                      ป้าย 2
+                      <input name="badge2Label" type="text" placeholder="KEY / PRE-ORDER" maxlength="18" />
+                    </label>
+                    <label>
+                      สีป้าย 2
+                      <select name="badge2Tone"></select>
+                    </label>
+                  </div>
+                </section>
+                <div class="form-row three">
+                  <label>
+                    ราคาขาย
+                    <input name="price" type="number" min="0" step="1" required />
+                  </label>
+                  <label>
+                    ราคาเต็ม
+                    <input name="compareAt" type="number" min="0" step="1" />
+                  </label>
+                  <label>
+                    สต็อก
+                    <input name="stock" type="number" min="0" step="1" />
+                  </label>
+                </div>
+                <div class="form-row">
+                  <label>
+                    ขายแล้ว
+                    <input name="sold" type="number" min="0" step="1" />
+                  </label>
+                  <label>
+                    รีวิว
+                    <input name="rating" type="text" placeholder="แง่บวกเป็นอย่างมาก" />
+                  </label>
+                </div>
+                <div class="form-row">
+                  <label>
+                    สถานะสินค้า
+                    <select name="isActive">
+                      <option value="true">เปิดขาย</option>
+                      <option value="false">ปิดชั่วคราว</option>
+                    </select>
+                  </label>
+                  <label>
+                    ลำดับแสดงผล
+                    <input name="sortOrder" type="number" min="0" step="1" />
+                  </label>
+                </div>
+                <section class="offline-stock-editor" id="offline-stock-editor" hidden aria-label="Steam Offline stock items">
+                  <div class="offline-stock-head">
+                    <div>
+                      <h3>สต็อก Steam Offline</h3>
+                      <p>ใส่ข้อมูลสินค้า 1 บรรทัดต่อ 1 ชิ้น ระบบจะจองรายการไว้ตอนลูกค้าสั่งซื้อ และส่งให้ลูกค้าเมื่อแอดมินกดจัดส่งเท่านั้น</p>
+                    </div>
+                    <span class="offline-stock-count" id="offline-stock-count">0 ชิ้นพร้อมขาย</span>
+                  </div>
+                  <div class="stock-variable-builder" id="stock-variable-builder">
+                    <div class="stock-variable-builder-head">
+                      <div>
+                        <strong><i data-lucide="braces"></i> สร้างสต็อคแบบตัวแปร</strong>
+                        <small>กรอก Login / ID / Pass แล้วเพิ่มหลายแพลตฟอร์มไว้ในสต็อคหน่วยเดียวได้</small>
+                      </div>
+                      <button class="ghost-button compact" id="clear-managed-stock-draft" type="button"><i data-lucide="rotate-ccw"></i> ล้างแบบร่าง</button>
+                    </div>
+                    <div class="stock-variable-fields">
+                      <label>Platform
+                        <select id="managed-stock-platform">
+                          <option value="STEAM">STEAM</option>
+                          <option value="EA">EA</option>
+                          <option value="UBISOFT">UBISOFT</option>
+                          <option value="WEBMAIL">WEBMAIL</option>
+                          <option value="ROCKSTAR">ROCKSTAR</option>
+                          <option value="MICROSOFT">MICROSOFT</option>
+                        </select>
+                      </label>
+                      <label>Login
+                        <input id="managed-stock-login" type="text" autocomplete="off" placeholder="email / username / login" />
+                      </label>
+                      <label>ID
+                        <input id="managed-stock-id" type="text" autocomplete="off" placeholder="ID หรือ Product Key" />
+                      </label>
+                      <label>Pass
+                        <input id="managed-stock-password" type="text" autocomplete="new-password" placeholder="Password" />
+                      </label>
+                    </div>
+                    <div class="stock-variable-actions">
+                      <button class="ghost-button" id="add-managed-stock-account" type="button"><i data-lucide="plus"></i> เพิ่มบัญชีในหน่วยนี้</button>
+                      <button class="primary-button" id="commit-managed-stock-unit" type="button"><i data-lucide="package-plus"></i> เพิ่มเป็น 1 สต็อค</button>
+                    </div>
+                    <div class="stock-variable-preview" id="managed-stock-draft-preview"><span>ยังไม่มีบัญชีในแบบร่าง</span></div>
+                  </div>
+                  <label>
+                    รายการที่พร้อมขาย
+                    <textarea name="offlineStockLines" id="offline-stock-lines" rows="8" placeholder="email@example.com | password | note&#10;steam-login-2 | password | note"></textarea>
+                  </label>
+                  <div class="offline-stock-meta" id="offline-stock-meta">
+                    <span>พร้อมขาย 0</span>
+                    <span>ถูกจอง 0</span>
+                    <span>ส่งแล้ว 0</span>
+                  </div>
+                  <div class="managed-stock-resize">
+                    <label>
+                      ตั้งจำนวนพร้อมขายแบบรวดเร็ว
+                      <input id="managed-stock-target" type="number" min="0" max="10000" step="1" value="0" />
+                    </label>
+                    <button class="ghost-button" id="resize-managed-stock" type="button">
+                      <i data-lucide="replace"></i>
+                      ปรับจำนวน
+                    </button>
+                  </div>
+                  <p class="admin-field-help">
+                    การลดจำนวนจะเปลี่ยนเฉพาะรายการ available เป็น void ส่วนการเพิ่มจะทำสำเนาข้อมูลจากรายการล่าสุด
+                    รายการ reserved และ delivered ถูกล็อกเพื่อรักษาประวัติออเดอร์
+                  </p>
+                </section>
+                <section class="package-editor" id="product-package-editor" aria-label="Product packages">
+                  <div class="package-editor-head">
+                    <div>
+                      <h3>แพ็คเกจสินค้า</h3>
+                      <p>จัดการชื่อ ราคา และสต็อกของแต่ละแพ็คเกจ</p>
+                    </div>
+                    <button class="ghost-button" id="add-product-package" type="button">
+                      <i data-lucide="plus"></i>
+                      เพิ่มแพ็คเกจ
+                    </button>
+                  </div>
+                  <div class="package-editor-list" id="product-package-list"></div>
+                </section>
+                <label>
+                  แท็ก (คั่นด้วยลูกน้ำ ,)
+                  <input name="tags" type="text" placeholder="Steam, Action, Survival" />
+                </label>
+                <label>
+                  แกลเลอรีรูปสินค้า (1 URL ต่อบรรทัด)
+                  <textarea name="gallery" rows="5" placeholder="https://example.com/screenshot-1.jpg&#10;https://example.com/screenshot-2.jpg"></textarea>
+                  <small class="admin-field-help" id="product-gallery-help">รองรับ Minecraft Redeem Key, GTA V Download และ Rockstar/FiveM Account สูงสุด 6 รูป — รูปแรกใช้เป็นภาพปก</small>
+                </label>
+                <label>
+                  รูปสินค้า
+                  <input name="image" type="url" placeholder="https://..." />
+                </label>
+                <label>
+                  รูป Hero
+                  <input name="heroImage" type="url" placeholder="https://..." />
+                </label>
+                <label>
+                  ลิงก์แพลตฟอร์ม (ชื่อ|URL|ไอคอน ต่อบรรทัด)
+                  <textarea name="platformLinks" rows="6" placeholder="Steam|https://store.steampowered.com/...|store&#10;Discord|https://discord.com/...|messages-square&#10;คู่มือ|https://olaf-shop.gitbook.io/manual-olaf-shop/undefined/undefined|book-open-check"></textarea>
+                </label>
+                <label>
+                  กล่องฟีเจอร์ในหน้ารายละเอียด (ไอคอน|หัวข้อ|รายละเอียด ต่อบรรทัด)
+                  <textarea name="featureBlocks" rows="5" placeholder="truck|จัดส่ง|รอแอดมินตรวจสลิปและจัดส่งเอง&#10;shield-check|รับประกัน|ดูแลหลังการขายตามเงื่อนไขร้าน"></textarea>
+                </label>
+                <label>
+                  Section รายละเอียดเพิ่มเติม (หัวข้อ|เนื้อหา ต่อบรรทัด)
+                  <textarea name="detailSections" rows="8" placeholder="วิธีเข้าเล่น|ทำตามคู่มือที่ร้านจัดส่งให้หลังยืนยันออเดอร์&#10;หมายเหตุ|สินค้าเป็นบัญชี/โหมดตามประเภทที่ระบุ"></textarea>
+                </label>
+                <label>
+                  เนื้อหาเกม / DLC จาก Steam (1 ลิงก์ต่อบรรทัด)
+                  <textarea name="steamRelatedLinks" rows="6" placeholder="https://store.steampowered.com/app/123456/Game_Name/&#10;https://store.steampowered.com/app/654321/DLC_Name/"></textarea>
+                  <small class="admin-field-help">หน้ารายละเอียดสินค้าจะดึงชื่อ รูป และประเภทเนื้อหาจาก Steam แล้วแสดงเป็นกล่องลูกศรพับได้</small>
+                </label>
+                <div class="system-req-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                  <label>
+                    ความต้องการระบบขั้นต่ำ (Minimum)
+                    <textarea name="systemRequirementsMinimum" rows="5" placeholder="OS: Windows 10 64-bit&#10;CPU: Intel i3 / Ryzen 3&#10;RAM: 8 GB&#10;Storage: 50 GB"></textarea>
+                  </label>
+                  <label>
+                    ความต้องการระบบแนะนำ (Recommended)
+                    <textarea name="systemRequirementsRecommended" rows="5" placeholder="OS: Windows 10/11 64-bit&#10;CPU: Intel i5 / Ryzen 5 หรือสูงกว่า&#10;RAM: 16 GB&#10;Storage: SSD แนะนำ"></textarea>
+                  </label>
+                </div>
+                <label>
+                  การจัดส่ง
+                  <input name="delivery" type="text" placeholder="ส่งคีย์ทันทีหลังชำระเงิน" />
+                </label>
+                <label>
+                  รับประกัน
+                  <input name="warranty" type="text" placeholder="รับประกัน 7 วัน" />
+                </label>
+                <label>
+                  รายละเอียดสินค้า
+                  <textarea name="description" rows="12" placeholder="รายละเอียดที่แสดงในหน้าสินค้า"></textarea>
+                </label>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit">
+                    <i data-lucide="save"></i>
+                    บันทึกสินค้า
+                  </button>
+                  <button class="danger-button" id="delete-product" type="button">
+                    <i data-lucide="ban"></i>
+                    ปิดการขายสินค้า
+                  </button>
+                </div>
+              </form>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-panel" data-panel="users">
+          <div class="admin-grid products-grid">
+            <section class="admin-card">
+              <div class="card-heading">
+                <div>
+                  <h2>สมาชิกและพาร์ทเนอร์</h2>
+                  <span id="users-count">0 users</span>
+                </div>
+                <div class="admin-heading-tools">
+                  <label class="search-control admin-inline-search">
+                    <i data-lucide="search"></i>
+                    <input id="users-search" type="search" placeholder="ค้นหา username, email, ชื่อ, role" aria-label="ค้นหา user" />
+                  </label>
+                  <button class="primary-button" id="new-user" type="button">
+                    <i data-lucide="user-plus"></i>
+                    เพิ่ม user
+                  </button>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>บทบาท</th>
+                      <th>ตำแหน่ง</th>
+                      <th>Point</th>
+                      <th>Orders</th>
+                      <th>ยอดซื้อ</th>
+                      <th>สถานะ</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="users-table"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="admin-card sticky-card admin-user-editor" id="admin-user-editor" role="dialog" aria-modal="false" aria-labelledby="user-form-title">
+              <div class="card-heading">
+                <div>
+                  <h2 id="user-form-title">แก้ไข user</h2>
+                  <span id="editing-user-id">ยังไม่ได้เลือก</span>
+                </div>
+                <button class="admin-editor-close" type="button" data-close-admin-editor="user" aria-label="ปิดหน้าต่างแก้ไข user">
+                  <i data-lucide="x"></i>
+                </button>
+              </div>
+              <form class="admin-form" id="user-form">
+                <label>
+                  อีเมล Google
+                  <input name="email" type="email" placeholder="name@gmail.com" required />
+                </label>
+                <div class="form-row">
+                  <label>
+                    Username
+                    <input name="username" type="text" required />
+                  </label>
+                  <label>
+                    Display name
+                    <input name="displayName" type="text" required />
+                  </label>
+                </div>
+                <label>
+                  รหัสผ่านใหม่
+                  <input name="password" type="password" placeholder="ใส่เมื่อต้องการเปลี่ยน" />
+                </label>
+                <div class="form-row">
+                  <label>
+                    บทบาท
+                    <select name="role">
+                      <option value="customer">customer</option>
+                      <option value="partner">partner</option>
+                      <option value="staff">staff</option>
+                      <option value="admin">admin</option>
+                    </select>
+                  </label>
+                  <label>
+                    ตำแหน่ง
+                    <input name="position" type="text" placeholder="Member, Partner, Support" />
+                  </label>
+                </div>
+                <div class="form-row">
+                  <label>
+                    Partner Level
+                    <select name="partnerLevel">
+                      <option value="none">none</option>
+                      <option value="bronze">bronze</option>
+                      <option value="silver">silver</option>
+                      <option value="gold">gold</option>
+                      <option value="official">official</option>
+                    </select>
+                  </label>
+                  <label>
+                    สถานะ
+                    <select name="status">
+                      <option value="active">active</option>
+                      <option value="suspended">suspended</option>
+                      <option value="banned">banned</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="admin-point-editor">
+                  <div class="point-editor-balance">
+                    <span>Point ปัจจุบัน</span>
+                    <strong id="user-current-point">0 Points</strong>
+                  </div>
+                  <div class="form-row">
+                    <label>
+                      ปรับ Point (+ เพิ่ม / - ลด)
+                      <input name="pointAdjustAmount" type="number" step="1" placeholder="เช่น 50 หรือ -20" />
+                    </label>
+                    <label>
+                      หมายเหตุ
+                      <input name="pointAdjustNote" type="text" placeholder="เหตุผลการปรับ Point" />
+                    </label>
+                  </div>
+                  <button class="ghost-button" id="adjust-user-point" type="button">
+                    <i data-lucide="coins"></i>
+                    ปรับ Point ลูกค้า
+                  </button>
+                </div>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit">
+                    <i data-lucide="save"></i>
+                    บันทึก user
+                  </button>
+                  <button class="danger-button" id="delete-user" type="button">
+                    <i data-lucide="trash-2"></i>
+                    ลบ user
+                  </button>
+                </div>
+              </form>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-panel" data-panel="orders">
+          <div class="admin-grid products-grid">
+            <section class="admin-card">
+              <div class="card-heading">
+                <h2>คำสั่งซื้อรอตรวจสลิป</h2>
+                <span id="orders-count">0 ออเดอร์</span>
+              </div>
+              <div class="table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Order</th>
+                      <th>ลูกค้า</th>
+                      <th>ยอด</th>
+                      <th>Point</th>
+                      <th>ชำระเงิน</th>
+                      <th>สถานะ</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="orders-table"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="admin-card sticky-card admin-order-editor" id="admin-order-editor" role="dialog" aria-modal="false" aria-labelledby="order-form-title">
+              <div class="card-heading">
+                <div>
+                  <h2 id="order-form-title">จัดการออเดอร์</h2>
+                  <span id="editing-order-id">ยังไม่ได้เลือก</span>
+                </div>
+                <button class="admin-editor-close" type="button" data-close-admin-editor="order" aria-label="ปิดหน้าต่างจัดการออเดอร์">
+                  <i data-lucide="x"></i>
+                </button>
+              </div>
+              <form class="admin-form" id="order-form">
+                <label>
+                  สถานะ
+                  <select name="status">
+                    <option value="awaiting_payment">awaiting_payment</option>
+                    <option value="waiting_admin">waiting_admin</option>
+                    <option value="confirmed">confirmed</option>
+                    <option value="delivered">delivered</option>
+                    <option value="cancelled">cancelled</option>
+                    <option value="expired">expired</option>
+                  </select>
+                </label>
+                <label>
+                  ข้อมูลจัดส่ง / Account / Key
+                  <textarea name="deliveryNote" rows="7" placeholder="กรอกข้อมูลจัดส่งหลังยืนยันสลิป"></textarea>
+                  <small class="admin-delivery-help">รองรับ platform: STEAM, EA, UBISOFT, WEBMAIL, ROCKSTAR และ MICROSOFT · ใช้ JSON แบบ version 1 หรือรูปแบบหัวข้อ platform + ID/Pass เดิมได้</small>
+                </label>
+                <div class="admin-delivery-preview" id="admin-delivery-preview" hidden></div>
+                <div class="slip-preview" id="slip-preview"></div>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit">
+                    <i data-lucide="shield-check"></i>
+                    บันทึกสถานะ
+                  </button>
+                  <button class="danger-button" id="delete-order" type="button">
+                    <i data-lucide="ban"></i>
+                    ยกเลิกออเดอร์
+                  </button>
+                </div>
+              </form>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-panel" data-panel="finance">
+          <div class="admin-finance-hero">
+            <div>
+              <p class="eyebrow">Customer Finance Center</p>
+              <h2>ประวัติเติมเงิน, Point และการซื้อสินค้าของลูกค้าทุกคน</h2>
+              <p>รวมยอด Point สะสม, เงินที่แปลงเป็น Point, การใช้ Point ลดราคา และคำสั่งซื้อทุกออเดอร์พร้อมข้อมูล user</p>
+            </div>
+            <div class="finance-hero-actions">
+              <button class="ghost-button" id="finance-refresh" type="button">
+                <i data-lucide="refresh-cw"></i>
+                โหลดประวัติใหม่
+              </button>
+            </div>
+          </div>
+
+          <div class="finance-summary-grid">
+            <article class="finance-summary-card">
+              <span>รายได้รวม</span>
+              <strong id="finance-total-revenue">฿0</strong>
+              <small>ออเดอร์ที่ไม่ถูกยกเลิก</small>
+            </article>
+            <article class="finance-summary-card">
+              <span>Point คงเหลือ</span>
+              <strong id="finance-point-balance">0</strong>
+              <small>ยอด point ในกระเป๋าลูกค้าทั้งหมด</small>
+            </article>
+            <article class="finance-summary-card">
+              <span>เติม/เครดิต Point</span>
+              <strong id="finance-point-earned">0</strong>
+              <small>เงินเกินหรือยอดไม่พอที่ถูกแปลงเป็น point</small>
+            </article>
+            <article class="finance-summary-card">
+              <span>ใช้ Point แล้ว</span>
+              <strong id="finance-point-spent">0</strong>
+              <small>ยอด point ที่ลูกค้านำไปลดราคา</small>
+            </article>
+          </div>
+
+          <div class="finance-insight-grid">
+            <article class="finance-insight-card">
+              <span>ยอดขายวันนี้</span>
+              <strong id="finance-today-revenue">฿0</strong>
+              <small id="finance-today-orders">0 ออเดอร์วันนี้</small>
+            </article>
+            <article class="finance-insight-card">
+              <span>รอจัดการ</span>
+              <strong id="finance-pending-orders">0</strong>
+              <small>รอตรวจสลิป / รอแอดมินส่งของ</small>
+            </article>
+            <article class="finance-insight-card">
+              <span>สลิปตรวจผ่าน</span>
+              <strong id="finance-verified-slips">0</strong>
+              <small>รายการ payment verification สำเร็จ</small>
+            </article>
+            <article class="finance-insight-card">
+              <span>เงินแปลงเป็น Point</span>
+              <strong id="finance-credit-points">0 P</strong>
+              <small>เงินเกิน/เงินไม่พอที่เข้า wallet</small>
+            </article>
+          </div>
+
+          <div class="finance-subnav" role="tablist" aria-label="หัวข้อการเงินลูกค้า">
+            <button class="is-active" type="button" role="tab" aria-selected="true" data-finance-page="wallets">
+              <i data-lucide="wallet-cards"></i>
+              การเงินลูกค้า
+            </button>
+            <button type="button" role="tab" aria-selected="false" data-finance-page="orders">
+              <i data-lucide="shopping-bag"></i>
+              ประวัติซื้อสินค้า
+            </button>
+            <button type="button" role="tab" aria-selected="false" data-finance-page="transactions">
+              <i data-lucide="coins"></i>
+              ประวัติเติมเงิน / Point
+            </button>
+            <button type="button" role="tab" aria-selected="false" data-finance-page="verifications">
+              <i data-lucide="scan-search"></i>
+              ตรวจสลิป
+            </button>
+          </div>
+
+          <div class="admin-grid finance-grid">
+            <section class="admin-card finance-card-wide is-active" data-finance-panel="wallets">
+              <div class="card-heading">
+                <div>
+                  <h2>บัญชีลูกค้าและยอด Point</h2>
+                  <span id="finance-wallet-count">0 users</span>
+                </div>
+                <label class="search-control finance-search">
+                  <i data-lucide="search"></i>
+                  <input id="finance-search" type="search" placeholder="ค้นหา user, email, order" />
+                </label>
+              </div>
+              <div class="table-wrap">
+                <table class="admin-table finance-table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Point</th>
+                      <th>เติมสะสม</th>
+                      <th>ใช้ไป</th>
+                      <th>ออเดอร์</th>
+                      <th>ยอดซื้อ</th>
+                      <th>ล่าสุด</th>
+                    </tr>
+                  </thead>
+                  <tbody id="finance-wallets-table"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="admin-card" data-finance-panel="transactions">
+              <div class="card-heading">
+                <div>
+                  <h2>ประวัติเติมเงิน / Point</h2>
+                  <span id="finance-activity-count">0 รายการ</span>
+                </div>
+                <label class="mini-filter">
+                  <span>ประเภท</span>
+                  <select id="finance-type-filter">
+                    <option value="all">ทั้งหมด</option>
+                    <option value="credit">เติม / เงินเข้า Point</option>
+                    <option value="debit">ใช้ Point</option>
+                    <option value="admin_adjustment">แอดมินปรับยอด</option>
+                  </select>
+                </label>
+              </div>
+              <div class="table-wrap">
+                <table class="admin-table finance-table compact-finance-table">
+                  <thead>
+                    <tr>
+                      <th>รายการ</th>
+                      <th>User</th>
+                      <th>ยอด</th>
+                      <th>คงเหลือ</th>
+                    </tr>
+                  </thead>
+                  <tbody id="finance-transactions-table"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="admin-card" data-finance-panel="orders">
+              <div class="card-heading">
+                <div>
+                  <h2>ประวัติซื้อสินค้า</h2>
+                  <span id="finance-orders-count">0 ออเดอร์</span>
+                </div>
+                <div class="admin-heading-tools finance-order-tools">
+                  <label class="search-control admin-inline-search">
+                    <i data-lucide="search"></i>
+                    <input id="finance-orders-search" type="search" placeholder="ค้นหาเกม, หมวด, user, payment, order" aria-label="ค้นหาประวัติซื้อสินค้า" />
+                  </label>
+                  <label class="mini-filter">
+                    <span>ช่วงเวลา</span>
+                    <select id="finance-order-period">
+                      <option value="all">ทั้งหมด</option>
+                      <option value="day">รายวัน</option>
+                      <option value="week">รายสัปดาห์</option>
+                      <option value="year">รายปี</option>
+                    </select>
+                  </label>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table class="admin-table finance-table compact-finance-table">
+                  <thead>
+                    <tr>
+                      <th>Order</th>
+                      <th>User</th>
+                      <th>สินค้า</th>
+                      <th>ยอด</th>
+                    </tr>
+                  </thead>
+                  <tbody id="finance-orders-table"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-panel" data-panel="reviews">
+          <div class="admin-grid products-grid">
+            <section class="admin-card">
+              <div class="card-heading">
+                <h2>รีวิวจากการซื้อ</h2>
+                <span id="reviews-count">0 รีวิว</span>
+              </div>
+              <div class="table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>รีวิว</th>
+                      <th>สินค้า</th>
+                      <th>คะแนน</th>
+                      <th>สถานะ</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="reviews-table"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="admin-card sticky-card">
+              <div class="card-heading">
+                <h2 id="review-form-title">แก้ไขรีวิว</h2>
+                <span id="editing-review-id">ยังไม่ได้เลือก</span>
+              </div>
+              <form class="admin-form" id="review-form">
+                <label>
+                  หัวข้อรีวิว
+                  <input name="title" type="text" required />
+                </label>
+                <div class="form-row">
+                  <label>
+                    Product ID
+                    <input name="productId" type="text" required />
+                  </label>
+                  <label>
+                    ชื่อสินค้า
+                    <input name="productName" type="text" required />
+                  </label>
+                </div>
+                <div class="form-row">
+                  <label>
+                    ผู้รีวิว
+                    <input name="username" type="text" required />
+                  </label>
+                  <label>
+                    คะแนน
+                    <select name="rating">
+                      <option value="5">5 ดาว</option>
+                      <option value="4">4 ดาว</option>
+                      <option value="3">3 ดาว</option>
+                      <option value="2">2 ดาว</option>
+                      <option value="1">1 ดาว</option>
+                    </select>
+                  </label>
+                </div>
+                <label>
+                  สถานะ
+                  <select name="status">
+                    <option value="published">published</option>
+                    <option value="hidden">hidden</option>
+                    <option value="flagged">flagged</option>
+                  </select>
+                </label>
+                <label>
+                  เนื้อหารีวิว
+                  <textarea name="body" rows="6" required></textarea>
+                </label>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit">
+                    <i data-lucide="save"></i>
+                    บันทึกรีวิว
+                  </button>
+                  <button class="danger-button" id="delete-review" type="button">
+                    <i data-lucide="trash-2"></i>
+                    ลบรีวิว
+                  </button>
+                </div>
+              </form>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-panel" data-panel="widgets">
+          <div class="admin-grid products-grid">
+            <section class="admin-card">
+              <div class="card-heading">
+                <h2>Widgets หน้าเว็บ</h2>
+                <button class="primary-button" id="new-widget" type="button">
+                  <i data-lucide="plus"></i>
+                  เพิ่ม Widget
+                </button>
+              </div>
+              <div class="table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Widget</th>
+                      <th>ตำแหน่ง</th>
+                      <th>สถานะ</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="widgets-table"></tbody>
+                </table>
+              </div>
+            </section>
+            <section class="admin-card sticky-card">
+              <div class="card-heading">
+                <h2 id="widget-form-title">แก้ไข Widget</h2>
+                <span id="editing-widget-id">ยังไม่ได้เลือก</span>
+              </div>
+              <form class="admin-form" id="widget-form">
+                <label>ชื่อ Widget <input name="title" type="text" required /></label>
+                <div class="form-row">
+                  <label>
+                    ตำแหน่ง
+                    <select name="placement">
+                      <option value="home">home</option>
+                    </select>
+                  </label>
+                  <label>
+                    สถานะ
+                    <select name="status">
+                      <option value="active">active</option>
+                      <option value="hidden">hidden</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="form-row">
+                  <label>
+                    Preset Widget
+                    <select id="widget-preset-select">
+                      <option value="">เลือก preset เพื่อเติมโค้ด</option>
+                      <option value="steam-showcase">Steam Showcase</option>
+                      <option value="trust-cards">Service Glass Cards</option>
+                      <option value="social-strip">Social Community</option>
+                      <option value="license-cards">Windows License Cards</option>
+                    </select>
+                  </label>
+                  <label class="preset-action-label">
+                    ใช้ชุดตัวอย่าง
+                    <button class="ghost-button" id="apply-widget-preset" type="button">
+                      <i data-lucide="wand-sparkles"></i>
+                      เติม preset
+                    </button>
+                  </label>
+                </div>
+                <label>
+                  HTML / Widget Code
+                  <textarea name="code" rows="9" placeholder="<div>Flash Sale</div>"></textarea>
+                </label>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit"><i data-lucide="save"></i> บันทึก Widget</button>
+                  <button class="danger-button" id="delete-widget" type="button"><i data-lucide="trash-2"></i> ลบ Widget</button>
+                </div>
+              </form>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-panel" data-panel="stock">
+          <section class="admin-card">
+            <div class="card-heading">
+              <h2>จัดการสต็อกสินค้าทั้งหมด</h2>
+              <span>แก้จำนวนพร้อมขาย ดู reserved / delivered / sold และประวัติออเดอร์</span>
+            </div>
+            <div class="stock-toolbar">
+              <label class="search-control">
+                <i data-lucide="search"></i>
+                <input id="stock-search" type="search" placeholder="ค้นหาชื่อสินค้า หรือ Product ID" />
+              </label>
+              <label>
+                สถานะสต็อก
+                <select id="stock-state-filter">
+                  <option value="all">ทั้งหมด</option>
+                  <option value="in-stock">มีสต็อก</option>
+                  <option value="out-of-stock">สินค้าหมด</option>
+                  <option value="reserved">มีรายการถูกจอง</option>
+                  <option value="delivered">มีประวัติส่งมอบ</option>
+                </select>
+              </label>
+              <label class="stock-active-toggle">
+                <input id="stock-active-only" type="checkbox" />
+                แสดงเฉพาะสินค้า Active
+              </label>
+            </div>
+            <div class="category-tabs" id="stock-category-tabs"></div>
+            <div class="stock-board" id="stock-board"></div>
+          </section>
+        </section>
+
+        <section class="admin-panel" data-panel="free-random">
+          <div class="admin-grid free-random-admin-grid">
+            <section class="admin-card">
+              <div class="card-heading">
+                <h2>ตั้งค่า Premium Spin</h2>
+                <span>กำหนดสินค้า 10 ช่อง เปอร์เซ็นต์ และค่าสุ่ม 1 Point แบบไม่จำกัดต่อวัน</span>
+              </div>
+              <form class="admin-form" id="free-random-form">
+                <div class="form-row">
+                  <label>
+                    เปิดระบบสุ่ม 1 Point
+                    <select name="isActive">
+                      <option value="true">เปิดใช้งาน</option>
+                      <option value="false">ปิดชั่วคราว</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="free-random-admin-summary" id="free-random-admin-summary"></div>
+                <div class="free-random-admin-section-title free-random-milestone-admin-title">
+                  <div>
+                    <strong>Milestone Bonus</strong>
+                    <span>ตั้งเกมฟรีเมื่อสุ่มครบ 50 / 100 / 150 / 200 ครั้ง</span>
+                  </div>
+                  <button class="danger-button free-random-reset-bonus" id="free-random-reset-counts" type="button">
+                    <i data-lucide="rotate-ccw"></i>
+                    รีรอบโบนัสกิจกรรม
+                  </button>
+                </div>
+                <div class="free-random-slot-grid free-random-milestone-grid" id="free-random-milestone-grid"></div>
+                <div class="free-random-admin-section-title">
+                  <strong>Prize Pool 10 ช่อง</strong>
+                  <span>ตั้งรางวัลสุ่มปกติและเปอร์เซ็นต์</span>
+                </div>
+                <div class="free-random-slot-grid" id="free-random-slot-grid"></div>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit">
+                    <i data-lucide="save"></i>
+                    บันทึก Premium Spin
+                  </button>
+                  <button class="ghost-button" id="free-random-refresh" type="button">
+                    <i data-lucide="refresh-cw"></i>
+                    โหลดข้อมูลใหม่
+                  </button>
+                </div>
+              </form>
+            </section>
+
+            <section class="admin-card">
+              <div class="card-heading">
+                <h2>ประวัติการสุ่มล่าสุด</h2>
+                <span>ตรวจผู้ใช้งาน สินค้า และออเดอร์ที่ถูกสร้าง</span>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>เวลา</th>
+                      <th>ผู้ใช้</th>
+                      <th>รางวัล</th>
+                      <th>ช่อง</th>
+                      <th>ออเดอร์</th>
+                    </tr>
+                  </thead>
+                  <tbody id="free-random-history-table">
+                    <tr><td colspan="5">ยังไม่มีข้อมูล</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-panel" data-panel="payment">
+          <div class="admin-grid payment-grid">
+            <section class="admin-card">
+              <div class="card-heading">
+                <h2>ตั้งค่าการชำระเงิน</h2>
+                <span>ใช้กับหน้าสร้างรายการชำระเงิน</span>
+              </div>
+              <form class="admin-form" id="payment-form">
+                <div class="form-row">
+                  <label>
+                    PromptPay ID
+                    <input name="promptPayId" type="text" placeholder="เบอร์โทรหรือเลขพร้อมเพย์" />
+                  </label>
+                  <label>
+                    ค่าบริการระบบ
+                    <input name="serviceFee" type="number" min="0" step="1" />
+                  </label>
+                </div>
+                <label>
+                  Payment API Endpoint
+                  <input name="paymentEndpoint" type="url" placeholder="https://your-api.example.com/payments" />
+                </label>
+                <div class="form-row">
+                  <label>
+                    ธนาคาร
+                    <input name="bankName" type="text" placeholder="กสิกรไทย, ไทยพาณิชย์" />
+                  </label>
+                  <label>
+                    เลขบัญชี
+                    <input name="bankAccountNumber" type="text" placeholder="xxx-x-xxxxx-x" />
+                  </label>
+                </div>
+                <label>
+                  ชื่อบัญชี
+                  <input name="bankAccountName" type="text" placeholder="ชื่อบัญชีรับเงิน" />
+                </label>
+                <label>
+                  Wallet / ช่องทางอื่น
+                  <input name="walletName" type="text" placeholder="TrueMoney, Wallet API" />
+                </label>
+                <label>
+                  หมายเหตุการชำระเงิน
+                  <textarea name="paymentNote" rows="4" placeholder="โอนแล้วส่งสลิปพร้อมเลขอ้างอิง"></textarea>
+                </label>
+                <div class="form-row">
+                  <label>
+                    URL รูป QR พร้อมเพย์ / ธนาคาร
+                    <input name="manualQrUrl" type="text" placeholder="https://... หรือปล่อยว่างถ้าอัปโหลดรูป" />
+                  </label>
+                  <label>
+                    URL รูป QR ทรูมันนี่วอลเล็ท
+                    <input name="trueMoneyQrUrl" type="text" placeholder="https://... หรือปล่อยว่างถ้าอัปโหลดรูป" />
+                  </label>
+                </div>
+                <label>
+                  URL ไอคอนหน้าเว็บ / Favicon
+                  <input name="siteIconUrl" type="text" placeholder="https://... หรือปล่อยว่างถ้าอัปโหลดรูป" />
+                </label>
+                <div class="form-row">
+                  <label>
+                    อัปโหลด QR พร้อมเพย์
+                    <input id="qr-upload" type="file" accept="image/png,image/jpeg,image/webp" />
+                  </label>
+                  <label>
+                    อัปโหลด QR ทรูมันนี่
+                    <input id="truemoney-qr-upload" type="file" accept="image/png,image/jpeg,image/webp" />
+                  </label>
+                </div>
+                <label>
+                  อัปโหลดไอคอนเว็บ
+                  <input id="site-icon-upload" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" />
+                </label>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit">
+                    <i data-lucide="save"></i>
+                    บันทึกการชำระเงิน
+                  </button>
+                  <button class="ghost-button" id="clear-custom-qr" type="button">
+                    <i data-lucide="eraser"></i>
+                    ล้าง QR เอง
+                  </button>
+                  <button class="ghost-button" id="clear-site-icon" type="button">
+                    <i data-lucide="badge-x"></i>
+                    ล้างไอคอนเว็บ
+                  </button>
+                </div>
+              </form>
+            </section>
+
+            <section class="admin-card">
+              <div class="card-heading">
+                <h2>ตัวอย่าง QR พร้อมเพย์</h2>
+                <span id="qr-source-label">ยังไม่ได้ตั้งค่า</span>
+              </div>
+              <div class="qr-preview" id="qr-preview">
+                <i data-lucide="qr-code"></i>
+                <p>อัปโหลดรูป QR หรือใส่ URL เพื่อแสดงในหน้าชำระเงิน</p>
+              </div>
+              <div class="card-heading preview-subheading" style="margin-top: 16px;">
+                <h2>ตัวอย่าง QR ทรูมันนี่</h2>
+                <span id="truemoney-qr-source-label">ยังไม่ได้ตั้งค่า</span>
+              </div>
+              <div class="qr-preview" id="truemoney-qr-preview">
+                <i data-lucide="qr-code"></i>
+                <p>อัปโหลดรูป QR หรือใส่ URL ทรูมันนี่</p>
+              </div>
+              <div class="card-heading preview-subheading">
+                <h2>ตัวอย่างไอคอนเว็บ</h2>
+                <span id="site-icon-source-label">ยังไม่ได้ตั้งค่า</span>
+              </div>
+              <div class="qr-preview site-icon-preview" id="site-icon-preview">
+                <i data-lucide="badge"></i>
+                <p>อัปโหลดหรือใส่ URL เพื่อเปลี่ยนไอคอนหน้าเว็บ</p>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-panel" data-panel="activity">
+          <div class="admin-grid activity-admin-grid">
+            <section class="admin-card activity-admin-form-card">
+              <div class="card-heading">
+                <div>
+                  <h2>จัดการกิจกรรมหน้าเว็บ</h2>
+                  <span>แก้ไขสถานะ หัวข้อ รายละเอียด รูป Desktop/Mobile ลิงก์ และข้อความบนปุ่มได้จากหน้านี้</span>
+                </div>
+              </div>
+              <form class="admin-form" id="activity-popup-form">
+                <div class="form-row">
+                  <label class="admin-toggle-field">
+                    สถานะกิจกรรม
+                    <select name="enabled">
+                      <option value="true">เปิดแสดงหน้าเว็บ</option>
+                      <option value="false">ปิดชั่วคราว</option>
+                    </select>
+                  </label>
+                  <label>
+                    รหัสกิจกรรม
+                    <input name="campaignId" type="text" maxlength="80" placeholder="เช่น july-sale-2026" />
+                    <small>เปลี่ยนรหัสเมื่อต้องการให้กิจกรรมใหม่แสดงอีกครั้ง แม้ลูกค้าเคยกดซ่อน 24 ชั่วโมง</small>
+                  </label>
+                </div>
+                <label>
+                  หัวข้อ
+                  <input name="title" type="text" maxlength="120" placeholder="กิจกรรมพิเศษจาก OLAF SHOP" />
+                </label>
+                <label>
+                  รายละเอียดสั้น
+                  <textarea name="message" rows="3" maxlength="360" placeholder="รายละเอียดโปรโมชันหรือเงื่อนไขสำคัญ"></textarea>
+                </label>
+                <div class="form-row">
+                  <label>
+                    URL รูป Desktop (แนะนำ 1080 × 1920)
+                    <input name="desktopImageUrl" type="url" placeholder="https://..." />
+                  </label>
+                  <label>
+                    URL รูป Mobile (แนะนำ 1:1)
+                    <input name="mobileImageUrl" type="url" placeholder="https://..." />
+                  </label>
+                </div>
+                <div class="form-row">
+                  <label>
+                    อัปโหลดรูป Desktop
+                    <input id="activity-desktop-upload" type="file" accept="image/png,image/jpeg,image/webp" />
+                    <small>PNG, JPG หรือ WebP ไม่เกิน 5 MB</small>
+                  </label>
+                  <label>
+                    อัปโหลดรูป Mobile
+                    <input id="activity-mobile-upload" type="file" accept="image/png,image/jpeg,image/webp" />
+                    <small>ถ้าไม่ใส่ ระบบจะใช้รูป Desktop แทน</small>
+                  </label>
+                </div>
+                <div class="form-row">
+                  <label>
+                    ลิงก์เมื่อกดดูรายละเอียด
+                    <input name="linkUrl" type="url" placeholder="https://..." />
+                  </label>
+                  <label>
+                    ข้อความบนปุ่ม
+                    <input name="linkLabel" type="text" maxlength="60" placeholder="ดูรายละเอียดกิจกรรม" />
+                  </label>
+                </div>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit">
+                    <i data-lucide="save"></i>
+                    บันทึกกิจกรรม
+                  </button>
+                  <button class="ghost-button" id="clear-activity-images" type="button">
+                    <i data-lucide="image-off"></i>
+                    ล้างรูปกิจกรรม
+                  </button>
+                </div>
+              </form>
+            </section>
+
+            <section class="admin-card activity-admin-preview-card">
+              <div class="card-heading">
+                <div>
+                  <h2>ตัวอย่างการแสดงผล</h2>
+                  <span>Desktop ใช้ภาพแนวตั้ง และ Mobile ใช้ภาพสี่เหลี่ยมจัตุรัส</span>
+                </div>
+              </div>
+              <div class="activity-admin-preview-grid">
+                <figure class="activity-admin-preview is-desktop" id="activity-desktop-preview">
+                  <div class="activity-admin-placeholder"><i data-lucide="monitor-up"></i><span>รูป Desktop 1080 × 1920</span></div>
+                  <figcaption>Desktop</figcaption>
+                </figure>
+                <figure class="activity-admin-preview is-mobile" id="activity-mobile-preview">
+                  <div class="activity-admin-placeholder"><i data-lucide="smartphone"></i><span>รูป Mobile 1:1</span></div>
+                  <figcaption>Mobile</figcaption>
+                </figure>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-panel" data-panel="coupons">
+          <div class="admin-grid two-cols coupon-admin-grid">
+            <section class="admin-card">
+              <div class="card-heading">
+                <div>
+                  <h2>โค้ดส่วนลด</h2>
+                  <span>กำหนดส่วนลด วันหมดอายุ จำนวนสิทธิ์ และเปิดเป็นกิจกรรมแจกโค้ดฟรีได้</span>
+                </div>
+              </div>
+              <form class="admin-form" id="discount-code-form">
+                <input type="hidden" name="id" />
+                <div class="form-row">
+                  <label>โค้ดส่วนลด<input name="code" required maxlength="40" placeholder="เช่น SUMMER50" /></label>
+                  <label>ประเภทส่วนลด<select name="discountType"><option value="fixed">ลดเป็นบาท</option><option value="percent">ลดเป็นเปอร์เซ็นต์</option></select></label>
+                </div>
+                <div class="form-row">
+                  <label>มูลค่าส่วนลด<input name="discountValue" required type="number" min="0.01" step="0.01" /></label>
+                  <label>จำนวนสิทธิ์<input name="usageLimit" type="number" min="1" step="1" placeholder="เว้นว่าง = ไม่จำกัด" /></label>
+                </div>
+                <div class="form-row">
+                  <label>เริ่มใช้<input name="startsAt" type="datetime-local" /></label>
+                  <label>หมดอายุ<input name="expiresAt" type="datetime-local" /></label>
+                </div>
+                <label>สถานะ<select name="isActive"><option value="true">เปิดใช้งาน</option><option value="false">ปิดใช้งาน</option></select></label>
+                <label class="admin-check-row"><input name="freeCampaign" type="checkbox" /> แสดงเป็นกิจกรรมแจกโค้ดฟรีใน Popup หน้า Index</label>
+                <label>หัวข้อกิจกรรม<input name="notificationTitle" maxlength="120" placeholder="รับโค้ดส่วนลดฟรี" /></label>
+                <label>ข้อความกิจกรรม<textarea name="notificationMessage" rows="3" maxlength="360" placeholder="รายละเอียดกิจกรรมและเงื่อนไข"></textarea></label>
+                <label>ลิงก์กิจกรรม (ถ้ามี)<input name="notificationLinkUrl" type="url" placeholder="https://..." /></label>
+                <div class="form-actions">
+                  <button class="primary-button" type="submit"><i data-lucide="save"></i> บันทึกโค้ด</button>
+                  <button class="ghost-button" id="clear-discount-code-form" type="button"><i data-lucide="rotate-ccw"></i> เริ่มโค้ดใหม่</button>
+                </div>
+              </form>
+            </section>
+            <section class="admin-card">
+              <div class="card-heading">
+                <div><h2>รายการโค้ด</h2><span>โค้ดที่ปิดใช้งานจะใช้ไม่ได้ทันที แต่ประวัติการใช้ยังคงอยู่</span></div>
+                <button class="ghost-button" id="refresh-discount-codes" type="button"><i data-lucide="refresh-cw"></i> รีเฟรช</button>
+              </div>
+              <div class="coupon-admin-list" id="discount-code-list"><div class="empty-state">กำลังโหลดโค้ดส่วนลด...</div></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-panel" data-panel="data">
+          <div class="admin-grid two-cols">
+            <section class="admin-card">
+              <div class="card-heading">
+                <h2>สำรองข้อมูล</h2>
+                <span>สำหรับย้ายข้อมูลไป backend จริง</span>
+              </div>
+              <div class="data-actions">
+                <button class="primary-button" id="export-json" type="button">
+                  <i data-lucide="download"></i>
+                  Export JSON
+                </button>
+                <label class="file-button">
+                  <i data-lucide="upload"></i>
+                  Import JSON
+                  <input id="import-json" type="file" accept="application/json" />
+                </label>
+                <button class="danger-button" id="reset-data" type="button">
+                  <i data-lucide="rotate-ccw"></i>
+                  คืนค่าจาก API เดิม
+                </button>
+              </div>
+            </section>
+
+            <section class="admin-card">
+              <div class="card-heading">
+                <h2>ข้อมูลที่ใช้งานอยู่</h2>
+                <span id="data-updated">-</span>
+              </div>
+              <pre class="json-preview" id="json-preview"></pre>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <button class="admin-shell-backdrop" id="admin-shell-backdrop" type="button" aria-label="ปิดเมนู" hidden></button>
+    <button class="admin-product-editor-backdrop admin-editor-backdrop" id="admin-product-editor-backdrop" type="button" aria-label="ปิดหน้าต่างแก้ไข" hidden></button>
+
+    <!-- Admin Dialogs -->
+    <dialog class="admin-dialog" id="admin-alert-dialog">
+      <div class="dialog-content">
+        <div class="dialog-header">
+          <i data-lucide="info"></i>
+          <h3 id="admin-alert-title">แจ้งเตือน</h3>
+        </div>
+        <p id="admin-alert-message"></p>
+        <div class="dialog-actions">
+          <button class="primary-button" id="admin-alert-ok" type="button">ตกลง</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="admin-dialog" id="admin-confirm-dialog">
+      <div class="dialog-content">
+        <div class="dialog-header">
+          <i data-lucide="help-circle"></i>
+          <h3 id="admin-confirm-title">ยืนยันการทำรายการ</h3>
+        </div>
+        <p id="admin-confirm-message"></p>
+        <div class="dialog-actions">
+          <button class="ghost-button" id="admin-confirm-cancel" type="button">ยกเลิก</button>
+          <button class="danger-button" id="admin-confirm-ok" type="button">ยืนยัน</button>
+        </div>
+      </div>
+    </dialog>
+  </body>
+</html>
+

@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="th">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="เติม Point เข้า Wallet OLAF SHOP ด้วยระบบชำระเงินและตรวจสลิปอัตโนมัติ" />
+  <title>เติม Point | OLAF SHOP</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="preconnect" href="https://wtvfgwacodfrzxapwoxj.supabase.co" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=20260716-qr-alignment-v111" />
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" defer></script>
+  <script src="slip-qr-scanner.js?v=20260621-slip-verify-v2" defer></script>
+  <script src="order-action-popup.js?v=20260712-point-topup-premium-v76" defer></script>
+  <script src="supabase-client.js?v=20260716-qr-alignment-v111" defer></script>
+  <script src="platform-store.js?v=20260605-admin-users" defer></script>
+  <script src="image-performance.js?v=20260713-media-brand-v89" defer></script>
+  <script src="notifications.js?v=20260716-qr-alignment-v111" defer></script>
+  <script src="site-navigation.js?v=20260717-live-catalog-v116" defer></script>
+  <script src="point-topup.js?v=20260714-payment-profile-expiry-v102" defer></script>
+</head>
+
+<body class="point-topup-page">
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="OLAF SHOP">
+        <span class="brand-mark">O</span>
+        <span>
+          <strong>OLAF SHOP</strong>
+          <small>Point Wallet</small>
+        </span>
+      </a>
+
+      <nav class="main-nav" aria-label="เมนูหลัก">
+        <a href="index.html">หน้าแรก</a>
+        <a href="index.html#catalog">สินค้า</a>
+        <a href="more-products.html">หมวดหมู่</a>
+        <a href="point-topup.html" class="is-active">เติม Point</a>
+        <a href="free-random.html">สุ่ม 1 Point</a>
+        <a href="profile.html#inventory">คลังสินค้า</a>
+      </nav>
+
+      <div class="topbar-actions">
+        <div class="language-switcher">
+          <button class="icon-button lang-toggle" id="lang-toggle" type="button" aria-label="เปลี่ยนภาษา" aria-expanded="false">
+            <i data-lucide="globe"></i>
+          </button>
+          <div class="language-popover" id="language-popover" hidden>
+            <button type="button" data-lang-option="th"><strong>ภาษาไทย</strong><span>TH</span></button>
+            <button type="button" data-lang-option="en"><strong>English</strong><span>EN</span></button>
+          </div>
+        </div>
+        <div class="notification-wrap" style="position:relative">
+          <button class="icon-button notification-button" id="open-notifications" type="button" aria-label="แจ้งเตือน">
+            <i data-lucide="bell"></i>
+            <span class="notification-badge" id="notification-badge" hidden></span>
+          </button>
+          <div class="notification-popover" id="notification-popover" hidden>
+            <div class="notification-header"><h3>แจ้งเตือน</h3></div>
+            <div class="notification-body" id="notification-list">
+              <div class="notification-empty"><i data-lucide="bell"></i><p>ยังไม่มีแจ้งเตือน</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="user-popover-wrap" style="position:relative">
+          <button class="account-button is-auth-loading" id="open-auth" type="button" aria-busy="true">
+            <i data-lucide="loader-circle"></i>
+            <span id="account-label">กำลังโหลดข้อมูล</span>
+          </button>
+          <div class="user-popover" id="user-popover" hidden></div>
+        </div>
+        <a class="primary-button register-button" href="register.html" style="display:none">
+          <i data-lucide="user-plus"></i>
+          <span>สมัครสมาชิก</span>
+        </a>
+      </div>
+    </header>
+
+    <main class="point-topup-shell" aria-labelledby="point-topup-title">
+      <section class="point-topup-hero">
+        <div class="point-topup-copy">
+          <span class="eyebrow"><i data-lucide="wallet-cards"></i> OLAF POINT WALLET</span>
+          <h1 id="point-topup-title">เติมเงินเข้าสู่ OLAF Point Wallet</h1>
+          <p>เลือกแพ็ก Point ที่ต้องการ ชำระผ่านพร้อมเพย์หรือ TrueMoney Wallet และรับ Point เข้าบัญชีทันทีหลังระบบตรวจสลิปสำเร็จ</p>
+          <div class="point-topup-balance-card">
+            <span class="point-topup-balance-icon"><i data-lucide="coins"></i></span>
+            <span><small>ยอดคงเหลือใน Wallet</small><strong><b data-point-topup-balance>0</b> Point</strong></span>
+          </div>
+        </div>
+
+        <aside class="point-topup-rules">
+          <div><i data-lucide="shield-check"></i><span>ตรวจ QR และสลิปจริงก่อนเพิ่ม Point</span></div>
+          <div><i data-lucide="ban"></i><span>สลิปซ้ำหรือ QR ปลอมจะถูกปฏิเสธ</span></div>
+          <div><i data-lucide="wallet-cards"></i><span>1 บาท = 1 Point ใช้ลดราคาหรือสุ่มได้</span></div>
+        </aside>
+      </section>
+
+      <section class="point-topup-grid">
+        <form class="point-topup-card point-topup-form" id="point-topup-form">
+          <div class="section-heading">
+            <span class="eyebrow">SELECT POINT PACKAGE</span>
+            <h2>เลือกจำนวน Point ที่ต้องการเติม</h2>
+            <p>1 บาท = 1 Point เลือกแพ็กด้านล่างหรือระบุจำนวนที่ต้องการเอง</p>
+          </div>
+
+          <div class="point-topup-presets" role="group" aria-label="ยอดเติม Point">
+            <button type="button" data-topup-preset="50"><span><small>เติมเข้า Wallet</small><strong>50 Point</strong></span><b>เติม ฿50</b></button>
+            <button type="button" data-topup-preset="100" class="is-active"><span><small>เติมเข้า Wallet</small><strong>100 Point</strong></span><b>เติม ฿100</b></button>
+            <button type="button" data-topup-preset="200"><span><small>เติมเข้า Wallet</small><strong>200 Point</strong></span><b>เติม ฿200</b></button>
+            <button type="button" data-topup-preset="500"><span><small>เติมเข้า Wallet</small><strong>500 Point</strong></span><b>เติม ฿500</b></button>
+            <button type="button" data-topup-preset="1000"><span><small>เติมเข้า Wallet</small><strong>1,000 Point</strong></span><b>เติม ฿1,000</b></button>
+          </div>
+
+          <div class="point-topup-live-preview" data-topup-live-preview aria-live="polite">
+            <span class="point-topup-live-icon"><i data-lucide="sparkles"></i></span>
+            <span class="point-topup-live-copy">
+              <small>Point ที่จะได้รับ</small>
+              <strong data-topup-preview-points>100 Point</strong>
+            </span>
+            <span class="point-topup-live-total">
+              <small>ยอดชำระ</small>
+              <strong data-topup-preview-total>฿100</strong>
+            </span>
+          </div>
+
+          <label class="point-topup-input">
+            <span>จำนวน Point ที่ต้องการเติม</span>
+            <input id="point-topup-amount" name="amount" type="number" min="1" max="50000" step="1" value="100" inputmode="numeric" />
+          </label>
+
+          <div class="point-topup-methods" role="radiogroup" aria-label="ช่องทางชำระเงิน">
+            <label>
+              <input type="radio" name="paymentMethod" value="promptpay" checked />
+              <span><i data-lucide="qr-code"></i><b>PromptPay QR</b><small>พร้อมเพย์ / โอนธนาคาร</small></span>
+            </label>
+            <label>
+              <input type="radio" name="paymentMethod" value="wallet" />
+              <span><i data-lucide="wallet"></i><b>TrueMoney Wallet</b><small>วอเลท</small></span>
+            </label>
+          </div>
+
+          <button class="primary-button point-topup-submit" type="submit">
+            <i data-lucide="coins"></i>
+            <span>สร้างรายการเติม Point</span>
+          </button>
+
+          <p class="point-topup-login-note" data-point-topup-login hidden>
+            กรุณาเข้าสู่ระบบก่อนเติม Point
+            <a href="login.html?return=point-topup.html">เข้าสู่ระบบ</a>
+          </p>
+        </form>
+
+        <aside class="point-topup-card point-topup-premium-side">
+          <span class="eyebrow">WALLET SECURITY</span>
+          <h2>เติมง่าย ปลอดภัย ตรวจสอบได้</h2>
+          <p>ทุกรายการใช้ระบบชำระเงินเดิมของร้าน พร้อมตรวจ QR ผู้รับ ยอดเงิน เวลา และสลิปซ้ำก่อนเพิ่ม Point</p>
+          <div class="point-topup-flow">
+            <div><b>01</b><span>เลือกยอด Point</span></div>
+            <div><b>02</b><span>สแกน QR / Wallet</span></div>
+            <div><b>03</b><span>แนบสลิปให้ระบบตรวจ</span></div>
+            <div><b>04</b><span>Point เข้าบัญชีอัตโนมัติ</span></div>
+          </div>
+          <div class="point-topup-benefits" aria-label="ข้อมูล Point">
+            <article><i data-lucide="badge-check"></i><span><b>พร้อมใช้ทันที</b><small>หลังสลิปผ่านการตรวจสอบ</small></span></article>
+            <article><i data-lucide="scale"></i><span><b>1 บาท = 1 Point</b><small>ยอดชัดเจน ไม่มีการคำนวณซับซ้อน</small></span></article>
+            <article><i data-lucide="history"></i><span><b>ตรวจสอบย้อนหลังได้</b><small>ดูรายการเติมและยอดคงเหลือในโปรไฟล์</small></span></article>
+          </div>
+          <div class="point-topup-status" id="point-topup-status">
+            <i data-lucide="info"></i>
+            <span>สลิปปลอม สลิปซ้ำ หรือรูปที่ไม่มี QR จะถูกปฏิเสธเพื่อความปลอดภัยของบัญชี</span>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <dialog class="premium-dialog qr-payment-dialog point-topup-qr-dialog olaf-checkout-v98" id="point-topup-qr-dialog">
+      <div class="premium-dialog-inner olaf-checkout-shell">
+        <button class="dialog-close" type="button" aria-label="ปิด" data-topup-qr-close>
+          <i data-lucide="x"></i>
+        </button>
+        <div class="qr-payment-content">
+          <div class="premium-dialog-header olaf-checkout-hero">
+            <div class="premium-icon-box qr-icon"><i data-lucide="circle-check-big"></i></div>
+            <h2>ยืนยันรายการเติม Point</h2>
+            <p>หมายเลขรายการ: <strong data-topup-qr-order>#TOPUP</strong></p>
+          </div>
+
+          <section class="premium-product-card olaf-checkout-product olaf-checkout-topup-product">
+            <div class="premium-product-info">
+              <span class="olaf-checkout-eyebrow">รายละเอียดรายการ</span>
+              <h3>เติม <span data-topup-qr-credit>0 P</span> เข้ากระเป๋า</h3>
+              <span class="premium-product-label">1 บาท = 1 Point</span>
+            </div>
+            <div class="premium-product-price"><strong data-topup-qr-total>฿0</strong></div>
+          </section>
+
+          <section class="olaf-checkout-meta-grid">
+            <article class="olaf-checkout-meta-card">
+              <span>สถานะการชำระเงิน</span>
+              <strong class="qr-status-badge" data-topup-qr-status><i data-lucide="clock-3"></i> รอการชำระเงิน</strong>
+            </article>
+            <article class="olaf-checkout-meta-card">
+              <span>วันที่สร้างรายการ</span>
+              <strong data-topup-qr-created-at>-</strong>
+            </article>
+          </section>
+
+          <section class="olaf-checkout-qr-card">
+            <header>
+              <h3>สแกน QR Code เพื่อชำระเงิน</h3>
+              <p>กรุณาสแกนผ่านแอปธนาคารของคุณ</p>
+            </header>
+            <div class="qr-method-badge" data-topup-qr-method><i data-lucide="qr-code"></i> QR พร้อมเพย์</div>
+            <div class="qr-image-frame">
+              <div class="qr-loading" data-topup-qr-loading>
+                <i data-lucide="loader-circle"></i>
+                <span>กำลังสร้าง QR Code...</span>
+              </div>
+              <img alt="คิวอาร์สำหรับเติม Point" class="qr-image" loading="eager" decoding="async" fetchpriority="high" data-topup-qr-image hidden />
+              <div class="qr-unavailable" data-topup-qr-unavailable hidden>ยังไม่พบ QR สำหรับช่องทางนี้</div>
+            </div>
+            <div class="olaf-checkout-qr-total">
+              <span>ยอดชำระทั้งหมด</span>
+              <strong class="qr-total-highlight" data-topup-qr-total-display>฿0</strong>
+            </div>
+            <div class="qr-store-note" data-topup-qr-note></div>
+            <div class="premium-actions">
+              <button class="primary-button submit-order-btn" type="button" data-topup-qr-upload>
+                <i data-lucide="upload-cloud"></i>
+                <span>แนบสลิปการชำระเงิน</span>
+              </button>
+              <button class="secondary-button cancel-order-btn" type="button" data-topup-qr-profile>ดูประวัติ / เช็ค Point</button>
+              <button class="text-button text-danger" type="button" data-topup-qr-cancel>ปิดหน้าต่าง</button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </dialog>
+  </div>
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

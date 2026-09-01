@@ -1,0 +1,21 @@
+{
+  "name": "olafshop-local-tools",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "offline-products:sync": "node tools/sync-offline-products.mjs",
+    "products:sync-production": "node tools/sync-products-from-production.mjs",
+    "offline-stock:audit": "node --input-type=module -e \"import { runOfflineStockAudit } from './tools/offline-stock-audit.mjs'; console.log(await runOfflineStockAudit({ sourcePath: './ID STEAM OFFLINE.txt', productsPath: './api/products.json', outputDir: './offline-stock-import' }));\"",
+    "offline-stock:dry-run": "node scripts/import-offline-stock.js",
+    "test:phase5-12": "node tests/phase5-12.test.mjs",
+    "test:slip-verification": "node --test tests/slip-verification.test.mjs"
+  },
+  "dependencies": {
+    "jsqr": "1.4.0",
+    "promptparse": "1.6.0",
+    "sharp": "0.35.2"
+  },
+  "devDependencies": {
+    "qrcode": "1.5.4"
+  }
+}

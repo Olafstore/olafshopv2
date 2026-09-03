@@ -77,8 +77,8 @@ const fallbackPayload = {
 
 const appConfig = {
   productsEndpoint: ["localhost", "127.0.0.1", "::1"].includes(window.location.hostname)
-    ? "assets/products-index.json?v=20260712-fast-index-v85"
-    : "api/products-index?v=20260712-fast-index-v85",
+    ? "assets/products-index.json?v=20260903-product-gallery-v118"
+    : "api/products-index?v=20260903-product-gallery-v118",
   paymentEndpoint: "",
   serviceFee: 0,
   promptPayId: "0812345678",
@@ -725,12 +725,16 @@ function mergeCatalogProducts(jsonProducts = [], supabaseProducts = []) {
         // those fields from the host-side JSON while price/stock/status stay live.
         detailFields.forEach((field) => {
           const onlineValue = product[field];
+          const fallbackValue = fallback[field];
           const isEmptyArray = Array.isArray(onlineValue) && onlineValue.length === 0;
           const isEmptyObject = onlineValue && typeof onlineValue === "object" && !Array.isArray(onlineValue)
             ? Object.values(onlineValue).every((value) => !Array.isArray(value) || value.length === 0)
             : false;
-          if (onlineValue == null || onlineValue === "" || isEmptyArray || isEmptyObject) {
-            merged[field] = fallback[field];
+          const fallbackHasMoreScreenshots = field === "gallery" &&
+            Array.isArray(fallbackValue) &&
+            fallbackValue.length > (Array.isArray(onlineValue) ? onlineValue.length : 0);
+          if (onlineValue == null || onlineValue === "" || isEmptyArray || isEmptyObject || fallbackHasMoreScreenshots) {
+            merged[field] = fallbackValue;
           }
         });
         return merged;
@@ -1496,11 +1500,16 @@ function productPreviewImages(product) {
 }
 
 function productOwnedImages(product, count = 4) {
-  const ownImages = [...new Set([
-    product?.heroImage,
-    ...(Array.isArray(product?.gallery) ? product.gallery : []),
-    product?.image
-  ].map((image) => String(image || "").trim()).filter(Boolean))];
+  const galleryImages = [...new Set(
+    (Array.isArray(product?.gallery) ? product.gallery : [])
+      .map((image) => String(image || "").trim())
+      .filter(Boolean)
+  )];
+  const ownImages = galleryImages.length
+    ? galleryImages
+    : [...new Set([product?.heroImage, product?.image]
+      .map((image) => String(image || "").trim())
+      .filter(Boolean))];
 
   if (!ownImages.length) return [];
 

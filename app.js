@@ -123,6 +123,7 @@ const state = {
   store: fallbackPayload.store,
   categories: fallbackPayload.categories,
   products: [],
+  steamPreviewOrder: [],
   selectedCategory: "all",
   query: "",
   stockOnly: false,
@@ -1251,6 +1252,7 @@ function applyPayload(payload) {
     stock: Number(product.stock) || 0,
     sold: Number(product.sold) || 0
   }));
+  randomizeSteamPreviewOrder();
   appConfig.paymentEndpoint =
     window.OLAF_CONFIG?.paymentEndpoint ??
     state.store.paymentEndpoint ??
@@ -1518,15 +1520,36 @@ function productOwnedImages(product, count = 4) {
   return ownImages.slice(0, count);
 }
 
+// Shuffle once whenever the catalog data is loaded.  The order therefore changes
+// on a page refresh, but remains stable while the visitor switches categories.
+function randomizeSteamPreviewOrder() {
+  const products = [...state.products];
+  for (let index = products.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [products[index], products[randomIndex]] = [products[randomIndex], products[index]];
+  }
+  state.steamPreviewOrder = products.map((product) => String(product.id));
+}
+
+function steamPreviewProducts() {
+  const productsById = new Map(state.products.map((product) => [String(product.id), product]));
+  const orderedProducts = state.steamPreviewOrder
+    .map((productId) => productsById.get(productId))
+    .filter(Boolean);
+  const products = orderedProducts.length ? orderedProducts : [...state.products];
+
+  return products
+    .filter((product) => state.selectedCategory === "all" || product.category === state.selectedCategory)
+    .slice(0, 9);
+}
+
 function widgetMarker(code = "") {
   const match = String(code).match(/data-olaf-widget=["']([^"']+)["']/);
   return match?.[1] || "";
 }
 
 function renderSteamShowcaseWidget() {
-  const products = [...state.products]
-    .sort((a, b) => Number(b.sold || 0) - Number(a.sold || 0))
-    .slice(0, 9);
+  const products = steamPreviewProducts();
   if (!products.length) return "";
 
   const rows = products
@@ -2571,6 +2594,7 @@ function selectCatalogCategory(categoryId, options = {}) {
   renderCategories();
   renderShowcaseCategoryState();
   renderProducts();
+  renderWidgets();
 
   if (options.scrollToCatalog || options.scrollToProducts) {
     const target = options.scrollToProducts ? document.querySelector(".products-wrap") : $("#catalog");

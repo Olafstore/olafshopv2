@@ -4182,6 +4182,41 @@ body {
     pointer-events: auto;
   }
 
+  /* The user editor is a fixed dialog inside a content-optimized card.  Keep
+     its controls above the backdrop and restore native text/touch handling. */
+  body.admin-user-editor-open {
+    touch-action: auto;
+  }
+
+  body.admin-user-editor-open .admin-product-editor-backdrop:not([hidden]) {
+    z-index: 1000;
+  }
+
+  .admin-user-editor.is-open {
+    z-index: 1001;
+    content-visibility: visible !important;
+    contain: none !important;
+    isolation: isolate;
+    pointer-events: auto !important;
+  }
+
+  .admin-user-editor.is-open .admin-form {
+    position: relative;
+    z-index: 3;
+    pointer-events: auto !important;
+    touch-action: pan-y;
+  }
+
+  .admin-user-editor.is-open input,
+  .admin-user-editor.is-open select,
+  .admin-user-editor.is-open textarea,
+  .admin-user-editor.is-open button {
+    pointer-events: auto !important;
+    touch-action: manipulation;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
   .admin-user-editor > .card-heading,
   .admin-order-editor > .card-heading {
     position: relative;
@@ -4280,5 +4315,122 @@ body {
   .admin-editor-backdrop {
     animation: none !important;
     transition: none !important;
+  }
+}
+
+/* 2026-09-04 — direct Point controls and touch-first customer management. */
+.point-editor-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.point-editor-actions > button,
+.finance-point-action {
+  width: 100%;
+}
+
+.finance-point-action {
+  min-height: 36px;
+  padding-inline: 10px;
+  white-space: nowrap;
+}
+
+@media (max-width: 760px) {
+  /* Customer and wallet rows become labelled cards, so no action is hidden
+     behind a horizontal table on a phone. */
+  .admin-panel[data-panel="users"] .table-wrap,
+  .admin-panel[data-panel="finance"] .finance-card-wide .table-wrap {
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .admin-panel[data-panel="users"] .admin-table,
+  .admin-panel[data-panel="finance"] #finance-wallets-table {
+    display: block;
+    width: 100%;
+  }
+
+  .admin-panel[data-panel="users"] .admin-table thead,
+  .admin-panel[data-panel="finance"] .finance-card-wide .admin-table thead {
+    display: none;
+  }
+
+  #users-table,
+  #finance-wallets-table {
+    display: grid;
+    gap: 10px;
+  }
+
+  #users-table tr,
+  #finance-wallets-table tr {
+    display: grid;
+    gap: 0;
+    overflow: hidden;
+    border: 1px solid rgba(96, 165, 250, 0.16);
+    border-radius: 15px;
+    background: rgba(2, 6, 23, 0.24);
+  }
+
+  #users-table td[data-label],
+  #finance-wallets-table td[data-label] {
+    display: grid;
+    grid-template-columns: minmax(88px, 0.65fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    padding: 9px 11px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+    text-align: left;
+  }
+
+  #users-table td[data-label]::before,
+  #finance-wallets-table td[data-label]::before {
+    color: #8fa2c2;
+    font-size: 0.72rem;
+    font-weight: 600;
+    content: attr(data-label);
+  }
+
+  #users-table td[data-label]:last-child,
+  #finance-wallets-table td[data-label]:last-child {
+    border-bottom: 0;
+  }
+
+  #users-table .user-cell,
+  #finance-wallets-table .finance-user-chip {
+    min-width: 0;
+  }
+
+  #users-table .row-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  #users-table .row-actions .mini-button {
+    width: 100%;
+    min-height: 40px;
+  }
+
+  #finance-wallets-table .finance-point-action {
+    min-height: 42px;
+  }
+
+  .admin-user-editor .admin-point-editor {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .point-editor-actions {
+    grid-template-columns: 1fr;
+  }
+
+  #users-table td[data-label],
+  #finance-wallets-table td[data-label] {
+    grid-template-columns: minmax(76px, 0.58fr) minmax(0, 1fr);
+    padding-inline: 9px;
   }
 }

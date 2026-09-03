@@ -3053,7 +3053,7 @@ function adminPointAdjustErrorMessage(error) {
     return "Point คงเหลือไม่พอสำหรับการลดจำนวนนี้";
   }
   if (combined.includes("POINT_AMOUNT_REQUIRED")) {
-    return "กรุณาใส่จำนวน Point ที่ต้องการปรับ เช่น 50 หรือ -20";
+    return "กรุณาใส่จำนวน Point ที่ต้องการปรับ เช่น 50";
   }
   if (combined.includes("USER_REQUIRED")) {
     return "กรุณาเลือกลูกค้าก่อนปรับ Point";
@@ -3328,7 +3328,7 @@ function renderUsersTable() {
             const wallet = walletRows.get(user.id) || {};
             return `
             <tr>
-              <td>
+              <td data-label="ลูกค้า">
                 <div class="user-cell">
                   <span class="user-avatar">${escapeHtml((user.displayName || user.username || "U").slice(0, 1).toUpperCase())}</span>
                   <div>
@@ -3337,16 +3337,16 @@ function renderUsersTable() {
                   </div>
                 </div>
               </td>
-              <td><span class="status-pill ${user.role === "admin" ? "warn" : "ok"}">${escapeHtml(user.role)}</span></td>
-              <td>${escapeHtml(user.position || "-")}</td>
-              <td class="numeric"><strong>${formatPointAmount(wallet.balance || 0)}</strong></td>
-              <td class="numeric">${Number(wallet.orderCount || 0).toLocaleString("th-TH")}</td>
-              <td class="numeric">${formatPrice(wallet.totalSpent || 0)}</td>
-              <td><span class="status-pill ${user.status === "active" ? "ok" : "danger"}">${escapeHtml(user.status)}</span></td>
-              <td>
+              <td data-label="บทบาท"><span class="status-pill ${user.role === "admin" ? "warn" : "ok"}">${escapeHtml(user.role)}</span></td>
+              <td data-label="ตำแหน่ง">${escapeHtml(user.position || "-")}</td>
+              <td data-label="Point" class="numeric"><strong>${formatPointAmount(wallet.balance || 0)}</strong></td>
+              <td data-label="Orders" class="numeric">${Number(wallet.orderCount || 0).toLocaleString("th-TH")}</td>
+              <td data-label="ยอดซื้อ" class="numeric">${formatPrice(wallet.totalSpent || 0)}</td>
+              <td data-label="สถานะ"><span class="status-pill ${user.status === "active" ? "ok" : "danger"}">${escapeHtml(user.status)}</span></td>
+              <td data-label="จัดการ" class="admin-table-actions">
                 <div class="row-actions">
-                  <button class="mini-button" type="button" data-edit-user="${escapeHtml(user.id)}">
-                    <i data-lucide="pencil"></i>
+                  <button class="mini-button" type="button" data-edit-user="${escapeHtml(user.id)}" title="แก้ไขลูกค้าและ Point" aria-label="แก้ไขลูกค้าและ Point">
+                    <i data-lucide="coins"></i>
                   </button>
                   <button class="mini-button" type="button" data-reset-pw="${escapeHtml(user.id)}" title="เปลี่ยนรหัสผ่าน">
                     <i data-lucide="key-round"></i>
@@ -3421,8 +3421,10 @@ function fillUserForm(user) {
   const wallet = user?.id ? walletRowForUser(user.id) : null;
   const pointLabel = $("#user-current-point");
   if (pointLabel) pointLabel.textContent = `${formatPointAmount(wallet?.balance || 0)} Points`;
-  const pointButton = $("#adjust-user-point");
-  if (pointButton) pointButton.disabled = isNew;
+  ["#add-user-point", "#remove-user-point"].forEach((selector) => {
+    const pointButton = $(selector);
+    if (pointButton) pointButton.disabled = isNew;
+  });
 }
 
 async function saveUserFromForm(event) {
@@ -3461,23 +3463,25 @@ async function saveUserFromForm(event) {
   }
 }
 
-async function adjustSelectedUserPoints() {
+async function adjustSelectedUserPoints(mode = "add") {
   const user = selectedUser();
   const form = $("#user-form");
   if (!user || !form) return;
-  const amount = Number(form.elements.pointAdjustAmount?.value || 0);
+  const enteredAmount = Number(form.elements.pointAdjustAmount?.value || 0);
+  const amount = Math.abs(enteredAmount) * (mode === "remove" ? -1 : 1);
   const note = String(form.elements.pointAdjustNote?.value || "").trim();
   if (!Number.isFinite(amount) || amount === 0) {
-    showAdminToast("กรุณาใส่จำนวน Point ที่ต้องการปรับ เช่น 50 หรือ -20", "warning");
+    showAdminToast("กรุณาใส่จำนวน Point ที่ต้องการปรับ เช่น 50", "warning");
     return;
   }
-  if (!(await adminConfirm(`ปรับ Point ของ ${user.email || user.username} จำนวน ${amount > 0 ? "+" : ""}${formatPointAmount(amount)} ใช่ไหม?`))) return;
+  const actionLabel = amount > 0 ? "เพิ่ม" : "หัก";
+  if (!(await adminConfirm(`${actionLabel} Point ของ ${user.email || user.username} จำนวน ${formatPointAmount(Math.abs(amount))} ใช่ไหม?`))) return;
 
-  const button = $("#adjust-user-point");
+  const button = $(mode === "remove" ? "#remove-user-point" : "#add-user-point");
   const originalText = button?.innerHTML || "";
   if (button) {
     button.disabled = true;
-    button.innerHTML = '<i data-lucide="loader-circle"></i> กำลังปรับ Point';
+    button.innerHTML = `<i data-lucide="loader-circle"></i> กำลัง${actionLabel} Point`;
     createIconSet();
   }
 
@@ -3493,8 +3497,8 @@ async function adjustSelectedUserPoints() {
     renderFinancePanel();
     renderMetrics();
     createIconSet();
-    showAdminToast("ปรับ Point ลูกค้าเรียบร้อยแล้ว", "success");
-    setStatus(`ปรับ Point ${user.email || user.username} แล้ว`);
+    showAdminToast(`${actionLabel} Point ลูกค้าเรียบร้อยแล้ว`, "success");
+    setStatus(`${actionLabel} Point ${user.email || user.username} แล้ว`);
   } catch (error) {
     console.error("Supabase admin point adjustment failed", {
       code: error?.code,
@@ -3947,7 +3951,7 @@ function renderFinanceWalletsTable() {
         .map(
           (wallet) => `
             <tr>
-              <td>
+              <td data-label="ลูกค้า">
                 <div class="finance-user-chip">
                   <span>${escapeHtml(adminUserLabel(wallet).slice(0, 1).toUpperCase())}</span>
                   <div>
@@ -3956,17 +3960,18 @@ function renderFinanceWalletsTable() {
                   </div>
                 </div>
               </td>
-              <td class="numeric"><strong>${formatPointAmount(wallet.balance)}</strong></td>
-              <td class="numeric money-positive">${formatPointAmount(wallet.lifetimeEarned)}</td>
-              <td class="numeric">${formatPointAmount(wallet.lifetimeSpent)}</td>
-              <td class="numeric">${Number(wallet.orderCount || 0).toLocaleString("th-TH")}</td>
-              <td class="numeric">${formatPrice(wallet.totalSpent)}</td>
-              <td><span>${formatAdminDateTime(wallet.lastOrderAt)}</span></td>
+              <td data-label="Point" class="numeric"><strong>${formatPointAmount(wallet.balance)}</strong></td>
+              <td data-label="เติมสะสม" class="numeric money-positive">${formatPointAmount(wallet.lifetimeEarned)}</td>
+              <td data-label="ใช้ไป" class="numeric">${formatPointAmount(wallet.lifetimeSpent)}</td>
+              <td data-label="ออเดอร์" class="numeric">${Number(wallet.orderCount || 0).toLocaleString("th-TH")}</td>
+              <td data-label="ยอดซื้อ" class="numeric">${formatPrice(wallet.totalSpent)}</td>
+              <td data-label="ล่าสุด"><span>${formatAdminDateTime(wallet.lastOrderAt)}</span></td>
+              <td data-label="จัดการ" class="admin-table-actions">${state.users.some((user) => String(user.id) === String(wallet.userId)) ? `<button class="ghost-button finance-point-action" type="button" data-edit-user="${escapeHtml(wallet.userId)}"><i data-lucide="coins"></i> จัดการ Point</button>` : "-"}</td>
             </tr>
           `
         )
         .join("")
-    : `<tr><td colspan="7">ยังไม่พบข้อมูลลูกค้าหรือ Point</td></tr>`;
+    : `<tr><td colspan="8">ยังไม่พบข้อมูลลูกค้าหรือ Point</td></tr>`;
   renderFinancePagination("wallets", page.total, page.page, page.totalPages, page.start, page.end);
 }
 
@@ -4836,7 +4841,8 @@ function renderDiscountCodesPanel() {
         </div>
         <div class="coupon-admin-card-actions">
           <button class="ghost-button" type="button" data-edit-discount-code="${escapeHtml(item.id)}"><i data-lucide="pencil"></i> แก้ไข</button>
-          ${isActive ? `<button class="danger-button" type="button" data-disable-discount-code="${escapeHtml(item.id)}"><i data-lucide="ban"></i> ปิด</button>` : ""}
+          ${isActive ? `<button class="ghost-button" type="button" data-disable-discount-code="${escapeHtml(item.id)}"><i data-lucide="ban"></i> ปิด</button>` : ""}
+          <button class="danger-button" type="button" data-delete-discount-code="${escapeHtml(item.id)}"><i data-lucide="trash-2"></i> ลบ</button>
         </div>
       </article>`;
   }).join("");
@@ -4907,6 +4913,28 @@ async function deactivateDiscountCode(id) {
     showAdminToast("ปิดใช้งานโค้ดแล้ว", "success");
   } catch (error) {
     showAdminToast(error.message || "ปิดโค้ดไม่สำเร็จ", "error");
+  }
+}
+
+async function deleteDiscountCode(id) {
+  const item = state.discountCodes.find((entry) => String(entry.id) === String(id));
+  if (!item) return;
+  const code = String(item.code || "โค้ดนี้").trim();
+  const usedCount = Number(item.usedCount ?? item.used_count ?? 0);
+  const detail = usedCount > 0
+    ? `โค้ด ${code} ถูกใช้แล้ว ${usedCount.toLocaleString("th-TH")} ครั้ง ระบบจะปิดใช้งานและซ่อนจากรายการ โดยเก็บประวัติออเดอร์ไว้`
+    : `ลบโค้ด ${code} จากรายการใช้งาน? ระบบจะปิดใช้งานโค้ดทันที`;
+  if (!(await adminConfirm(detail))) return;
+
+  try {
+    await window.OlafCoupons.deactivateAdmin(id);
+    state.discountCodes = state.discountCodes.filter((entry) => String(entry.id) !== String(id));
+    if ($("#discount-code-form")?.elements.id.value === String(id)) resetDiscountCodeForm();
+    renderDiscountCodesPanel();
+    createIconSet();
+    showAdminToast("ลบโค้ดส่วนลดจากรายการแล้ว", "success");
+  } catch (error) {
+    showAdminToast(error.message || "ลบโค้ดส่วนลดไม่สำเร็จ", "error");
   }
 }
 
@@ -5494,6 +5522,7 @@ function bindEvents() {
     const editWidgetButton = event.target.closest("[data-edit-widget]");
     const editDiscountCodeButton = event.target.closest("[data-edit-discount-code]");
     const disableDiscountCodeButton = event.target.closest("[data-disable-discount-code]");
+    const deleteDiscountCodeButton = event.target.closest("[data-delete-discount-code]");
     const addPackageButton = event.target.closest("#add-product-package");
     const deletePackageButton = event.target.closest("[data-package-delete]");
     const categoryTab = event.target.closest(".category-tab");
@@ -5640,6 +5669,11 @@ function bindEvents() {
       await deactivateDiscountCode(disableDiscountCodeButton.dataset.disableDiscountCode);
       return;
     }
+
+    if (deleteDiscountCodeButton) {
+      await deleteDiscountCode(deleteDiscountCodeButton.dataset.deleteDiscountCode);
+      return;
+    }
   });
 
   document.body.addEventListener("change", (event) => {
@@ -5711,7 +5745,8 @@ function bindEvents() {
     createIconSet();
   });
 
-  $("#adjust-user-point")?.addEventListener("click", adjustSelectedUserPoints);
+  $("#add-user-point")?.addEventListener("click", () => adjustSelectedUserPoints("add"));
+  $("#remove-user-point")?.addEventListener("click", () => adjustSelectedUserPoints("remove"));
 
   $("#finance-refresh")?.addEventListener("click", async () => {
     const button = $("#finance-refresh");

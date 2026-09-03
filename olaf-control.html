@@ -7,14 +7,14 @@
     <title>หลังบ้าน | OLAF SHOP</title>
     <link rel="preconnect" href="https://cdn.jsdelivr.net" />
     <link rel="preconnect" href="https://wtvfgwacodfrzxapwoxj.supabase.co" />
-    <link rel="stylesheet" href="admin.css?v=20260717-admin-history-v116" />
+    <link rel="stylesheet" href="admin.css?v=20260904-admin-mobile-points-coupons-v136" />
     <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="supabase-client.js?v=20260717-admin-history-v116" defer></script>
     <script src="platform-store.js?v=20260605-admin-users" defer></script>
     <script src="image-performance.js?v=20260607-performance" defer></script>
 <script src="delivery-payload.js?v=20260716-qr-alignment-v111" defer></script>
-    <script src="admin.js?v=20260904-coupon-notification-separation-v135" defer></script>
+    <script src="admin.js?v=20260904-admin-mobile-points-coupons-v137" defer></script>
   </head>
   <body>
     <section class="admin-login-screen" id="admin-login-screen">
@@ -348,7 +348,7 @@
                       <th>พร้อมขาย</th>
                       <th>ขายแล้ว</th>
                       <th>สถานะ</th>
-                      <th></th>
+                      <th>จัดการ</th>
                     </tr>
                   </thead>
                   <tbody id="products-table"></tbody>
@@ -635,7 +635,7 @@
                       <th>Orders</th>
                       <th>ยอดซื้อ</th>
                       <th>สถานะ</th>
-                      <th></th>
+                      <th>จัดการ</th>
                     </tr>
                   </thead>
                   <tbody id="users-table"></tbody>
@@ -714,18 +714,24 @@
                   </div>
                   <div class="form-row">
                     <label>
-                      ปรับ Point (+ เพิ่ม / - ลด)
-                      <input name="pointAdjustAmount" type="number" step="1" placeholder="เช่น 50 หรือ -20" />
+                      จำนวน Point
+                      <input name="pointAdjustAmount" type="number" min="1" step="1" inputmode="numeric" placeholder="เช่น 50" />
                     </label>
                     <label>
                       หมายเหตุ
                       <input name="pointAdjustNote" type="text" placeholder="เหตุผลการปรับ Point" />
                     </label>
                   </div>
-                  <button class="ghost-button" id="adjust-user-point" type="button">
-                    <i data-lucide="coins"></i>
-                    ปรับ Point ลูกค้า
-                  </button>
+                  <div class="point-editor-actions">
+                    <button class="primary-button" id="add-user-point" type="button">
+                      <i data-lucide="circle-plus"></i>
+                      เพิ่ม Point
+                    </button>
+                    <button class="danger-button" id="remove-user-point" type="button">
+                      <i data-lucide="circle-minus"></i>
+                      หัก Point
+                    </button>
+                  </div>
                 </div>
                 <div class="form-actions">
                   <button class="primary-button" type="submit">
@@ -914,6 +920,7 @@
                       <th>ออเดอร์</th>
                       <th>ยอดซื้อ</th>
                       <th>ล่าสุด</th>
+                      <th>จัดการ</th>
                     </tr>
                   </thead>
                   <tbody id="finance-wallets-table"></tbody>
@@ -1510,7 +1517,7 @@
             </section>
             <section class="admin-card">
               <div class="card-heading">
-                <div><h2>รายการโค้ด</h2><span>โค้ดที่ปิดใช้งานจะใช้ไม่ได้ทันที แต่ประวัติการใช้ยังคงอยู่</span></div>
+                <div><h2>รายการโค้ด</h2><span>ลบโค้ดจะปิดใช้งานและซ่อนจากรายการทันที โดยเก็บประวัติการใช้ไว้</span></div>
                 <button class="ghost-button" id="refresh-discount-codes" type="button"><i data-lucide="refresh-cw"></i> รีเฟรช</button>
               </div>
               <div class="coupon-admin-list" id="discount-code-list"><div class="empty-state">กำลังโหลดโค้ดส่วนลด...</div></div>

@@ -738,11 +738,12 @@
       if (activeProductsRequest) return activeProductsRequest;
     }
 
-    // Public listing pages only need card/search fields. Product descriptions,
-    // galleries and requirements are fetched as one row on the detail page.
+    // The Steam Preview on the home page uses the same screenshot gallery as
+    // product.html, so include gallery while keeping the larger text fields
+    // exclusive to the product-detail request.
     const catalogColumns = [
       "id", "name", "publisher", "category", "label", "price", "compare_at",
-      "stock", "sold", "rating", "image_url", "hero_image_url", "tags",
+      "stock", "sold", "rating", "image_url", "hero_image_url", "tags", "gallery",
       "steam_app_id", "badge_overrides", "is_active", "sort_order", "updated_at"
     ].join(",");
 

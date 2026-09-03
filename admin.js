@@ -1736,11 +1736,24 @@ async function deletePackageFromEditor(button) {
 }
 
 function isOfflineProductCategory(category) {
-  return ["offline", "rockstar", "rockstar-fivem", "rockstar-games", "minecraft"].includes(String(category || "").trim().toLowerCase());
+  // All three Steam fulfillment types reserve a real, individual stock record.
+  // This keeps the displayed stock aligned with the key or account that can
+  // actually be delivered to a buyer.
+  return [
+    "steam-key",
+    "steam-account",
+    "offline",
+    "rockstar",
+    "rockstar-fivem",
+    "rockstar-games",
+    "minecraft"
+  ].includes(String(category || "").trim().toLowerCase());
 }
 
 function managedStockCategoryLabel(category) {
   const normalized = String(category || "").trim().toLowerCase();
+  if (normalized === "steam-key") return "คีย์เกม Steam";
+  if (normalized === "steam-account") return "ไอดีเกม Steam";
   if (normalized === "rockstar") return "Rockstar / FiveM";
   if (normalized === "rockstar-fivem" || normalized === "rockstar-games") return "Rockstar / FiveM";
   if (normalized === "minecraft") return "Minecraft / Microsoft";
@@ -1751,6 +1764,12 @@ function managedStockCategoryLabel(category) {
 
 function managedStockPlaceholder(category) {
   const normalized = String(category || "").trim().toLowerCase();
+  if (normalized === "steam-key") {
+    return '{"version":1,"accounts":[{"platform":"STEAM","login":"product-key","id":"steam-key","password":"-"}]}';
+  }
+  if (normalized === "steam-account") {
+    return '{"version":1,"accounts":[{"platform":"STEAM","login":"email@example.com","id":"steam-id","password":"password"}]}';
+  }
   if (["rockstar", "rockstar-fivem", "rockstar-games"].includes(normalized)) {
     return '{"version":1,"accounts":[{"platform":"ROCKSTAR","login":"email@example.com","id":"rockstar-id","password":"password"}]}';
   }
@@ -2768,6 +2787,7 @@ function fillProductForm(product) {
   form.elements.name.value = value.name;
   form.elements.publisher.value = value.publisher;
   form.elements.category.value = value.category;
+  form.elements.steamAppId.value = value.steamAppId ?? "";
   form.elements.label.value = value.label;
   form.elements.price.value = value.price;
   form.elements.compareAt.value = value.compareAt;
@@ -2850,6 +2870,9 @@ function validateAdminProduct(product, { isNew, selectedProductId }) {
   validateNonNegativeInteger(product.stock, "สต็อก");
   validateNonNegativeInteger(product.sold, "ขายแล้ว");
   validateNonNegativeInteger(product.sortOrder, "ลำดับแสดงผล");
+  if (product.steamAppId != null && (!Number.isInteger(product.steamAppId) || product.steamAppId < 1)) {
+    throw new Error("Steam App ID ต้องเป็นจำนวนเต็มมากกว่า 0");
+  }
   if (!isAcceptableImageUrl(product.image)) throw new Error("URL รูปสินค้าไม่ถูกต้อง");
   if (!isAcceptableImageUrl(product.heroImage)) throw new Error("URL รูป Hero ไม่ถูกต้อง");
   if ((product.gallery || []).some((url) => !isAcceptableImageUrl(url))) {
@@ -3086,6 +3109,7 @@ function productFromForm(form) {
   const heroImage = form.elements.heroImage.value.trim() || image;
   const gallery = uniqueList(compactLines(form.elements.gallery.value)).slice(0, 6);
   const compareAtValue = form.elements.compareAt.value.trim();
+  const steamAppIdValue = form.elements.steamAppId.value.trim();
   
   const category = form.elements.category.value;
   const stock = isOfflineProductCategory(category)
@@ -3120,7 +3144,7 @@ function productFromForm(form) {
       (section) => section.title || section.body
     ),
     steamRelatedLinks: uniqueList(compactLines(form.elements.steamRelatedLinks.value)),
-    steamAppId: previousProduct?.steamAppId ?? null,
+    steamAppId: steamAppIdValue === "" ? null : Number(steamAppIdValue),
     sourceMetadata:
       previousProduct?.sourceMetadata && typeof previousProduct.sourceMetadata === "object"
         ? previousProduct.sourceMetadata

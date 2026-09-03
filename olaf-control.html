@@ -14,7 +14,7 @@
     <script src="platform-store.js?v=20260605-admin-users" defer></script>
     <script src="image-performance.js?v=20260607-performance" defer></script>
 <script src="delivery-payload.js?v=20260716-qr-alignment-v111" defer></script>
-    <script src="admin.js?v=20260904-admin-mobile-points-coupons-v137" defer></script>
+    <script src="admin.js?v=20260904-admin-managed-steam-stock-v144" defer></script>
   </head>
   <body>
     <section class="admin-login-screen" id="admin-login-screen">
@@ -367,7 +367,7 @@
                 </button>
               </div>
               <form class="admin-form" id="product-form">
-                <div class="form-row">
+                <div class="form-row three">
                   <label>
                     Product ID
                     <input name="id" type="text" placeholder="elden-ring" required />
@@ -375,6 +375,11 @@
                   <label>
                     หมวดสินค้า
                     <select name="category" id="category-select"></select>
+                  </label>
+                  <label>
+                    Steam App ID
+                    <input name="steamAppId" type="number" min="1" step="1" inputmode="numeric" placeholder="1245620" />
+                    <small class="admin-field-help">ใช้ดึงข้อมูล Steam และรูปตัวอย่างในหน้าเว็บ</small>
                   </label>
                 </div>
                 <label>

@@ -1513,9 +1513,9 @@ function productOwnedImages(product, count = 4) {
 
   if (!ownImages.length) return [];
 
-  // Never borrow another game's artwork. When a legacy product has fewer
-  // screenshots, reuse its own artwork so every preview keeps a stable grid.
-  return Array.from({ length: count }, (_, index) => ownImages[index % ownImages.length]);
+  // Never borrow another game's artwork or repeat a cover just to fill space.
+  // Products with fewer screenshots simply show the unique images available.
+  return ownImages.slice(0, count);
 }
 
 function widgetMarker(code = "") {

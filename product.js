@@ -269,18 +269,36 @@ function renderProductFavorites() {
   hydrateImages();
 }
 
-function toggleProductFavorite(productId) {
+async function toggleProductFavorite(productId) {
   const product = (globalPayload?.products || []).find((item) => String(item.id) === String(productId));
   if (!product) return;
   const id = String(product.id);
   const saved = productFavoriteIds.has(id);
-  if (saved) productFavoriteIds.delete(id);
-  else productFavoriteIds.add(id);
-  saveProductFavoriteIds();
+  if (window.OlafFavorites?.toggle) {
+    productFavoriteIds = new Set(await window.OlafFavorites.toggle(id));
+  } else {
+    if (saved) productFavoriteIds.delete(id);
+    else productFavoriteIds.add(id);
+    saveProductFavoriteIds();
+  }
   renderProductFavorites();
   syncProductFavoriteControls();
   createIconSet();
   showToast(saved ? "ลบออกจากรายการโปรดแล้ว" : "บันทึกในรายการโปรดแล้ว", "success");
+}
+
+function initializeSharedProductFavorites() {
+  const favoriteStore = window.OlafFavorites;
+  if (!favoriteStore) return;
+  productFavoriteIds = new Set(favoriteStore.getIds());
+  favoriteStore.subscribe((ids) => {
+    productFavoriteIds = new Set(ids);
+    renderProductFavorites();
+  });
+  favoriteStore.sync().then((ids) => {
+    productFavoriteIds = new Set(ids);
+    renderProductFavorites();
+  });
 }
 
 function fastBg(src, options = {}) {
@@ -3636,6 +3654,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
 
   await loadStore();
+  initializeSharedProductFavorites();
   renderProduct();
   renderProductFavorites();
 

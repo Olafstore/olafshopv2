@@ -2123,6 +2123,54 @@
     }));
   }
 
+  function normalizeFavoriteProductId(productId) {
+    return String(productId || "").trim();
+  }
+
+  async function requireFavoriteUserId() {
+    const { data, error } = await requireClient().auth.getUser();
+    if (error) throw error;
+    const userId = String(data?.user?.id || "").trim();
+    if (!userId) throw new Error("FAVORITES_AUTH_REQUIRED");
+    return userId;
+  }
+
+  async function fetchMyFavoriteProductIds() {
+    const userId = await requireFavoriteUserId();
+    const { data, error } = await requireClient()
+      .from("user_favorites")
+      .select("product_id")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return [...new Set(normalizeArray(data).map((row) => normalizeFavoriteProductId(row.product_id)).filter(Boolean))];
+  }
+
+  async function addMyFavoriteProduct(productId) {
+    const userId = await requireFavoriteUserId();
+    const normalizedProductId = normalizeFavoriteProductId(productId);
+    if (!normalizedProductId) throw new Error("FAVORITE_PRODUCT_REQUIRED");
+    const { error } = await requireClient()
+      .from("user_favorites")
+      .upsert(
+        { user_id: userId, product_id: normalizedProductId },
+        { onConflict: "user_id,product_id", ignoreDuplicates: true }
+      );
+    if (error) throw error;
+  }
+
+  async function removeMyFavoriteProduct(productId) {
+    const userId = await requireFavoriteUserId();
+    const normalizedProductId = normalizeFavoriteProductId(productId);
+    if (!normalizedProductId) throw new Error("FAVORITE_PRODUCT_REQUIRED");
+    const { error } = await requireClient()
+      .from("user_favorites")
+      .delete()
+      .eq("user_id", userId)
+      .eq("product_id", normalizedProductId);
+    if (error) throw error;
+  }
+
   window.olafSupabase = client;
   window.OlafSupabaseAuth = {
     isConfigured,
@@ -2136,7 +2184,10 @@
     updateProfile,
     updatePassword,
     buildOAuthRedirectUrl,
-    getOAuthReturnTo
+    getOAuthReturnTo,
+    fetchMyFavoriteProductIds,
+    addMyFavoriteProduct,
+    removeMyFavoriteProduct
   };
   window.OlafProducts = {
     mapProductRow,

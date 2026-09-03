@@ -585,18 +585,36 @@ function renderFavorites() {
   hydrateImages();
 }
 
-function toggleFavorite(productId) {
+async function toggleFavorite(productId) {
   const product = productById(productId);
   if (!product) return;
   const id = String(product.id);
   const isSaved = state.favoriteIds.has(id);
-  if (isSaved) state.favoriteIds.delete(id);
-  else state.favoriteIds.add(id);
-  saveFavoriteIds();
+  if (window.OlafFavorites?.toggle) {
+    state.favoriteIds = new Set(await window.OlafFavorites.toggle(id));
+  } else {
+    if (isSaved) state.favoriteIds.delete(id);
+    else state.favoriteIds.add(id);
+    saveFavoriteIds();
+  }
   renderFavorites();
   syncFavoriteControls();
   createIconSet();
   showToast(isSaved ? `ลบ “${cleanDisplayText(product.name)}” ออกจากรายการโปรดแล้ว` : `บันทึก “${cleanDisplayText(product.name)}” ในรายการโปรดแล้ว`, "success");
+}
+
+function initializeSharedFavorites() {
+  const favoriteStore = window.OlafFavorites;
+  if (!favoriteStore) return;
+  state.favoriteIds = new Set(favoriteStore.getIds());
+  favoriteStore.subscribe((ids) => {
+    state.favoriteIds = new Set(ids);
+    renderFavorites();
+  });
+  favoriteStore.sync().then((ids) => {
+    state.favoriteIds = new Set(ids);
+    renderFavorites();
+  });
 }
 
 function getDiscount(product) {
@@ -3649,6 +3667,7 @@ function bindEvents() {
     const formData = new FormData(event.currentTarget);
     try {
       const user = await window.OlafStore.signIn(formData.get("email"), formData.get("password"));
+      await window.OlafFavorites?.sync({ force: true });
       $(selectors.authDialog)?.close();
       renderAll();
       showToast(`เข้าสู่ระบบสำเร็จ ${user.displayName || user.username}!`, "success");
@@ -3668,6 +3687,7 @@ function bindEvents() {
         displayName: formData.get("displayName"),
         password: formData.get("password")
       });
+      await window.OlafFavorites?.sync({ force: true });
       event.currentTarget.reset();
       $(selectors.authDialog)?.close();
       renderAll();
@@ -3808,6 +3828,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   bindEvents();
   applyPayload(fallbackPayload);
   renderAll();
+  initializeSharedFavorites();
   showAdminRedirectNotice();
   applySearchFromUrl();
   loadRecentPurchases();

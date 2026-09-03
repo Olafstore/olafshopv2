@@ -1805,34 +1805,52 @@ function renderWidgets() {
   hydrateImages();
 }
 
-function renderHeroDeal() {
-  const deal = [...state.products]
+function heroCarouselProducts() {
+  const productsById = new Map(state.products.map((product) => [String(product.id), product]));
+  const orderedProducts = state.steamPreviewOrder
+    .map((productId) => productsById.get(productId))
+    .filter(Boolean);
+
+  return (orderedProducts.length ? orderedProducts : state.products)
     .filter((product) => product.stock > 0)
-    .sort((a, b) => getDiscount(b) - getDiscount(a))[0];
+    .slice(0, 5);
+}
 
-  if (!deal) return;
+function renderHeroDeal() {
+  const deals = heroCarouselProducts();
+  const heroDeal = $(selectors.heroDeal);
+  if (!heroDeal) return;
+  if (!deals.length) {
+    heroDeal.innerHTML = "";
+    return;
+  }
 
-  const stock = getStockState(deal.stock);
-  $(selectors.heroDeal).innerHTML = `
-    <article class="deal-card">
-      <img ${fastImg(deal.image || deal.heroImage, deal.name, { priority: true })} />
-      <div class="deal-card-body">
-        <span class="label-pill badge-tone-steam">STEAM</span>
-        <h2>${escapeHtml(deal.name)}</h2>
-        <div class="product-meta">
-          <span class="stock-pill ${stock.className}">${stock.label}</span>
-          <span class="discount-pill">-${getDiscount(deal)}%</span>
-        </div>
-        <div class="price-row">
-          <strong class="price">${formatPrice(deal.price)}</strong>
-          <span class="compare-price">${formatPrice(deal.compareAt)}</span>
-        </div>
-        <a class="primary-button" href="product.html?id=${encodeURIComponent(deal.id)}">
-          <i data-lucide="shopping-bag"></i>
-          ${t("orderNow")}
-        </a>
+  heroDeal.innerHTML = `
+    <section class="hero-game-carousel" aria-label="เกมแนะนำแบบสุ่ม">
+      <p class="hero-game-carousel-eyebrow">เกมแนะนำ</p>
+      <div class="hero-game-carousel-stage">
+        ${deals.map((product, index) => {
+          const discount = getDiscount(product);
+          const category = getCategoryLabel(product.category);
+          const productName = cleanDisplayText(product.name);
+          return `
+            <a class="hero-game-card" href="${productLink(product)}" aria-label="ดูรายละเอียด ${escapeHtml(productName)}">
+              <span class="hero-game-card-art">
+                <img ${fastImg(product.image || product.heroImage, productName, { priority: index === 2 })} />
+              </span>
+              <span class="hero-game-card-info">
+                <strong>${escapeHtml(productName)}</strong>
+                <span class="hero-game-card-price">
+                  <b>${formatPrice(product.price)}</b>
+                  ${discount ? `<del>${formatPrice(product.compareAt)}</del>` : ""}
+                </span>
+                <small>${escapeHtml(category)}</small>
+              </span>
+            </a>
+          `;
+        }).join("")}
       </div>
-    </article>
+    </section>
   `;
 }
 

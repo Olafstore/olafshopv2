@@ -523,7 +523,7 @@ function favoriteToggleMarkup(product, className = "") {
       aria-label="${escapeHtml(label)}"
       aria-pressed="${saved}"
       title="${escapeHtml(saved ? "ลบจากรายการโปรด" : "เพิ่มในรายการโปรด")}" 
-    ><i data-lucide="heart"></i></button>
+    ><i data-lucide="${saved ? "bookmark-check" : "bookmark-plus"}"></i></button>
   `;
 }
 
@@ -539,6 +539,7 @@ function syncFavoriteControls() {
     button.classList.toggle("is-favorite", saved);
     button.setAttribute("aria-pressed", String(saved));
     button.setAttribute("title", saved ? "ลบจากรายการโปรด" : "เพิ่มในรายการโปรด");
+    button.querySelector("[data-lucide]")?.setAttribute("data-lucide", saved ? "bookmark-check" : "bookmark-plus");
     const product = productById(button.dataset.favorite);
     if (product) {
       button.setAttribute(
@@ -573,9 +574,9 @@ function renderFavorites() {
         `).join("")
       : `
           <div class="favorites-empty">
-            <i data-lucide="heart"></i>
+            <i data-lucide="bookmark"></i>
             <strong>ยังไม่มีเกมที่บันทึกไว้</strong>
-            <p>กดรูปหัวใจบนเกมที่ชอบ เพื่อเก็บไว้ดูภายหลัง</p>
+            <p>กดไอคอนบุ๊กมาร์กบนเกมที่ชอบ เพื่อเก็บไว้ดูภายหลัง</p>
           </div>
         `;
   }

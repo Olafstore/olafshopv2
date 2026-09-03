@@ -36950,6 +36950,8 @@ body.product-detail-page .pd-feature-icon-support {
   height: 246px;
   perspective: 900px;
   transform-style: preserve-3d;
+  mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.25) 8%, #000 26%, #000 74%, rgba(0, 0, 0, 0.25) 92%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.25) 8%, #000 26%, #000 74%, rgba(0, 0, 0, 0.25) 92%, transparent 100%);
 }
 
 .hero-game-card {
@@ -36970,10 +36972,11 @@ body.product-detail-page .pd-feature-icon-support {
   text-decoration: none;
   transform-origin: center bottom;
   transform-style: flat;
-  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), border-color 220ms ease, box-shadow 220ms ease, filter 220ms ease;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), opacity 260ms ease, border-color 220ms ease, box-shadow 220ms ease, filter 220ms ease;
   backdrop-filter: blur(24px) saturate(1.32);
   -webkit-backdrop-filter: blur(24px) saturate(1.32);
   transform: var(--hero-card-transform, translateX(-50%));
+  opacity: 1;
 }
 
 .hero-game-card:hover,
@@ -36988,11 +36991,13 @@ body.product-detail-page .pd-feature-icon-support {
 .hero-game-card:nth-child(1) {
   z-index: 1;
   --hero-card-transform: translateX(calc(-50% - 174px)) rotateY(24deg) rotateZ(-8deg) scale(0.86);
+  opacity: 0.28;
 }
 
 .hero-game-card:nth-child(2) {
   z-index: 2;
   --hero-card-transform: translateX(calc(-50% - 88px)) rotateY(14deg) rotateZ(-4deg) scale(0.94);
+  opacity: 0.68;
 }
 
 .hero-game-card:nth-child(3) {
@@ -37005,17 +37010,20 @@ body.product-detail-page .pd-feature-icon-support {
 .hero-game-card:nth-child(4) {
   z-index: 2;
   --hero-card-transform: translateX(calc(-50% + 88px)) rotateY(-14deg) rotateZ(4deg) scale(0.94);
+  opacity: 0.68;
 }
 
 .hero-game-card:nth-child(5) {
   z-index: 1;
   --hero-card-transform: translateX(calc(-50% + 174px)) rotateY(-24deg) rotateZ(8deg) scale(0.86);
+  opacity: 0.28;
 }
 
 .hero-game-card:hover,
 .hero-game-card:focus-within {
   /* Preserve the individual fan position; only lift the selected card. */
   transform: var(--hero-card-transform) translateY(-10px);
+  opacity: 1;
 }
 
 .hero-game-card-link {
@@ -37199,8 +37207,8 @@ body.product-detail-page .pd-feature-icon-support {
 
 .favorites-badge {
   position: absolute;
-  top: -5px;
-  right: -5px;
+  top: -8px;
+  right: -12px;
   display: grid;
   min-width: 17px;
   height: 17px;
@@ -37214,6 +37222,15 @@ body.product-detail-page .pd-feature-icon-support {
   font-size: 0.58rem;
   font-weight: 800;
   line-height: 1;
+}
+
+/* Keep the saved-items entry point visible; the count sits outside the icon. */
+.topbar .favorites-button,
+.topbar.site-topbar-unified .favorites-button {
+  display: inline-grid !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  overflow: visible !important;
 }
 
 .favorite-toggle {
@@ -37278,6 +37295,43 @@ body.product-detail-page .pd-feature-icon-support {
 .detail-favorite-toggle {
   flex: 0 0 auto;
   margin-top: 2px;
+}
+
+.pd-favorite-btn {
+  display: inline-flex;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 10px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid rgba(251, 113, 133, 0.36);
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.52);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: #fecdd3;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+
+.pd-favorite-btn:hover,
+.pd-favorite-btn:focus-visible {
+  border-color: rgba(251, 113, 133, 0.78);
+  background: rgba(190, 24, 93, 0.2);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.pd-favorite-btn.is-favorite {
+  border-color: rgba(251, 113, 133, 0.72);
+  background: linear-gradient(135deg, rgba(225, 29, 72, 0.68), rgba(157, 23, 77, 0.46));
+  color: #fff;
+}
+
+.pd-favorite-btn.is-favorite svg {
+  fill: currentColor;
 }
 
 .favorites-dialog {

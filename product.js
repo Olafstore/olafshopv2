@@ -10,6 +10,8 @@ let qrSlipInput = null;
 let currentProductPackages = [];
 let selectedPackageId = null;
 let iconRefreshQueued = false;
+const productFavoritesStorageKey = "olafshop_favorite_products";
+let productFavoriteIds = new Set(loadProductFavoriteIds());
 let checkoutPointState = {
   balance: 0,
   enabled: false,
@@ -178,6 +180,107 @@ function fastImg(src, alt = "", options = {}) {
     ? ` data-image-fallbacks="${escapeHtml(JSON.stringify(fallbacks))}"`
     : "";
   return `${className} src="${escapeHtml(src || "")}" alt="${escapeHtml(alt)}" loading="${loading}" decoding="async" fetchpriority="${fetchPriority}"${fallbackAttr}`;
+}
+
+function loadProductFavoriteIds() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(productFavoritesStorageKey) || "[]");
+    return Array.isArray(saved) ? saved.map(String).filter(Boolean) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveProductFavoriteIds() {
+  try {
+    localStorage.setItem(productFavoritesStorageKey, JSON.stringify([...productFavoriteIds]));
+  } catch {
+    // Keep the selection available for this visit when browser storage is unavailable.
+  }
+}
+
+function isProductFavorite(productId) {
+  return productFavoriteIds.has(String(productId));
+}
+
+function productFavoriteButtonMarkup(product) {
+  const saved = isProductFavorite(product.id);
+  const label = saved ? "ลบออกจากรายการโปรด" : "บันทึกในรายการโปรด";
+  return `
+    <button class="pd-favorite-btn ${saved ? "is-favorite" : ""}" type="button" data-product-favorite="${escapeHtml(product.id)}" aria-pressed="${saved}">
+      <i data-lucide="${saved ? "bookmark-check" : "bookmark-plus"}"></i><span>${label}</span>
+    </button>
+  `;
+}
+
+function productFavoriteProducts() {
+  const products = Array.isArray(globalPayload?.products) ? globalPayload.products : [];
+  const productMap = new Map(products.map((product) => [String(product.id), product]));
+  return [...productFavoriteIds].map((id) => productMap.get(id)).filter(Boolean);
+}
+
+function syncProductFavoriteControls() {
+  document.querySelectorAll("[data-product-favorite]").forEach((button) => {
+    const saved = isProductFavorite(button.dataset.productFavorite);
+    button.classList.toggle("is-favorite", saved);
+    button.setAttribute("aria-pressed", String(saved));
+    const text = button.querySelector("span");
+    if (text) text.textContent = saved ? "ลบออกจากรายการโปรด" : "บันทึกในรายการโปรด";
+    const icon = button.querySelector("svg, i");
+    if (icon) {
+      const nextIcon = saved ? "bookmark-check" : "bookmark-plus";
+      if (icon.tagName.toLowerCase() === "svg") {
+        const next = document.createElement("i");
+        next.setAttribute("data-lucide", nextIcon);
+        icon.replaceWith(next);
+      } else {
+        icon.setAttribute("data-lucide", nextIcon);
+      }
+    }
+  });
+  const count = productFavoriteProducts().length;
+  const badge = $("#product-favorites-badge");
+  if (badge) {
+    badge.hidden = count === 0;
+    badge.textContent = count > 99 ? "99+" : String(count);
+  }
+}
+
+function renderProductFavorites() {
+  const list = $("#product-favorites-list");
+  const countLabel = $("#product-favorites-count");
+  const products = productFavoriteProducts();
+  if (countLabel) countLabel.textContent = `${products.length} เกม`;
+  if (list) {
+    list.innerHTML = products.length
+      ? products.map((product) => `
+          <article class="favorite-list-item">
+            <a href="product.html?id=${encodeURIComponent(product.id)}">
+              <img ${fastImg(product.image || product.heroImage, getDisplayProductName(product))} />
+              <span><strong>${escapeHtml(getDisplayProductName(product))}</strong><small>${formatPrice(product.price)}</small></span>
+            </a>
+            <button class="favorite-toggle is-favorite favorite-list-remove" type="button" data-product-favorite="${escapeHtml(product.id)}" aria-label="ลบออกจากรายการโปรด" aria-pressed="true"><i data-lucide="bookmark-check"></i></button>
+          </article>
+        `).join("")
+      : `<div class="favorites-empty"><i data-lucide="bookmark"></i><strong>ยังไม่มีเกมที่บันทึกไว้</strong><p>กดปุ่มบุ๊กมาร์กบนหน้ารายละเอียดสินค้า เพื่อเก็บไว้ดูภายหลัง</p></div>`;
+  }
+  syncProductFavoriteControls();
+  createIconSet();
+  hydrateImages();
+}
+
+function toggleProductFavorite(productId) {
+  const product = (globalPayload?.products || []).find((item) => String(item.id) === String(productId));
+  if (!product) return;
+  const id = String(product.id);
+  const saved = productFavoriteIds.has(id);
+  if (saved) productFavoriteIds.delete(id);
+  else productFavoriteIds.add(id);
+  saveProductFavoriteIds();
+  renderProductFavorites();
+  syncProductFavoriteControls();
+  createIconSet();
+  showToast(saved ? "ลบออกจากรายการโปรดแล้ว" : "บันทึกในรายการโปรดแล้ว", "success");
 }
 
 function fastBg(src, options = {}) {
@@ -2127,6 +2230,7 @@ function renderProduct() {
               <i data-lucide="${purchaseButtonIcon(p)}"></i>
               ${buyButtonText}
             </button>
+            ${productFavoriteButtonMarkup(p)}
             <!-- Feature info row -->
             <div class="pd-features-row">
               ${displayFeatureBlocks.length > 0 ? displayFeatureBlocks.map(f => `
@@ -2203,6 +2307,7 @@ function renderProduct() {
 
   createIconSet();
   hydrateImages();
+  renderProductFavorites();
   setupSmoothDetails(container);
   setupRelatedScroller(container);
   hydrateSteamRelatedMetadata();
@@ -3532,6 +3637,21 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   await loadStore();
   renderProduct();
+  renderProductFavorites();
+
+  document.addEventListener("click", (event) => {
+    const favoriteButton = event.target.closest("[data-product-favorite]");
+    if (!favoriteButton) return;
+    event.preventDefault();
+    toggleProductFavorite(favoriteButton.dataset.productFavorite);
+  });
+  $("#product-open-favorites")?.addEventListener("click", () => {
+    renderProductFavorites();
+    $("#product-favorites-dialog")?.showModal();
+  });
+  $("#product-close-favorites")?.addEventListener("click", () => {
+    $("#product-favorites-dialog")?.close();
+  });
 
   document.querySelectorAll("[data-lang-option]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.langOption === currentLang);

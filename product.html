@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260903-ipad-mobile-nav-v117" />
+  <link rel="stylesheet" href="styles.css?v=20260903-favorites-menu-v132" />
   <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" defer></script>
@@ -25,7 +25,7 @@
   <script src="notifications.js?v=20260716-qr-alignment-v111" defer></script>
     <script src="site-navigation.js?v=20260903-ipad-mobile-nav-v118" defer></script>
   <script src="extra-products.js?v=20260717-live-catalog-v116" defer></script>
-  <script src="product.js?v=20260717-live-catalog-v116" defer></script>
+  <script src="product.js?v=20260903-favorites-v132" defer></script>
 </head>
 
 <body class="product-detail-page">
@@ -87,6 +87,10 @@
             </div>
           </div>
         </div>
+        <button class="icon-button favorites-button" id="product-open-favorites" type="button" aria-label="เปิดรายการโปรด">
+          <i data-lucide="bookmark"></i>
+          <span class="favorites-badge" id="product-favorites-badge" hidden></span>
+        </button>
         <div class="user-popover-wrap" style="position:relative">
           <button class="account-button is-auth-loading" id="open-auth" type="button" aria-busy="true">
             <i data-lucide="loader-circle"></i>
@@ -459,6 +463,16 @@
         </button>
       </div>
     </div>
+  </dialog>
+
+  <dialog class="favorites-dialog" id="product-favorites-dialog">
+    <button class="dialog-close" id="product-close-favorites" type="button" aria-label="ปิดรายการโปรด"><i data-lucide="x"></i></button>
+    <div class="favorites-dialog-head">
+      <p>OLAF COLLECTION</p>
+      <h2>รายการโปรด</h2>
+      <span id="product-favorites-count">0 เกม</span>
+    </div>
+    <div class="favorites-list" id="product-favorites-list"></div>
   </dialog>
 
   <a class="discord-floating-link" href="https://discord.gg/6axb2QbDHN" target="_blank" rel="noopener noreferrer" aria-label="ติดต่อ Discord" data-discord-link>

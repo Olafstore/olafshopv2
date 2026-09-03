@@ -58,7 +58,8 @@
 
 /* v104: live 15-minute unpaid-order countdown in customer history */
 .profile-order-countdown {
-  display: inline-flex;
+  display: inline-grid;
+  grid-template-columns: 14px minmax(0, 1fr);
   align-items: center;
   gap: 6px;
   width: fit-content;
@@ -71,7 +72,16 @@
   color: #fde68a;
   font-size: 0.74rem;
   line-height: 1.2;
-  white-space: nowrap;
+  white-space: normal;
+}
+
+.profile-order-countdown [data-order-countdown-label] {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.profile-order-countdown strong {
+  overflow-wrap: anywhere;
 }
 
 .profile-order-countdown svg,
@@ -103,7 +113,7 @@
 @media (max-width: 720px) {
   .profile-order-countdown {
     width: 100%;
-    justify-content: center;
+    justify-content: start;
     margin-top: 5px;
     padding: 6px 8px;
     font-size: 0.7rem;

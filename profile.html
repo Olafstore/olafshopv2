@@ -23,7 +23,7 @@
 <script src="delivery-payload.js?v=20260716-qr-alignment-v111" defer></script>
     <script src="site-navigation.js?v=20260903-ipad-mobile-nav-v118" defer></script>
   <script src="notifications.js?v=20260716-qr-alignment-v111" defer></script>
-      <link rel="stylesheet" href="styles.css?v=20260903-ipad-mobile-nav-v117" />
+      <link rel="stylesheet" href="styles.css?v=20260904-order-expiry-wrap-v146" />
   <style>
     body {
       padding-top: 0;
@@ -3329,7 +3329,7 @@
           data-order-countdown data-order-id="${escape(order.id || '')}"
           data-order-expires-at="${escape(expiresAt.toISOString())}">
           <i data-lucide="timer"></i>
-          <span>ยกเลิกอัตโนมัติใน <strong data-order-countdown-value>15:00</strong></span>
+          <span data-order-countdown-label><span data-order-countdown-prefix>ยกเลิกอัตโนมัติใน </span><strong data-order-countdown-value>15:00</strong></span>
         </span>
       `;
     }
@@ -3340,9 +3340,11 @@
       countdowns.forEach((countdown) => {
         const expiresAt = new Date(countdown.getAttribute('data-order-expires-at') || '');
         const value = countdown.querySelector('[data-order-countdown-value]');
+        const prefix = countdown.querySelector('[data-order-countdown-prefix]');
         if (!value || Number.isNaN(expiresAt.getTime())) return;
         const remaining = expiresAt.getTime() - Date.now();
         if (remaining <= 0) {
+          if (prefix) prefix.textContent = '';
           value.textContent = 'ครบเวลา · กำลังยกเลิก';
           countdown.classList.add('is-expired');
           const orderId = countdown.getAttribute('data-order-id') || '';
@@ -3356,6 +3358,7 @@
         }
         hasActiveCountdown = true;
         countdown.classList.remove('is-expired');
+        if (prefix) prefix.textContent = 'ยกเลิกอัตโนมัติใน ';
         const totalSeconds = Math.max(0, Math.ceil(remaining / 1000));
         const minutes = Math.floor(totalSeconds / 60);
         const seconds = totalSeconds % 60;
@@ -4751,31 +4754,76 @@
       }
 
       let expiryRefreshTimer = null;
-      document.addEventListener('olaf-order-expiry-reached', async (event) => {
-        const orderId = String(event.detail?.orderId || '').trim();
-        if (orderId) {
-          profileState.inventoryRows = profileState.inventoryRows.filter(row => row.orderId !== orderId);
-          profileState.inventoryLookup = new Map(profileState.inventoryRows.map(row => [row.key, row]));
-          if (profileState.activeInventory?.orderId === orderId) toggleInventoryModal(false);
-          renderInventoryList();
+      const profileOrderExpiryInFlight = new Set();
+      const profileOrderExpiryRetryTimers = new Map();
 
-          // Return the owner's reservation immediately. The cron worker remains
-          // the fallback, while database row locking prevents a double return.
-          try {
-            if (window.OlafOrders?.cancelMyOrder) {
-              const cancelledOrder = await window.OlafOrders.cancelMyOrder(orderId);
-              const orderIndex = profileState.orders.findIndex(order => order.id === orderId);
-              if (orderIndex >= 0 && cancelledOrder) profileState.orders[orderIndex] = cancelledOrder;
-              renderOrdersList(profileState.orders);
-              if (Number(cancelledOrder?.pointRefundAmount || 0) > 0) await refreshProfilePoints();
-            }
-          } catch (error) {
+      function setExpiredOrderCountdownMessage(orderId, message) {
+        document.querySelectorAll('[data-order-countdown]').forEach((countdown) => {
+          if (String(countdown.getAttribute('data-order-id') || '') !== orderId) return;
+          const prefix = countdown.querySelector('[data-order-countdown-prefix]');
+          const value = countdown.querySelector('[data-order-countdown-value]');
+          if (prefix) prefix.textContent = '';
+          if (value) value.textContent = message;
+          countdown.classList.add('is-expired');
+        });
+      }
+
+      function scheduleExpiredOrderRetry(orderId) {
+        if (profileOrderExpiryRetryTimers.has(orderId)) return;
+        const timer = window.setTimeout(() => {
+          profileOrderExpiryRetryTimers.delete(orderId);
+          profileOrderExpiryNotified.delete(orderId);
+          updateProfileOrderCountdowns();
+        }, 5000);
+        profileOrderExpiryRetryTimers.set(orderId, timer);
+      }
+
+      function removeExpiredOrderFromInventory(orderId) {
+        profileState.inventoryRows = profileState.inventoryRows.filter(row => row.orderId !== orderId);
+        profileState.inventoryLookup = new Map(profileState.inventoryRows.map(row => [row.key, row]));
+        if (profileState.activeInventory?.orderId === orderId) toggleInventoryModal(false);
+        renderInventoryList();
+      }
+
+      async function cancelExpiredProfileOrder(orderId) {
+        if (!orderId || profileOrderExpiryInFlight.has(orderId)) return;
+        profileOrderExpiryInFlight.add(orderId);
+        setExpiredOrderCountdownMessage(orderId, 'ครบเวลา · กำลังยกเลิก');
+
+        try {
+          if (!window.OlafOrders?.cancelMyOrder) throw new Error('Order cancel client is not ready');
+          const cancelledOrder = await window.OlafOrders.cancelMyOrder(orderId);
+          const status = String(cancelledOrder?.status || '').toLowerCase();
+          if (!['cancelled', 'expired'].includes(status)) {
+            throw new Error('ORDER_CANCEL_NOT_FINAL');
+          }
+
+          const orderIndex = profileState.orders.findIndex(order => order.id === orderId);
+          if (orderIndex >= 0) profileState.orders[orderIndex] = cancelledOrder;
+          removeExpiredOrderFromInventory(orderId);
+          renderOrdersList(profileState.orders);
+          if (Number(cancelledOrder.pointRefundAmount || 0) > 0) await refreshProfilePoints();
+        } catch (error) {
+          // Never leave an order permanently labelled "กำลังยกเลิก". Re-fetch
+          // first because the server cron or another tab may have completed it.
+          await refreshProfileOrders({ quiet: true, preserveModal: false }).catch(() => {});
+          const current = profileState.orders.find(order => order.id === orderId);
+          if (!['cancelled', 'expired'].includes(String(current?.status || '').toLowerCase())) {
+            setExpiredOrderCountdownMessage(orderId, 'ครบเวลา · รอยกเลิกอัตโนมัติ');
+            scheduleExpiredOrderRetry(orderId);
             const message = String(error?.message || '');
             if (!/ORDER_(?:CANNOT_BE_CANCELLED|NOT_FOUND)/.test(message)) {
-              console.warn('Unable to cancel expired order immediately; cron will retry', error);
+              console.warn('Unable to cancel expired order; retrying automatically', error);
             }
           }
+        } finally {
+          profileOrderExpiryInFlight.delete(orderId);
         }
+      }
+
+      document.addEventListener('olaf-order-expiry-reached', async (event) => {
+        const orderId = String(event.detail?.orderId || '').trim();
+        if (orderId) await cancelExpiredProfileOrder(orderId);
         if (expiryRefreshTimer) window.clearTimeout(expiryRefreshTimer);
         expiryRefreshTimer = window.setTimeout(() => {
           refreshProfileOrders({ quiet: true, preserveModal: false });

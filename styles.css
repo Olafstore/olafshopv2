@@ -36933,30 +36933,16 @@ body.product-detail-page .pd-feature-icon-support {
 .hero-game-carousel {
   position: relative;
   min-height: 286px;
-  padding-top: 12px;
+  padding-top: 0;
   isolation: isolate;
 }
 
 .hero-game-carousel::before {
-  position: absolute;
-  inset: 18px 0 0;
-  z-index: -1;
-  content: "";
-  border-radius: 26px;
-  background:
-    radial-gradient(circle at 50% 32%, rgba(96, 165, 250, 0.15), transparent 45%),
-    linear-gradient(135deg, rgba(15, 23, 42, 0.3), rgba(2, 6, 23, 0.05));
-  opacity: 0.8;
+  content: none;
 }
 
 .hero-game-carousel-eyebrow {
-  margin: 0 0 4px;
-  color: #93c5fd;
-  font-size: 0.66rem;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-align: right;
-  text-transform: uppercase;
+  display: none;
 }
 
 .hero-game-carousel-stage {
@@ -37041,9 +37027,12 @@ body.product-detail-page .pd-feature-icon-support {
 
 .hero-game-card-art::after {
   position: absolute;
-  inset: 42% 0 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 42px;
   content: "";
-  background: linear-gradient(transparent, rgba(2, 6, 23, 0.5));
+  background: linear-gradient(to bottom, transparent, rgba(2, 6, 23, 0.92));
 }
 
 .hero-game-card-art img {
@@ -37054,11 +37043,13 @@ body.product-detail-page .pd-feature-icon-support {
 }
 
 .hero-game-card-info {
+  position: relative;
   display: grid;
   gap: 2px;
   min-height: 62px;
-  padding: 7px 8px 8px;
-  background: linear-gradient(145deg, rgba(15, 23, 42, 0.64), rgba(2, 6, 23, 0.82));
+  margin-top: -18px;
+  padding: 25px 8px 8px;
+  background: linear-gradient(to bottom, rgba(2, 6, 23, 0), rgba(2, 6, 23, 0.72) 22px, rgba(2, 6, 23, 0.86));
   backdrop-filter: blur(18px) saturate(1.2);
   -webkit-backdrop-filter: blur(18px) saturate(1.2);
 }
@@ -37109,7 +37100,7 @@ body.product-detail-page .pd-feature-icon-support {
 @media (max-width: 560px) {
   .hero-game-carousel {
     min-height: 224px;
-    padding-top: 6px;
+    padding-top: 0;
   }
 
   .hero-game-carousel-stage {
@@ -37151,7 +37142,8 @@ body.product-detail-page .pd-feature-icon-support {
 
   .hero-game-card-info {
     min-height: 61px;
-    padding: 5px 6px 6px;
+    margin-top: -15px;
+    padding: 20px 6px 6px;
   }
 
   .hero-game-card-info strong {

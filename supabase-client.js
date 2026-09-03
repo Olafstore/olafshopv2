@@ -2171,6 +2171,28 @@
     if (error) throw error;
   }
 
+  async function subscribeMyFavoriteProducts(onChange) {
+    if (typeof onChange !== "function") return () => {};
+    const userId = await requireFavoriteUserId();
+    const favoriteChannel = requireClient()
+      .channel(`olaf-favorites:${userId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "user_favorites",
+          filter: `user_id=eq.${userId}`
+        },
+        (payload) => onChange(payload)
+      )
+      .subscribe();
+
+    return () => {
+      requireClient().removeChannel(favoriteChannel).catch(() => null);
+    };
+  }
+
   window.olafSupabase = client;
   window.OlafSupabaseAuth = {
     isConfigured,
@@ -2187,7 +2209,8 @@
     getOAuthReturnTo,
     fetchMyFavoriteProductIds,
     addMyFavoriteProduct,
-    removeMyFavoriteProduct
+    removeMyFavoriteProduct,
+    subscribeMyFavoriteProducts
   };
   window.OlafProducts = {
     mapProductRow,

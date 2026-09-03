@@ -8,6 +8,8 @@
   let activeUserId = "";
   let ids = new Set(readIds(guestStorageKey));
   let syncRequest = null;
+  let realtimeStop = null;
+  let realtimeUserId = "";
 
   function normalizeIds(value) {
     return [...new Set((Array.isArray(value) ? value : []).map((id) => String(id || "").trim()).filter(Boolean))];
@@ -55,6 +57,36 @@
     }
   }
 
+  function applyRealtimeFavoriteChange(change = {}) {
+    const eventType = String(change.eventType || "").toUpperCase();
+    const productId = String(change.new?.product_id || change.old?.product_id || "").trim();
+    if (!productId) return;
+    if (eventType === "DELETE") ids.delete(productId);
+    else ids.add(productId);
+    persist();
+    publish();
+  }
+
+  async function startRealtime(userId) {
+    if (!userId || !window.OlafSupabaseAuth?.subscribeMyFavoriteProducts) return;
+    if (realtimeUserId === userId && realtimeStop) return;
+    realtimeStop?.();
+    realtimeStop = null;
+    realtimeUserId = "";
+    try {
+      const stop = await window.OlafSupabaseAuth.subscribeMyFavoriteProducts(applyRealtimeFavoriteChange);
+      if (activeUserId !== userId) {
+        stop?.();
+        return;
+      }
+      realtimeUserId = userId;
+      realtimeStop = typeof stop === "function" ? stop : null;
+    } catch (error) {
+      // Initial fetch/local storage continue to work when Realtime is unavailable.
+      console.warn("Favorite realtime unavailable", error);
+    }
+  }
+
   async function sync({ force = false } = {}) {
     const user = await getSignedInUser();
     const userId = String(user?.id || "").trim();
@@ -72,7 +104,9 @@
       if (localOnly.length) {
         await Promise.all(localOnly.map((id) => window.OlafSupabaseAuth.addMyFavoriteProduct(id)));
       }
-      return replace([...remoteSet, ...localOnly]);
+      const nextIds = replace([...remoteSet, ...localOnly]);
+      await startRealtime(userId);
+      return nextIds;
     })();
 
     try {
@@ -99,6 +133,7 @@
     if (user?.id && window.OlafSupabaseAuth) {
       activeUserId = String(user.id);
       persist();
+      startRealtime(activeUserId);
       try {
         if (wasSaved) await window.OlafSupabaseAuth.removeMyFavoriteProduct(id);
         else await window.OlafSupabaseAuth.addMyFavoriteProduct(id);

@@ -4188,6 +4188,15 @@ body {
     touch-action: auto;
   }
 
+  /* A transformed panel becomes the containing block for fixed descendants on
+     mobile Chromium/iOS. Disable that entrance transform while its editor is
+     open so the user form is centred in the actual viewport, not above it. */
+  body.admin-user-editor-open .admin-panel[data-panel="users"].is-visible,
+  body.admin-order-editor-open .admin-panel[data-panel="orders"].is-visible {
+    animation: none !important;
+    transform: none !important;
+  }
+
   body.admin-user-editor-open .admin-product-editor-backdrop:not([hidden]) {
     z-index: 1000;
   }

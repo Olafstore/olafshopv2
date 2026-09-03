@@ -36950,8 +36950,6 @@ body.product-detail-page .pd-feature-icon-support {
   height: 246px;
   perspective: 900px;
   transform-style: preserve-3d;
-  mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.25) 8%, #000 26%, #000 74%, rgba(0, 0, 0, 0.25) 92%, transparent 100%);
-  -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.25) 8%, #000 26%, #000 74%, rgba(0, 0, 0, 0.25) 92%, transparent 100%);
 }
 
 .hero-game-card {
@@ -36972,11 +36970,10 @@ body.product-detail-page .pd-feature-icon-support {
   text-decoration: none;
   transform-origin: center bottom;
   transform-style: flat;
-  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), opacity 260ms ease, border-color 220ms ease, box-shadow 220ms ease, filter 220ms ease;
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), border-color 220ms ease, box-shadow 220ms ease, filter 220ms ease;
   backdrop-filter: blur(24px) saturate(1.32);
   -webkit-backdrop-filter: blur(24px) saturate(1.32);
   transform: var(--hero-card-transform, translateX(-50%));
-  opacity: 1;
 }
 
 .hero-game-card:hover,
@@ -36991,13 +36988,11 @@ body.product-detail-page .pd-feature-icon-support {
 .hero-game-card:nth-child(1) {
   z-index: 1;
   --hero-card-transform: translateX(calc(-50% - 174px)) rotateY(24deg) rotateZ(-8deg) scale(0.86);
-  opacity: 0.28;
 }
 
 .hero-game-card:nth-child(2) {
   z-index: 2;
   --hero-card-transform: translateX(calc(-50% - 88px)) rotateY(14deg) rotateZ(-4deg) scale(0.94);
-  opacity: 0.68;
 }
 
 .hero-game-card:nth-child(3) {
@@ -37010,20 +37005,17 @@ body.product-detail-page .pd-feature-icon-support {
 .hero-game-card:nth-child(4) {
   z-index: 2;
   --hero-card-transform: translateX(calc(-50% + 88px)) rotateY(-14deg) rotateZ(4deg) scale(0.94);
-  opacity: 0.68;
 }
 
 .hero-game-card:nth-child(5) {
   z-index: 1;
   --hero-card-transform: translateX(calc(-50% + 174px)) rotateY(-24deg) rotateZ(8deg) scale(0.86);
-  opacity: 0.28;
 }
 
 .hero-game-card:hover,
 .hero-game-card:focus-within {
   /* Preserve the individual fan position; only lift the selected card. */
   transform: var(--hero-card-transform) translateY(-10px);
-  opacity: 1;
 }
 
 .hero-game-card-link {
@@ -37056,9 +37048,9 @@ body.product-detail-page .pd-feature-icon-support {
   right: 0;
   bottom: 0;
   left: 0;
-  height: 56px;
+  height: 64px;
   content: "";
-  background: linear-gradient(to bottom, transparent, rgba(2, 6, 23, 0.22) 34%, rgba(2, 6, 23, 0.92));
+  background: linear-gradient(to bottom, rgba(2, 6, 23, 0) 0%, rgba(2, 6, 23, 0.28) 38%, rgba(2, 6, 23, 0.96) 100%);
 }
 
 .hero-game-card-art img {
@@ -37073,11 +37065,11 @@ body.product-detail-page .pd-feature-icon-support {
   display: grid;
   gap: 2px;
   min-height: 62px;
-  margin-top: -24px;
-  padding: 31px 8px 8px;
+  margin-top: -29px;
+  padding: 36px 8px 8px;
   background:
-    linear-gradient(to bottom, rgba(15, 23, 42, 0), rgba(15, 23, 42, 0.34) 28px, rgba(2, 6, 23, 0.82)),
-    rgba(2, 6, 23, 0.38);
+    linear-gradient(to bottom, rgba(2, 6, 23, 0) 0%, rgba(7, 12, 24, 0.5) 33px, rgba(2, 6, 23, 0.9) 100%),
+    rgba(2, 6, 23, 0.52);
   backdrop-filter: blur(22px) saturate(1.32);
   -webkit-backdrop-filter: blur(22px) saturate(1.32);
 }
@@ -37228,6 +37220,8 @@ body.product-detail-page .pd-feature-icon-support {
 .topbar .favorites-button,
 .topbar.site-topbar-unified .favorites-button {
   display: inline-grid !important;
+  /* Reserve a small lane for the count so the next account control cannot cover it. */
+  margin-right: 8px;
   visibility: visible !important;
   opacity: 1 !important;
   overflow: visible !important;

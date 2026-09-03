@@ -112,7 +112,8 @@
 
 @media (max-width: 720px) {
   .profile-order-countdown {
-    width: 100%;
+    width: fit-content;
+    max-width: calc(100% - 4px);
     justify-content: start;
     margin-top: 5px;
     padding: 6px 8px;

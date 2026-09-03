@@ -3294,9 +3294,9 @@
     }
 
     function orderDisplayStatusLabel(order) {
+      if (displayOrderStatusKey(order) === 'cancelled') return 'ยกเลิกแล้ว';
       if (isPointTopupOrder(order)) {
         if (order?.paymentStatus === 'verified') return 'เติม Point สำเร็จ';
-        if (order?.status === 'cancelled') return 'ยกเลิกแล้ว';
         return 'รอชำระเงินเติม Point';
       }
       return orderStatusLabel(order?.status);
@@ -3319,6 +3319,13 @@
       const createdAt = new Date(order.createdAt || '');
       if (Number.isNaN(createdAt.getTime())) return null;
       return new Date(createdAt.getTime() + UNPAID_ORDER_WINDOW_MS);
+    }
+
+    function displayOrderStatusKey(order) {
+      const status = String(order?.status || '').toLowerCase();
+      if (status === 'cancelled' || status === 'expired') return 'cancelled';
+      const expiresAt = unpaidOrderExpiresAt(order);
+      return expiresAt && expiresAt.getTime() <= Date.now() ? 'cancelled' : status;
     }
 
     function orderCountdownMarkup(order) {
@@ -3765,7 +3772,7 @@
                 ${Number(o.pointCreditAmount || 0) > 0 ? `<span class="profile-order-point-line is-credit">เครดิต ${formatPointAmount(o.pointCreditAmount)} Point</span>` : ''}
               </div>
               <div class="profile-order-cell profile-order-status" data-label="สถานะ">
-                <span class="status-badge ${escape(o.status)}">${orderDisplayStatusLabel(o)}</span>
+                <span class="status-badge ${escape(displayOrderStatusKey(o))}">${orderDisplayStatusLabel(o)}</span>
                 ${paymentVerifiedBadge(o)}
                 ${orderCountdownMarkup(o)}
               </div>

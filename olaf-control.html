@@ -14,7 +14,7 @@
     <script src="platform-store.js?v=20260605-admin-users" defer></script>
     <script src="image-performance.js?v=20260607-performance" defer></script>
 <script src="delivery-payload.js?v=20260716-qr-alignment-v111" defer></script>
-    <script src="admin.js?v=20260717-admin-history-v116" defer></script>
+    <script src="admin.js?v=20260904-coupon-notification-separation-v135" defer></script>
   </head>
   <body>
     <section class="admin-login-screen" id="admin-login-screen">
@@ -1480,7 +1480,7 @@
               <div class="card-heading">
                 <div>
                   <h2>โค้ดส่วนลด</h2>
-                  <span>กำหนดส่วนลด วันหมดอายุ จำนวนสิทธิ์ และเปิดเป็นกิจกรรมแจกโค้ดฟรีได้</span>
+                  <span>กำหนดส่วนลด วันหมดอายุ จำนวนสิทธิ์ และส่งกิจกรรมแจกโค้ดฟรีผ่านเมนูแจ้งเตือนได้</span>
                 </div>
               </div>
               <form class="admin-form" id="discount-code-form">
@@ -1498,7 +1498,7 @@
                   <label>หมดอายุ<input name="expiresAt" type="datetime-local" /></label>
                 </div>
                 <label>สถานะ<select name="isActive"><option value="true">เปิดใช้งาน</option><option value="false">ปิดใช้งาน</option></select></label>
-                <label class="admin-check-row"><input name="freeCampaign" type="checkbox" /> แสดงเป็นกิจกรรมแจกโค้ดฟรีใน Popup หน้า Index</label>
+                <label class="admin-check-row"><input name="freeCampaign" type="checkbox" /> แสดงเป็นกิจกรรมแจกโค้ดฟรีในเมนูแจ้งเตือน (ไม่แสดงใน Popup หน้าแรก)</label>
                 <label>หัวข้อกิจกรรม<input name="notificationTitle" maxlength="120" placeholder="รับโค้ดส่วนลดฟรี" /></label>
                 <label>ข้อความกิจกรรม<textarea name="notificationMessage" rows="3" maxlength="360" placeholder="รายละเอียดกิจกรรมและเงื่อนไข"></textarea></label>
                 <label>ลิงก์กิจกรรม (ถ้ามี)<input name="notificationLinkUrl" type="url" placeholder="https://..." /></label>

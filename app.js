@@ -1458,6 +1458,16 @@ function safeActivityPopupImage(value) {
   }
 }
 
+function isCouponActivity(activity = {}) {
+  // Coupons have their own claim flow in the notification menu. Some older
+  // store-setting records used this popup as the delivery channel, so keep
+  // those records out of the regular event surface too.
+  const campaignType = String(activity.campaignType || activity.type || activity.kind || "").toLowerCase();
+  return Boolean(String(activity.discountCode || activity.couponCode || "").trim()) ||
+    activity.freeCampaign === true ||
+    ["coupon", "discount", "voucher"].includes(campaignType);
+}
+
 function closeActivityPopup({ hideFor24Hours = false } = {}) {
   const popup = document.querySelector("[data-activity-popup]");
   if (!popup) return;
@@ -1477,13 +1487,14 @@ function renderActivityPopup() {
   const existing = document.querySelector("[data-activity-popup]");
   const desktopImage = safeActivityPopupImage(activity.desktopImageUrl || activity.mobileImageUrl);
   const mobileImage = safeActivityPopupImage(activity.mobileImageUrl || desktopImage);
-  // Coupon campaigns are delivered through Notifications. Legacy activity
-  // records may still contain discountCode, so it must never block a normal
-  // activity popup and it must never be rendered publicly below.
-  const shouldShow = activity.enabled === true;
+  // Coupon campaigns are delivered through Notifications only; a coupon must
+  // never render over, or compete with, the regular activity popup.
+  const shouldShow = activity.enabled === true && !isCouponActivity(activity);
 
   if (!shouldShow || activityPopupDismissedKeys.has(key) || activityPopupHiddenUntil(key) > Date.now()) {
-    if (existing && existing.dataset.activityKey !== key) existing.remove();
+    if (existing) existing.remove();
+    document.documentElement.classList.remove("has-activity-popup");
+    document.body?.classList.remove("has-activity-popup");
     return;
   }
   if (existing?.dataset.activityKey === key) return;
@@ -1491,7 +1502,6 @@ function renderActivityPopup() {
 
   const title = cleanDisplayText(activity.title || "กิจกรรมพิเศษจาก OLAF SHOP");
   const message = cleanDisplayText(activity.message || "");
-  const discountCode = "";
   const linkUrl = safeActivityPopupLink(activity.linkUrl);
   const linkLabel = cleanDisplayText(activity.linkLabel || "ดูรายละเอียดกิจกรรม");
   const popup = document.createElement("section");
@@ -1518,7 +1528,6 @@ function renderActivityPopup() {
           ${message ? `<p>${escapeHtml(message)}</p>` : ""}
           <div class="activity-popup__actions">
             ${linkUrl ? `<a class="activity-popup__primary" href="${escapeHtml(linkUrl)}" target="_blank" rel="noopener noreferrer"><span>${escapeHtml(linkLabel)}</span><i data-lucide="arrow-up-right"></i></a>` : ""}
-            ${discountCode ? `<button class="activity-popup__primary" type="button" data-activity-copy-code="${escapeHtml(discountCode)}"><i data-lucide="copy"></i><span>คัดลอกโค้ด ${escapeHtml(discountCode)}</span></button>` : ""}
             <button class="activity-popup__secondary" type="button" data-activity-hide-day><i data-lucide="clock-3"></i><span>ไม่แสดง 24 ชั่วโมง</span></button>
           </div>
         </div>
@@ -1531,15 +1540,6 @@ function renderActivityPopup() {
   });
   popup.querySelector("[data-activity-hide-day]")?.addEventListener("click", () => {
     closeActivityPopup({ hideFor24Hours: true });
-  });
-  popup.querySelector("[data-activity-copy-code]")?.addEventListener("click", async (event) => {
-    const code = event.currentTarget.dataset.activityCopyCode || "";
-    try {
-      await navigator.clipboard.writeText(code);
-      event.currentTarget.querySelector("span")?.replaceChildren(document.createTextNode("คัดลอกโค้ดแล้ว"));
-    } catch {
-      showToast("คัดลอกโค้ดไม่สำเร็จ กรุณากดค้างเพื่อคัดลอก", "warning");
-    }
   });
   popup.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closeActivityPopup();

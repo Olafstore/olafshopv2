@@ -4875,7 +4875,7 @@ async function saveDiscountCodeSettings(event) {
   const original = button?.innerHTML || "";
   if (button) { button.disabled = true; button.innerHTML = '<i data-lucide="loader-circle"></i> กำลังบันทึก'; createIconSet(); }
   try {
-    const saved = await window.OlafCoupons.saveAdmin({
+    await window.OlafCoupons.saveAdmin({
       id: form.elements.id.value || null,
       code: form.elements.code.value.trim(),
       discountType: form.elements.discountType.value,
@@ -4890,11 +4890,6 @@ async function saveDiscountCodeSettings(event) {
       notificationLinkUrl: form.elements.notificationLinkUrl.value.trim()
     });
     await refreshDiscountCodes();
-    if (saved?.free_campaign === true) {
-      const settings = await fetchOnlineStoreSettings(true);
-      state.payload.store = mergeStoreSettings(state.payload.store, settings);
-      renderActivityPopupForm();
-    }
     resetDiscountCodeForm();
     showAdminToast("บันทึกโค้ดส่วนลดแล้ว", "success");
   } catch (error) {

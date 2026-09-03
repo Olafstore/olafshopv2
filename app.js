@@ -1492,18 +1492,21 @@ function productLink(product) {
 }
 
 function productPreviewImages(product) {
-  const cover = product.heroImage || product.image;
-  const allImages = [...new Set([
-    cover,
-    ...(product.gallery || []),
-    product.heroImage,
-    product.image
-  ].filter(Boolean))];
+  return productOwnedImages(product, 4);
+}
 
-  if (allImages.length > 1) {
-    return allImages.slice(1, 4); // skip first image (cover), take next 3
-  }
-  return allImages.slice(0, 3);
+function productOwnedImages(product, count = 4) {
+  const ownImages = [...new Set([
+    product?.heroImage,
+    ...(Array.isArray(product?.gallery) ? product.gallery : []),
+    product?.image
+  ].map((image) => String(image || "").trim()).filter(Boolean))];
+
+  if (!ownImages.length) return [];
+
+  // Never borrow another game's artwork. When a legacy product has fewer
+  // screenshots, reuse its own artwork so every preview keeps a stable grid.
+  return Array.from({ length: count }, (_, index) => ownImages[index % ownImages.length]);
 }
 
 function widgetMarker(code = "") {
@@ -1993,11 +1996,7 @@ function steamDealCardMarkup(product) {
 
 function steamDiscoveryPreviewMarkup(product) {
   if (!product) return `<div class="olaf-steam-empty">เลือกสินค้าเพื่อดูตัวอย่าง</div>`;
-  const images = [...new Set([
-    product.heroImage,
-    ...(product.gallery || []),
-    product.image
-  ].filter(Boolean))].slice(0, 4);
+  const images = productOwnedImages(product, 4);
   const tags = getDisplayTags(product, 4);
   return `
     <div class="olaf-steam-preview-card">
@@ -2397,20 +2396,13 @@ function syncSteamActivityCarousel() {
   });
 }
 
-function steamEditorialImages(product, products) {
-  const ownImages = [
-    product.heroImage,
-    ...(product.gallery || []),
-    product.image
-  ];
-  const relatedImages = products
-    .filter((item) => item.id !== product.id && item.category === product.category)
-    .flatMap((item) => [item.heroImage, item.image]);
-  return [...new Set([...ownImages, ...relatedImages].filter(Boolean))].slice(0, 5);
+function steamEditorialImages(product) {
+  // One large cover plus four thumbnails, all from the selected product.
+  return productOwnedImages(product, 5);
 }
 
-function steamEditorialFeatureMarkup(product, products) {
-  const images = steamEditorialImages(product, products);
+function steamEditorialFeatureMarkup(product) {
+  const images = steamEditorialImages(product);
   const mainImage = images[0] || product.heroImage || product.image || "";
   const gallery = images.slice(1, 5);
   const stock = getStockState(product.stock);
@@ -2462,7 +2454,7 @@ function steamEditorialFeaturesMarkupLegacy(products) {
   if (!featured.length) return "";
   return `
     <section class="olaf-steam-taste-stack" aria-label="รายการที่คุณอาจสนใจ">
-      ${featured.map((product) => steamEditorialFeatureMarkup(product, products)).join("")}
+      ${featured.map((product) => steamEditorialFeatureMarkup(product)).join("")}
     </section>
   `;
 }
@@ -2479,7 +2471,7 @@ function steamEditorialFeaturesMarkup(products) {
   return `
     <section class="olaf-steam-taste-stack" aria-label="รายการที่คุณอาจสนใจ">
       ${activity}
-      ${randomFeature ? steamEditorialFeatureMarkup(randomFeature, products) : ""}
+      ${randomFeature ? steamEditorialFeatureMarkup(randomFeature) : ""}
     </section>
   `;
 }

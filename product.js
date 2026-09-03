@@ -546,11 +546,20 @@ async function fetchSupabaseProductPayload() {
         return [];
       })
     : Promise.resolve([]);
+  // The favorites drawer must have the same full catalog as Index, not only
+  // the current product plus its related recommendations.
+  const activeCatalogPromise = window.OlafProducts?.fetchActiveProducts
+    ? withTimeout(window.OlafProducts.fetchActiveProducts(), 3200, []).catch((error) => {
+        console.warn("Full catalog unavailable for product favorites", error);
+        return [];
+      })
+    : Promise.resolve([]);
 
-  const [jsonPayload, onlineProductResult, activePackages] = await Promise.all([
+  const [jsonPayload, onlineProductResult, activePackages, activeCatalog] = await Promise.all([
     jsonPayloadPromise,
     onlineProductPromise,
-    activePackagesPromise
+    activePackagesPromise,
+    activeCatalogPromise
   ]);
   const onlineProduct = onlineProductResult.product;
   const jsonProduct = Array.isArray(jsonPayload?.products)
@@ -583,7 +592,15 @@ async function fetchSupabaseProductPayload() {
           return [];
         })
       : [];
-    products = [enrichedProduct, ...relatedProducts.filter((item) => item?.id !== product.id)];
+    const productsById = new Map();
+    [enrichedProduct, ...(Array.isArray(activeCatalog) ? activeCatalog : []), ...relatedProducts].forEach((item) => {
+      if (!item?.id || item.isActive === false || productsById.has(item.id)) return;
+      productsById.set(item.id, item);
+    });
+    // Keep the detail payload (including packages) authoritative for the game
+    // being viewed while all other active products remain available to the menu.
+    productsById.set(enrichedProduct.id, enrichedProduct);
+    products = [...productsById.values()];
   } else {
     const jsonProducts = Array.isArray(jsonPayload?.products) ? jsonPayload.products : [];
     const extraProducts = Array.isArray(window.OlafExtraProducts?.products)

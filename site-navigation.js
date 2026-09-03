@@ -536,6 +536,10 @@
   let activeTopbarAnchor = null;
   let topbarPortalCounter = 0;
   const popoverCloseTimers = new WeakMap();
+  // Keep the DOM cleanup in step with the closing animation. Removing the
+  // element before its animation finishes makes the user menu visibly snap.
+  const USER_POPOVER_CLOSE_MS = 250;
+  const TOPBAR_POPOVER_CLOSE_MS = 380;
 
   function isTopbarPopoverOpen(popover) {
     return Boolean(popover && !popover.hidden && popover.dataset.olafPopoverState !== "closing");
@@ -891,7 +895,10 @@
     };
 
     if (shouldAnimate) {
-      popoverCloseTimers.set(popover, window.setTimeout(finish, 260));
+      const closeDelay = popover.matches("#user-popover, .user-popover")
+        ? USER_POPOVER_CLOSE_MS
+        : TOPBAR_POPOVER_CLOSE_MS;
+      popoverCloseTimers.set(popover, window.setTimeout(finish, closeDelay));
       return;
     }
 

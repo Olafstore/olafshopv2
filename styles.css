@@ -37505,3 +37505,38 @@ body.product-detail-page .pd-feature-icon-support {
     height: 33px;
   }
 }
+
+/* 2026-09-04: user-menu cleanup waits for this complete close animation. */
+@keyframes olafUserPopoverCloseV148 {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, -4px, 0) scale(0.99);
+    filter: blur(1px);
+  }
+}
+
+#user-popover.is-closing,
+#user-popover[data-olaf-popover-state="closing"],
+#user-popover.topbar-popover-fixed.is-closing,
+#user-popover.topbar-popover-fixed[data-olaf-popover-state="closing"],
+.user-popover.is-closing,
+.user-popover[data-olaf-popover-state="closing"],
+.user-popover.topbar-popover-fixed.is-closing,
+.user-popover.topbar-popover-fixed[data-olaf-popover-state="closing"] {
+  animation: olafUserPopoverCloseV148 220ms cubic-bezier(0.4, 0, 0.2, 1) both !important;
+  will-change: opacity, transform, filter !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #user-popover.is-closing,
+  #user-popover[data-olaf-popover-state="closing"],
+  .user-popover.is-closing,
+  .user-popover[data-olaf-popover-state="closing"] {
+    animation-duration: 1ms !important;
+  }
+}

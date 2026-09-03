@@ -21,7 +21,7 @@
   <script src="platform-store.js?v=20260619-profile-update-fix" defer></script>
   <script src="image-performance.js?v=20260713-media-brand-v89" defer></script>
 <script src="delivery-payload.js?v=20260716-qr-alignment-v111" defer></script>
-    <script src="site-navigation.js?v=20260903-ipad-mobile-nav-v118" defer></script>
+    <script src="site-navigation.js?v=20260904-user-menu-outside-dismiss-v147" defer></script>
   <script src="notifications.js?v=20260716-qr-alignment-v111" defer></script>
       <link rel="stylesheet" href="styles.css?v=20260904-order-expiry-wrap-v146" />
   <style>
@@ -4760,9 +4760,11 @@
         }
       }
 
-      let expiryRefreshTimer = null;
       const profileOrderExpiryInFlight = new Set();
       const profileOrderExpiryRetryTimers = new Map();
+      const ORDER_REFRESH_ACTIVE_MS = 3 * 60 * 1000;
+      const ORDER_REFRESH_IDLE_MS = 10 * 60 * 1000;
+      const ORDER_EXPIRY_RECONCILE_MS = 60 * 1000;
 
       function setExpiredOrderCountdownMessage(orderId, message) {
         document.querySelectorAll('[data-order-countdown]').forEach((countdown) => {
@@ -4781,7 +4783,7 @@
           profileOrderExpiryRetryTimers.delete(orderId);
           profileOrderExpiryNotified.delete(orderId);
           updateProfileOrderCountdowns();
-        }, 5000);
+        }, 30000);
         profileOrderExpiryRetryTimers.set(orderId, timer);
       }
 
@@ -4810,11 +4812,19 @@
           removeExpiredOrderFromInventory(orderId);
           renderOrdersList(profileState.orders);
           if (Number(cancelledOrder.pointRefundAmount || 0) > 0) await refreshProfilePoints();
+          return true;
         } catch (error) {
-          // Never leave an order permanently labelled "กำลังยกเลิก". Re-fetch
-          // first because the server cron or another tab may have completed it.
-          await refreshProfileOrders({ quiet: true, preserveModal: false }).catch(() => {});
+          // Do not re-fetch the whole order list on every retry. Reconcile at
+          // most once a minute, while the targeted cancellation retry handles
+          // the actual expiry work in the background.
+          if (Date.now() - profileState.lastOrdersRefreshAt >= ORDER_EXPIRY_RECONCILE_MS) {
+            await refreshProfileOrders({ quiet: true, preserveModal: false }).catch(() => {});
+          }
           const current = profileState.orders.find(order => order.id === orderId);
+          if (['cancelled', 'expired'].includes(String(current?.status || '').toLowerCase())) {
+            removeExpiredOrderFromInventory(orderId);
+            return true;
+          }
           if (!['cancelled', 'expired'].includes(String(current?.status || '').toLowerCase())) {
             setExpiredOrderCountdownMessage(orderId, 'ครบเวลา · รอยกเลิกอัตโนมัติ');
             scheduleExpiredOrderRetry(orderId);
@@ -4823,6 +4833,7 @@
               console.warn('Unable to cancel expired order; retrying automatically', error);
             }
           }
+          return false;
         } finally {
           profileOrderExpiryInFlight.delete(orderId);
         }
@@ -4831,10 +4842,6 @@
       document.addEventListener('olaf-order-expiry-reached', async (event) => {
         const orderId = String(event.detail?.orderId || '').trim();
         if (orderId) await cancelExpiredProfileOrder(orderId);
-        if (expiryRefreshTimer) window.clearTimeout(expiryRefreshTimer);
-        expiryRefreshTimer = window.setTimeout(() => {
-          refreshProfileOrders({ quiet: true, preserveModal: false });
-        }, 800);
       });
 
       await refreshProfileOrders({ preserveModal: false });
@@ -4844,16 +4851,16 @@
         const hasActiveOrder = profileState.orders.some(order =>
           ['pending', 'awaiting_payment', 'waiting_admin', 'confirmed'].includes(String(order.status || ''))
         );
-        const refreshDelay = hasActiveOrder ? 60 * 1000 : 5 * 60 * 1000;
+        const refreshDelay = hasActiveOrder ? ORDER_REFRESH_ACTIVE_MS : ORDER_REFRESH_IDLE_MS;
         if (Date.now() - profileState.lastOrdersRefreshAt >= refreshDelay) {
           refreshProfileOrders({ quiet: true });
         }
-      }, 30 * 1000);
+      }, 60 * 1000);
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState !== 'visible') return;
         const staleAfter = profileState.orders.some(order =>
           ['pending', 'awaiting_payment', 'waiting_admin', 'confirmed'].includes(String(order.status || ''))
-        ) ? 60 * 1000 : 5 * 60 * 1000;
+        ) ? ORDER_REFRESH_ACTIVE_MS : ORDER_REFRESH_IDLE_MS;
         if (Date.now() - profileState.lastOrdersRefreshAt >= staleAfter) {
           refreshProfileOrders({ quiet: true });
         }

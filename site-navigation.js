@@ -990,6 +990,30 @@
     if (document.body?.dataset.olafTopbarPopoverAnchorBound === "true") return;
     document.body.dataset.olafTopbarPopoverAnchorBound = "true";
 
+    // The user menu can be portalled out of its original wrapper on mobile,
+    // so always test both the trigger and the live popover before closing it.
+    const isInsideUserPopover = (target) => {
+      if (!(target instanceof Element)) return false;
+      return Boolean(target.closest("#open-auth, .user-popover-wrap, #user-popover, .user-popover"));
+    };
+
+    const closeUserPopoverOutside = (event) => {
+      const popover = document.querySelector("#user-popover");
+      if (!isTopbarPopoverOpen(popover) || isInsideUserPopover(event.target)) return;
+      hideTopbarPopover(popover, document.querySelector("#open-auth"));
+    };
+
+    // pointerdown handles mouse, touch, and pen before a background control
+    // receives its click. Wheel/touch movement and page scrolling cover the
+    // remaining "tap/scroll outside to dismiss" cases on every shared page.
+    document.addEventListener("pointerdown", closeUserPopoverOutside, true);
+    document.addEventListener("wheel", closeUserPopoverOutside, { capture: true, passive: true });
+    document.addEventListener("touchmove", closeUserPopoverOutside, { capture: true, passive: true });
+    window.addEventListener("scroll", () => {
+      const popover = document.querySelector("#user-popover");
+      if (isTopbarPopoverOpen(popover)) hideTopbarPopover(popover, document.querySelector("#open-auth"));
+    }, { passive: true });
+
     const bindUnifiedControlCapture = () => {
       [
         ["#lang-toggle", "language", "#language-popover"],

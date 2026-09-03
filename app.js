@@ -93,7 +93,8 @@ const appConfig = {
 
 const storageKeys = {
   lang: "olafshop_lang",
-  activityPopup: "olafshop_activity_popup_hidden"
+  activityPopup: "olafshop_activity_popup_hidden",
+  favorites: "olafshop_favorite_products"
 };
 
 const i18n = {
@@ -132,6 +133,7 @@ const state = {
   currentPage: 1,
   itemsPerPage: 52,
   cart: new Map(),
+  favoriteIds: new Set(loadFavoriteIds()),
   detailQuantity: 1,
   currentUser: null,
   authReady: false,
@@ -487,6 +489,113 @@ function refreshAccountState() {
 
 function productById(id) {
   return state.products.find((product) => product.id === id);
+}
+
+function loadFavoriteIds() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(storageKeys.favorites) || "[]");
+    return Array.isArray(stored) ? stored.map(String).filter(Boolean) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveFavoriteIds() {
+  try {
+    localStorage.setItem(storageKeys.favorites, JSON.stringify([...state.favoriteIds]));
+  } catch {
+    // Browsers with storage disabled can still keep favorites for this visit.
+  }
+}
+
+function isFavorite(productId) {
+  return state.favoriteIds.has(String(productId));
+}
+
+function favoriteToggleMarkup(product, className = "") {
+  const saved = isFavorite(product.id);
+  const label = saved ? `นำ ${cleanDisplayText(product.name)} ออกจากรายการโปรด` : `เพิ่ม ${cleanDisplayText(product.name)} ในรายการโปรด`;
+  return `
+    <button
+      class="favorite-toggle ${className} ${saved ? "is-favorite" : ""}"
+      type="button"
+      data-favorite="${escapeHtml(product.id)}"
+      aria-label="${escapeHtml(label)}"
+      aria-pressed="${saved}"
+      title="${escapeHtml(saved ? "ลบจากรายการโปรด" : "เพิ่มในรายการโปรด")}" 
+    ><i data-lucide="heart"></i></button>
+  `;
+}
+
+function favoriteProducts() {
+  return [...state.favoriteIds]
+    .map((id) => productById(id))
+    .filter(Boolean);
+}
+
+function syncFavoriteControls() {
+  document.querySelectorAll("[data-favorite]").forEach((button) => {
+    const saved = isFavorite(button.dataset.favorite);
+    button.classList.toggle("is-favorite", saved);
+    button.setAttribute("aria-pressed", String(saved));
+    button.setAttribute("title", saved ? "ลบจากรายการโปรด" : "เพิ่มในรายการโปรด");
+    const product = productById(button.dataset.favorite);
+    if (product) {
+      button.setAttribute(
+        "aria-label",
+        `${saved ? "นำ" : "เพิ่ม"} ${cleanDisplayText(product.name)} ${saved ? "ออกจาก" : "ใน"}รายการโปรด`
+      );
+    }
+  });
+  const count = favoriteProducts().length;
+  const badge = document.querySelector("#favorites-badge");
+  if (badge) {
+    badge.hidden = count === 0;
+    badge.textContent = count > 99 ? "99+" : String(count);
+  }
+}
+
+function renderFavorites() {
+  const list = document.querySelector("#favorites-list");
+  const count = document.querySelector("#favorites-count");
+  const products = favoriteProducts();
+  if (count) count.textContent = `${products.length} เกม`;
+  if (list) {
+    list.innerHTML = products.length
+      ? products.map((product) => `
+          <article class="favorite-list-item">
+            <a href="${productLink(product)}">
+              <img ${fastImg(product.image || product.heroImage, product.name)} />
+              <span><strong>${escapeHtml(cleanDisplayText(product.name))}</strong><small>${formatPrice(product.price)}</small></span>
+            </a>
+            ${favoriteToggleMarkup(product, "favorite-list-remove")}
+          </article>
+        `).join("")
+      : `
+          <div class="favorites-empty">
+            <i data-lucide="heart"></i>
+            <strong>ยังไม่มีเกมที่บันทึกไว้</strong>
+            <p>กดรูปหัวใจบนเกมที่ชอบ เพื่อเก็บไว้ดูภายหลัง</p>
+          </div>
+        `;
+  }
+  syncFavoriteControls();
+  createIconSet();
+  hydrateImages();
+}
+
+function toggleFavorite(productId) {
+  const product = productById(productId);
+  if (!product) return;
+  const id = String(product.id);
+  const isSaved = state.favoriteIds.has(id);
+  if (isSaved) state.favoriteIds.delete(id);
+  else state.favoriteIds.add(id);
+  saveFavoriteIds();
+  renderFavorites();
+  syncFavoriteControls();
+  createIconSet();
+  showToast(isSaved ? `ลบ “${cleanDisplayText(product.name)}” ออกจากรายการโปรดแล้ว` : `บันทึก “${cleanDisplayText(product.name)}” ในรายการโปรดแล้ว`, "success");
 }
 
 function getDiscount(product) {
@@ -1294,6 +1403,7 @@ function renderAll() {
   renderProducts();
   renderCart();
   renderWidgets();
+  renderFavorites();
   renderActivityPopup();
 }
 
@@ -1834,19 +1944,21 @@ function renderHeroDeal() {
           const category = getCategoryLabel(product.category);
           const productName = cleanDisplayText(product.name);
           return `
-            <a class="hero-game-card" href="${productLink(product)}" aria-label="ดูรายละเอียด ${escapeHtml(productName)}">
-              <span class="hero-game-card-art">
-                <img ${fastImg(product.image || product.heroImage, productName, { priority: index === 2 })} />
-              </span>
-              <span class="hero-game-card-info">
-                <strong>${escapeHtml(productName)}</strong>
-                <span class="hero-game-card-price">
-                  <b>${formatPrice(product.price)}</b>
-                  ${discount ? `<del>${formatPrice(product.compareAt)}</del>` : ""}
+            <article class="hero-game-card">
+              <a class="hero-game-card-link" href="${productLink(product)}" aria-label="ดูรายละเอียด ${escapeHtml(productName)}">
+                <span class="hero-game-card-art">
+                  <img ${fastImg(product.image || product.heroImage, productName, { priority: index === 2 })} />
                 </span>
-                <small>${escapeHtml(category)}</small>
-              </span>
-            </a>
+                <span class="hero-game-card-info">
+                  <strong>${escapeHtml(productName)}</strong>
+                  <span class="hero-game-card-price">
+                    <b>${formatPrice(product.price)}</b>
+                    ${discount ? `<del>${formatPrice(product.compareAt)}</del>` : ""}
+                  </span>
+                  <small>${escapeHtml(category)}</small>
+                </span>
+              </a>
+            </article>
           `;
         }).join("")}
       </div>
@@ -2942,6 +3054,7 @@ function renderProductCard(product, index = 0) {
       <div class="product-image">
         <img ${fastImg(product.image || product.heroImage, product.name, catalogImageOptions(index))} />
         ${discount ? `<span class="discount-pill">-${discount}%</span>` : ""}
+        ${favoriteToggleMarkup(product, "product-favorite-toggle")}
       </div>
       <div class="product-body">
         <div class="product-meta">
@@ -2990,7 +3103,7 @@ function renderProductDetail(product) {
     <div class="detail-body">
       <div>
         <div class="badge-pill-group">${renderBadgePills(product)}</div>
-        <h2>${escapeHtml(product.name)}</h2>
+        <div class="detail-title-row"><h2>${escapeHtml(product.name)}</h2>${favoriteToggleMarkup(product, "detail-favorite-toggle")}</div>
         <p>${escapeHtml(product.publisher)}</p>
       </div>
       <div class="tags">${tags}</div>
@@ -3310,6 +3423,7 @@ function bindEvents() {
     const detailButton = event.target.closest("[data-detail]");
     const addButton = event.target.closest("[data-add]");
     const detailAddButton = event.target.closest("[data-detail-add]");
+    const favoriteButton = event.target.closest("[data-favorite]");
     const quantityButton = event.target.closest("[data-qty]");
     const copyOrder = event.target.closest("[data-copy-order]");
     const authFromReview = event.target.closest("[data-open-auth-from-review]");
@@ -3324,6 +3438,13 @@ function bindEvents() {
     const steamDealsScroll = event.target.closest("[data-steam-deals-scroll]");
     const steamActivityStep = event.target.closest("[data-steam-activity-step]");
     const steamActivityDot = event.target.closest("[data-steam-activity-dot]");
+
+    if (favoriteButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleFavorite(favoriteButton.dataset.favorite);
+      return;
+    }
 
     if (steamCategoryButton) {
       selectCatalogCategory(steamCategoryButton.dataset.steamCategory, { scrollToCatalog: true });
@@ -3579,6 +3700,13 @@ function bindEvents() {
   document.querySelector("#open-notifications")?.addEventListener("click", (event) => {
     event.stopPropagation();
     toggleNotificationMenu();
+  });
+  document.querySelector("#open-favorites")?.addEventListener("click", () => {
+    renderFavorites();
+    document.querySelector("#favorites-dialog")?.showModal();
+  });
+  document.querySelector("#close-favorites")?.addEventListener("click", () => {
+    document.querySelector("#favorites-dialog")?.close();
   });
   $(selectors.openCart)?.addEventListener("click", () => {
     showToast("ระบบตะกร้าถูกปิดใช้งาน", "info");

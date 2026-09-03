@@ -36956,26 +36956,28 @@ body.product-detail-page .pd-feature-icon-support {
   position: absolute;
   top: 20px;
   left: 50%;
-  display: grid;
-  grid-template-rows: clamp(108px, 10vw, 132px) 1fr;
+  display: block;
   width: clamp(108px, 10vw, 132px);
   height: 194px;
   overflow: hidden;
-  border: 1px solid rgba(191, 219, 254, 0.3);
+  border: 1px solid rgba(226, 232, 240, 0.34);
   border-radius: 18px;
-  background: linear-gradient(145deg, rgba(30, 41, 59, 0.52), rgba(2, 6, 23, 0.72));
-  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.025) 28%, rgba(2, 6, 23, 0.5)),
+    rgba(8, 15, 28, 0.5);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255, 255, 255, 0.28), inset 0 -1px 0 rgba(15, 23, 42, 0.44);
   color: #f8fafc;
   text-decoration: none;
   transform-origin: center bottom;
+  transform-style: flat;
   transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1), border-color 220ms ease, box-shadow 220ms ease, filter 220ms ease;
-  backdrop-filter: blur(16px) saturate(1.18);
-  -webkit-backdrop-filter: blur(16px) saturate(1.18);
+  backdrop-filter: blur(24px) saturate(1.32);
+  -webkit-backdrop-filter: blur(24px) saturate(1.32);
   transform: var(--hero-card-transform, translateX(-50%));
 }
 
 .hero-game-card:hover,
-.hero-game-card:focus-visible {
+.hero-game-card:focus-within {
   z-index: 10;
   border-color: rgba(147, 197, 253, 0.92);
   filter: brightness(1.08);
@@ -37011,9 +37013,25 @@ body.product-detail-page .pd-feature-icon-support {
 }
 
 .hero-game-card:hover,
-.hero-game-card:focus-visible {
+.hero-game-card:focus-within {
   /* Preserve the individual fan position; only lift the selected card. */
   transform: var(--hero-card-transform) translateY(-10px);
+}
+
+.hero-game-card-link {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: clamp(108px, 10vw, 132px) 1fr;
+  width: 100%;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.hero-game-card-link:focus-visible {
+  outline: 2px solid #bfdbfe;
+  outline-offset: -3px;
 }
 
 .hero-game-card-art {
@@ -37030,9 +37048,9 @@ body.product-detail-page .pd-feature-icon-support {
   right: 0;
   bottom: 0;
   left: 0;
-  height: 42px;
+  height: 56px;
   content: "";
-  background: linear-gradient(to bottom, transparent, rgba(2, 6, 23, 0.92));
+  background: linear-gradient(to bottom, transparent, rgba(2, 6, 23, 0.22) 34%, rgba(2, 6, 23, 0.92));
 }
 
 .hero-game-card-art img {
@@ -37047,11 +37065,13 @@ body.product-detail-page .pd-feature-icon-support {
   display: grid;
   gap: 2px;
   min-height: 62px;
-  margin-top: -18px;
-  padding: 25px 8px 8px;
-  background: linear-gradient(to bottom, rgba(2, 6, 23, 0), rgba(2, 6, 23, 0.72) 22px, rgba(2, 6, 23, 0.86));
-  backdrop-filter: blur(18px) saturate(1.2);
-  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  margin-top: -24px;
+  padding: 31px 8px 8px;
+  background:
+    linear-gradient(to bottom, rgba(15, 23, 42, 0), rgba(15, 23, 42, 0.34) 28px, rgba(2, 6, 23, 0.82)),
+    rgba(2, 6, 23, 0.38);
+  backdrop-filter: blur(22px) saturate(1.32);
+  -webkit-backdrop-filter: blur(22px) saturate(1.32);
 }
 
 .hero-game-card-info strong {
@@ -37109,7 +37129,6 @@ body.product-detail-page .pd-feature-icon-support {
 
   .hero-game-card {
     top: 13px;
-    grid-template-rows: 98px 1fr;
     width: 98px;
     height: 159px;
     border-radius: 13px;
@@ -37136,14 +37155,18 @@ body.product-detail-page .pd-feature-icon-support {
   }
 
   .hero-game-card:hover,
-  .hero-game-card:focus-visible {
+  .hero-game-card:focus-within {
     transform: var(--hero-card-transform) translateY(-7px);
   }
 
   .hero-game-card-info {
     min-height: 61px;
-    margin-top: -15px;
-    padding: 20px 6px 6px;
+    margin-top: -19px;
+    padding: 24px 6px 6px;
+  }
+
+  .hero-game-card-link {
+    grid-template-rows: 98px 1fr;
   }
 
   .hero-game-card-info strong {
@@ -37158,5 +37181,239 @@ body.product-detail-page .pd-feature-icon-support {
 @media (prefers-reduced-motion: reduce) {
   .hero-game-card {
     transition: none;
+  }
+}
+
+/* 2026-09-03: premium favorites collection. */
+.favorites-button {
+  position: relative;
+  color: #fda4af;
+}
+
+.favorites-button:hover,
+.favorites-button:focus-visible {
+  color: #fecdd3;
+  border-color: rgba(251, 113, 133, 0.52);
+  background: rgba(190, 24, 93, 0.14);
+}
+
+.favorites-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  display: grid;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  place-items: center;
+  border: 2px solid var(--bg);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #fb7185, #e11d48);
+  box-shadow: 0 4px 10px rgba(225, 29, 72, 0.35);
+  color: #fff;
+  font-size: 0.58rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.favorite-toggle {
+  display: inline-grid;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  place-items: center;
+  border: 1px solid rgba(226, 232, 240, 0.32);
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.54);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 8px 18px rgba(2, 6, 23, 0.24);
+  color: #e2e8f0;
+  cursor: pointer;
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  transition: transform 180ms ease, color 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.favorite-toggle:hover,
+.favorite-toggle:focus-visible {
+  border-color: rgba(253, 164, 175, 0.78);
+  background: rgba(190, 24, 93, 0.22);
+  color: #fecdd3;
+  outline: none;
+  transform: scale(1.08);
+}
+
+.favorite-toggle.is-favorite {
+  border-color: rgba(251, 113, 133, 0.78);
+  background: linear-gradient(135deg, rgba(225, 29, 72, 0.72), rgba(190, 24, 93, 0.52));
+  color: #fff1f2;
+}
+
+.favorite-toggle.is-favorite svg {
+  fill: currentColor;
+}
+
+.product-favorite-toggle {
+  position: absolute;
+  z-index: 8;
+  top: 9px;
+  right: 9px;
+}
+
+.product-favorite-toggle {
+  width: 36px;
+  height: 36px;
+}
+
+.detail-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.detail-title-row h2 {
+  min-width: 0;
+}
+
+.detail-favorite-toggle {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
+.favorites-dialog {
+  width: min(480px, calc(100vw - 28px));
+  max-height: min(680px, calc(100vh - 28px));
+  padding: 24px;
+  overflow: hidden auto;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 92% 5%, rgba(244, 114, 182, 0.16), transparent 34%),
+    linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.98));
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+}
+
+.favorites-dialog::backdrop {
+  background: rgba(2, 6, 23, 0.72);
+  backdrop-filter: blur(6px);
+}
+
+.favorites-dialog-head {
+  margin-bottom: 16px;
+}
+
+.favorites-dialog-head p {
+  margin: 0 0 5px;
+  color: #f9a8d4;
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.favorites-dialog-head h2 {
+  margin: 0;
+  font-size: 1.36rem;
+}
+
+.favorites-dialog-head span {
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+
+.favorites-list {
+  display: grid;
+  gap: 10px;
+}
+
+.favorite-list-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.favorite-list-item > a {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr);
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.favorite-list-item img {
+  display: block;
+  width: 78px;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.favorite-list-item span {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.favorite-list-item strong {
+  overflow: hidden;
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.favorite-list-item small {
+  color: #fda4af;
+  font-size: 0.76rem;
+  font-weight: 750;
+}
+
+.favorite-list-remove {
+  width: 31px;
+  height: 31px;
+}
+
+.favorites-empty {
+  display: grid;
+  min-height: 210px;
+  padding: 28px;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  border: 1px dashed rgba(148, 163, 184, 0.32);
+  border-radius: 18px;
+  color: #cbd5e1;
+  text-align: center;
+}
+
+.favorites-empty svg {
+  width: 30px;
+  height: 30px;
+  color: #fda4af;
+}
+
+.favorites-empty p {
+  max-width: 280px;
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.78rem;
+}
+
+@media (max-width: 560px) {
+  .favorites-dialog {
+    width: calc(100vw - 20px);
+    padding: 20px 16px;
+    border-radius: 20px;
+  }
+
+  .product-favorite-toggle {
+    width: 33px;
+    height: 33px;
   }
 }

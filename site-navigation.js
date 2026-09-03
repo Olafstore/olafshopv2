@@ -273,6 +273,13 @@
   }
 
   function isMobileNavigationViewport() {
+    // Keep iPad on the one maintained navigation surface: the mobile drawer.
+    // 1366px includes every current iPad viewport, including the 12.9-inch
+    // model in landscape, while leaving full desktop layouts unchanged.
+    return window.matchMedia?.("(max-width: 1366px)")?.matches ?? window.innerWidth <= 1366;
+  }
+
+  function isCompactMobileViewport() {
     return window.matchMedia?.("(max-width: 768px)")?.matches ?? window.innerWidth <= 768;
   }
 
@@ -539,8 +546,8 @@
       const popover = document.querySelector(selector);
       return isTopbarPopoverOpen(popover);
     });
-    document.documentElement.classList.toggle("olaf-mobile-popover-open", hasOpen && isMobileNavigationViewport());
-    document.body?.classList.toggle("olaf-mobile-popover-open", hasOpen && isMobileNavigationViewport());
+    document.documentElement.classList.toggle("olaf-mobile-popover-open", hasOpen && isCompactMobileViewport());
+    document.body?.classList.toggle("olaf-mobile-popover-open", hasOpen && isCompactMobileViewport());
   }
 
   function ensureAccountButtonIcon(button = document.querySelector("#open-auth")) {
@@ -993,7 +1000,7 @@
           if (button.dataset.olafUnifiedCaptureBound === "true") return;
           button.dataset.olafUnifiedCaptureBound = "true";
           button.addEventListener("click", (event) => {
-            if (!isMobileNavigationViewport()) return;
+            if (!isCompactMobileViewport()) return;
             event.preventDefault();
             event.stopImmediatePropagation();
             closeTopbarSearches();
@@ -1017,7 +1024,7 @@
         if (button.dataset.olafUnifiedSearchCaptureBound === "true") return;
         button.dataset.olafUnifiedSearchCaptureBound = "true";
         button.addEventListener("click", (event) => {
-          if (!isMobileNavigationViewport()) return;
+          if (!isCompactMobileViewport()) return;
           event.preventDefault();
           event.stopImmediatePropagation();
           openMobileSearch();
@@ -1064,7 +1071,7 @@
       if (!event.target.closest(".topbar-popover-fixed, .language-switcher, .notification-wrap, .user-popover-wrap, .topbar-search-wrap, .site-global-search, .mobile-nav-toggle")) {
         const hadOpenPopover = hasOpenTopbarPopover();
         closeTopbarPopovers("");
-        if (hadOpenPopover && isMobileNavigationViewport()) {
+        if (hadOpenPopover && isCompactMobileViewport()) {
           event.preventDefault();
           event.stopImmediatePropagation();
         }
@@ -1074,7 +1081,7 @@
     document.addEventListener("keydown", (event) => {
       if (event.key !== "Escape" || !hasOpenTopbarPopover()) return;
       closeTopbarPopovers("");
-      if (isMobileNavigationViewport()) event.stopImmediatePropagation();
+      if (isCompactMobileViewport()) event.stopImmediatePropagation();
     }, true);
 
     const updateActive = () => {
@@ -1588,7 +1595,7 @@
   }
 
   function openMobileSearch() {
-    if (!isMobileNavigationViewport()) return false;
+    if (!isCompactMobileViewport()) return false;
     const shell = ensureMobileSearchShell();
     const input = shell.querySelector("[data-mobile-search-input]");
     clearTimeout(mobileSearchCloseTimer);
@@ -1647,7 +1654,7 @@
 
     document.addEventListener("click", (event) => {
       const searchToggle = event.target.closest(".topbar-search-toggle, .site-global-search-toggle");
-      if (!searchToggle || !isMobileNavigationViewport()) return;
+      if (!searchToggle || !isCompactMobileViewport()) return;
       event.preventDefault();
       event.stopImmediatePropagation();
       openMobileSearch();
@@ -1889,7 +1896,7 @@
         syncMobileUserPopoverPortal();
         syncMobileSourceNavVisibility();
         headers.forEach(setupAccountButtonIconGuard);
-        if (window.innerWidth > 1180) {
+        if (!isMobileNavigationViewport()) {
           closeMobileSearch({ immediate: true });
           window.OlafNavigation?.closeMobileMenus?.();
           headers.forEach((header) => {

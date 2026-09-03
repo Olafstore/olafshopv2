@@ -30125,8 +30125,8 @@ a.profile-nav-item {
   }
 }
 
-/* 2026-07-11 v68 — rebuilt hamburger drawer for mobile.
-   Old drawer/menu popups are disabled; this is the only mobile hamburger UI. */
+/* 2026-07-11 v68 — rebuilt hamburger drawer for mobile and iPad.
+   Old drawer/menu popups are disabled; this is the only navigation UI. */
 @keyframes olafMobileDrawerGlowV68 {
   0% {
     opacity: .55;
@@ -30138,7 +30138,7 @@ a.profile-nav-item {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1366px) {
   body > .olaf-mobile-drawer:not(#olaf-mobile-drawer),
   body > .olaf-mobile-drawer:not([data-mobile-menu="drawer-v68"]),
   body > .olaf-mobile-menu-backdrop:not(#olaf-mobile-menu-backdrop),
@@ -30407,6 +30407,14 @@ a.profile-nav-item {
   }
 
   .topbar.site-topbar-unified > .mobile-nav-toggle {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 42px !important;
+    min-width: 42px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    padding: 0 !important;
     border-radius: 999px !important;
   }
 
@@ -30706,8 +30714,8 @@ dialog.qr-payment-dialog .premium-actions .text-button {
   box-shadow: none !important;
 }
 
-/* v72: smoother single mobile hamburger popup, no stacked keyframe flicker. */
-@media (max-width: 768px) {
+/* v72: smoother single mobile/iPad hamburger popup, no stacked keyframe flicker. */
+@media (max-width: 1366px) {
   body > #olaf-mobile-menu-backdrop[data-olaf-mobile-backdrop="backdrop-v68"] {
     transition: opacity 240ms ease, visibility 240ms ease, backdrop-filter 240ms ease !important;
   }

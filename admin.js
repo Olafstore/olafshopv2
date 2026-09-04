@@ -1759,34 +1759,8 @@ function isOfflineProductCategory(category) {
     "rockstar",
     "rockstar-fivem",
     "rockstar-games",
-    "minecraft",
-    "minecraft-account",
-    "minecraft-key"
+    "minecraft"
   ].includes(String(category || "").trim().toLowerCase());
-}
-
-async function syncManagedPackageStocks(productId, stock) {
-  // A key/account product has one shared, real inventory.  Its package
-  // options must mirror that inventory so selecting a package never appears
-  // sold out while its parent still has available credentials.
-  if (!productId || !window.OlafProducts?.adminFetchProductPackages || !window.OlafProducts?.adminSaveProductPackages) {
-    return [];
-  }
-  try {
-    const packages = await window.OlafProducts.adminFetchProductPackages(productId);
-    if (!packages.length) return [];
-    const synced = await window.OlafProducts.adminSaveProductPackages(
-      productId,
-      packages.map((pkg) => ({ ...pkg, stock: Math.max(0, Number(stock) || 0) }))
-    );
-    setCachedProductPackages(productId, synced.map(normalizeAdminPackage));
-    return synced;
-  } catch (error) {
-    // The parent inventory has already changed successfully.  Do not undo it
-    // merely because a legacy package table has not been installed yet.
-    console.warn("Could not mirror managed package stock", error);
-    return [];
-  }
 }
 
 function managedStockCategoryLabel(category) {
@@ -3290,37 +3264,17 @@ async function saveProductFromForm(event) {
       delete state.offlineStockItems.__new__;
     }
 
-    const packagesForSave = isOfflineProduct
-      ? packageDrafts.map((pkg) => ({ ...pkg, stock: offlineStockLines.length }))
-      : packageDrafts;
     let savedPackages = [];
-    if (packagesForSave.length) {
+    if (packageDrafts.length) {
       if (!window.OlafProducts?.adminSaveProductPackages) {
         throw new Error("Product package client is not ready");
       }
-      savedPackages = await window.OlafProducts.adminSaveProductPackages(savedProduct.id, packagesForSave);
+      savedPackages = await window.OlafProducts.adminSaveProductPackages(savedProduct.id, packageDrafts);
       setCachedProductPackages(savedProduct.id, savedPackages.map(normalizeAdminPackage));
       delete state.productPackages.__new__;
     } else {
       setCachedProductPackages(savedProduct.id, []);
       delete state.productPackages.__new__;
-    }
-
-    // A package is the purchasable unit.  Reflect the total sellable package
-    // stock back to the product counter so catalog cards, checkout and the
-    // stock board never show an added game pack as unavailable by mistake.
-    if (!isOfflineProduct && savedPackages.length) {
-      const packageStock = savedPackages
-        .filter((pkg) => pkg.status === "active")
-        .reduce((total, pkg) => total + Math.max(0, Number(pkg.stock) || 0), 0);
-      if (Number(savedProduct.stock || 0) !== packageStock) {
-        const syncedProduct = await window.OlafProducts.setAdminProductStock({
-          productId: savedProduct.id,
-          stock: packageStock,
-          note: "ซิงค์ยอดรวมจากสต็อกแพ็กเกจ"
-        });
-        savedProduct = syncedProduct || savedProduct;
-      }
     }
 
     replaceProductInState(savedProduct);
@@ -4728,91 +4682,6 @@ async function deleteSelectedWidget() {
   renderAll();
 }
 
-function renderPackageStockControls(product) {
-  // Credentials/keys use one real stock row per delivery and must continue to
-  // be managed from their account list.  Other products can safely use the
-  // package counter as their sellable stock source.
-  if (isOfflineProductCategory(product?.category)) return "";
-
-  const key = packageCacheKey(product?.id);
-  const cachedPackages = getCachedProductPackages(product?.id);
-  if (cachedPackages === null) {
-    if (!packageLoadingProductIds.has(key)) {
-      packageLoadingProductIds.add(key);
-      loadProductPackages(product.id)
-        .then(() => renderStockBoard())
-        .catch((error) => console.warn("Package stock unavailable", error))
-        .finally(() => {
-          packageLoadingProductIds.delete(key);
-          createIconSet();
-        });
-    }
-    return '<div class="package-stock-loading">กำลังโหลดสต็อกแพ็กเกจ...</div>';
-  }
-
-  const packages = Array.isArray(cachedPackages) ? cachedPackages : [];
-  if (!packages.length) return "";
-  return `
-    <section class="package-stock-controls" aria-label="สต็อกแพ็กเกจ">
-      <div class="package-stock-heading">
-        <strong>สต็อกแยกตามแพ็ก</strong>
-        <small>ยอดสินค้า = ผลรวมแพ็กที่เปิดขาย</small>
-      </div>
-      ${packages.map((pkg) => `
-        <div class="package-stock-row" data-package-stock-row="${escapeHtml(pkg.id)}">
-          <div>
-            <strong title="${escapeHtml(pkg.title)}">${escapeHtml(pkg.title || "แพ็กเกจ")}</strong>
-            <small>${pkg.status === "active" ? "เปิดขาย" : pkg.status === "archived" ? "เก็บถาวร" : "ปิดชั่วคราว"}</small>
-          </div>
-          <div class="package-stock-set">
-            <input type="number" min="0" max="10000" step="1" value="${Math.max(0, Number(pkg.stock) || 0)}" data-package-stock-input aria-label="จำนวนสต็อก ${escapeHtml(pkg.title || "แพ็กเกจ")}" />
-            <button class="mini-button" type="button" data-package-stock-set="${escapeHtml(product.id)}" data-package-id="${escapeHtml(pkg.id)}">บันทึก</button>
-          </div>
-        </div>
-      `).join("")}
-    </section>
-  `;
-}
-
-async function changePackageStock(productId, packageId, nextStock) {
-  const product = products().find((item) => item.id === productId);
-  if (!product || !packageId) return;
-  if (isOfflineProductCategory(product.category)) {
-    throw new Error("PACKAGE_STOCK_MANAGED_BY_ACCOUNT_ROWS");
-  }
-
-  const stock = Math.max(0, Number(nextStock) || 0);
-  validateNonNegativeInteger(stock, "สต็อกแพ็กเกจ");
-  const packages = await loadProductPackages(productId, { force: true });
-  const packageIndex = packages.findIndex((pkg) => String(pkg.id) === String(packageId));
-  if (packageIndex < 0) throw new Error("PACKAGE_NOT_FOUND");
-
-  const updatedPackages = packages.map((pkg, index) =>
-    index === packageIndex ? { ...pkg, stock } : pkg
-  );
-  if (!window.OlafProducts?.adminSaveProductPackages) {
-    throw new Error("Product package client is not ready");
-  }
-
-  const savedPackages = await window.OlafProducts.adminSaveProductPackages(productId, updatedPackages);
-  const normalizedPackages = savedPackages.map(normalizeAdminPackage);
-  setCachedProductPackages(productId, normalizedPackages);
-  const totalStock = normalizedPackages
-    .filter((pkg) => pkg.status === "active")
-    .reduce((total, pkg) => total + Math.max(0, Number(pkg.stock) || 0), 0);
-  const updatedProduct = await window.OlafProducts.setAdminProductStock({
-    productId,
-    stock: totalStock,
-    note: "ซิงค์ยอดรวมจากสต็อกแพ็กเกจ"
-  });
-  if (updatedProduct) replaceProductInState(updatedProduct);
-  await refreshInventorySummaries();
-  state.selectedProductId = productId;
-  renderStockViews({ refreshProductForm: document.body.dataset.adminPanel === "products" });
-  setStatus("บันทึกสต็อกแพ็กเกจและซิงก์ยอดรวมแล้ว");
-  showAdminToast("อัปเดตสต็อกแพ็กเกจแล้ว", "success");
-}
-
 function renderStockBoard() {
   const visibleProducts = filteredProducts("stock");
   $("#stock-board").innerHTML = visibleProducts.length
@@ -4822,9 +4691,6 @@ function renderStockBoard() {
           const available = Number(summary.availableCount || 0);
           const status = stockStatus(available);
           const isOffline = hasManagedStockRows(product);
-          const isManagedCategory = isOfflineProductCategory(product.category);
-          const cachedPackages = getCachedProductPackages(product.id);
-          const hasPackageStock = !isManagedCategory && Array.isArray(cachedPackages) && cachedPackages.length > 0;
           const stockCategoryLabel = managedStockCategoryLabel(product.category);
           const history = productOrderHistory(product.id);
           return `
@@ -4850,24 +4716,16 @@ function renderStockBoard() {
                 <span><small>Orders</small><strong>${Number(summary.orderCount || 0).toLocaleString("th-TH")}</strong></span>
               </div>
 
-              ${
-                hasPackageStock
-                  ? '<div class="package-stock-note">ยอดรวมนี้คำนวณจากสต็อกของแต่ละแพ็กด้านล่าง</div>'
-                  : `
-                    <div class="stock-buttons">
-                      <button class="mini-button" type="button" data-stock-adjust="${escapeHtml(product.id)}" data-delta="1">+1</button>
-                      <button class="mini-button" type="button" data-stock-adjust="${escapeHtml(product.id)}" data-delta="5">+5</button>
-                      <button class="mini-button" type="button" data-stock-adjust="${escapeHtml(product.id)}" data-delta="10">+10</button>
-                      <button class="mini-button" type="button" data-stock-zero="${escapeHtml(product.id)}">หมด</button>
-                    </div>
-                    <div class="stock-set">
-                      <input type="number" min="0" max="10000" step="1" value="${available}" data-stock-input="${escapeHtml(product.id)}" aria-label="จำนวนพร้อมขาย ${escapeHtml(product.name)}" />
-                      <button class="primary-button" type="button" data-stock-set="${escapeHtml(product.id)}">ตั้งสต็อก</button>
-                    </div>
-                  `
-              }
-
-              ${renderPackageStockControls(product)}
+              <div class="stock-buttons">
+                <button class="mini-button" type="button" data-stock-adjust="${escapeHtml(product.id)}" data-delta="1">+1</button>
+                <button class="mini-button" type="button" data-stock-adjust="${escapeHtml(product.id)}" data-delta="5">+5</button>
+                <button class="mini-button" type="button" data-stock-adjust="${escapeHtml(product.id)}" data-delta="10">+10</button>
+                <button class="mini-button" type="button" data-stock-zero="${escapeHtml(product.id)}">หมด</button>
+              </div>
+              <div class="stock-set">
+                <input type="number" min="0" max="10000" step="1" value="${available}" data-stock-input="${escapeHtml(product.id)}" aria-label="จำนวนพร้อมขาย ${escapeHtml(product.name)}" />
+                <button class="primary-button" type="button" data-stock-set="${escapeHtml(product.id)}">ตั้งสต็อก</button>
+              </div>
 
               ${
                 isOffline
@@ -4936,7 +4794,6 @@ async function changeStock(productId, nextStock, action) {
       });
       updatedProduct = result.product || product;
       setCachedOfflineStockItems(productId, result.items || []);
-      await syncManagedPackageStocks(productId, stock);
     } else {
       updatedProduct = await window.OlafProducts.setAdminProductStock({
         productId,
@@ -5698,7 +5555,6 @@ function bindEvents() {
     const stockAdjustButton = event.target.closest("[data-stock-adjust]");
     const stockZeroButton = event.target.closest("[data-stock-zero]");
     const stockSetButton = event.target.closest("[data-stock-set]");
-    const packageStockSetButton = event.target.closest("[data-package-stock-set]");
     const editUserButton = event.target.closest("[data-edit-user]");
     const resetPasswordButton = event.target.closest("[data-reset-pw]");
     const editReviewButton = event.target.closest("[data-edit-review]");
@@ -5795,26 +5651,6 @@ function bindEvents() {
       const id = stockSetButton.dataset.stockSet;
       const input = document.querySelector(`[data-stock-input="${CSS.escape(id)}"]`);
       await changeStock(id, Number(input?.value) || 0, "กำหนดสต็อกเอง");
-      return;
-    }
-
-    if (packageStockSetButton) {
-      const row = packageStockSetButton.closest("[data-package-stock-row]");
-      const input = row?.querySelector("[data-package-stock-input]");
-      packageStockSetButton.disabled = true;
-      try {
-        await changePackageStock(
-          packageStockSetButton.dataset.packageStockSet,
-          packageStockSetButton.dataset.packageId,
-          Number(input?.value) || 0
-        );
-      } catch (error) {
-        const message = adminProductErrorMessage(error);
-        setStatus(message);
-        showAdminToast(message, "error");
-      } finally {
-        packageStockSetButton.disabled = false;
-      }
       return;
     }
 

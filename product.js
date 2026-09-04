@@ -745,28 +745,6 @@ function activePackagesForProduct(product) {
     .sort((a, b) => Number(a.sortOrder || 0) - Number(b.sortOrder || 0));
 }
 
-function usesSharedManagedStock(product) {
-  return [
-    "steam-key",
-    "steam-account",
-    "offline",
-    "rockstar",
-    "rockstar-fivem",
-    "rockstar-games",
-    "minecraft",
-    "minecraft-account",
-    "minecraft-key"
-  ].includes(String(product?.category || "").trim().toLowerCase());
-}
-
-function availablePackageStock(product, pkg) {
-  // Account/key packages are purchase options for one shared list of real
-  // credentials.  Their availability must follow the parent inventory.
-  return usesSharedManagedStock(product)
-    ? Number(product?.stock || 0)
-    : Number(pkg?.stock || 0);
-}
-
 function selectedPackage() {
   if (!selectedPackageId) return null;
   return currentProductPackages.find((pkg) => pkg.id === selectedPackageId) || null;
@@ -781,7 +759,7 @@ function getPurchaseOption(product = currentProduct) {
     packageSubtitle: pkg?.subtitle || "",
     price: Number(source.price || 0),
     compareAt: source.compareAt == null ? null : Number(source.compareAt),
-    stock: pkg ? availablePackageStock(product, pkg) : Number(source.stock || 0),
+    stock: Number(source.stock || 0),
     hasPackage: Boolean(pkg)
   };
 }
@@ -2118,10 +2096,9 @@ function renderProduct() {
       </div>
       <div class="pd-package-options">
         ${currentProductPackages.map((pkg) => {
-          const availableStock = availablePackageStock(p, pkg);
-          const pkgStock = getStockState(availableStock);
+          const pkgStock = getStockState(pkg.stock);
           const selected = pkg.id === selectedPackageId;
-          const disabled = availableStock <= 0;
+          const disabled = pkg.stock <= 0;
           return `
             <label class="pd-package-option${selected ? " is-selected" : ""}${disabled ? " is-disabled" : ""}" data-package-option="${escapeHtml(pkg.id)}" tabindex="${disabled ? "-1" : "0"}">
               <input type="radio" name="productPackage" value="${escapeHtml(pkg.id)}" ${selected ? "checked" : ""} ${disabled ? "disabled" : ""} />

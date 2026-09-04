@@ -125,6 +125,7 @@ const state = {
   categories: fallbackPayload.categories,
   products: [],
   steamPreviewOrder: [],
+  homeCategory: "",
   selectedCategory: "all",
   query: "",
   stockOnly: false,
@@ -168,6 +169,7 @@ const selectors = {
   cartDialog: "#cart-dialog",
   cartItems: "#cart-items",
   categoryList: "#category-list",
+  categoryLayerShowcase: "#category-layer-showcase",
   categoryTabs: "#category-tabs",
   checkoutForm: "#checkout-form",
   closeCart: "#close-cart",
@@ -1418,6 +1420,7 @@ function renderAll() {
   renderRecentPurchases();
   renderPromoVideos();
   renderCategories();
+  renderCategoryLayerShowcase();
   renderShowcaseCategoryState();
   renderProducts();
   renderCart();
@@ -2728,6 +2731,100 @@ function renderCategories() {
   $(selectors.categoryList).innerHTML = categoryRows;
 }
 
+function categoryLayerProducts(categoryId) {
+  const inCategory = state.products.filter((product) => product.category === categoryId);
+  const available = inCategory.filter((product) => product.stock > 0);
+  return (available.length ? available : inCategory)
+    .sort((a, b) => (b.sold - a.sold) || (b.stock - a.stock) || a.name.localeCompare(b.name))
+    .slice(0, 4);
+}
+
+function renderCategoryLayerShowcase() {
+  const section = $(selectors.categoryLayerShowcase);
+  if (!section) return;
+
+  const categories = state.categories.filter((category) =>
+    category.id !== "all" && state.products.some((product) => product.category === category.id)
+  );
+  if (!categories.length) {
+    section.hidden = true;
+    section.innerHTML = "";
+    return;
+  }
+
+  const preferredCategory = categories.some((category) => category.id === state.homeCategory)
+    ? state.homeCategory
+    : categories.some((category) => category.id === state.selectedCategory)
+      ? state.selectedCategory
+      : categories[0].id;
+  state.homeCategory = preferredCategory;
+
+  const activeCategory = categories.find((category) => category.id === preferredCategory) || categories[0];
+  const products = categoryLayerProducts(activeCategory.id);
+  const lead = products[0];
+  const categoryCount = state.products.filter((product) => product.category === activeCategory.id).length;
+  if (!lead) {
+    section.hidden = true;
+    section.innerHTML = "";
+    return;
+  }
+
+  const cards = products.slice(1).map((product) => {
+    const discount = getDiscount(product);
+    const stock = getStockState(product.stock);
+    return `
+      <a class="category-layer-card" href="${productLink(product)}" aria-label="ดูรายละเอียด ${escapeHtml(cleanDisplayText(product.name))}">
+        <span class="category-layer-card-media">
+          <img ${fastImg(product.image || product.heroImage, product.name, { sizes: "(max-width: 700px) 46vw, 220px" })} />
+          ${discount ? `<b>-${discount}%</b>` : ""}
+        </span>
+        <span class="category-layer-card-copy">
+          <small>${escapeHtml(stock.label)}</small>
+          <strong>${escapeHtml(cleanDisplayText(product.name))}</strong>
+          <em>${formatPrice(product.price)}</em>
+        </span>
+      </a>
+    `;
+  }).join("");
+
+  const leadDiscount = getDiscount(lead);
+  const leadStock = getStockState(lead.stock);
+  section.hidden = false;
+  section.innerHTML = `
+    <div class="category-layer-heading">
+      <div>
+        <p class="eyebrow">Browse by collection</p>
+        <h2>เลือกเกมจากหมวดหมู่</h2>
+        <span>คัดสินค้าจากข้อมูลในร้าน พร้อมราคาและสต็อกล่าสุด</span>
+      </div>
+      <button class="category-layer-all" type="button" data-home-category-view="${escapeHtml(activeCategory.id)}">
+        ดูทั้งหมด <i data-lucide="arrow-up-right"></i>
+      </button>
+    </div>
+    <div class="category-layer-tabs" role="tablist" aria-label="เลือกหมวดสินค้า">
+      ${categories.map((category) => {
+        const count = state.products.filter((product) => product.category === category.id).length;
+        const active = category.id === activeCategory.id;
+        return `<button class="category-layer-tab ${active ? "is-active" : ""}" type="button" role="tab" aria-selected="${active}" data-home-category="${escapeHtml(category.id)}"><span>${escapeHtml(category.label)}</span><b>${count}</b></button>`;
+      }).join("")}
+    </div>
+    <div class="category-layer-stage">
+      <a class="category-layer-lead" href="${productLink(lead)}" aria-label="ดูรายละเอียด ${escapeHtml(cleanDisplayText(lead.name))}">
+        <img ${fastImg(lead.heroImage || lead.image, lead.name, { sizes: "(max-width: 700px) 100vw, 520px" })} />
+        <span class="category-layer-lead-shade"></span>
+        <span class="category-layer-lead-copy">
+          <small>${escapeHtml(activeCategory.label)} · ${categoryCount} รายการ</small>
+          <strong>${escapeHtml(cleanDisplayText(lead.name))}</strong>
+          <span><em class="${leadStock.className}">${escapeHtml(leadStock.label)}</em>${leadDiscount ? `<b>-${leadDiscount}%</b>` : ""}<i>${formatPrice(lead.price)}</i></span>
+        </span>
+      </a>
+      <div class="category-layer-stack">${cards || `<span class="category-layer-empty">มีสินค้าในหมวดนี้เพียง 1 รายการ</span>`}</div>
+    </div>
+  `;
+  createIconSet();
+  hydrateImages();
+}
+
 function renderShowcaseCategoryState() {
   document.querySelectorAll("[data-showcase-category]").forEach((button) => {
     const isActive = button.dataset.showcaseCategory === state.selectedCategory;
@@ -2739,8 +2836,10 @@ function renderShowcaseCategoryState() {
 function selectCatalogCategory(categoryId, options = {}) {
   if (!state.categories.some((category) => category.id === categoryId)) return;
   state.selectedCategory = categoryId;
+  if (categoryId !== "all") state.homeCategory = categoryId;
   state.currentPage = 1;
   renderCategories();
+  renderCategoryLayerShowcase();
   renderShowcaseCategoryState();
   renderProducts();
   renderWidgets();
@@ -3448,6 +3547,8 @@ function bindEvents() {
     const authFromReview = event.target.closest("[data-open-auth-from-review]");
     const logoutButton = event.target.closest("[data-logout]");
     const pageButton = event.target.closest("[data-page]");
+    const homeCategoryButton = event.target.closest("[data-home-category]");
+    const homeCategoryViewButton = event.target.closest("[data-home-category-view]");
     const showcaseCategoryButton = event.target.closest("[data-showcase-category]");
     const promoVideoButton = event.target.closest("[data-promo-video]");
     const steamCategoryButton = event.target.closest("[data-steam-category]");
@@ -3462,6 +3563,17 @@ function bindEvents() {
       event.preventDefault();
       event.stopPropagation();
       toggleFavorite(favoriteButton.dataset.favorite);
+      return;
+    }
+
+    if (homeCategoryButton) {
+      state.homeCategory = homeCategoryButton.dataset.homeCategory || "";
+      renderCategoryLayerShowcase();
+      return;
+    }
+
+    if (homeCategoryViewButton) {
+      selectCatalogCategory(homeCategoryViewButton.dataset.homeCategoryView, { scrollToCatalog: true });
       return;
     }
 

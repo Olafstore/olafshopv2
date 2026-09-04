@@ -56,6 +56,42 @@
   --glow-brand: 0 0 15px rgba(59, 130, 246, 0.4);
 }
 
+/* Keep the home recommendation fan readable: cards may overlap slightly, never their copy. */
+@media (min-width: 981px) {
+  body.home-page .hero-game-card { width: clamp(104px, 9.1vw, 122px); height: 186px; }
+  body.home-page .hero-game-card:nth-child(1) { --hero-card-transform: translateX(calc(-50% - 218px)) rotateY(21deg) rotateZ(-7deg) scale(.86); }
+  body.home-page .hero-game-card:nth-child(2) { --hero-card-transform: translateX(calc(-50% - 109px)) rotateY(11deg) rotateZ(-3deg) scale(.94); }
+  body.home-page .hero-game-card:nth-child(3) { --hero-card-transform: translateX(-50%) translateY(-7px) scale(1.03); }
+  body.home-page .hero-game-card:nth-child(4) { --hero-card-transform: translateX(calc(-50% + 109px)) rotateY(-11deg) rotateZ(3deg) scale(.94); }
+  body.home-page .hero-game-card:nth-child(5) { --hero-card-transform: translateX(calc(-50% + 218px)) rotateY(-21deg) rotateZ(7deg) scale(.86); }
+}
+
+@media (max-width: 560px) {
+  body.home-page .hero-game-card { width: 90px; height: 151px; }
+  body.home-page .hero-game-card:nth-child(1) { --hero-card-transform: translateX(calc(-50% - 178px)) rotateY(14deg) rotateZ(-6deg) scale(.82); }
+  body.home-page .hero-game-card:nth-child(2) { --hero-card-transform: translateX(calc(-50% - 89px)) rotateY(8deg) rotateZ(-3deg) scale(.91); }
+  body.home-page .hero-game-card:nth-child(3) { --hero-card-transform: translateX(-50%) translateY(-4px) scale(1.01); }
+  body.home-page .hero-game-card:nth-child(4) { --hero-card-transform: translateX(calc(-50% + 89px)) rotateY(-8deg) rotateZ(3deg) scale(.91); }
+  body.home-page .hero-game-card:nth-child(5) { --hero-card-transform: translateX(calc(-50% + 178px)) rotateY(-14deg) rotateZ(6deg) scale(.82); }
+  body.home-page .hero-game-card-info { padding: 23px 6px 6px; }
+}
+
+/* Mobile repair: the active-offer card uses one stable vertical layout. */
+@media (max-width: 620px) {
+  .free-games-page .free-games-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .free-games-page .free-game-card { display: block; min-width: 0; min-height: 0; overflow: visible; }
+  .free-games-page .free-game-card-art { display: block; grid-column: auto; grid-row: auto; height: 172px; min-height: 172px; border-radius: 13px; }
+  .free-games-page .free-game-card-art::after { top: auto; right: 0; bottom: 0; left: 0; width: auto; height: 58px; background: linear-gradient(transparent, rgba(4, 10, 23, .91)); }
+  .free-games-page .free-game-card-body { display: block; position: static; min-width: 0; min-height: 0; padding: 10px 1px 0; margin: 0; }
+  .free-games-page .free-game-card h2 { overflow: hidden; margin: 0 0 5px; font-size: .98rem; line-height: 1.32; text-overflow: ellipsis; white-space: nowrap; }
+  .free-games-page .free-game-card-meta { min-width: 0; margin-bottom: 5px; }
+  .free-games-page .free-game-deadline { min-width: 0; margin-top: 0; font-size: .69rem; line-height: 1.45; }
+  .free-games-page .free-game-deadline span { min-width: 0; overflow-wrap: anywhere; }
+  .free-games-page .free-game-card-actions { display: flex; min-width: 0; min-height: 21px; padding: 0; margin-top: 6px; overflow: hidden; }
+  .free-games-page .free-game-source { max-width: 100%; overflow: hidden; font-size: .68rem; text-overflow: ellipsis; white-space: nowrap; }
+  .free-games-page .free-game-claim { min-height: 29px; padding: 0 9px; font-size: .67rem; }
+}
+
 /* Free-game links stay readable as one label, and the home CTA is intentionally distinct. */
 .free-games-page .free-game-source { white-space: nowrap; }
 body.home-page .home-free-games-heading > a.home-free-games-all-link { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 30px; padding: 0 10px 0 12px; color: #eff8ff; font-size: .68rem; font-weight: 800; border: 1px solid rgba(106, 185, 255, .52); border-radius: 9px; background: linear-gradient(110deg, rgba(31, 107, 227, .88), rgba(91, 64, 211, .88)); box-shadow: 0 7px 15px rgba(38, 91, 198, .2); transition: transform .18s ease, filter .18s ease; }

@@ -36,14 +36,23 @@
   const isActive = (offer) => !offer.endsAt || new Date(offer.endsAt).getTime() > Date.now();
   const isUpcoming = (offer) => new Date(offer.startsAt).getTime() > Date.now();
   const getImage = (offer) => offer.image
-    ? `<img src="${escapeHtml(offer.image)}" alt="" loading="lazy" referrerpolicy="no-referrer" />`
+    ? `<img class="free-game-image" src="${escapeHtml(offer.image)}" alt="" loading="lazy" referrerpolicy="no-referrer" />`
     : `<span class="free-game-card-art-mark">${escapeHtml((platformNames[offer.platform] || offer.platform).slice(0, 1))}</span>`;
+
+  function bindImageFallbacks(scope) {
+    if (!scope) return;
+    scope.querySelectorAll("img.free-game-image").forEach((image) => image.addEventListener("error", () => {
+      const holder = image.parentElement;
+      if (holder) holder.classList.add("is-image-fallback");
+      image.remove();
+    }, { once: true }));
+  }
 
   function offerCard(offer) {
     const active = isActive(offer);
     const platform = platformNames[offer.platform] || offer.platformLabel || offer.platform;
     return `<article class="free-game-card ${platformClasses[offer.platform] || ""} ${active ? "" : "is-expired"}">
-      <div class="free-game-card-art">${getImage(offer)}<span class="free-game-platform">${escapeHtml(platform)}</span><a class="free-game-claim" href="${escapeHtml(offer.url)}" target="_blank" rel="noopener noreferrer">${active ? `รับเกมบน ${escapeHtml(platform)}` : "ดูรายละเอียด"} <i data-lucide="external-link"></i></a></div>
+      <div class="free-game-card-art" data-fallback="${escapeHtml(platform.slice(0, 1))}">${getImage(offer)}<span class="free-game-platform">${escapeHtml(platform)}</span><a class="free-game-claim" href="${escapeHtml(offer.url)}" target="_blank" rel="noopener noreferrer">${active ? `รับเกมบน ${escapeHtml(platform)}` : "ดูรายละเอียด"} <i data-lucide="external-link"></i></a></div>
       <div class="free-game-card-body">
         <h2 title="${escapeHtml(offer.title)}">${escapeHtml(offer.title)}</h2>
         <div class="free-game-card-meta"><span>${escapeHtml(offer.typeLabel || "ข้อเสนอฟรี")}</span><b class="${active ? "is-live" : ""}">${active ? "กำลังรับได้" : "สิ้นสุดแล้ว"}</b></div>
@@ -59,7 +68,7 @@
     const active = isActive(offer);
     const platform = platformNames[offer.platform] || offer.platformLabel || offer.platform;
     return `<a class="home-free-game-card ${platformClasses[offer.platform] || ""}" href="${escapeHtml(offer.url)}" target="_blank" rel="noopener noreferrer">
-      <span class="home-free-game-art">${getImage(offer)}<b>${escapeHtml(platform)}</b><em>${active ? "รับเกมฟรี" : "ดูรายละเอียด"}<i data-lucide="arrow-up-right"></i></em></span>
+      <span class="home-free-game-art" data-fallback="${escapeHtml(platform.slice(0, 1))}">${getImage(offer)}<b>${escapeHtml(platform)}</b><em>${active ? "รับได้วันนี้" : "ดูรายละเอียด"}<i data-lucide="arrow-up-right"></i></em></span>
       <span class="home-free-game-info"><strong title="${escapeHtml(offer.title)}">${escapeHtml(offer.title)}</strong><small>${offer.endsAt ? `รับได้ถึง ${dateTime(offer.endsAt)} · ${remaining(offer.endsAt)}` : "ตรวจสอบสิทธิ์บนแพลตฟอร์ม"}</small></span>
     </a>`;
   }
@@ -67,7 +76,7 @@
   function upcomingCard(offer) {
     const platform = platformNames[offer.platform] || offer.platformLabel || offer.platform;
     return `<article class="free-upcoming-card ${platformClasses[offer.platform] || ""}">
-      <div class="free-upcoming-art">${getImage(offer)}<span>${escapeHtml(platform)}</span><b>จะแจกเร็ว ๆ นี้</b></div>
+      <div class="free-upcoming-art" data-fallback="${escapeHtml(platform.slice(0, 1))}">${getImage(offer)}<span>${escapeHtml(platform)}</span><b>จะแจกเร็ว ๆ นี้</b></div>
       <div class="free-upcoming-body"><h3 title="${escapeHtml(offer.title)}">${escapeHtml(offer.title)}</h3><p>${escapeHtml(offer.typeLabel || "ข้อเสนอฟรี")}</p><div><i data-lucide="calendar-clock"></i><span>เริ่มรับ ${startTime(offer)} · <strong data-free-upcoming-countdown="${escapeHtml(offer.id)}">${upcomingTiming(offer)}</strong></span></div><a href="${escapeHtml(offer.url)}" target="_blank" rel="noopener noreferrer">เปิดหน้าประกาศ ${escapeHtml(platform)} <i data-lucide="arrow-up-right"></i></a></div>
     </article>`;
   }
@@ -75,7 +84,7 @@
   function homeUpcomingOfferCard(offer) {
     const platform = platformNames[offer.platform] || offer.platformLabel || offer.platform;
     return `<a class="home-free-game-card is-upcoming ${platformClasses[offer.platform] || ""}" href="${escapeHtml(offer.url)}" target="_blank" rel="noopener noreferrer">
-      <span class="home-free-game-art">${getImage(offer)}<b>${escapeHtml(platform)}</b><em>เริ่มรับ ${startTime(offer)}<i data-lucide="calendar-clock"></i></em></span>
+      <span class="home-free-game-art" data-fallback="${escapeHtml(platform.slice(0, 1))}">${getImage(offer)}<b>${escapeHtml(platform)}</b><em>เริ่มรับ ${startTime(offer)}<i data-lucide="calendar-clock"></i></em></span>
       <span class="home-free-game-info"><strong title="${escapeHtml(offer.title)}">${escapeHtml(offer.title)}</strong><small>${escapeHtml(offer.typeLabel || "ข้อเสนอฟรี")} · <b data-free-home-upcoming-countdown="${escapeHtml(offer.id)}">${upcomingTiming(offer)}</b></small></span>
     </a>`;
   }
@@ -83,8 +92,11 @@
   function renderHomeOffers() {
     const target = document.getElementById("index-free-games-list");
     if (!target) return;
-    const offers = state.offers.filter(isActive).slice(0, 4);
-    target.innerHTML = offers.length ? offers.map(homeOfferCard).join("") : `<div class="home-free-games-empty"><i data-lucide="radar"></i><span>กำลังตรวจสอบเกมฟรีจากแพลตฟอร์มทางการ</span></div>`;
+    const activeOffers = state.offers.filter(isActive).slice(0, 2);
+    const upcomingOffers = state.upcomingOffers.filter(isUpcoming).sort((left, right) => new Date(left.startsAt) - new Date(right.startsAt)).slice(0, 4);
+    const cards = [...activeOffers.map(homeOfferCard), ...upcomingOffers.map(homeUpcomingOfferCard)];
+    target.innerHTML = cards.length ? cards.join("") : `<div class="home-free-games-empty"><i data-lucide="radar"></i><span>กำลังตรวจสอบเกมฟรีจากแพลตฟอร์มทางการ</span></div>`;
+    bindImageFallbacks(target);
     if (window.lucide) window.lucide.createIcons();
   }
 
@@ -93,17 +105,14 @@
     const offers = state.upcomingOffers.filter(isUpcoming).sort((left, right) => new Date(left.startsAt) - new Date(right.startsAt));
     if (target) {
       target.innerHTML = offers.length ? offers.map(upcomingCard).join("") : `<div class="free-games-empty"><i data-lucide="calendar-search"></i><h2>ยังไม่มีประกาศแจกเกมล่วงหน้าที่ระบุวันชัดเจน</h2><p>ระบบจะแสดงทันทีเมื่อ Steam หรือ Epic ประกาศเวลาเริ่มรับสิทธิ์</p></div>`;
+      bindImageFallbacks(target);
     }
     renderHomeUpcomingOffers(offers);
     if (window.lucide) window.lucide.createIcons();
   }
 
   function renderHomeUpcomingOffers(offers) {
-    const target = document.getElementById("index-upcoming-free-games-list");
-    if (!target) return;
-    const list = offers || state.upcomingOffers.filter(isUpcoming).sort((left, right) => new Date(left.startsAt) - new Date(right.startsAt));
-    target.innerHTML = list.length ? list.slice(0, 4).map(homeUpcomingOfferCard).join("") : `<div class="home-free-games-empty"><i data-lucide="calendar-search"></i><span>ยังไม่มีประกาศกำหนดวันแจกเกมล่วงหน้า</span></div>`;
-    if (window.lucide) window.lucide.createIcons();
+    renderHomeOffers();
   }
 
   function renderOffers() {
@@ -118,6 +127,7 @@
     grid.innerHTML = matching.length
       ? matching.map(offerCard).join("")
       : `<div class="free-games-empty"><i data-lucide="radar"></i><h2>ยังไม่พบข้อเสนอที่กำลังรับได้</h2><p>เปิดหน้าทางการของแพลตฟอร์มเพื่อดูเกมเล่นฟรีและข่าวล่าสุด</p></div>`;
+    bindImageFallbacks(grid);
     if (window.lucide) window.lucide.createIcons();
     renderHomeOffers();
   }
@@ -168,7 +178,7 @@
         const promotions = item.promotions?.promotionalOffers || [];
         return promotions.flatMap((group) => group.promotionalOffers || []).filter((promotion) => promotion.discountSetting?.discountPercentage === 0 && new Date(promotion.startDate).getTime() <= now && new Date(promotion.endDate).getTime() > now).map((promotion) => {
           const asset = (item.keyImages || []).find((image) => image.type === "OfferImageTall") || (item.keyImages || []).find((image) => image.type === "DieselStoreFrontWide") || {};
-          const slug = item.productSlug || item.urlSlug || item.catalogNs?.mappings?.[0]?.pageSlug;
+          const slug = item.productSlug || item.catalogNs?.mappings?.find((mapping) => mapping.pageType === "productHome")?.pageSlug || item.urlSlug;
           return { id: `epic-${item.id}`, title: item.title, platform: "epic", platformLabel: "Epic Games", type: "keep", typeLabel: "รับเข้าคลังฟรี", startsAt: promotion.startDate, endsAt: promotion.endDate, url: slug ? `https://store.epicgames.com/en-US/p/${slug}` : "https://store.epicgames.com/free-games", sourceUrl: "https://store.epicgames.com/free-games", image: asset.url, summary: item.description || "กดรับเข้าคลังผ่านบัญชี Epic Games ก่อนหมดเวลา" };
         });
       });
@@ -181,7 +191,7 @@
         const promotions = item.promotions?.upcomingPromotionalOffers || [];
         return promotions.flatMap((group) => group.promotionalOffers || []).filter((promotion) => promotion.discountSetting?.discountPercentage === 0 && new Date(promotion.startDate).getTime() > now).map((promotion) => {
           const asset = (item.keyImages || []).find((image) => image.type === "OfferImageTall") || (item.keyImages || []).find((image) => image.type === "DieselStoreFrontWide") || {};
-          const slug = item.productSlug || item.urlSlug || item.catalogNs?.mappings?.[0]?.pageSlug;
+          const slug = item.productSlug || item.catalogNs?.mappings?.find((mapping) => mapping.pageType === "productHome")?.pageSlug || item.urlSlug;
           return { id: `epic-upcoming-${item.id}`, title: item.title, platform: "epic", platformLabel: "Epic Games", type: "keep", typeLabel: "รับเข้าคลังฟรี", startsAt: promotion.startDate, endsAt: promotion.endDate, url: slug ? `https://store.epicgames.com/en-US/p/${slug}` : "https://store.epicgames.com/free-games", sourceUrl: "https://store.epicgames.com/free-games", image: asset.url, summary: item.description || "Epic Games ประกาศช่วงเวลาแจกเกมล่วงหน้า" };
         });
       });

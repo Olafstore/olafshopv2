@@ -1642,7 +1642,12 @@ function renderProductPackagesEditor(product) {
         })
         .catch((error) => {
           console.warn("Product packages unavailable", error);
-          list.innerHTML = `<div class="package-editor-empty">โหลดแพ็คเกจไม่สำเร็จ: ${escapeHtml(adminProductErrorMessage(error))}</div>`;
+          // Keep the editor usable for a new package even if an older project
+          // has no package rows yet.  Saving will use the package RPC/fallback
+          // and show a precise database error only if it truly cannot write.
+          setCachedProductPackages(product.id, []);
+          addButton.disabled = false;
+          list.innerHTML = `<div class="package-editor-empty">ยังโหลดแพ็กเกจเดิมไม่ได้ แต่เพิ่มแพ็กเกจใหม่ได้ตามปกติ</div>`;
         })
         .finally(() => {
           packageLoadingProductIds.delete(key);
@@ -1758,6 +1763,30 @@ function isOfflineProductCategory(category) {
     "minecraft-account",
     "minecraft-key"
   ].includes(String(category || "").trim().toLowerCase());
+}
+
+async function syncManagedPackageStocks(productId, stock) {
+  // A key/account product has one shared, real inventory.  Its package
+  // options must mirror that inventory so selecting a package never appears
+  // sold out while its parent still has available credentials.
+  if (!productId || !window.OlafProducts?.adminFetchProductPackages || !window.OlafProducts?.adminSaveProductPackages) {
+    return [];
+  }
+  try {
+    const packages = await window.OlafProducts.adminFetchProductPackages(productId);
+    if (!packages.length) return [];
+    const synced = await window.OlafProducts.adminSaveProductPackages(
+      productId,
+      packages.map((pkg) => ({ ...pkg, stock: Math.max(0, Number(stock) || 0) }))
+    );
+    setCachedProductPackages(productId, synced.map(normalizeAdminPackage));
+    return synced;
+  } catch (error) {
+    // The parent inventory has already changed successfully.  Do not undo it
+    // merely because a legacy package table has not been installed yet.
+    console.warn("Could not mirror managed package stock", error);
+    return [];
+  }
 }
 
 function managedStockCategoryLabel(category) {
@@ -3261,12 +3290,15 @@ async function saveProductFromForm(event) {
       delete state.offlineStockItems.__new__;
     }
 
+    const packagesForSave = isOfflineProduct
+      ? packageDrafts.map((pkg) => ({ ...pkg, stock: offlineStockLines.length }))
+      : packageDrafts;
     let savedPackages = [];
-    if (packageDrafts.length) {
+    if (packagesForSave.length) {
       if (!window.OlafProducts?.adminSaveProductPackages) {
         throw new Error("Product package client is not ready");
       }
-      savedPackages = await window.OlafProducts.adminSaveProductPackages(savedProduct.id, packageDrafts);
+      savedPackages = await window.OlafProducts.adminSaveProductPackages(savedProduct.id, packagesForSave);
       setCachedProductPackages(savedProduct.id, savedPackages.map(normalizeAdminPackage));
       delete state.productPackages.__new__;
     } else {
@@ -4904,6 +4936,7 @@ async function changeStock(productId, nextStock, action) {
       });
       updatedProduct = result.product || product;
       setCachedOfflineStockItems(productId, result.items || []);
+      await syncManagedPackageStocks(productId, stock);
     } else {
       updatedProduct = await window.OlafProducts.setAdminProductStock({
         productId,

@@ -58,7 +58,7 @@
 
 /* Keep the home recommendation fan readable: cards may overlap slightly, never their copy. */
 @media (min-width: 981px) {
-  body.home-page .hero-game-card { width: clamp(90px, 7.1vw, 98px); height: 174px; }
+  body.home-page .hero-game-card { width: clamp(98px, 7.8vw, 108px); height: 180px; }
   body.home-page .hero-game-card:nth-child(1) { --hero-card-transform: translateX(calc(-50% - 192px)) rotateY(21deg) rotateZ(-7deg) scale(.86); }
   body.home-page .hero-game-card:nth-child(2) { --hero-card-transform: translateX(calc(-50% - 96px)) rotateY(11deg) rotateZ(-3deg) scale(.94); }
   body.home-page .hero-game-card:nth-child(3) { --hero-card-transform: translateX(-50%) translateY(-7px) scale(1.03); }
@@ -67,7 +67,7 @@
 }
 
 @media (max-width: 560px) {
-  body.home-page .hero-game-card { width: 90px; height: 151px; }
+  body.home-page .hero-game-card { width: 96px; height: 156px; }
   body.home-page .hero-game-card:nth-child(1) { --hero-card-transform: translateX(calc(-50% - 178px)) rotateY(14deg) rotateZ(-6deg) scale(.82); }
   body.home-page .hero-game-card:nth-child(2) { --hero-card-transform: translateX(calc(-50% - 89px)) rotateY(8deg) rotateZ(-3deg) scale(.91); }
   body.home-page .hero-game-card:nth-child(3) { --hero-card-transform: translateX(-50%) translateY(-4px) scale(1.01); }
@@ -37390,8 +37390,8 @@ body.product-detail-page .pd-feature-icon-support {
 
   .hero-game-card {
     top: 13px;
-    width: 90px;
-    height: 154px;
+    width: 98px;
+    height: 159px;
     border-radius: 13px;
   }
 

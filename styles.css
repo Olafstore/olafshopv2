@@ -56,6 +56,162 @@
   --glow-brand: 0 0 15px rgba(59, 130, 246, 0.4);
 }
 
+/* Upcoming official giveaway announcements */
+.free-games-upcoming { margin-top: 42px; }
+.free-games-upcoming .free-games-section-head { display: block; margin-bottom: 18px; }
+.free-games-upcoming .free-games-section-head p { margin: 7px 0 0; color: #91a4c0; font-size: .84rem; }
+.free-upcoming-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 17px; }
+.free-upcoming-card { overflow: hidden; border: 1px solid rgba(132, 164, 218, .2); border-radius: 17px; background: linear-gradient(150deg, rgba(18, 35, 70, .92), rgba(6, 12, 29, .94)); box-shadow: 0 14px 30px rgba(0, 0, 0, .15); }
+.free-upcoming-art { position: relative; height: 155px; overflow: hidden; background: #0d1830; }
+.free-upcoming-art::after { position: absolute; right: 0; bottom: 0; left: 0; height: 60%; content: ""; pointer-events: none; background: linear-gradient(transparent, rgba(5, 11, 28, .9)); }
+.free-upcoming-art img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .3s ease; }
+.free-upcoming-card:hover .free-upcoming-art img { transform: scale(1.045); }
+.free-upcoming-art > span, .free-upcoming-art > b { position: absolute; z-index: 1; padding: 4px 8px; font-size: .63rem; border-radius: 999px; backdrop-filter: blur(7px); }
+.free-upcoming-art > span { top: 10px; left: 10px; color: #f4f8ff; font-weight: 700; border: 1px solid rgba(255,255,255,.23); background: rgba(3, 10, 25, .64); }
+.free-upcoming-art > b { right: 10px; bottom: 9px; color: #ffdf85; font-weight: 800; border: 1px solid rgba(255, 206, 100, .3); background: rgba(91, 58, 12, .56); }
+.free-upcoming-body { padding: 14px; }
+.free-upcoming-body h3 { overflow: hidden; margin: 0; color: #f1f5ff; font-size: 1rem; text-overflow: ellipsis; white-space: nowrap; }
+.free-upcoming-body > p { margin: 4px 0 9px; color: #9eb2d0; font-size: .72rem; }
+.free-upcoming-body > div { display: flex; gap: 6px; align-items: flex-start; color: #b4c9e5; font-size: .72rem; line-height: 1.45; }
+.free-upcoming-body > div i { flex: 0 0 auto; width: 15px; margin-top: 2px; color: #7eb8ff; }
+.free-upcoming-body > div strong { color: #f4d477; font-weight: 700; }
+.free-upcoming-body > a { display: inline-flex; align-items: center; gap: 5px; margin-top: 12px; color: #82bdff; font-size: .72rem; font-weight: 700; text-decoration: none; }
+.free-upcoming-body > a:hover { color: #d3e9ff; }
+.free-upcoming-body > a i { width: 14px; }
+.home-upcoming-games-heading { display: flex; align-items: end; justify-content: space-between; gap: 18px; padding-top: 25px; margin: 25px 0 18px; border-top: 1px solid rgba(127, 164, 221, .14); }
+.home-upcoming-games-heading .eyebrow { display: inline-flex; gap: 7px; align-items: center; color: #f2c976; font-size: .68rem; }
+.home-upcoming-games-heading .eyebrow i { width: 14px; }
+.home-upcoming-games-heading h3 { margin: 5px 0 0; color: #f1f5ff; font-size: 1.18rem; }
+.home-upcoming-games-heading > a { display: inline-flex; align-items: center; gap: 5px; color: #8dbfff; font-size: .78rem; font-weight: 700; text-decoration: none; }
+.home-upcoming-games-heading > a:hover { color: #d7ecff; }
+.home-upcoming-games-heading > a i { width: 15px; }
+.home-upcoming-games-list .home-free-game-art > em { background: rgba(157, 103, 24, .94); }
+.home-upcoming-games-list .home-free-game-card.is-epic .home-free-game-art > em { background: rgba(75, 65, 99, .94); }
+
+@media (max-width: 1050px) {
+  .free-upcoming-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 620px) {
+  .free-upcoming-grid { grid-template-columns: 1fr; }
+  .free-upcoming-art { height: 170px; }
+  .home-upcoming-games-heading { align-items: center; padding-top: 19px; margin-top: 19px; margin-bottom: 13px; }
+  .home-upcoming-games-heading h3 { font-size: 1.02rem; }
+}
+
+/* Compact giveaway listing — shared by Free Game Radar and the home page. */
+.free-games-page .free-games-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.free-games-page .free-game-card {
+  display: block;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.free-games-page .free-game-card:hover { transform: translateY(-4px); border: 0; box-shadow: none; }
+.free-games-page .free-game-card::before { display: none; }
+.free-games-page .free-game-card-art {
+  height: 208px;
+  overflow: hidden;
+  border: 1px solid rgba(148, 179, 230, .16);
+  border-radius: 12px;
+  background: #0d1830;
+  box-shadow: 0 11px 24px rgba(0, 0, 0, .16);
+}
+
+.free-games-page .free-game-card-art::after { height: 58px; background: linear-gradient(transparent, rgba(4, 10, 23, .9)); }
+.free-games-page .free-game-card-art img { object-position: center; }
+.free-games-page .free-game-card:hover .free-game-card-art { border-color: rgba(106, 184, 255, .6); }
+.free-games-page .free-game-platform { top: 10px; left: 10px; font-size: .65rem; }
+.free-games-page .free-game-claim {
+  position: absolute;
+  z-index: 2;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  min-height: 30px;
+  border-radius: 0;
+  background: rgba(33, 167, 235, .94);
+  box-shadow: none;
+  font-size: .72rem;
+}
+
+.free-games-page .free-game-card.is-epic .free-game-claim { background: rgba(47, 50, 57, .94); }
+.free-games-page .free-game-card.is-ea .free-game-claim { background: rgba(195, 53, 53, .94); }
+.free-games-page .free-game-card.is-ubisoft .free-game-claim { background: rgba(31, 114, 211, .94); }
+.free-games-page .free-game-card-body { display: block; min-height: 0; padding: 13px 0 0; margin: 0; }
+.free-games-page .free-game-card h2 { margin: 0 0 5px; font-size: 1rem; }
+.free-games-page .free-game-card-meta { justify-content: flex-start; gap: 7px; margin-bottom: 5px; font-size: .69rem; }
+.free-games-page .free-game-card-meta b { padding: 2px 6px; font-size: .6rem; }
+.free-games-page .free-game-deadline { margin-top: 0; color: #bdcbe0; font-size: .78rem; }
+.free-games-page .free-game-card-actions { margin-top: 8px; }
+.free-games-page .free-game-source { display: inline-flex; gap: 5px; align-items: center; width: auto; height: auto; color: #7eb6ff; font-size: .7rem; text-decoration: none; border: 0; border-radius: 0; background: transparent; }
+.free-games-page .free-game-source:hover { color: #cae4ff; }
+.free-games-page .free-game-source i { width: 14px; }
+
+.home-free-games {
+  width: min(1380px, calc(100% - 40px));
+  margin: 31px auto 0;
+  padding: 25px;
+  border: 1px solid rgba(107, 151, 221, .18);
+  border-radius: 20px;
+  background: linear-gradient(125deg, rgba(17, 32, 67, .8), rgba(6, 13, 31, .75));
+  box-shadow: inset 0 1px rgba(255, 255, 255, .04), 0 16px 34px rgba(0, 0, 0, .12);
+}
+
+.home-free-games-heading { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 18px; }
+.home-free-games-heading .eyebrow { display: inline-flex; gap: 7px; align-items: center; color: #78c5ff; font-size: .7rem; }
+.home-free-games-heading .eyebrow i { width: 14px; }
+.home-free-games-heading h2 { margin: 6px 0 0; color: #f2f7ff; font-size: 1.35rem; letter-spacing: -.025em; }
+.home-free-games-heading > a { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 5px; color: #8dbfff; font-size: .81rem; font-weight: 700; text-decoration: none; }
+.home-free-games-heading > a:hover { color: #d7ecff; }
+.home-free-games-heading > a i { width: 16px; }
+.home-free-games-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.home-free-game-card { display: block; min-width: 0; color: inherit; text-decoration: none; }
+.home-free-game-art { position: relative; display: block; height: 146px; overflow: hidden; border: 1px solid rgba(126, 163, 219, .18); border-radius: 12px; background: #101c37; box-shadow: 0 9px 20px rgba(0, 0, 0, .13); transition: transform .24s ease, border-color .24s ease, box-shadow .24s ease; }
+.home-free-game-art::after { position: absolute; right: 0; bottom: 0; left: 0; height: 56%; content: ""; pointer-events: none; background: linear-gradient(transparent, rgba(3, 9, 24, .83)); }
+.home-free-game-art img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .32s ease; }
+.home-free-game-card:hover { color: inherit; }
+.home-free-game-card:hover .home-free-game-art { transform: translateY(-3px); border-color: rgba(89, 185, 255, .67); box-shadow: 0 15px 26px rgba(0, 0, 0, .22); }
+.home-free-game-card:hover .home-free-game-art img { transform: scale(1.04); }
+.home-free-game-art > b { position: absolute; z-index: 1; top: 9px; left: 9px; padding: 4px 8px; color: #f4f8ff; font-size: .62rem; letter-spacing: .04em; border: 1px solid rgba(255, 255, 255, .23); border-radius: 99px; background: rgba(3, 10, 25, .64); backdrop-filter: blur(7px); }
+.home-free-game-art > em { position: absolute; z-index: 2; right: 0; bottom: 0; left: 0; display: flex; align-items: center; justify-content: center; gap: 5px; min-height: 29px; color: #fff; font-size: .69rem; font-style: normal; font-weight: 700; background: rgba(33, 167, 235, .94); }
+.home-free-game-art > em i { width: 14px; }
+.home-free-game-card.is-epic .home-free-game-art > em { background: rgba(44, 47, 54, .94); }
+.home-free-game-card.is-ea .home-free-game-art > em { background: rgba(195, 53, 53, .94); }
+.home-free-game-card.is-ubisoft .home-free-game-art > em { background: rgba(31, 114, 211, .94); }
+.home-free-game-info { display: grid; gap: 4px; padding-top: 10px; }
+.home-free-game-info strong { overflow: hidden; color: #f0f5ff; font-size: .91rem; text-overflow: ellipsis; white-space: nowrap; }
+.home-free-game-info small { overflow: hidden; color: #a9bad2; font-size: .71rem; text-overflow: ellipsis; white-space: nowrap; }
+.home-free-game-info small b { color: inherit; font-weight: 600; }
+.home-free-games-empty { display: flex; grid-column: 1 / -1; gap: 8px; align-items: center; justify-content: center; min-height: 130px; color: #8ea7c9; font-size: .86rem; border: 1px dashed rgba(129, 169, 224, .25); border-radius: 14px; }
+.home-free-games-empty i { width: 20px; color: #78b9f5; }
+
+@media (max-width: 1050px) {
+  .free-games-page .free-games-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .home-free-games-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 620px) {
+  .free-games-page .free-games-grid { grid-template-columns: 1fr; }
+  .free-games-page .free-game-card-art { height: 187px; }
+  .free-games-page .free-game-card { min-height: 0; }
+  .free-games-page .free-game-card-body { display: block; padding: 10px 0 0; }
+  .home-free-games { width: min(100% - 24px, 560px); margin-top: 18px; padding: 18px 14px; border-radius: 17px; }
+  .home-free-games-heading { align-items: center; margin-bottom: 13px; }
+  .home-free-games-heading h2 { font-size: 1.12rem; }
+  .home-free-games-list { display: flex; overflow-x: auto; gap: 12px; padding: 0 1px 6px; scroll-snap-type: x proximity; }
+  .home-free-game-card { flex: 0 0 min(77vw, 275px); scroll-snap-align: start; }
+  .home-free-game-art { height: 141px; }
+}
+
 /* v104: live 15-minute unpaid-order countdown in customer history */
 .profile-order-countdown {
   display: inline-grid;

@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260905-free-games-radar-v153" />
+  <link rel="stylesheet" href="styles.css?v=20260905-upcoming-free-games-v155" />
   <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="supabase-client.js?v=20260716-qr-alignment-v111" defer></script>
@@ -17,8 +17,8 @@
   <script src="image-performance.js?v=20260713-media-brand-v89" defer></script>
   <script src="notifications.js?v=20260716-qr-alignment-v111" defer></script>
   <script src="site-navigation.js?v=20260904-user-menu-smooth-close-v148" defer></script>
-  <script src="free-games-data.js?v=20260905-free-games-radar-v153" defer></script>
-  <script src="free-games.js?v=20260905-free-games-radar-v153" defer></script>
+  <script src="free-games-data.js?v=20260905-upcoming-free-games-v155" defer></script>
+  <script src="free-games.js?v=20260905-upcoming-free-games-v155" defer></script>
 </head>
 <body class="free-games-page">
   <div class="app-shell">
@@ -40,6 +40,7 @@
         <aside class="free-games-status-card"><span class="free-games-status-orb"><i data-lucide="gift"></i></span><div><strong>เกมที่รับได้ตอนนี้</strong><b id="free-games-live-count">ตรวจสอบรายการด้านล่าง</b><small id="free-games-last-checked">กำลังโหลดเวลาอัปเดต</small></div></aside>
       </section>
       <section class="free-games-offers" aria-labelledby="free-games-offers-title"><div class="free-games-section-head"><div><span class="eyebrow"><i data-lucide="flame"></i> LIVE GIVEAWAYS</span><h2 id="free-games-offers-title">ข้อเสนอที่กำลังเปิดรับ</h2></div><div class="free-games-filters" aria-label="กรองแพลตฟอร์ม"><button type="button" class="is-active" data-free-game-filter="all">ทั้งหมด</button><button type="button" data-free-game-filter="steam">Steam</button><button type="button" data-free-game-filter="epic">Epic</button><button type="button" data-free-game-filter="ea">EA</button><button type="button" data-free-game-filter="ubisoft">Ubisoft</button></div></div><div class="free-games-grid" id="free-games-grid" aria-live="polite"></div><p class="free-games-disclaimer"><i data-lucide="info"></i> เวลาและสิทธิ์รับเกมขึ้นกับภูมิภาคและเงื่อนไขของผู้ให้บริการ โปรดตรวจสอบหน้าปลายทางก่อนกดรับสิทธิ์</p></section>
+      <section class="free-games-upcoming" aria-labelledby="free-games-upcoming-title"><div class="free-games-section-head"><div><span class="eyebrow"><i data-lucide="calendar-clock"></i> ANNOUNCED UPCOMING</span><h2 id="free-games-upcoming-title">เกมที่จะแจกเร็ว ๆ นี้</h2><p>แสดงเฉพาะรายการที่ Steam หรือ Epic ระบุวันเริ่มให้รับสิทธิ์แล้ว</p></div></div><div class="free-upcoming-grid" id="free-games-upcoming-grid" aria-live="polite"></div></section>
       <section class="free-games-platform-section" aria-labelledby="free-games-platform-title"><div><span class="eyebrow"><i data-lucide="newspaper"></i> OFFICIAL SOURCES</span><h2 id="free-games-platform-title">ตรวจข่าวจากทุกแพลตฟอร์ม</h2><p>ไม่มีการใช้ลิงก์ร้านค้าคนกลาง — ทุกปุ่มจะเปิดหน้ารับเกมหรือหน้าข่าวของเจ้าของแพลตฟอร์ม</p></div><div class="free-games-platforms" id="free-games-platforms"></div></section>
     </main>
   </div>

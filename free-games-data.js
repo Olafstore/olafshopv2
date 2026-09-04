@@ -21,6 +21,36 @@ window.OlafFreeGamesData = {
       summary: "เล่นได้ฟรีในช่วงกิจกรรมเท่านั้น เมื่อหมดเวลาอาจต้องซื้อเกมเพื่อเล่นต่อ"
     }
   ],
+  upcomingOffers: [
+    {
+      id: "steam-8-more-lives-open-playtest-sep-2026",
+      title: "8 More Lives",
+      platform: "steam",
+      platformLabel: "Steam",
+      type: "playtest",
+      typeLabel: "Open Playtest เล่นฟรี",
+      startsAt: "2026-09-10",
+      startDateOnly: true,
+      url: "https://store.steampowered.com/app/683390/8_More_Lives/",
+      sourceUrl: "https://store.steampowered.com/news/posts/?enddate=1787832456&feed=steam_community_announcements",
+      image: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/683390/header.jpg",
+      summary: "Steam ประกาศว่าจะเปิด Open Playtest ให้เข้าร่วมและเล่นฟรีในวันที่ระบุ"
+    },
+    {
+      id: "steam-pixel-detective-free-launch-sep-2026",
+      title: "Pixel Detective: Curse of the Paintings",
+      platform: "steam",
+      platformLabel: "Steam",
+      type: "free-launch",
+      typeLabel: "เปิดให้เพิ่มเข้าคลังฟรี",
+      startsAt: "2026-09-18",
+      startDateOnly: true,
+      url: "https://store.steampowered.com/app/4002850/Pixel_Detective_Curse_of_the_Paintings/",
+      sourceUrl: "https://store.steampowered.com/news/posts/?appgroupname=Guns+of+Icarus+Online&enddate=1787093181&feed=steam_community_announcements",
+      image: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4002850/header.jpg",
+      summary: "ผู้พัฒนาประกาศว่าเกมจะเปิดให้เพิ่มเข้าคลัง Steam ได้ฟรีในวันวางจำหน่าย"
+    }
+  ],
   platforms: [
     {
       id: "steam",

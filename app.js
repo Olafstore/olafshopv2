@@ -124,6 +124,7 @@ const state = {
   store: fallbackPayload.store,
   categories: fallbackPayload.categories,
   products: [],
+  extraCategoryProducts: [],
   steamPreviewOrder: [],
   homeCategory: "",
   selectedCategory: "all",
@@ -1348,6 +1349,44 @@ function deriveCategories(products, fallbackCategories = fallbackPayload.categor
   ];
 }
 
+const extraHomeCategoryConfig = [
+  { id: "windows", label: "Key Windows", anchor: "windows-keys" },
+  { id: "minecraft", label: "Minecraft", anchor: "minecraft-products" },
+  { id: "rockstar", label: "Rockstar / FiveM", anchor: "rockstar-products" }
+];
+
+function extraHomeCategoryId(product) {
+  const category = String(product?.category || "").trim().toLowerCase();
+  if (category.startsWith("minecraft-")) return "minecraft";
+  if (category === "windows" || category === "rockstar") return category;
+  return "";
+}
+
+function shuffleHomeExtraProducts(products = []) {
+  const shuffled = [...products];
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+  return shuffled;
+}
+
+function normalizeHomeExtraProduct(product = {}) {
+  return {
+    ...product,
+    name: cleanDisplayText(product.name),
+    publisher: cleanDisplayText(product.publisher),
+    label: cleanDisplayText(product.label),
+    image: product.image || product.imageUrl || product.image_url || "",
+    heroImage: product.heroImage || product.heroImageUrl || product.hero_image_url || "",
+    tags: Array.isArray(product.tags) ? product.tags.map(cleanDisplayText).filter(Boolean) : [],
+    price: Number(product.price) || 0,
+    compareAt: Number(product.compareAt ?? product.compare_at) || 0,
+    stock: Number(product.stock) || 0,
+    sold: Number(product.sold) || 0
+  };
+}
+
 function applyPayload(payload) {
   const payloadStore = payload.store ?? {};
   state.store = {
@@ -1361,7 +1400,13 @@ function applyPayload(payload) {
       ...(payloadStore.payment ?? {})
     }
   };
-  const visibleProducts = (Array.isArray(payload.products) ? payload.products : fallbackPayload.products)
+  const allProducts = Array.isArray(payload.products) ? payload.products : fallbackPayload.products;
+  const extraProducts = window.OlafExtraProducts?.mergeProducts?.(allProducts) ||
+    allProducts.filter((product) => isExtraCatalogCategory(product?.category));
+  // Keep this shuffled order for the whole page lifetime. A refresh produces a
+  // fresh, fair selection without reshuffling while the shopper is browsing.
+  state.extraCategoryProducts = shuffleHomeExtraProducts(extraProducts.map(normalizeHomeExtraProduct));
+  const visibleProducts = allProducts
     .filter((product) => !isExtraCatalogCategory(product.category));
   state.categories = deriveCategories(
     visibleProducts,
@@ -2732,19 +2777,22 @@ function renderCategories() {
 }
 
 function categoryLayerProducts(categoryId) {
-  const inCategory = state.products.filter((product) => product.category === categoryId);
+  const inCategory = state.extraCategoryProducts.filter(
+    (product) => extraHomeCategoryId(product) === categoryId
+  );
   const available = inCategory.filter((product) => product.stock > 0);
+  // state.extraCategoryProducts is shuffled once per page refresh. Do not sort
+  // here, so the spotlight and its companion cards are genuinely refreshed.
   return (available.length ? available : inCategory)
-    .sort((a, b) => (b.sold - a.sold) || (b.stock - a.stock) || a.name.localeCompare(b.name))
-    .slice(0, 4);
+    .slice(0, 3);
 }
 
 function renderCategoryLayerShowcase() {
   const section = $(selectors.categoryLayerShowcase);
   if (!section) return;
 
-  const categories = state.categories.filter((category) =>
-    category.id !== "all" && state.products.some((product) => product.category === category.id)
+  const categories = extraHomeCategoryConfig.filter((category) =>
+    state.extraCategoryProducts.some((product) => extraHomeCategoryId(product) === category.id)
   );
   if (!categories.length) {
     section.hidden = true;
@@ -2754,15 +2802,15 @@ function renderCategoryLayerShowcase() {
 
   const preferredCategory = categories.some((category) => category.id === state.homeCategory)
     ? state.homeCategory
-    : categories.some((category) => category.id === state.selectedCategory)
-      ? state.selectedCategory
-      : categories[0].id;
+    : categories[0].id;
   state.homeCategory = preferredCategory;
 
   const activeCategory = categories.find((category) => category.id === preferredCategory) || categories[0];
   const products = categoryLayerProducts(activeCategory.id);
   const lead = products[0];
-  const categoryCount = state.products.filter((product) => product.category === activeCategory.id).length;
+  const categoryCount = state.extraCategoryProducts.filter(
+    (product) => extraHomeCategoryId(product) === activeCategory.id
+  ).length;
   if (!lead) {
     section.hidden = true;
     section.innerHTML = "";
@@ -2794,16 +2842,18 @@ function renderCategoryLayerShowcase() {
     <div class="category-layer-heading">
       <div>
         <p class="eyebrow">Browse by collection</p>
-        <h2>เลือกเกมจากหมวดหมู่</h2>
-        <span>คัดสินค้าจากข้อมูลในร้าน พร้อมราคาและสต็อกล่าสุด</span>
+        <h2>หมวดหมู่สินค้าเพิ่มเติม</h2>
+        <span>สินค้า Windows, Minecraft และ Rockstar จากหน้า หมวดหมู่</span>
       </div>
-      <button class="category-layer-all" type="button" data-home-category-view="${escapeHtml(activeCategory.id)}">
+      <button class="category-layer-all" type="button" data-home-category-view="${escapeHtml(activeCategory.anchor)}">
         ดูทั้งหมด <i data-lucide="arrow-up-right"></i>
       </button>
     </div>
     <div class="category-layer-tabs" role="tablist" aria-label="เลือกหมวดสินค้า">
       ${categories.map((category) => {
-        const count = state.products.filter((product) => product.category === category.id).length;
+        const count = state.extraCategoryProducts.filter(
+          (product) => extraHomeCategoryId(product) === category.id
+        ).length;
         const active = category.id === activeCategory.id;
         return `<button class="category-layer-tab ${active ? "is-active" : ""}" type="button" role="tab" aria-selected="${active}" data-home-category="${escapeHtml(category.id)}"><span>${escapeHtml(category.label)}</span><b>${count}</b></button>`;
       }).join("")}
@@ -2836,7 +2886,6 @@ function renderShowcaseCategoryState() {
 function selectCatalogCategory(categoryId, options = {}) {
   if (!state.categories.some((category) => category.id === categoryId)) return;
   state.selectedCategory = categoryId;
-  if (categoryId !== "all") state.homeCategory = categoryId;
   state.currentPage = 1;
   renderCategories();
   renderCategoryLayerShowcase();
@@ -3573,7 +3622,7 @@ function bindEvents() {
     }
 
     if (homeCategoryViewButton) {
-      selectCatalogCategory(homeCategoryViewButton.dataset.homeCategoryView, { scrollToCatalog: true });
+      window.location.href = `more-products.html#${encodeURIComponent(homeCategoryViewButton.dataset.homeCategoryView || "")}`;
       return;
     }
 

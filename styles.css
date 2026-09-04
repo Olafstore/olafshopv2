@@ -56,6 +56,49 @@
   --glow-brand: 0 0 15px rgba(59, 130, 246, 0.4);
 }
 
+/* Free-game links stay readable as one label, and the home CTA is intentionally distinct. */
+.free-games-page .free-game-source { white-space: nowrap; }
+body.home-page .home-free-games-heading > a.home-free-games-all-link { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 30px; padding: 0 10px 0 12px; color: #eff8ff; font-size: .68rem; font-weight: 800; border: 1px solid rgba(106, 185, 255, .52); border-radius: 9px; background: linear-gradient(110deg, rgba(31, 107, 227, .88), rgba(91, 64, 211, .88)); box-shadow: 0 7px 15px rgba(38, 91, 198, .2); transition: transform .18s ease, filter .18s ease; }
+body.home-page .home-free-games-heading > a.home-free-games-all-link:hover { color: #fff; filter: brightness(1.13); transform: translateY(-1px); }
+body.home-page .home-free-games-heading > a.home-free-games-all-link i { width: 14px; }
+
+/* Home giveaway strip: intentionally compact so it does not compete with store content. */
+body.home-page .home-free-games {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+  margin-top: 19px;
+  padding: 13px 16px;
+  border-radius: 15px;
+  background: linear-gradient(105deg, rgba(13, 30, 61, .76), rgba(6, 13, 31, .62));
+}
+
+body.home-page .home-free-games-heading { display: grid; gap: 5px; margin: 0; }
+body.home-page .home-free-games-heading .eyebrow { font-size: .61rem; }
+body.home-page .home-free-games-heading h2 { margin: 0; font-size: 1rem; line-height: 1.2; }
+body.home-page .home-free-games-heading > a { font-size: .71rem; }
+body.home-page .home-free-games-list { display: flex; gap: 9px; min-width: 0; overflow-x: auto; padding: 1px 1px 3px; scroll-snap-type: x proximity; }
+body.home-page .home-free-game-card { display: grid; flex: 0 0 210px; grid-template-columns: 88px minmax(0, 1fr); gap: 9px; align-items: stretch; min-width: 0; scroll-snap-align: start; }
+body.home-page .home-free-game-art { height: 65px; border-radius: 9px; }
+body.home-page .home-free-game-art > b { top: 5px; left: 5px; padding: 2px 5px; font-size: .5rem; }
+body.home-page .home-free-game-art > em { min-height: 20px; padding: 0 4px; font-size: .52rem; white-space: nowrap; }
+body.home-page .home-free-game-art > em i { width: 11px; }
+body.home-page .home-free-game-info { align-content: center; gap: 3px; padding: 0; }
+body.home-page .home-free-game-info strong { font-size: .76rem; }
+body.home-page .home-free-game-info small { font-size: .59rem; }
+.free-game-card-art.is-image-fallback::before, .free-upcoming-art.is-image-fallback::before, .home-free-game-art.is-image-fallback::before { position: absolute; z-index: 0; inset: 0; display: grid; place-items: center; content: attr(data-fallback); color: rgba(255,255,255,.76); font-size: 2.1rem; font-weight: 900; background: radial-gradient(circle at 30% 20%, #3d8df0, #15244b 54%, #080e20); }
+.home-free-game-art.is-image-fallback::before { font-size: 1.4rem; }
+
+@media (max-width: 760px) {
+  body.home-page .home-free-games { grid-template-columns: 1fr; gap: 11px; padding: 14px; }
+  body.home-page .home-free-games-heading { display: flex; align-items: center; justify-content: space-between; }
+  body.home-page .home-free-games-heading .eyebrow { display: none; }
+  body.home-page .home-free-games-heading h2 { font-size: .96rem; }
+  body.home-page .home-free-games-list { overflow-x: auto; }
+  body.home-page .home-free-game-card { flex-basis: 205px; }
+}
+
 /* Upcoming official giveaway announcements */
 .free-games-upcoming { margin-top: 42px; }
 .free-games-upcoming .free-games-section-head { display: block; margin-bottom: 18px; }

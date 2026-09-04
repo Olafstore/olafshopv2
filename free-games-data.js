@@ -7,6 +7,20 @@ window.OlafFreeGamesData = {
   updatedAt: "2026-09-05T10:00:00+07:00",
   offers: [
     {
+      id: "epic-alone-with-you-sep-2026",
+      title: "Alone With You",
+      platform: "epic",
+      platformLabel: "Epic Games",
+      type: "keep",
+      typeLabel: "รับเข้าคลังฟรี",
+      startsAt: "2026-09-03T15:00:00Z",
+      endsAt: "2026-09-10T15:00:00Z",
+      url: "https://store.epicgames.com/en-US/p/alone-with-you-028a15",
+      sourceUrl: "https://store.epicgames.com/free-games",
+      image: "https://cdn1.epicgames.com/spt-assets/04b7a1d78c904065b5c24f9e7816c99a/alone-with-you-ven8l.png",
+      summary: "รับเข้าคลัง Epic Games ได้ฟรีก่อนหมดเวลา"
+    },
+    {
       id: "steam-civilization-vii-free-access-sep-2026",
       title: "Sid Meier's Civilization VII",
       platform: "steam",
@@ -23,6 +37,34 @@ window.OlafFreeGamesData = {
   ],
   upcomingOffers: [
     {
+      id: "epic-luftrausers-sep-2026",
+      title: "Luftrausers",
+      platform: "epic",
+      platformLabel: "Epic Games",
+      type: "keep",
+      typeLabel: "รับเข้าคลังฟรี",
+      startsAt: "2026-09-10T15:00:00Z",
+      endsAt: "2026-09-17T15:00:00Z",
+      url: "https://store.epicgames.com/en-US/p/luftrausers-51e5e9",
+      sourceUrl: "https://store.epicgames.com/free-games",
+      image: "https://cdn1.epicgames.com/spt-assets/85ddeeec9d4243b3a2d78aab87bfae7f/luftrausers-11phb.png",
+      summary: "Epic Games ประกาศช่วงรับเกมฟรีล่วงหน้าแล้ว"
+    },
+    {
+      id: "epic-astral-ascent-sep-2026",
+      title: "Astral Ascent",
+      platform: "epic",
+      platformLabel: "Epic Games",
+      type: "keep",
+      typeLabel: "รับเข้าคลังฟรี",
+      startsAt: "2026-09-10T15:00:00Z",
+      endsAt: "2026-09-17T15:00:00Z",
+      url: "https://store.epicgames.com/en-US/p/astral-ascent-b33bc2",
+      sourceUrl: "https://store.epicgames.com/free-games",
+      image: "https://cdn1.epicgames.com/spt-assets/974c8a587d714d8d9e0c3b0fefe61a35/astral-ascent-15n1j.jpg",
+      summary: "Epic Games ประกาศช่วงรับเกมฟรีล่วงหน้าแล้ว"
+    },
+    {
       id: "steam-8-more-lives-open-playtest-sep-2026",
       title: "8 More Lives",
       platform: "steam",
@@ -33,7 +75,7 @@ window.OlafFreeGamesData = {
       startDateOnly: true,
       url: "https://store.steampowered.com/app/683390/8_More_Lives/",
       sourceUrl: "https://store.steampowered.com/news/posts/?enddate=1787832456&feed=steam_community_announcements",
-      image: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/683390/header.jpg",
+      image: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/683390/91defb6a6e2e43d719446afc02f54cbaf43e71b5/capsule_616x353_alt_assets_0.jpg?t=1787900034",
       summary: "Steam ประกาศว่าจะเปิด Open Playtest ให้เข้าร่วมและเล่นฟรีในวันที่ระบุ"
     },
     {
@@ -47,7 +89,7 @@ window.OlafFreeGamesData = {
       startDateOnly: true,
       url: "https://store.steampowered.com/app/4002850/Pixel_Detective_Curse_of_the_Paintings/",
       sourceUrl: "https://store.steampowered.com/news/posts/?appgroupname=Guns+of+Icarus+Online&enddate=1787093181&feed=steam_community_announcements",
-      image: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4002850/header.jpg",
+      image: "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/4002850/87ad4363b2db12adbb6ff6e86b82ce27212c4a15/capsule_616x353.jpg?t=1787951040",
       summary: "ผู้พัฒนาประกาศว่าเกมจะเปิดให้เพิ่มเข้าคลัง Steam ได้ฟรีในวันวางจำหน่าย"
     }
   ],

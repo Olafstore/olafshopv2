@@ -58,12 +58,12 @@
 
 /* Keep the home recommendation fan readable: cards may overlap slightly, never their copy. */
 @media (min-width: 981px) {
-  body.home-page .hero-game-card { width: clamp(104px, 9.1vw, 122px); height: 186px; }
-  body.home-page .hero-game-card:nth-child(1) { --hero-card-transform: translateX(calc(-50% - 218px)) rotateY(21deg) rotateZ(-7deg) scale(.86); }
-  body.home-page .hero-game-card:nth-child(2) { --hero-card-transform: translateX(calc(-50% - 109px)) rotateY(11deg) rotateZ(-3deg) scale(.94); }
+  body.home-page .hero-game-card { width: clamp(90px, 7.1vw, 98px); height: 174px; }
+  body.home-page .hero-game-card:nth-child(1) { --hero-card-transform: translateX(calc(-50% - 192px)) rotateY(21deg) rotateZ(-7deg) scale(.86); }
+  body.home-page .hero-game-card:nth-child(2) { --hero-card-transform: translateX(calc(-50% - 96px)) rotateY(11deg) rotateZ(-3deg) scale(.94); }
   body.home-page .hero-game-card:nth-child(3) { --hero-card-transform: translateX(-50%) translateY(-7px) scale(1.03); }
-  body.home-page .hero-game-card:nth-child(4) { --hero-card-transform: translateX(calc(-50% + 109px)) rotateY(-11deg) rotateZ(3deg) scale(.94); }
-  body.home-page .hero-game-card:nth-child(5) { --hero-card-transform: translateX(calc(-50% + 218px)) rotateY(-21deg) rotateZ(7deg) scale(.86); }
+  body.home-page .hero-game-card:nth-child(4) { --hero-card-transform: translateX(calc(-50% + 96px)) rotateY(-11deg) rotateZ(3deg) scale(.94); }
+  body.home-page .hero-game-card:nth-child(5) { --hero-card-transform: translateX(calc(-50% + 192px)) rotateY(-21deg) rotateZ(7deg) scale(.86); }
 }
 
 @media (max-width: 560px) {
@@ -37390,17 +37390,17 @@ body.product-detail-page .pd-feature-icon-support {
 
   .hero-game-card {
     top: 13px;
-    width: 98px;
-    height: 159px;
+    width: 90px;
+    height: 154px;
     border-radius: 13px;
   }
 
   .hero-game-card:nth-child(1) {
-    --hero-card-transform: translateX(calc(-50% - 118px)) rotateY(18deg) rotateZ(-7deg) scale(0.82);
+    --hero-card-transform: translateX(calc(-50% - 180px)) rotateY(18deg) rotateZ(-7deg) scale(0.82);
   }
 
   .hero-game-card:nth-child(2) {
-    --hero-card-transform: translateX(calc(-50% - 60px)) rotateY(10deg) rotateZ(-3deg) scale(0.92);
+    --hero-card-transform: translateX(calc(-50% - 90px)) rotateY(10deg) rotateZ(-3deg) scale(0.92);
   }
 
   .hero-game-card:nth-child(3) {
@@ -37408,11 +37408,11 @@ body.product-detail-page .pd-feature-icon-support {
   }
 
   .hero-game-card:nth-child(4) {
-    --hero-card-transform: translateX(calc(-50% + 60px)) rotateY(-10deg) rotateZ(3deg) scale(0.92);
+    --hero-card-transform: translateX(calc(-50% + 90px)) rotateY(-10deg) rotateZ(3deg) scale(0.92);
   }
 
   .hero-game-card:nth-child(5) {
-    --hero-card-transform: translateX(calc(-50% + 118px)) rotateY(-18deg) rotateZ(7deg) scale(0.82);
+    --hero-card-transform: translateX(calc(-50% + 180px)) rotateY(-18deg) rotateZ(7deg) scale(0.82);
   }
 
   .hero-game-card:hover,

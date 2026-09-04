@@ -1783,6 +1783,92 @@ body {
   margin-top: 8px;
 }
 
+.package-stock-loading,
+.package-stock-note {
+  padding: 9px 10px;
+  border: 1px solid rgba(90, 167, 255, 0.16);
+  border-radius: 9px;
+  background: rgba(59, 130, 246, 0.07);
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.package-stock-controls {
+  display: grid;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.package-stock-heading,
+.package-stock-row,
+.package-stock-set {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.package-stock-heading {
+  justify-content: space-between;
+}
+
+.package-stock-heading strong,
+.package-stock-row strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text);
+  font-size: 0.8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.package-stock-heading small,
+.package-stock-row small {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.package-stock-row {
+  justify-content: space-between;
+  padding: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  border-radius: 9px;
+  background: rgba(2, 6, 23, 0.2);
+}
+
+.package-stock-row > div:first-child {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.package-stock-set {
+  flex: 0 0 auto;
+}
+
+.package-stock-set input {
+  width: 68px;
+  min-height: 34px;
+  padding: 0 8px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 8px;
+  outline: 0;
+  background: rgba(3, 7, 18, 0.44);
+  color: var(--text);
+}
+
+.package-stock-set input:focus {
+  border-color: rgba(90, 167, 255, 0.7);
+  box-shadow: 0 0 0 3px rgba(90, 167, 255, 0.12);
+}
+
+.package-stock-set .mini-button {
+  min-height: 34px;
+  padding-inline: 9px;
+  font-size: 0.74rem;
+}
+
 .stock-summary-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -1883,6 +1969,25 @@ body {
 
   .stock-summary-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .package-stock-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .package-stock-row {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .package-stock-set {
+    width: 100%;
+  }
+
+  .package-stock-set input {
+    flex: 1 1 auto;
+    width: auto;
   }
 }
 

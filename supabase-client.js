@@ -698,6 +698,40 @@
     };
   }
 
+  // Keep package stock editable on installations that pre-date the package
+  // admin RPCs.  The admin screen already reads this table directly, so this
+  // fallback makes the same admin-owned counter usable without leaving new
+  // packages stuck at zero.
+  function packageToRow(productId, pkg = {}) {
+    const payload = packageToRpcPayload(productId, pkg);
+    const row = {
+      product_id: payload.p_product_id,
+      title: payload.p_title,
+      subtitle: payload.p_subtitle,
+      description: payload.p_description,
+      price: payload.p_price,
+      compare_at: payload.p_compare_at,
+      stock: payload.p_stock,
+      sold: payload.p_sold,
+      status: payload.p_status,
+      sort_order: payload.p_sort_order,
+      badge: payload.p_badge,
+      metadata: payload.p_metadata
+    };
+    if (payload.p_id) row.id = payload.p_id;
+    return row;
+  }
+
+  function isMissingPackageAdminRpc(error, rpcName) {
+    const message = String(error?.message || "").toLowerCase();
+    return (
+      error?.code === "PGRST202" ||
+      error?.code === "42883" ||
+      message.includes(String(rpcName || "").toLowerCase()) ||
+      message.includes("schema cache")
+    );
+  }
+
   function productToRow(product) {
     return {
       id: String(product.id || "").trim(),
@@ -950,8 +984,22 @@
         continue;
       }
       const payload = packageToRpcPayload(normalizedProductId, pkg);
-      const { data, error } = await requireClient().rpc("admin_save_product_package", payload);
-      if (error) throw error;
+      const client = requireClient();
+      let data;
+      const rpcResult = await client.rpc("admin_save_product_package", payload);
+      if (!rpcResult.error) {
+        data = rpcResult.data;
+      } else if (isMissingPackageAdminRpc(rpcResult.error, "admin_save_product_package")) {
+        const fallback = await client
+          .from("product_packages")
+          .upsert(packageToRow(normalizedProductId, pkg), { onConflict: "id" })
+          .select("*")
+          .single();
+        if (fallback.error) throw fallback.error;
+        data = fallback.data;
+      } else {
+        throw rpcResult.error;
+      }
       const mapped = mapProductPackageRow(data);
       if (mapped) saved.push(mapped);
     }
@@ -961,10 +1009,21 @@
   async function adminDeleteProductPackage(packageId) {
     const normalizedPackageId = String(packageId || "").trim();
     if (!normalizedPackageId) throw new Error("PACKAGE_REQUIRED");
-    const { data, error } = await requireClient().rpc("admin_delete_product_package", {
+    const client = requireClient();
+    const { data, error } = await client.rpc("admin_delete_product_package", {
       p_package_id: normalizedPackageId
     });
-    if (error) throw error;
+    if (error) {
+      if (!isMissingPackageAdminRpc(error, "admin_delete_product_package")) throw error;
+      const fallback = await client
+        .from("product_packages")
+        .delete()
+        .eq("id", normalizedPackageId)
+        .select("id")
+        .maybeSingle();
+      if (fallback.error) throw fallback.error;
+      return normalizeObject(fallback.data);
+    }
     return normalizeObject(data);
   }
 

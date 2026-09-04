@@ -125,6 +125,7 @@ const state = {
   categories: fallbackPayload.categories,
   products: [],
   extraCategoryProducts: [],
+  categoryLayerSupplementProducts: [],
   steamPreviewOrder: [],
   homeCategory: "",
   selectedCategory: "all",
@@ -1427,6 +1428,7 @@ function applyPayload(payload) {
     stock: Number(product.stock) || 0,
     sold: Number(product.sold) || 0
   }));
+  state.categoryLayerSupplementProducts = shuffleHomeExtraProducts(state.products);
   randomizeSteamPreviewOrder();
   appConfig.paymentEndpoint =
     window.OLAF_CONFIG?.paymentEndpoint ??
@@ -2780,11 +2782,17 @@ function categoryLayerProducts(categoryId) {
   const inCategory = state.extraCategoryProducts.filter(
     (product) => extraHomeCategoryId(product) === categoryId
   );
-  const available = inCategory.filter((product) => product.stock > 0);
   // state.extraCategoryProducts is shuffled once per page refresh. Do not sort
   // here, so the spotlight and its companion cards are genuinely refreshed.
-  return (available.length ? available : inCategory)
-    .slice(0, 3);
+  const selected = inCategory.slice(0, 3).map((product) => ({ ...product, _categoryLayerSupplement: false }));
+  if (selected.length >= 3) return selected;
+
+  const selectedIds = new Set(selected.map((product) => product.id));
+  const supplement = state.categoryLayerSupplementProducts
+    .filter((product) => product.stock > 0 && !selectedIds.has(product.id))
+    .slice(0, 3 - selected.length)
+    .map((product) => ({ ...product, _categoryLayerSupplement: true }));
+  return [...selected, ...supplement];
 }
 
 function renderCategoryLayerShowcase() {
@@ -2820,14 +2828,17 @@ function renderCategoryLayerShowcase() {
   const cards = products.slice(1).map((product) => {
     const discount = getDiscount(product);
     const stock = getStockState(product.stock);
+    const cardMeta = product._categoryLayerSupplement
+      ? `แนะนำจากร้าน · ${stock.label}`
+      : stock.label;
     return `
-      <a class="category-layer-card" href="${productLink(product)}" aria-label="ดูรายละเอียด ${escapeHtml(cleanDisplayText(product.name))}">
+      <a class="category-layer-card ${product._categoryLayerSupplement ? "is-supplement" : ""}" href="${productLink(product)}" aria-label="ดูรายละเอียด ${escapeHtml(cleanDisplayText(product.name))}">
         <span class="category-layer-card-media">
           <img ${fastImg(product.image || product.heroImage, product.name, { sizes: "(max-width: 700px) 46vw, 220px" })} />
           ${discount ? `<b>-${discount}%</b>` : ""}
         </span>
         <span class="category-layer-card-copy">
-          <small>${escapeHtml(stock.label)}</small>
+          <small>${escapeHtml(cardMeta)}</small>
           <strong>${escapeHtml(cleanDisplayText(product.name))}</strong>
           <em>${formatPrice(product.price)}</em>
         </span>
@@ -2859,6 +2870,8 @@ function renderCategoryLayerShowcase() {
       }).join("")}
     </div>
     <div class="category-layer-stage">
+      <span class="category-layer-ambient category-layer-ambient-one" aria-hidden="true"></span>
+      <span class="category-layer-ambient category-layer-ambient-two" aria-hidden="true"></span>
       <a class="category-layer-lead" href="${productLink(lead)}" aria-label="ดูรายละเอียด ${escapeHtml(cleanDisplayText(lead.name))}">
         <img ${fastImg(lead.heroImage || lead.image, lead.name, { sizes: "(max-width: 700px) 100vw, 520px" })} />
         <span class="category-layer-lead-shade"></span>

@@ -1083,7 +1083,9 @@ function adminDataErrorMessage(error) {
 }
 
 function products() {
-  return state.payload.products;
+  // Input events can fire while a manual reload is still rebuilding the
+  // payload. Keep the inventory panel usable instead of throwing on null.
+  return Array.isArray(state.payload?.products) ? state.payload.products : [];
 }
 
 function freeRandomSlots() {
@@ -1433,7 +1435,9 @@ function inventorySummaryFor(productOrId) {
   }
   return state.inventorySummaries[product.id] || {
     productId: product.id,
-    managedStock: isOfflineProductCategory(product.category),
+    // A category alone does not mean this product has managed stock rows.
+    // Products created before that system still use products.stock normally.
+    managedStock: false,
     availableCount: Number(product.stock || 0),
     reservedCount: 0,
     deliveredCount: 0,
@@ -1447,6 +1451,10 @@ function inventorySummaryFor(productOrId) {
     lastOrderAt: "",
     stockMatches: true
   };
+}
+
+function hasManagedStockRows(product) {
+  return inventorySummaryFor(product).managedStock === true;
 }
 
 async function refreshInventorySummaries() {
@@ -2670,7 +2678,7 @@ function renderProductsTable() {
     .map((product, index) => {
       const summary = inventorySummaryFor(product);
       const status = stockStatus(summary.availableCount);
-      const isOffline = isOfflineProductCategory(product.category);
+      const isOffline = hasManagedStockRows(product);
       return `
         <tr>
           <td class="product-table-index"><span style="color: var(--muted); font-weight: 500;">${index + 1}</span></td>
@@ -4672,7 +4680,7 @@ function renderStockBoard() {
           const summary = inventorySummaryFor(product);
           const available = Number(summary.availableCount || 0);
           const status = stockStatus(available);
-          const isOffline = isOfflineProductCategory(product.category);
+          const isOffline = hasManagedStockRows(product);
           const stockCategoryLabel = managedStockCategoryLabel(product.category);
           const history = productOrderHistory(product.id);
           return `
@@ -4758,7 +4766,8 @@ async function changeStock(productId, nextStock, action) {
     const previousStock = Number(inventorySummaryFor(product).availableCount || 0);
     let updatedProduct;
 
-    if (isOfflineProductCategory(product.category)) {
+    const usesManagedRows = hasManagedStockRows(product);
+    if (usesManagedRows) {
       if (!window.OlafProducts?.adminResizeOfflineStock) {
         throw new Error("admin_resize_offline_stock is not ready");
       }
@@ -4803,7 +4812,7 @@ async function changeStock(productId, nextStock, action) {
     } else {
       setStatus("อัปเดตสต็อกออนไลน์แล้ว");
       showAdminToast(
-        isOfflineProductCategory(product.category)
+        usesManagedRows
           ? "อัปเดต stock rows จริงใน Supabase แล้ว"
           : "อัปเดตสต็อกใน Supabase แล้ว",
         "success"
@@ -5799,7 +5808,7 @@ function bindEvents() {
 
   $("#resize-managed-stock")?.addEventListener("click", async () => {
     const product = selectedProduct();
-    if (!product || !isOfflineProductCategory(product.category)) return;
+    if (!product || !hasManagedStockRows(product)) return;
     const target = Number($("#managed-stock-target")?.value || 0);
     await changeStock(product.id, target, "ปรับจำนวนพร้อมขายจากหน้าจัดการสินค้า");
   });

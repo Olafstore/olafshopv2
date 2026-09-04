@@ -889,7 +889,10 @@
       error.code === "42883" ||
       message.includes("admin_set_product_stock") ||
       message.toLowerCase().includes("schema cache");
-    if (!missingRpc) throw error;
+    // Some older products use the normal products.stock counter instead of
+    // managed, per-item stock rows.  Let an admin still update that counter.
+    const notManagedStock = message.includes("PRODUCT_NOT_MANAGED_STOCK");
+    if (!missingRpc && !notManagedStock) throw error;
 
     const { data: fallbackData, error: fallbackError } = await client
       .from("products")
@@ -1038,7 +1041,26 @@
         p_template_content: String(templateContent || "").trim() || null,
         p_note: String(note || "").trim() || "Admin resized managed stock"
       });
-      if (legacy.error) throw error;
+      if (legacy.error) {
+        const primaryMessage = String(error.message || "");
+        const legacyMessage = String(legacy.error.message || "");
+        const isNormalCounterProduct =
+          primaryMessage.includes("PRODUCT_NOT_MANAGED_STOCK") ||
+          legacyMessage.includes("PRODUCT_NOT_MANAGED_STOCK");
+        if (!isNormalCounterProduct) throw error;
+
+        const product = await setAdminProductStock({
+          productId: normalizedProductId,
+          stock: normalizedStock,
+          note: String(note || "").trim() || "Admin adjusted normal product stock"
+        });
+        if (product) product._managedStockFallback = true;
+        return {
+          product,
+          items: [],
+          availableCount: normalizedStock
+        };
+      }
       const legacyPayload = normalizeObject(legacy.data);
       return {
         product: mapProductRow(legacyPayload.product),

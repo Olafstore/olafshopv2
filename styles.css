@@ -125,6 +125,24 @@ body.home-page .home-free-games-heading .eyebrow { font-size: .61rem; }
 body.home-page .home-free-games-heading h2 { margin: 0; font-size: 1rem; line-height: 1.2; }
 body.home-page .home-free-games-heading > a { font-size: .71rem; }
 body.home-page .home-free-games-list { display: flex; gap: 9px; min-width: 0; overflow-x: auto; padding: 1px 1px 3px; scroll-snap-type: x proximity; }
+body.home-page .home-free-games-rail { display: grid; grid-template-columns: minmax(0, 1fr); align-items: center; gap: 8px; min-width: 0; }
+body.home-page .home-free-games-list { scrollbar-width: none; }
+body.home-page .home-free-games-list::-webkit-scrollbar { display: none; }
+body.home-page .home-free-games-list:focus-visible { outline: 2px solid #78c5ff; outline-offset: 2px; border-radius: 8px; }
+body.home-page .home-free-games-nav {
+  display: none; align-items: center; justify-content: center; width: 32px; height: 40px;
+  padding: 0; border: 1px solid rgba(120, 197, 255, .24); border-radius: 11px;
+  color: #c9e6ff; background: linear-gradient(145deg, rgba(37, 75, 127, .45), rgba(13, 23, 45, .85));
+  cursor: pointer; transition: background .18s ease, opacity .18s ease;
+}
+body.home-page .home-free-games-nav svg { width: 18px; height: 18px; }
+body.home-page .home-free-games-nav:hover:not(:disabled) { background: rgba(45, 103, 183, .5); }
+body.home-page .home-free-games-nav:focus-visible { outline: 2px solid #78c5ff; outline-offset: 2px; }
+body.home-page .home-free-games-nav:disabled { opacity: .3; cursor: default; }
+@media (min-width: 981px) {
+  body.home-page .home-free-games-rail.has-overflow { grid-template-columns: 32px minmax(0, 1fr) 32px; }
+  body.home-page .home-free-games-nav:not([hidden]) { display: inline-flex; }
+}
 body.home-page .home-free-game-card { display: grid; flex: 0 0 210px; grid-template-columns: 88px minmax(0, 1fr); gap: 9px; align-items: stretch; min-width: 0; scroll-snap-align: start; }
 body.home-page .home-free-game-art { height: 65px; border-radius: 9px; }
 body.home-page .home-free-game-art > b { top: 5px; left: 5px; padding: 2px 5px; font-size: .5rem; }

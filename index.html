@@ -41,7 +41,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800;900&display=swap"
     rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260905-hero-fan-layered-v164" />
+  <link rel="stylesheet" href="styles.css?v=20260905-free-games-nav-v165" />
   <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="supabase-client.js?v=20260904-realtime-favorites-v141" defer></script>
@@ -53,7 +53,7 @@
   <script src="extra-products.js?v=20260905-category-layer-depth-v152" defer></script>
     <script src="app.js?v=20260905-category-layer-depth-v152" defer></script>
   <script src="free-games-data.js?v=20260905-free-games-full-strip-v159" defer></script>
-  <script src="free-games.js?v=20260905-free-games-full-strip-v159" defer></script>
+  <script src="free-games.js?v=20260905-free-games-nav-v165" defer></script>
 </head>
 
 <body class="home-page">
@@ -163,7 +163,11 @@
           </div>
           <a class="home-free-games-all-link" href="free-games.html"><span>ดูเกมทั้งหมด</span><i data-lucide="arrow-up-right"></i></a>
         </div>
-        <div class="home-free-games-list" id="index-free-games-list" aria-live="polite"></div>
+        <div class="home-free-games-rail">
+          <button class="home-free-games-nav" id="free-games-prev" type="button" aria-label="เลื่อนเกมฟรีไปทางซ้าย" aria-controls="index-free-games-list" hidden><i data-lucide="chevron-left"></i></button>
+          <div class="home-free-games-list" id="index-free-games-list" tabindex="0" role="region" aria-label="เกมฟรีวันนี้และเร็ว ๆ นี้" aria-live="polite"></div>
+          <button class="home-free-games-nav" id="free-games-next" type="button" aria-label="เลื่อนเกมฟรีไปทางขวา" aria-controls="index-free-games-list" hidden><i data-lucide="chevron-right"></i></button>
+        </div>
       </section>
       <section class="stats-strip" aria-label="สถิติร้าน">
         <article>

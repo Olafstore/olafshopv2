@@ -89,6 +89,49 @@
     </a>`;
   }
 
+  const homeScrollBindings = new WeakMap();
+
+  function bindHomeOfferScroll(target) {
+    const existing = homeScrollBindings.get(target);
+    if (existing) { existing(); return; }
+    const previous = document.getElementById("free-games-prev");
+    const next = document.getElementById("free-games-next");
+    const rail = target.parentElement;
+    if (!previous || !next || !rail) return;
+
+    const update = () => {
+      // Measure without the buttons' reserved space to avoid a resize loop.
+      const overflow = target.scrollWidth > rail.clientWidth + 1;
+      rail.classList.toggle("has-overflow", overflow);
+      previous.hidden = next.hidden = !overflow;
+      previous.disabled = target.scrollLeft <= 1;
+      next.disabled = target.scrollLeft >= target.scrollWidth - target.clientWidth - 1;
+    };
+    const move = (direction) => {
+      target.scrollBy({
+        left: direction * Math.max(1, target.clientWidth * .85),
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"
+      });
+    };
+    previous.addEventListener("click", () => move(-1));
+    next.addEventListener("click", () => move(1));
+    target.addEventListener("scroll", update, { passive: true });
+    target.addEventListener("keydown", (event) => {
+      if (event.target !== target || !["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+      event.preventDefault();
+      move(event.key === "ArrowLeft" ? -1 : 1);
+    });
+    if (window.ResizeObserver) {
+      const observer = new window.ResizeObserver(update);
+      observer.observe(rail);
+      observer.observe(target);
+    } else {
+      window.addEventListener("resize", update);
+    }
+    homeScrollBindings.set(target, update);
+    update();
+  }
+
   function renderHomeOffers() {
     const target = document.getElementById("index-free-games-list");
     if (!target) return;
@@ -97,6 +140,7 @@
     const cards = [...activeOffers.map(homeOfferCard), ...upcomingOffers.map(homeUpcomingOfferCard)];
     target.innerHTML = cards.length ? cards.join("") : `<div class="home-free-games-empty"><i data-lucide="radar"></i><span>กำลังตรวจสอบเกมฟรีจากแพลตฟอร์มทางการ</span></div>`;
     bindImageFallbacks(target);
+    bindHomeOfferScroll(target);
     if (window.lucide) window.lucide.createIcons();
   }
 

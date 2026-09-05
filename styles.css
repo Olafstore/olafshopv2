@@ -20885,6 +20885,29 @@ body:has(dialog[open]) {
   }
 
   .topbar.site-topbar-unified .brand-mark > img {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    border-radius: inherit !important;
+  }
+
+  /* The same admin-supplied logo is used on desktop and mobile. Only keep
+     the gamepad fallback when no logo image exists. */
+  html body .topbar.site-topbar-unified .brand-mark:has(> img),
+  html body .mobile-menu-brand-mark:has(> img) {
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  html body .topbar.site-topbar-unified .brand-mark:has(> img)::before,
+  html body .topbar.site-topbar-unified .brand-mark:has(> img)::after,
+  html body .mobile-menu-brand-mark:has(> img)::before,
+  html body .mobile-menu-brand-mark:has(> img)::after {
+    content: none !important;
     display: none !important;
   }
 
@@ -30709,14 +30732,11 @@ a.profile-nav-item {
   }
 }
 
-/* Mobile topbar v71 final override: hide language + notification on phones only. */
+/* Phone topbar: keep language compact, but preserve the notification menu. */
 @media (max-width: 768px) {
   html body .topbar.site-topbar-unified .topbar-actions > .language-switcher,
-  html body .topbar.site-topbar-unified .topbar-actions > .notification-wrap,
   html body .topbar.site-topbar-unified .topbar-actions #lang-toggle,
-  html body .topbar.site-topbar-unified .topbar-actions #open-notifications,
-  html body .topbar.site-topbar-unified .language-switcher,
-  html body .topbar.site-topbar-unified .notification-wrap {
+  html body .topbar.site-topbar-unified .language-switcher {
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
@@ -30735,6 +30755,36 @@ a.profile-nav-item {
 
   html body .topbar.site-topbar-unified .topbar-actions {
     gap: 8px !important;
+  }
+
+  html body .topbar.site-topbar-unified .topbar-actions > .notification-wrap {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    overflow: visible !important;
+    flex: 0 0 40px !important;
+    width: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    max-height: 40px !important;
+  }
+
+  html body .topbar.site-topbar-unified #open-notifications {
+    display: grid !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    overflow: visible !important;
+  }
+}
+
+@media (max-width: 360px) {
+  html body .topbar.site-topbar-unified,
+  html body .topbar.site-topbar-unified .topbar-actions {
+    gap: 4px !important;
   }
 }
 

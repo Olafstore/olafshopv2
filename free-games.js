@@ -14,6 +14,12 @@
   const startTime = (offer) => offer.startDateOnly
     ? `${new Intl.DateTimeFormat("th-TH", { dateStyle: "medium" }).format(new Date(`${offer.startsAt}T00:00:00Z`))} (ยังไม่ระบุเวลา)`
     : dateTime(offer.startsAt);
+  const shortStartDate = (offer) => {
+    const value = offer.startDateOnly ? `${offer.startsAt}T00:00:00Z` : offer.startsAt;
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "เร็ว ๆ นี้";
+    return `เริ่ม ${new Intl.DateTimeFormat("th-TH", { day: "numeric", month: "short", ...(offer.startDateOnly ? { timeZone: "UTC" } : {}) }).format(date)}`;
+  };
   const remaining = (endAt) => {
     const milliseconds = new Date(endAt).getTime() - Date.now();
     if (Number.isNaN(milliseconds)) return "ตรวจสอบช่วงเวลาที่แพลตฟอร์ม";
@@ -58,7 +64,7 @@
         <div class="free-game-card-meta"><span>${escapeHtml(offer.typeLabel || "ข้อเสนอฟรี")}</span><b class="${active ? "is-live" : ""}">${active ? "กำลังรับได้" : "สิ้นสุดแล้ว"}</b></div>
         <div class="free-game-deadline"><i data-lucide="clock-3"></i><span>${offer.endsAt ? `${dateTime(offer.endsAt)} · <strong data-free-game-countdown="${escapeHtml(offer.id)}">${remaining(offer.endsAt)}</strong>` : "เล่นฟรี — ตรวจสอบเงื่อนไขบนแพลตฟอร์ม"}</span></div>
         <div class="free-game-card-actions">
-          <a class="free-game-source" href="${escapeHtml(offer.sourceUrl || offer.url)}" target="_blank" rel="noopener noreferrer"><i data-lucide="badge-check"></i> ข่าวจาก ${escapeHtml(platform)}</a>
+          <a class="free-game-source" href="${escapeHtml(offer.sourceUrl || offer.url)}" target="_blank" rel="noopener noreferrer"><i data-lucide="badge-check"></i><span>ข่าวจาก ${escapeHtml(platform)}</span></a>
         </div>
       </div>
     </article>`;
@@ -84,8 +90,8 @@
   function homeUpcomingOfferCard(offer) {
     const platform = platformNames[offer.platform] || offer.platformLabel || offer.platform;
     return `<a class="home-free-game-card is-upcoming ${platformClasses[offer.platform] || ""}" href="${escapeHtml(offer.url)}" target="_blank" rel="noopener noreferrer">
-      <span class="home-free-game-art" data-fallback="${escapeHtml(platform.slice(0, 1))}">${getImage(offer)}<b>${escapeHtml(platform)}</b><em>เริ่มรับ ${startTime(offer)}<i data-lucide="calendar-clock"></i></em></span>
-      <span class="home-free-game-info"><strong title="${escapeHtml(offer.title)}">${escapeHtml(offer.title)}</strong><small>${escapeHtml(offer.typeLabel || "ข้อเสนอฟรี")} · <b data-free-home-upcoming-countdown="${escapeHtml(offer.id)}">${upcomingTiming(offer)}</b></small></span>
+      <span class="home-free-game-art" data-fallback="${escapeHtml(platform.slice(0, 1))}">${getImage(offer)}<b>${escapeHtml(platform)}</b><em title="เริ่มรับ ${escapeHtml(startTime(offer))}"><span class="home-free-game-date-full">เริ่มรับ ${startTime(offer)}</span><span class="home-free-game-date-short">${shortStartDate(offer)}</span><i data-lucide="calendar-clock"></i></em></span>
+      <span class="home-free-game-info"><strong title="${escapeHtml(offer.title)}">${escapeHtml(offer.title)}</strong><small>${escapeHtml(offer.typeLabel || "ข้อเสนอฟรี")} · <b data-free-home-upcoming-countdown="${escapeHtml(offer.id)}">${upcomingTiming(offer)}</b></small><small class="home-free-game-start-detail">เริ่มรับ ${startTime(offer)}</small></span>
     </a>`;
   }
 

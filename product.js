@@ -1215,6 +1215,22 @@ function getLocalizedPlatformLabel(link = {}) {
 }
 
 function productPlatformLinks(product = {}) {
+  if (String(product.category || "").toLowerCase() === "steam-account") {
+    const links = Array.isArray(product.platformLinks) ? product.platformLinks : [];
+    // Only replace guide links for full-email Steam accounts. Keep store and
+    // other product links intact, including custom links supplied by Admin.
+    const otherLinks = links.filter((link) => !(
+      String(link.icon || "").toLowerCase().includes("book") ||
+      String(link.url || "").toLowerCase().includes("gitbook") ||
+      /คู่มือ|manual|guide/i.test(String(link.label || ""))
+    ));
+    return [...otherLinks, {
+      label: "คู่มือ",
+      url: STEAM_ACCOUNT_GUIDE_URL,
+      icon: "book-open-check",
+      lockLabel: true
+    }];
+  }
   if (String(product.category || "").toLowerCase() === "steam-key") {
     return [
       {
@@ -1656,6 +1672,7 @@ function productImageFallbacks(product = {}, primary = "") {
 const STEAM_OFFLINE_GUIDE_URL = "https://olaf-shop.gitbook.io/manual-olaf-shop";
 const STEAM_OFFLINE_CONDITIONS_URL = "https://olaf-shop.gitbook.io/manual-olaf-shop/undefined/undefined";
 const STEAM_KEY_GUIDE_URL = "https://olaf-shop.gitbook.io/manual-olaf-shop/undefined/key-steam";
+const STEAM_ACCOUNT_GUIDE_URL = "https://olaf-shop.gitbook.io/manual-olaf-shop/undefined/1";
 const OFFLINE_SUPPORT_PAGE_URL = "https://www.facebook.com/byOlafshop";
 
 function rockstarUsageAccordion(product) {
@@ -1683,6 +1700,31 @@ function rockstarUsageAccordion(product) {
 
 function categoryGuideAccordion(product) {
   const category = String(product?.category || "").toLowerCase();
+
+  if (category === "steam-account") {
+    return `
+      <section class="pd-arrow-accordion pd-category-guide pd-category-guide-panel pd-category-guide-account">
+        <div class="pd-guide-panel-head">
+          <span class="pd-arrow-summary-title">
+            <span class="pd-section-icon-box"><i data-lucide="book-open-check"></i></span>
+            คู่มือการใช้งานไอดียกเมล
+          </span>
+          <span class="pd-arrow-summary-meta">คู่มือจาก OLAF SHOP</span>
+        </div>
+        <div class="pd-arrow-accordion-body">
+          <div class="pd-offline-guide-list pd-account-guide-list">
+            <details data-smooth-details data-accordion-group="steam-account-guide">
+              <summary>คู่มือไอดียกเมลฉบับเต็ม <i data-lucide="chevron-down"></i></summary>
+              <div>
+                <p>เปิดอ่านรายละเอียดและขั้นตอนการใช้งานไอดียกเมลจากคู่มือของร้านตามลิงก์ด้านล่าง</p>
+                <a href="${STEAM_ACCOUNT_GUIDE_URL}" target="_blank" rel="noopener noreferrer">เปิดคู่มือไอดียกเมล <i data-lucide="arrow-up-right"></i></a>
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+    `;
+  }
 
   if (category === "offline") {
     return `

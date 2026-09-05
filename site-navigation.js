@@ -1440,6 +1440,52 @@
       .map((entry) => entry.product);
   }
 
+  function searchDiscoveryProducts(products = [], now = Date.now()) {
+    const active = products.filter(product => product?.id && product.isActive !== false && product.is_active !== false);
+    const seen = new Set();
+    const distinct = list => list.filter(product => {
+      const key = normalizedSearchValue(product.name || product.id);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+    const upcoming = active.filter(product => {
+      const release = product.releaseDate || product.release_date || product.availableAt;
+      const time = release ? Date.parse(release) : NaN;
+      if (Number.isFinite(time)) return time > now;
+      // PRE-ORDER alone is not proof that a game has not been released.
+      return [product.label, ...(Array.isArray(product.tags) ? product.tags : [])]
+        .some(label => /^(?:coming\s+soon|เร็ว\s*ๆ\s*นี้|เปิดขายเร็ว\s*ๆ\s*นี้)$/i.test(String(label || '').trim()));
+    }).sort((a, b) => (Date.parse(a.releaseDate || a.release_date || a.availableAt) || Infinity) - (Date.parse(b.releaseDate || b.release_date || b.availableAt) || Infinity));
+    const soon = distinct(upcoming).slice(0, 4);
+    seen.clear();
+    const upcomingIds = new Set(upcoming.map(product => String(product.id)));
+    const popular = distinct(active.filter(product => !upcomingIds.has(String(product.id)) && Number(product.sold) > 0)
+      .sort((a, b) => Number(b.sold) - Number(a.sold))).slice(0, 6);
+    return { popular, upcoming: soon };
+  }
+
+  function searchDiscoveryHtml(products) {
+    const { popular, upcoming } = searchDiscoveryProducts(products);
+    const item = (product, index, soon = false) => `
+      <a class="search-discovery-item" href="product.html?id=${encodeURIComponent(product.id)}" data-mobile-search-product>
+        <span class="search-discovery-rank">${soon ? '<i data-lucide="calendar-clock"></i>' : index + 1}</span>
+        <span class="search-discovery-copy"><strong>${escapeHtml(cleanDisplayText(product.name))}</strong><small>${escapeHtml(soon ? 'ดูข้อมูลการเปิดขาย' : productPrice(product))}</small></span>
+        <i data-lucide="arrow-up-right"></i>
+      </a>`;
+    return `<div class="search-discovery">
+      <section aria-label="ค้นหายอดนิยม">
+        <h3><i data-lucide="trending-up"></i>ค้นหายอดนิยม</h3>
+        <p class="search-discovery-note">แนะนำจากยอดขายสินค้าในร้าน ไม่ใช่สถิติจำนวนค้นหา</p>
+        <div class="search-discovery-grid">${popular.length ? popular.map((product, index) => item(product, index)).join('') : '<p class="search-discovery-empty">ยังไม่มีข้อมูลสินค้าขายดี</p>'}</div>
+      </section>
+      <section aria-label="เร็ว ๆ นี้">
+        <h3><i data-lucide="calendar-clock"></i>เร็ว ๆ นี้</h3>
+        <div class="search-discovery-grid">${upcoming.length ? upcoming.map((product, index) => item(product, index, true)).join('') : '<p class="search-discovery-empty">ยังไม่มีสินค้าที่ประกาศเปิดขายเร็ว ๆ นี้</p>'}</div>
+      </section>
+    </div>`;
+  }
+
   function syncIndexCatalogSearch(query, updateUrl = false) {
     if (currentFile() !== "index.html") return false;
     const catalogInput = document.querySelector("#search-input");
@@ -1469,14 +1515,24 @@
   async function renderUniversalSearchResults(wrapper, query) {
     const panel = wrapper.querySelector(".site-global-search-results, .search-suggestions");
     const keyword = query.trim();
-    if (!panel || !keyword) {
+    if (!panel) {
       hideUniversalSearchResults(wrapper);
       return;
     }
 
     const requestId = ++universalSearchRequest;
+    panel.hidden = false;
+    panel.innerHTML = '<div class="search-suggestions-empty">กำลังโหลดสินค้า...</div>';
     const products = await loadSearchableProducts();
     if (requestId !== universalSearchRequest) return;
+
+    if (!keyword) {
+      panel.setAttribute("role", "region");
+      panel.innerHTML = searchDiscoveryHtml(products);
+      window.lucide?.createIcons?.();
+      return;
+    }
+    panel.setAttribute("role", "listbox");
 
     const matches = findSearchMatches(products, keyword);
     if (!matches.length) {
@@ -1585,16 +1641,18 @@
     const requestId = ++mobileSearchRequest;
     if (!panel) return;
 
-    if (!keyword) {
-      panel.innerHTML = `<div class="olaf-mobile-search-empty">เริ่มพิมพ์เพื่อค้นหาสินค้าในร้าน</div>`;
-      return;
-    }
-
     panel.innerHTML = `<div class="olaf-mobile-search-loading"><i data-lucide="loader-circle"></i><span>กำลังค้นหา...</span></div>`;
     window.lucide?.createIcons?.();
 
     const products = await loadSearchableProducts();
     if (requestId !== mobileSearchRequest) return;
+    if (!keyword) {
+      panel.setAttribute("role", "region");
+      panel.innerHTML = searchDiscoveryHtml(products);
+      window.lucide?.createIcons?.();
+      return;
+    }
+    panel.setAttribute("role", "listbox");
     const matches = findSearchMatches(products, keyword, 8);
 
     if (!matches.length) {
@@ -1647,6 +1705,7 @@
     shell.hidden = false;
     shell.classList.remove("is-closing");
     shell.classList.add("is-open");
+    renderMobileSearchResults(input?.value || "");
     document.documentElement.classList.add("olaf-mobile-search-open");
     document.body?.classList.add("olaf-mobile-search-open");
     setMobilePageScrollLock(true);
@@ -1660,6 +1719,7 @@
   function closeMobileSearch(options = {}) {
     const shell = document.querySelector("#olaf-mobile-search-shell");
     if (!shell || shell.hidden) return;
+    mobileSearchRequest += 1;
     clearTimeout(mobileSearchCloseTimer);
     shell.classList.remove("is-open");
     shell.classList.add("is-closing");

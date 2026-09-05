@@ -3,6 +3,12 @@
     "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 450'%3E%3Crect width='800' height='450' fill='%230f172a'/%3E%3Cpath d='M0 340h800v110H0z' fill='%23020617'/%3E%3Ccircle cx='620' cy='110' r='70' fill='%231e3a8a' opacity='.45'/%3E%3Cpath d='M120 315l150-150 105 105 70-70 180 180H120z' fill='%231e40af' opacity='.7'/%3E%3C/svg%3E";
 
   const preconnected = new Set();
+  // Match the original URL, not a product ID: new admin artwork stays live.
+  const windowsArtwork = new Map([
+    ["https://i.postimg.cc/RFkN8QQ7/10-h.png", "windows-10-home"],
+    ["https://i.postimg.cc/sf463nq4/Chat-GPT-Image-18-k-kh-2569-17-43-38.png", "windows-home-pro"],
+    ["https://i.postimg.cc/Df4CXvS5/Chat-GPT-Image-18-k-kh-2569-18-07-36.png", "windows-11-pro"]
+  ]);
   const preloaded = new Set();
   let hydrateQueued = false;
   let fallbackIconQueued = false;
@@ -65,7 +71,18 @@
   }
 
   function imgAttrs(src, alt = "", options = {}) {
-    const url = String(src || "").trim();
+    let url = String(src || "").trim();
+    const artwork = document.body?.matches(".home-page, .extras-page") ? windowsArtwork.get(url) : null;
+    if (artwork) {
+      const original = url;
+      url = `assets/windows/${artwork}-960.webp`;
+      options = {
+        ...options,
+        srcset: `assets/windows/${artwork}-480.webp 480w, ${url} 960w`,
+        sizes: options.sizes || "(max-width: 760px) 100vw, 640px",
+        fallbacks: [original, ...(options.fallbacks || [])]
+      };
+    }
     const priority = options.priority === true;
     const loading = priority || options.loading === "eager" ? "eager" : "lazy";
     const fetchPriority = priority ? "high" : options.fetchPriority || "low";
@@ -81,7 +98,9 @@
       ? ` data-image-fallbacks="${escapeAttr(JSON.stringify(fallbacks))}"`
       : "";
     const source = url || FALLBACK_IMAGE;
-    if (priority) preload(source, { priority: true });
+    // Responsive images choose their own size; preloading only src downloads
+    // an unused large variant as well on small screens.
+    if (priority && !options.srcset) preload(source, { priority: true });
     else preconnect(source);
     return `${className} src="${escapeAttr(source)}" alt="${escapeAttr(alt)}" loading="${loading}" decoding="async" fetchpriority="${fetchPriority}"${width}${height}${sizes}${srcset}${fallbackAttr} data-fast-img`;
   }
@@ -217,6 +236,9 @@
     (event) => {
       const target = event.target;
       if (target?.tagName !== "IMG" || target.dataset.fallbackApplied === "true") return;
+      // Otherwise the browser keeps selecting a failed srcset candidate.
+      target.removeAttribute("srcset");
+      target.removeAttribute("sizes");
 
       if (target.dataset.imageFallbacks) {
         try {

@@ -92,6 +92,12 @@
     const features = (Array.isArray(product.tags) ? product.tags : []).slice(0, 4);
     const gallery = Array.isArray(product.gallery) ? product.gallery.filter(Boolean) : [];
     const cover = gallery[0] || product.image || product.heroImage || "assets/placeholder.svg";
+    const imageAttrs = window.OlafImages?.attrs
+      ? window.OlafImages.attrs(cover, product.name, {
+          loading: "eager", fetchPriority: "auto",
+          sizes: "(max-width: 620px) calc(100vw - 56px), (max-width: 980px) 50vw, 320px"
+        })
+      : `src="${escapeHtml(cover)}" alt="${escapeHtml(product.name)}" loading="eager" decoding="async"`;
     const isHighlighted = /\bpro\b/i.test(product.name || "");
     const stockText = stock > 0
       ? `พร้อมขาย ${stock.toLocaleString("th-TH")} ชิ้น`
@@ -99,7 +105,7 @@
     return `
       <article class="olaf-license-card ${isHighlighted ? "is-highlight" : ""} ${stock <= 0 ? "is-out-of-stock" : ""}">
         <a class="license-card-media" href="product.html?id=${encodeURIComponent(product.id)}" aria-label="ดูรายละเอียด ${escapeHtml(product.name)}">
-          <img src="${escapeHtml(cover)}" alt="${escapeHtml(product.name)}" loading="lazy" decoding="async" />
+          <img ${imageAttrs} />
         </a>
         <div class="license-card-top">
           <div class="license-type-badges">
@@ -274,12 +280,16 @@
 
   document.addEventListener("DOMContentLoaded", async () => {
     refreshIcons();
+    // Public product images must not wait for authentication or shop settings.
+    const productsReady = loadExtraProducts().catch((error) => {
+      console.warn("Unable to load extra products", error);
+    });
     await window.OlafStore?.ready?.catch(() => null);
     const storeSettings = await window.OlafStoreSettings?.fetchStoreSettings?.().catch(() => null);
     applyStoreIcon(storeSettings?.siteIconUrl);
     updateAccountChrome();
     setupCategoryNavigation();
-    await loadExtraProducts();
+    await productsReady;
 
     $("#open-auth")?.addEventListener("click", (event) => {
       if (window.OlafNavigation?.ownsUserMenu) return;

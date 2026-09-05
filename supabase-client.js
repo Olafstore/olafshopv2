@@ -1035,7 +1035,12 @@
     });
     if (error) {
       const legacy = await requireClient().rpc("admin_fetch_offline_stock_items", { p_product_id: normalizedProductId });
-      if (legacy.error) throw error;
+      if (legacy.error) {
+        // An older database can lack the variable-stock RPC but still report
+        // the product's actual counter mode through the legacy endpoint.
+        if (String(legacy.error.message || "").includes("PRODUCT_NOT_MANAGED_STOCK")) throw legacy.error;
+        throw error;
+      }
       return normalizeArray(legacy.data).map(mapOfflineStockItemRow).filter(Boolean);
     }
     return normalizeArray(data).map(mapOfflineStockItemRow).filter(Boolean);

@@ -71,6 +71,7 @@ let iconRefreshQueued = false;
 let managedStockDraftAccounts = [];
 const packageLoadingProductIds = new Set();
 const offlineStockLoadingProductIds = new Set();
+const offlineStockOriginalLines = new Map();
 const ADMIN_NOTICE_KEY = "olafshop_admin_notice";
 const EXTRA_CATALOG_PRODUCT_IDS = [
   "windows-10-home",
@@ -1642,12 +1643,10 @@ function renderProductPackagesEditor(product) {
         })
         .catch((error) => {
           console.warn("Product packages unavailable", error);
-          // Keep the editor usable for a new package even if an older project
-          // has no package rows yet.  Saving will use the package RPC/fallback
-          // and show a precise database error only if it truly cannot write.
-          setCachedProductPackages(product.id, []);
-          addButton.disabled = false;
-          list.innerHTML = `<div class="package-editor-empty">ยังโหลดแพ็กเกจเดิมไม่ได้ แต่เพิ่มแพ็กเกจใหม่ได้ตามปกติ</div>`;
+          if (selectedProduct()?.id !== product.id) return;
+          // A failed read is not an empty package list. Preserve the existing
+          // data and let the admin retry instead of editing an invented list.
+          list.innerHTML = `<div class="package-editor-empty">${escapeHtml(adminProductErrorMessage(error))}<br><button class="mini-button" type="button" data-retry-product-packages="${escapeHtml(product.id)}">โหลดแพ็กเกจอีกครั้ง</button></div>`;
         })
         .finally(() => {
           packageLoadingProductIds.delete(key);
@@ -1749,9 +1748,7 @@ async function deletePackageFromEditor(button) {
 }
 
 function isOfflineProductCategory(category) {
-  // All three Steam fulfillment types reserve a real, individual stock record.
-  // This keeps the displayed stock aligned with the key or account that can
-  // actually be delivered to a buyer.
+  // Legacy default only; existing products use the server's stock mode below.
   return [
     "steam-key",
     "steam-account",
@@ -1761,6 +1758,35 @@ function isOfflineProductCategory(category) {
     "rockstar-games",
     "minecraft"
   ].includes(String(category || "").trim().toLowerCase());
+}
+
+function usesManagedStockEditor(product) {
+  const summary = state.inventorySummaries[product?.id];
+  if (typeof summary?.managedStock === "boolean") return summary.managedStock;
+  const items = getCachedOfflineStockItems(product?.id);
+  if (items?.length) return true;
+  return isOfflineProductCategory(product?.category);
+}
+
+function isNotManagedStockError(error) {
+  return String(error?.message || "").includes("PRODUCT_NOT_MANAGED_STOCK");
+}
+
+function markProductAsCounterStock(product) {
+  state.inventorySummaries[product.id] = {
+    ...inventorySummaryFor(product),
+    managedStock: false,
+    availableCount: Number(product.stock || 0)
+  };
+}
+
+function stockLinesFromItems(items) {
+  return items.filter((item) => item.status === "available").map((item) => item.content);
+}
+
+function managedStockLinesChanged(productId, lines) {
+  const original = offlineStockOriginalLines.get(offlineStockCacheKey(productId));
+  return original === undefined || JSON.stringify(original) !== JSON.stringify(lines);
 }
 
 function managedStockCategoryLabel(category) {
@@ -1945,6 +1971,7 @@ async function loadOfflineStockItems(productId, { force = false } = {}) {
   }
   const items = await window.OlafProducts.adminFetchOfflineStockItems(productId);
   setCachedOfflineStockItems(productId, items);
+  offlineStockOriginalLines.set(key, stockLinesFromItems(items));
   return state.offlineStockItems[key];
 }
 
@@ -1955,7 +1982,7 @@ function renderOfflineStockEditor(product) {
   if (!section || !textarea || !form) return;
 
   const category = form.elements.category?.value || product?.category || "";
-  const isOffline = isOfflineProductCategory(category);
+  const isOffline = usesManagedStockEditor({ ...product, category });
   const stockCategoryLabel = managedStockCategoryLabel(category);
   section.hidden = !isOffline;
   form.elements.stock.readOnly = isOffline;
@@ -1970,7 +1997,10 @@ function renderOfflineStockEditor(product) {
   }
   if (fieldLabel?.firstChild) fieldLabel.firstChild.textContent = "รายการที่พร้อมขาย\n";
 
-  if (!isOffline) return;
+  if (!isOffline) {
+    textarea.disabled = true;
+    return;
+  }
 
   const key = offlineStockCacheKey(product?.id);
   const cached = getCachedOfflineStockItems(product?.id);
@@ -1997,6 +2027,15 @@ function renderOfflineStockEditor(product) {
         })
         .catch((error) => {
           console.warn("Offline stock unavailable", error);
+          if (isNotManagedStockError(error)) {
+            markProductAsCounterStock(product);
+            if (selectedProduct()?.id === product.id) {
+              form.elements.stock.value = Number(product.stock || 0);
+              renderOfflineStockEditor(product);
+            }
+            return;
+          }
+          if (selectedProduct()?.id !== product.id) return;
           textarea.disabled = true;
           textarea.placeholder = adminProductErrorMessage(error);
           renderOfflineStockMeta([], Number(product.stock || 0));
@@ -2992,6 +3031,9 @@ function replaceProductInState(product) {
 function adminProductErrorMessage(error) {
   const message = String(error?.message || "");
   const code = String(error?.code || "");
+  if (isNotManagedStockError(error)) {
+    return "สินค้านี้ใช้สต็อกแบบตัวเลข ไม่รองรับรายการบัญชี/คีย์ กรุณาเปิดสินค้าใหม่แล้วแก้ช่องสต็อก (ข้อมูลที่กรอกยังอยู่ในฟอร์ม)";
+  }
   if (isMissingSteamRelatedLinksColumn(error)) {
     return "ฐานข้อมูลยังไม่มีช่องลิงก์เนื้อหาเกม/DLC กรุณารัน supabase-admin-products-repair.sql";
   }
@@ -3129,7 +3171,7 @@ function productFromForm(form) {
   const steamAppIdValue = form.elements.steamAppId.value.trim();
   
   const category = form.elements.category.value;
-  const stock = isOfflineProductCategory(category)
+  const stock = usesManagedStockEditor({ id, category })
     ? offlineStockLinesFromEditor().length
     : Number(form.elements.stock.value) || 0;
 
@@ -3193,7 +3235,7 @@ async function saveProductFromForm(event) {
   const form = event.currentTarget;
   const product = productFromForm(event.currentTarget);
   const packageDrafts = packageDraftsFromEditor();
-  const isOfflineProduct = isOfflineProductCategory(product.category);
+  const isOfflineProduct = usesManagedStockEditor(product);
   const offlineStockLines = isOfflineProduct ? offlineStockLinesFromEditor() : [];
   const isNew = !state.selectedProductId;
   const previous = isNew ? null : selectedProduct();
@@ -3205,6 +3247,12 @@ async function saveProductFromForm(event) {
   createIconSet();
 
   try {
+    if (!isNew && getCachedProductPackages(product.id) === null) {
+      throw new Error("กรุณาโหลดแพ็กเกจเดิมให้สำเร็จก่อนบันทึก");
+    }
+    if (isOfflineProduct && $("#offline-stock-lines")?.disabled) {
+      throw new Error("กรุณารอโหลดรายการสต็อกให้สำเร็จก่อนบันทึก เพื่อรักษาสต็อกเดิม");
+    }
     validateAdminProduct(product, { isNew, selectedProductId: state.selectedProductId });
     validateAdminPackages(packageDrafts);
     if (isOfflineProduct) validateOfflineStockLines(offlineStockLines);
@@ -3254,13 +3302,14 @@ async function saveProductFromForm(event) {
       savedProduct = adjustedProduct || savedProduct;
     }
 
-    if (isOfflineProduct) {
+    if (isOfflineProduct && (isNew ? offlineStockLines.length > 0 : managedStockLinesChanged(product.id, offlineStockLines))) {
       if (!window.OlafProducts?.adminReplaceOfflineStockItems) {
         throw new Error("Offline stock client is not ready");
       }
       const offlineResult = await window.OlafProducts.adminReplaceOfflineStockItems(savedProduct.id, offlineStockLines);
       if (offlineResult.product) savedProduct = offlineResult.product;
       setCachedOfflineStockItems(savedProduct.id, offlineResult.items || []);
+      offlineStockOriginalLines.set(offlineStockCacheKey(savedProduct.id), stockLinesFromItems(offlineResult.items || []));
       delete state.offlineStockItems.__new__;
     }
 
@@ -3278,14 +3327,24 @@ async function saveProductFromForm(event) {
     }
 
     replaceProductInState(savedProduct);
-    await refreshInventorySummaries();
     state.selectedProductId = savedProduct.id;
+    let stockSummaryWarning = false;
+    try {
+      await refreshInventorySummaries();
+    } catch (error) {
+      // The writes succeeded. A failed statistics refresh must not tell the
+      // admin to submit the same new packages a second time.
+      console.warn("Product saved; inventory summary refresh failed", error);
+      stockSummaryWarning = true;
+    }
     renderAll();
     const updatedAt = savedProduct.updatedAt
       ? new Date(savedProduct.updatedAt).toLocaleString("th-TH")
       : new Date().toLocaleString("th-TH");
     setStatus(`บันทึกข้อมูลสินค้าเรียบร้อยแล้ว ${updatedAt}`);
-    if (skippedSteamRelatedLinks) {
+    if (stockSummaryWarning) {
+      showAdminToast("บันทึกสินค้าและแพ็กเกจแล้ว แต่โหลดสรุปสต็อกไม่สำเร็จ กรุณารีเฟรชหน้า", "warning");
+    } else if (skippedSteamRelatedLinks) {
       showAdminToast(
         "บันทึกสินค้าแล้ว แต่ยังไม่บันทึกลิงก์ DLC กรุณารัน supabase-admin-products-repair.sql",
         "warning",
@@ -4794,6 +4853,7 @@ async function changeStock(productId, nextStock, action) {
       });
       updatedProduct = result.product || product;
       setCachedOfflineStockItems(productId, result.items || []);
+      offlineStockOriginalLines.set(offlineStockCacheKey(productId), stockLinesFromItems(result.items || []));
     } else {
       updatedProduct = await window.OlafProducts.setAdminProductStock({
         productId,
@@ -5567,8 +5627,16 @@ function bindEvents() {
     const disableDiscountCodeButton = event.target.closest("[data-disable-discount-code]");
     const deleteDiscountCodeButton = event.target.closest("[data-delete-discount-code]");
     const addPackageButton = event.target.closest("#add-product-package");
+    const retryPackagesButton = event.target.closest("[data-retry-product-packages]");
     const deletePackageButton = event.target.closest("[data-package-delete]");
     const categoryTab = event.target.closest(".category-tab");
+
+    if (retryPackagesButton) {
+      if (selectedProduct()?.id === retryPackagesButton.dataset.retryProductPackages) {
+        renderProductPackagesEditor(selectedProduct());
+      }
+      return;
+    }
 
     if (addPackageButton) {
       addPackageDraftToEditor();
@@ -5843,7 +5911,7 @@ function bindEvents() {
     syncOfflineStockCacheFromEditor(product?.id);
     const lines = offlineStockLinesFromEditor();
     const form = $("#product-form");
-    if (form?.elements?.stock && isOfflineProductCategory(form.elements.category.value)) {
+    if (form?.elements?.stock && usesManagedStockEditor({ id: product?.id, category: form.elements.category.value })) {
       form.elements.stock.value = lines.length;
     }
     renderOfflineStockMeta(getCachedOfflineStockItems(product?.id) || [], lines.length);

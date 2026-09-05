@@ -56,23 +56,33 @@
   --glow-brand: 0 0 15px rgba(59, 130, 246, 0.4);
 }
 
-/* Keep the home recommendation fan readable: cards may overlap slightly, never their copy. */
-@media (min-width: 981px) {
-  body.home-page .hero-game-card { width: clamp(98px, 7.8vw, 108px); height: 180px; }
-  body.home-page .hero-game-card:nth-child(1) { --hero-card-transform: translateX(calc(-50% - 192px)) rotateY(21deg) rotateZ(-7deg) scale(.86); }
-  body.home-page .hero-game-card:nth-child(2) { --hero-card-transform: translateX(calc(-50% - 96px)) rotateY(11deg) rotateZ(-3deg) scale(.94); }
-  body.home-page .hero-game-card:nth-child(3) { --hero-card-transform: translateX(-50%) translateY(-7px) scale(1.03); }
-  body.home-page .hero-game-card:nth-child(4) { --hero-card-transform: translateX(calc(-50% + 96px)) rotateY(-11deg) rotateZ(3deg) scale(.94); }
-  body.home-page .hero-game-card:nth-child(5) { --hero-card-transform: translateX(calc(-50% + 192px)) rotateY(-21deg) rotateZ(7deg) scale(.86); }
+/* Wider, overlapping cards. A flat stage keeps the foreground layer predictable. */
+body.home-page .hero-game-carousel { container-type: inline-size; }
+body.home-page .hero-game-carousel-stage {
+  --hero-fan-step: clamp(62px, 16cqw, 80px);
+  transform-style: flat;
+}
+body.home-page .hero-game-card {
+  width: 148px;
+  height: 180px;
+  box-shadow: 0 14px 25px rgba(0, 0, 0, .48), -8px 0 18px rgba(0, 0, 0, .22);
+}
+body.home-page .hero-game-card:nth-child(1) { --hero-card-transform: translateX(calc(-50% - var(--hero-fan-step) * 2)) translateY(10px) rotateY(18deg) rotateZ(-9deg) scale(.86); }
+body.home-page .hero-game-card:nth-child(2) { --hero-card-transform: translateX(calc(-50% - var(--hero-fan-step))) rotateY(9deg) rotateZ(-4deg) scale(.94); }
+body.home-page .hero-game-card:nth-child(3) {
+  --hero-card-transform: translateX(-50%) translateY(-12px) scale(1.04);
+  box-shadow: 0 24px 38px rgba(0, 0, 0, .58), 0 0 22px rgba(148, 185, 225, .10);
+}
+body.home-page .hero-game-card:nth-child(4) { --hero-card-transform: translateX(calc(-50% + var(--hero-fan-step))) rotateY(-9deg) rotateZ(4deg) scale(.94); }
+body.home-page .hero-game-card:nth-child(5) { --hero-card-transform: translateX(calc(-50% + var(--hero-fan-step) * 2)) translateY(10px) rotateY(-18deg) rotateZ(9deg) scale(.86); }
+body.home-page .hero-game-card:hover,
+body.home-page .hero-game-card:focus-within {
+  box-shadow: 0 25px 40px rgba(0, 0, 0, .6), 0 0 22px rgba(148, 185, 225, .16);
 }
 
 @media (max-width: 560px) {
-  body.home-page .hero-game-card { width: 96px; height: 156px; }
-  body.home-page .hero-game-card:nth-child(1) { --hero-card-transform: translateX(calc(-50% - 178px)) rotateY(14deg) rotateZ(-6deg) scale(.82); }
-  body.home-page .hero-game-card:nth-child(2) { --hero-card-transform: translateX(calc(-50% - 89px)) rotateY(8deg) rotateZ(-3deg) scale(.91); }
-  body.home-page .hero-game-card:nth-child(3) { --hero-card-transform: translateX(-50%) translateY(-4px) scale(1.01); }
-  body.home-page .hero-game-card:nth-child(4) { --hero-card-transform: translateX(calc(-50% + 89px)) rotateY(-8deg) rotateZ(3deg) scale(.91); }
-  body.home-page .hero-game-card:nth-child(5) { --hero-card-transform: translateX(calc(-50% + 178px)) rotateY(-14deg) rotateZ(6deg) scale(.82); }
+  body.home-page .hero-game-carousel-stage { --hero-fan-step: clamp(42px, 14vw, 70px); }
+  body.home-page .hero-game-card { width: 118px; height: 156px; }
   body.home-page .hero-game-card-info { padding: 23px 6px 6px; }
 }
 

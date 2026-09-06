@@ -3131,6 +3131,9 @@ function adminPointAdjustErrorMessage(error) {
   const combined = `${code} ${message} ${details} ${hint}`;
   const lower = combined.toLowerCase();
 
+  if (lower.includes("shop_admin_adjust") || combined.includes("REQUEST_CONFLICT")) {
+    return "เพิ่ม Point/แต้มไม่สำเร็จ กรุณาตรวจการติดตั้ง supabase-profile-shop.sql แล้วลองใหม่";
+  }
   if (combined.includes("POINT_BALANCE_WOULD_BE_NEGATIVE")) {
     return "Point คงเหลือไม่พอสำหรับการลดจำนวนนี้";
   }
@@ -3526,6 +3529,49 @@ function fillUserForm(user) {
     const pointButton = $(selector);
     if (pointButton) pointButton.disabled = isNew;
   });
+  if (form.elements.shopPointAmount) form.elements.shopPointAmount.value = "";
+  if (form.elements.shopPointNote) form.elements.shopPointNote.value = "";
+  const grantButton = $("#grant-user-shop-points");
+  if (grantButton) grantButton.disabled = isNew;
+  const shopLabel = $("#user-shop-balance");
+  if (shopLabel) {
+    shopLabel.textContent = isNew ? "บันทึก user ก่อนเพิ่มแต้ม" : "กำลังโหลด…";
+    if (!isNew) window.OlafAdminFinance.fetchShopBalance(user.id).then(balance => {
+      if (state.selectedUserId === user.id) shopLabel.textContent = `${formatPointAmount(balance)} แต้ม`;
+    }).catch(() => {
+      if (state.selectedUserId === user.id) shopLabel.textContent = "ยังไม่พร้อม — ตรวจการติดตั้ง SQL ร้านค้าโปรไฟล์";
+    });
+  }
+}
+
+let grantingShopPoints = false;
+async function grantSelectedUserShopPoints() {
+  const user = selectedUser();
+  const form = $("#user-form");
+  if (!user || !form || grantingShopPoints) return;
+  const amount = Number(form.elements.shopPointAmount.value);
+  const note = form.elements.shopPointNote.value.trim();
+  if (!Number.isSafeInteger(amount) || amount < 1 || amount > 10000000) {
+    showAdminToast("ระบุแต้มเป็นจำนวนเต็ม 1–10,000,000 แต้ม", "warning"); return;
+  }
+  grantingShopPoints = true;
+  const button = $("#grant-user-shop-points");
+  try {
+    if (!(await adminConfirm(`เพิ่มแต้มร้านค้าให้ ${user.email || user.username} จำนวน ${formatPointAmount(amount)} แต้ม ใช่ไหม? (ไม่เพิ่มยอดเงิน Point)`))) return;
+    button.disabled = true;
+    const result = await window.OlafAdminFinance.adminGrantShopPoints({ userId:user.id, amount, note });
+    if (state.selectedUserId === user.id) {
+      $("#user-shop-balance").textContent = `${formatPointAmount(result.shopBalance)} แต้ม`;
+      form.elements.shopPointAmount.value = "";
+      form.elements.shopPointNote.value = "";
+    }
+    showAdminToast(`เพิ่ม ${formatPointAmount(amount)} แต้มร้านค้าให้ ${user.email || user.username} แล้ว`, "success");
+  } catch (error) {
+    showAdminToast(`เพิ่มแต้มไม่สำเร็จ กรุณาตรวจการติดตั้ง supabase-profile-shop.sql (${error.message || 'ไม่สามารถเชื่อมต่อได้'})`, "error");
+  } finally {
+    grantingShopPoints = false;
+    if (button) button.disabled = !selectedUser();
+  }
 }
 
 async function saveUserFromForm(event) {
@@ -5858,6 +5904,7 @@ function bindEvents() {
 
   $("#add-user-point")?.addEventListener("click", () => adjustSelectedUserPoints("add"));
   $("#remove-user-point")?.addEventListener("click", () => adjustSelectedUserPoints("remove"));
+  $("#grant-user-shop-points")?.addEventListener("click", grantSelectedUserShopPoints);
 
   $("#finance-refresh")?.addEventListener("click", async () => {
     const button = $("#finance-refresh");

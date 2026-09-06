@@ -10,11 +10,11 @@
     <link rel="stylesheet" href="admin.css?v=20260905-stock-original-logic-v162" />
     <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-    <script src="supabase-client.js?v=20260905-stock-mode-save-v163" defer></script>
+    <script src="supabase-client.js?v=20260906-avatar-shop-v171" defer></script>
     <script src="platform-store.js?v=20260605-admin-users" defer></script>
     <script src="image-performance.js?v=20260607-performance" defer></script>
 <script src="delivery-payload.js?v=20260716-qr-alignment-v111" defer></script>
-    <script src="admin.js?v=20260905-stock-mode-save-v163" defer></script>
+    <script src="admin.js?v=20260906-avatar-shop-v171" defer></script>
   </head>
   <body>
     <section class="admin-login-screen" id="admin-login-screen">
@@ -783,6 +783,15 @@
                 <div>
                   <h2 id="order-form-title">จัดการออเดอร์</h2>
                   <span id="editing-order-id">ยังไม่ได้เลือก</span>
+                </div>
+                <div class="admin-point-editor" id="admin-shop-point-editor">
+                  <div class="point-editor-balance"><span>แต้มร้านค้า (สำหรับแลกโปรไฟล์)</span><strong id="user-shop-balance">—</strong></div>
+                  <p>เพิ่ม Point 1 บาท ได้แต้มร้านค้า 10 แต้มอัตโนมัติ หรือเพิ่มเฉพาะแต้มด้านล่างได้ โดยไม่เปลี่ยนยอดเงิน Point</p>
+                  <div class="form-row">
+                    <label>จำนวนแต้มร้านค้า<input name="shopPointAmount" type="number" min="1" max="10000000" step="1" inputmode="numeric" placeholder="1,000" /></label>
+                    <label>หมายเหตุ<input name="shopPointNote" type="text" maxlength="300" placeholder="เหตุผลที่เพิ่มแต้ม" /></label>
+                  </div>
+                  <button class="primary-button" id="grant-user-shop-points" type="button"><i data-lucide="sparkles"></i>เพิ่มแต้มร้านค้า</button>
                 </div>
                 <button class="admin-editor-close" type="button" data-close-admin-editor="order" aria-label="ปิดหน้าต่างจัดการออเดอร์">
                   <i data-lucide="x"></i>

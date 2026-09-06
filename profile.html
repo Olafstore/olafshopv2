@@ -16,13 +16,15 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" defer></script>
   <script src="slip-qr-scanner.js?v=20260621-slip-verify-v2" defer></script>
-  <script src="supabase-client.js?v=20260716-qr-alignment-v111" defer></script> 
+  <script src="supabase-client.js?v=20260906-avatar-shop-v171" defer></script>
   <script src="order-action-popup.js?v=20260621-order-animation" defer></script>
   <script src="platform-store.js?v=20260619-profile-update-fix" defer></script>
   <script src="image-performance.js?v=20260713-media-brand-v89" defer></script>
 <script src="delivery-payload.js?v=20260716-qr-alignment-v111" defer></script>
-    <script src="site-navigation.js?v=20260905-search-discovery-v170" defer></script>
+    <script src="site-navigation.js?v=20260906-avatar-shop-v171" defer></script>
   <script src="notifications.js?v=20260716-qr-alignment-v111" defer></script>
+  <link rel="stylesheet" href="profile-shop.css?v=20260906-avatar-shop-v1" />
+  <script src="profile-shop.js?v=20260906-avatar-shop-v1" defer></script>
       <link rel="stylesheet" href="styles.css?v=20260905-search-discovery-v170" />
   <style>
     body {
@@ -2924,7 +2926,7 @@
     <div class="profile-hero" id="profile-hero">
       <div class="profile-hero-inner">
         <div class="profile-avatar-wrap">
-          <div class="profile-avatar" id="profile-avatar-letter">?</div>
+          <a class="profile-avatar" id="profile-avatar-letter" href="#avatar-shop" aria-label="เลือกหรือเปลี่ยนรูปโปรไฟล์" title="เลือกหรือเปลี่ยนรูปโปรไฟล์">?</a>
           <div class="profile-avatar-badge">
             <i data-lucide="check" style="width:12px;height:12px"></i>
           </div>
@@ -2955,7 +2957,7 @@
         <div class="profile-sidebar-card">
           <div class="profile-sidebar-user">
             <div class="profile-avatar-wrap">
-              <div class="profile-avatar" id="profile-sidebar-avatar">?</div>
+              <a class="profile-avatar" id="profile-sidebar-avatar" href="#avatar-shop" aria-label="เลือกหรือเปลี่ยนรูปโปรไฟล์" title="เลือกหรือเปลี่ยนรูปโปรไฟล์">?</a>
               <div class="profile-avatar-badge">
                 <i data-lucide="check" style="width:12px;height:12px"></i>
               </div>
@@ -2987,6 +2989,9 @@
             <button class="profile-nav-item" type="button" data-panel="password">
               <i data-lucide="key-round" style="width:18px;height:18px"></i>
               เปลี่ยนรหัสผ่าน
+            </button>
+            <button class="profile-nav-item" type="button" data-panel="avatar-shop">
+              <i data-lucide="sparkles"></i><span>ร้านค้าและคลังโปรไฟล์</span>
             </button>
             <a class="profile-nav-item" href="point-topup.html">
               <i data-lucide="coins" style="width:18px;height:18px"></i>
@@ -3176,6 +3181,9 @@
           </div>
         </div>
 
+        <section class="profile-panel" id="panel-avatar-shop" aria-label="ร้านค้าและคลังโปรไฟล์">
+          <div id="avatar-shop-root" aria-live="polite"><p>กำลังเตรียมร้านค้าโปรไฟล์…</p></div>
+        </section>
         <!-- Reviews Panel -->
         <div class="profile-panel" id="panel-reviews">
           <div class="panel-card">
@@ -4533,7 +4541,7 @@
       applyTopbarStoreIcon(storeSettings?.siteIconUrl);
       ensureTopbarSearchProducts().catch(() => []);
 
-      const validPanels = ['info', 'password', 'inventory', 'orders', 'coupons', 'reviews'];
+      const validPanels = ['info', 'password', 'inventory', 'orders', 'coupons', 'reviews', 'avatar-shop'];
       const sidebarNav = document.querySelector('.profile-sidebar-nav');
       const topbarSearchInput = document.getElementById('topbar-search-input');
 
@@ -4546,6 +4554,7 @@
         document.getElementById('profile-display-name').textContent = displayName;
         document.getElementById('profile-meta').textContent = memberMeta;
         document.getElementById('profile-sidebar-avatar').textContent = avatarLetter;
+        window.OlafAvatarIdentity?.paint(member);
         document.getElementById('profile-sidebar-name').textContent = displayName;
         document.getElementById('profile-sidebar-email').textContent = member.email || '-';
         const sidebarRole = document.getElementById('profile-sidebar-role');

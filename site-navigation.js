@@ -3,7 +3,22 @@
   const MOBILE_DRAWER_VERSION = "drawer-v68";
   const MOBILE_DRAWER_ID = "olaf-mobile-drawer";
   const MOBILE_BACKDROP_ID = "olaf-mobile-menu-backdrop";
-  const USER_MENU_VERSION = "user-menu-v104";
+  const USER_MENU_VERSION = "user-menu-avatar-v171";
+  function paintMemberAvatar(member) {
+    const source = String(member?.avatarUrl || "");
+    if (!/^api\/profile-avatar\?id=iconprofile%2F(?:iconpoint%2F)?[^/]+\.(png|jpe?g|webp|gif|avif)$/.test(source)) return;
+    document.querySelectorAll('.user-popover-avatar, #profile-avatar-letter, #profile-sidebar-avatar').forEach(node => {
+      if (node.querySelector('img')?.getAttribute('src') === source) return;
+      const image = document.createElement('img');
+      image.src = source;
+      image.alt = 'รูปโปรไฟล์';
+      image.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit';
+      image.onerror = () => { node.textContent = (member.displayName || member.username || 'U').slice(0,1).toUpperCase(); };
+      node.replaceChildren(image);
+    });
+  }
+  window.OlafAvatarIdentity = { paint: paintMemberAvatar };
+  window.addEventListener('olaf-avatar-changed', event => paintMemberAvatar(event.detail));
   let activeAdminBrandLogo = "";
   const NAV_ITEMS = [
     { href: "index.html", label: "หน้าหลัก", icon: "house", match: ["index.html", ""] },
@@ -692,6 +707,7 @@
         <div class="user-popover-menu-title">เมนูบัญชี</div>
         ${role === "admin" ? '<a href="olaf-control.html"><i data-lucide="shield"></i><span>หลังบ้าน (Admin)</span></a>' : ""}
         <a href="profile.html#info"><i data-lucide="circle-user-round"></i><span>ข้อมูลส่วนตัว</span></a>
+        <a href="profile.html#avatar-shop"><i data-lucide="sparkles"></i><span>ร้านค้าและคลังโปรไฟล์</span></a>
         <a href="point-topup.html"><i data-lucide="coins"></i><span>เติม Point</span></a>
         <a href="profile.html#inventory"><i data-lucide="archive"></i><span>คลังสินค้า</span></a>
         <a href="profile.html#orders"><i data-lucide="receipt-text"></i><span>ประวัติคำสั่งซื้อ</span></a>
@@ -717,6 +733,7 @@
     }
     window.lucide?.createIcons?.();
     refreshSharedPointBalance(popover);
+    paintMemberAvatar(user);
   }
 
   function resolveNode(target) {

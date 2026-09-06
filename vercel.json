@@ -2,6 +2,14 @@
   "cleanUrls": false,
   "trailingSlash": false,
   "functions": {
+    "api/profile-avatar.js": {
+      "includeFiles": "iconprofile/**",
+      "maxDuration": 20
+    },
+    "api/profile-shop.js": {
+      "includeFiles": "iconprofile/**",
+      "maxDuration": 40
+    },
     "api/steam-app.js": {
       "maxDuration": 20
     },

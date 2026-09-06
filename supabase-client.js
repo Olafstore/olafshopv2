@@ -143,6 +143,8 @@
       partnerLevel: profile.partner_level || profile.partnerLevel || "none",
       status: profile.status || "active",
       provider: "supabase",
+      avatarId: profile.avatar_id || null,
+      avatarUrl: profile.avatar_url || "",
       updatedAt: profile.updated_at || user.updated_at || ""
     };
   }
@@ -170,7 +172,19 @@
         .eq("id", user.id)
         .maybeSingle();
       if (error) throw error;
-      if (data || attempt === retries) return data;
+      if (data) {
+        try {
+        const avatar = await requireClient().from("shop_equipped_avatars")
+          .select("avatar_id,shop_avatar_catalog(image_path)").eq("user_id", user.id).maybeSingle();
+        const imagePath = avatar.data?.shop_avatar_catalog?.image_path;
+        if (typeof imagePath === "string" && /^iconprofile\/(iconpoint\/)?[^/]+\.(png|jpe?g|webp|gif|avif)$/.test(imagePath)) {
+          data.avatar_id = avatar.data.avatar_id;
+          data.avatar_url = `api/profile-avatar?id=${encodeURIComponent(imagePath)}`;
+        }
+        } catch { /* Avatar availability must not change existing profile or admin identity. */ }
+        return data;
+      }
+      if (attempt === retries) return data;
       await wait(300 * (attempt + 1));
     }
     return null;
@@ -2163,18 +2177,33 @@
     });
   }
 
+  const pendingShopAdminRequests = new Map();
+  async function adminShopAdjustment({ userId, amount, note, kind = "reward" }) {
+    const { data: session } = await requireClient().auth.getSession();
+    const key = 'olaf:shop-admin:' + JSON.stringify([session.session?.user.id, userId, amount, note || null, kind]);
+    let requestId = pendingShopAdminRequests.get(key);
+    try { requestId ||= sessionStorage.getItem(key); } catch { /* memory fallback */ }
+    if (!requestId) {
+      requestId = crypto.randomUUID();
+      pendingShopAdminRequests.set(key, requestId);
+      try { sessionStorage.setItem(key, requestId); } catch { /* memory fallback */ }
+    }
+    const { data, error } = await requireClient().rpc("shop_admin_adjust", {
+      p_user_id: userId, p_amount: amount, p_note: note || null, p_request_id: requestId, p_kind: kind
+    });
+    if (error) throw error;
+    pendingShopAdminRequests.delete(key);
+    try { sessionStorage.removeItem(key); } catch { /* memory fallback */ }
+    return data;
+  }
+
   async function adminAdjustUserPoints({ userId, amount, note }) {
     const targetUserId = String(userId || "").trim();
     const normalizedAmount = Number(amount || 0);
     if (!targetUserId) throw new Error("USER_REQUIRED");
     if (!Number.isFinite(normalizedAmount) || normalizedAmount === 0) throw new Error("POINT_AMOUNT_REQUIRED");
 
-    const { data, error } = await requireClient().rpc("admin_adjust_user_points", {
-      p_user_id: targetUserId,
-      p_amount: normalizedAmount,
-      p_note: note || null
-    });
-    if (error) throw error;
+    const data = await adminShopAdjustment({ userId: targetUserId, amount: normalizedAmount, note, kind: "point" });
     return normalizeAdminFinancePayload(data || {});
   }
 
@@ -2329,7 +2358,13 @@
   };
   window.OlafAdminFinance = {
     fetchAdminFinanceOverview,
-    adminAdjustUserPoints
+    adminAdjustUserPoints,
+    adminGrantShopPoints: (input) => adminShopAdjustment({ ...input, kind: "reward" }),
+    async fetchShopBalance(userId) {
+      const { data, error } = await requireClient().rpc("shop_admin_balance", { p_user_id: userId });
+      if (error) throw error;
+      return Number(data || 0);
+    }
   };
   window.OlafFreeRandom = {
     fetchConfig: fetchFreeRandomConfig,

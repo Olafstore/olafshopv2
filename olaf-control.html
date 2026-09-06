@@ -14,7 +14,7 @@
     <script src="platform-store.js?v=20260605-admin-users" defer></script>
     <script src="image-performance.js?v=20260607-performance" defer></script>
 <script src="delivery-payload.js?v=20260716-qr-alignment-v111" defer></script>
-    <script src="admin.js?v=20260906-avatar-shop-v171" defer></script>
+    <script src="admin.js?v=20260907-store-brand-v188" defer></script>
   </head>
   <body>
     <section class="admin-login-screen" id="admin-login-screen">
@@ -1351,6 +1351,14 @@
                   อัปโหลดไอคอนเว็บ
                   <input id="site-icon-upload" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" />
                 </label>
+                <fieldset style="min-width:0;border:1px solid var(--border);border-radius:12px;padding:14px">
+                  <legend>พื้นหลังส่วนหัวหน้าแรก</legend>
+                  <p>แทนภาพ Elden Ring · แนะนำภาพแนวนอน 1920 × 720 พิกเซล ไม่เกิน 8 MB</p>
+                  <input id="hero-background-upload" type="file" accept="image/png,image/jpeg,image/webp" aria-label="อัปโหลดพื้นหลังหน้าแรก" />
+                  <img id="hero-background-preview" alt="ตัวอย่างพื้นหลังหน้าแรก" style="display:block;width:100%;max-height:220px;object-fit:cover;border-radius:10px;margin:12px 0" hidden />
+                  <button id="save-hero-background" class="primary-button" type="button">บันทึกพื้นหลังหน้าแรก</button>
+                  <p id="hero-background-status" role="status"></p>
+                </fieldset>
                 <div class="form-actions">
                   <button class="primary-button" type="submit">
                     <i data-lucide="save"></i>

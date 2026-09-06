@@ -5253,6 +5253,9 @@ function renderPaymentForm() {
   form.elements.siteIconUrl.value = isInlinePreviewUrl(siteIconUrl) ? "" : siteIconUrl;
   renderQrPreview(qrUrl, trueMoneyQrUrl);
   renderSiteIconPreview(siteIconUrl);
+  const heroPreview = document.getElementById('hero-background-preview');
+  const heroUrl = pendingHeroBackground || state.payload.store.heroBackgroundUrl;
+  if (heroPreview && heroUrl) { heroPreview.src = heroUrl; heroPreview.hidden = false; }
 }
 
 function renderQrPreview(qrUrl, trueMoneyQrUrl) {
@@ -5453,6 +5456,55 @@ function handleSiteIconUpload(event) {
     setStatus("เลือกไอคอนเว็บแล้ว กดบันทึกเพื่อใช้งาน");
   });
   reader.readAsDataURL(file);
+}
+
+let pendingHeroBackground = '';
+let heroUploadVersion = 0;
+async function handleHeroBackgroundUpload(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  const status = document.getElementById('hero-background-status');
+  const button = document.getElementById('save-hero-background');
+  const version = ++heroUploadVersion;
+  pendingHeroBackground = '';
+  button.disabled = true;
+  let objectUrl;
+  try {
+    if (!['image/png','image/jpeg','image/webp'].includes(file.type)) throw new Error('กรุณาเลือกรูป PNG, JPG หรือ WebP');
+    if (file.size > 8 * 1024 * 1024) throw new Error('รูปต้องมีขนาดไม่เกิน 8 MB');
+    status.textContent = 'กำลังเตรียมรูปพื้นหลัง…';
+    objectUrl = URL.createObjectURL(file);
+    const image = new Image();
+    await new Promise((resolve,reject) => { image.onload=resolve; image.onerror=()=>reject(new Error('อ่านรูปไม่สำเร็จ')); image.src=objectUrl; });
+    const scale = Math.min(1,1920/image.width,1080/image.height);
+    const canvas = document.createElement('canvas');
+    canvas.width=Math.max(1,Math.round(image.width*scale)); canvas.height=Math.max(1,Math.round(image.height*scale));
+    canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);
+    const data = canvas.toDataURL('image/webp',.82);
+    if (data.length > 2*1024*1024) throw new Error('รูปมีรายละเอียดมากเกินไป กรุณาลดขนาดรูปแล้วลองใหม่');
+    if (version !== heroUploadVersion) return;
+    pendingHeroBackground=data;
+    const preview=document.getElementById('hero-background-preview'); preview.src=data; preview.hidden=false;
+    status.textContent='เลือกรูปแล้ว กดบันทึกพื้นหลังหน้าแรกเพื่อใช้งาน';
+  } catch (error) { if (version === heroUploadVersion) status.textContent=error.message; }
+  finally { if (objectUrl) URL.revokeObjectURL(objectUrl); if (version === heroUploadVersion) button.disabled=false; }
+}
+
+async function saveHeroBackground() {
+  const status=document.getElementById('hero-background-status');
+  if (!pendingHeroBackground) { status.textContent='กรุณาเลือกรูปก่อนบันทึก'; return; }
+  const button=document.getElementById('save-hero-background');
+  const input=document.getElementById('hero-background-upload');
+  button.disabled=true; input.disabled=true;
+  try {
+    status.textContent='กำลังบันทึก…';
+    const settings=await window.OlafStoreSettings.fetchStoreSettings({forceRefresh:true});
+    await saveOnlineStoreSettings({...settings,heroBackgroundUrl:pendingHeroBackground});
+    state.payload.store.heroBackgroundUrl=pendingHeroBackground;
+    pendingHeroBackground='';
+    status.textContent='บันทึกแล้ว เปิดหรือรีเฟรชหน้าแรกเพื่อดูพื้นหลังใหม่';
+  } catch (error) { status.textContent=`บันทึกไม่สำเร็จ: ${error.message || 'กรุณาลองใหม่'}`; }
+  finally { button.disabled=false; input.disabled=false; }
 }
 
 function renderDataPreview() {
@@ -6060,6 +6112,8 @@ function bindEvents() {
   $("#qr-upload").addEventListener("change", handleQrUpload);
   $("#truemoney-qr-upload").addEventListener("change", handleTrueMoneyQrUpload);
   $("#site-icon-upload").addEventListener("change", handleSiteIconUpload);
+  $("#hero-background-upload")?.addEventListener("change", handleHeroBackgroundUpload);
+  $("#save-hero-background")?.addEventListener("click", saveHeroBackground);
   $("#clear-custom-qr").addEventListener("click", () => {
     revokePreviewUrl(state.pendingQrPreviewUrl);
     revokePreviewUrl(state.pendingTrueMoneyQrPreviewUrl);

@@ -464,6 +464,7 @@ function showToast(message, type = "success", duration = 3500, action = null) {
 }
 
 function applySiteIcon(iconUrl) {
+  if (window.OlafApplyFavicon) { window.OlafApplyFavicon(iconUrl); return; }
   const url = String(iconUrl || "").trim();
   if (!url) {
     document.querySelector("#dynamic-favicon")?.remove();

@@ -118,13 +118,45 @@
       favicon.rel = "icon";
       document.head.appendChild(favicon);
     }
-    favicon.href = url;
+    window.OlafApplyFavicon(url);
   }
+
+  let faviconRequest = 0;
+  let faviconSource = '';
+  window.OlafApplyFavicon = function(url) {
+    if (!url) return;
+    if (url === faviconSource && document.getElementById('dynamic-favicon')) return;
+    faviconSource = url;
+    const request = ++faviconRequest;
+    let link = document.getElementById('dynamic-favicon');
+    if (!link) { link = document.createElement('link'); link.id = 'dynamic-favicon'; link.rel = 'icon'; document.head.append(link); }
+    link.href = url;
+    link.removeAttribute('type');
+    const image = new Image();
+    if (!String(url).startsWith('data:')) image.crossOrigin = 'anonymous';
+    image.onload = () => {
+      if (request !== faviconRequest) return;
+      try {
+        const canvas = document.createElement('canvas'); canvas.width = canvas.height = 64;
+        const ctx = canvas.getContext('2d');
+        const scale = Math.min(64/image.width,64/image.height);
+        ctx.drawImage(image,(64-image.width*scale)/2,(64-image.height*scale)/2,image.width*scale,image.height*scale);
+        link.type = 'image/png'; link.sizes = '64x64'; link.href = canvas.toDataURL('image/png');
+      } catch (_) { /* Cross-origin logos retain their original URL. */ }
+    };
+    image.src = url;
+  };
 
   async function loadAdminBrandLogo() {
     try {
       const settings = await window.OlafStoreSettings?.fetchStoreSettings?.();
       applyAdminBrandLogo(settings?.siteIconUrl);
+      const hero = document.querySelector('.hero-media > img');
+      if (hero && settings?.heroBackgroundUrl) {
+        hero.removeAttribute('srcset');
+        hero.src = settings.heroBackgroundUrl;
+        hero.alt = '';
+      }
     } catch (error) {
       // Keep the local OLAF fallback mark when settings are temporarily unavailable.
     }

@@ -1476,16 +1476,19 @@ function setApiStatus(message) {
 }
 
 function applyHomeHeroBackground(url) {
-  const current = document.querySelector('.hero-media > img');
+  const container = document.querySelector('.hero-media');
   const source = String(url || '').trim();
-  if (!current || !source || current.getAttribute('src') === source) return;
+  if (!container) return;
+  if (container.dataset.requestedHero === source) return;
+  container.dataset.requestedHero = source;
+  container.replaceChildren();
+  if (!source) return;
   const replacement = new Image();
   replacement.alt = '';
   replacement.decoding = 'async';
   replacement.fetchPriority = 'high';
-  current.dataset.requestedHero = source;
   replacement.onload = () => {
-    if (current.isConnected && current.dataset.requestedHero === source) current.replaceWith(replacement);
+    if (container.isConnected && container.dataset.requestedHero === source) container.replaceChildren(replacement);
   };
   replacement.onerror = () => console.warn('โหลดพื้นหลังจากการตั้งค่าร้านไม่สำเร็จ');
   replacement.src = source;

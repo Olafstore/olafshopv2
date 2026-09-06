@@ -21,10 +21,10 @@
   <script src="platform-store.js?v=20260619-profile-update-fix" defer></script>
   <script src="image-performance.js?v=20260713-media-brand-v89" defer></script>
 <script src="delivery-payload.js?v=20260716-qr-alignment-v111" defer></script>
-    <script src="site-navigation.js?v=20260906-avatar-shop-v171" defer></script>
+    <script src="site-navigation.js?v=20260907-profile-polish-v194" defer></script>
   <script src="notifications.js?v=20260716-qr-alignment-v111" defer></script>
   <link rel="stylesheet" href="profile-shop.css?v=20260906-avatar-shop-v1" />
-  <script src="profile-shop.js?v=20260906-avatar-shop-errors-v2" defer></script>
+  <script src="profile-shop.js?v=20260907-profile-polish-v194" defer></script>
       <link rel="stylesheet" href="styles.css?v=20260905-search-discovery-v170" />
   <style>
     body {
@@ -2991,7 +2991,7 @@
               เปลี่ยนรหัสผ่าน
             </button>
             <button class="profile-nav-item" type="button" data-panel="avatar-shop">
-              <i data-lucide="sparkles"></i><span>ร้านค้าและคลังโปรไฟล์</span>
+              <i data-lucide="circle-user-round"></i><span>ร้านค้าและคลังโปรไฟล์</span>
             </button>
             <a class="profile-nav-item" href="point-topup.html">
               <i data-lucide="coins" style="width:18px;height:18px"></i>
@@ -3839,6 +3839,7 @@
       const productMap = new Map((products || []).map(product => [String(product.id || '').trim(), product]));
       const rows = (orders || [])
         .filter(order => {
+          if (isPointTopupOrder(order)) return false;
           if (['cancelled', 'expired'].includes(order.status)) return false;
           const expiresAt = unpaidOrderExpiresAt(order);
           return !expiresAt || expiresAt.getTime() > Date.now();
@@ -3863,7 +3864,7 @@
               quantity: 1
             }];
 
-          return items.map((item, index) => {
+          return items.filter(item => String(item.productId || item.product_id || '').trim() !== 'point-topup').map((item, index) => {
             const product = productMap.get(String(item.productId || '').trim()) || {};
             const category = String(product.category || '').toLowerCase();
             const fallbackByStatus = {

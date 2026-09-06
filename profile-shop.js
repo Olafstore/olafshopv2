@@ -63,7 +63,7 @@
     const items = tab === 'library' ? catalog.filter(owned) : catalog.filter(p => p.price > 0);
     root.innerHTML = `<div class="avatar-atelier">
       <header class="atelier-heading"><div><span class="atelier-eyebrow">OLAF · PROFILE ATELIER</span>
-        <h2>ตัวตนในแบบของคุณ</h2><p>เลือกรูปที่ใช่ เก็บสะสม และเปลี่ยนได้ทุกวัน</p></div>
+        <h2>Profile</h2><p>ตกแต่งโปรไฟล์สไตล์คุณ</p></div>
         <div class="atelier-wallet"><small>แต้มร้านค้าของคุณ</small><strong>${loaded ? number(wallet.balance) : '—'}</strong><small>แยกจากยอดเงิน Point</small></div></header>
       <div class="atelier-body"><aside class="atelier-preview">
         ${item ? `<img class="atelier-preview-image" src="${escape(item.image)}" alt="ตัวอย่างโปรไฟล์" />` : ''}
@@ -72,7 +72,7 @@
         <button type="button" class="atelier-save" data-shop-action="${item && owned(item) ? 'equip' : 'buy'}"
           ${!loaded || busy || !item || wallet.equipped === item.id || (!owned(item) && wallet.balance < 1000) ? 'disabled' : ''}>
           ${busy ? 'กำลังบันทึก…' : item && owned(item) ? 'บันทึกรูปโปรไฟล์' : 'แลกด้วย 1,000 แต้ม'}</button>
-        <p>เติมเงินสำเร็จ 100 บาท = 1,000 แต้ม<br>หรือรับแต้มจากการเพิ่ม Point โดยแอดมิน</p>
+        <p>เติมเงินสำเร็จ 100 บาท = 1,000 แต้ม</p>
       </aside><div class="atelier-content"><nav class="atelier-tabs" aria-label="รายการโปรไฟล์">
         <button type="button" data-shop-tab="library" aria-pressed="${tab === 'library'}">คลังโปรไฟล์ · ${catalog.filter(owned).length}</button>
         <button type="button" data-shop-tab="shop" aria-pressed="${tab === 'shop'}">ร้านค้าโปรไฟล์ · ${catalog.filter(p => p.price > 0).length}</button>

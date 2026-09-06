@@ -735,7 +735,7 @@
         <div class="user-popover-menu-title">เมนูบัญชี</div>
         ${role === "admin" ? '<a href="olaf-control.html"><i data-lucide="shield"></i><span>หลังบ้าน (Admin)</span></a>' : ""}
         <a href="profile.html#info"><i data-lucide="circle-user-round"></i><span>ข้อมูลส่วนตัว</span></a>
-        <a href="profile.html#avatar-shop"><i data-lucide="sparkles"></i><span>ร้านค้าและคลังโปรไฟล์</span></a>
+        <a href="profile.html#avatar-shop"><i data-lucide="circle-user-round"></i><span>ร้านค้าและคลังโปรไฟล์</span></a>
         <a href="point-topup.html"><i data-lucide="coins"></i><span>เติม Point</span></a>
         <a href="profile.html#inventory"><i data-lucide="archive"></i><span>คลังสินค้า</span></a>
         <a href="profile.html#orders"><i data-lucide="receipt-text"></i><span>ประวัติคำสั่งซื้อ</span></a>

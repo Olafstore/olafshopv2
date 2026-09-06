@@ -127,6 +127,7 @@ const state = {
   extraCategoryProducts: [],
   categoryLayerSupplementProducts: [],
   steamPreviewOrder: [],
+  heroCatalogLoading: true,
   homeCategory: "",
   selectedCategory: "all",
   selectedTag: "",
@@ -853,9 +854,10 @@ async function loadProducts() {
       const storeSettings = await fetchOnlineStoreSettings(true);
       applyPayload({
         ...fallbackPayload,
+        products: [],
         store: mergeStoreSettings(fallbackPayload.store, storeSettings)
       });
-      setApiStatus("ใช้ข้อมูลสำรองในหน้าเว็บ");
+      setApiStatus("โหลดสินค้าไม่สำเร็จ กรุณาลองรีเฟรชอีกครั้ง");
     }
   }
 }
@@ -1502,6 +1504,16 @@ function renderAll() {
   applyLanguage();
   renderAccount();
   renderHeroDeal();
+  if (state.heroCatalogLoading) {
+    renderHomeLoading();
+    renderCart();
+    return;
+  }
+  document.querySelectorAll('[data-home-loading]').forEach(zone => {
+    zone.removeAttribute('data-home-loading'); zone.removeAttribute('aria-busy');
+    zone.innerHTML = '';
+    if (['widget-zone','steam-preview-zone'].includes(zone.id)) zone.hidden = true;
+  });
   renderStats();
   renderSteamStorefront();
   renderRecentPurchases();
@@ -1514,6 +1526,18 @@ function renderAll() {
   renderWidgets();
   renderFavorites();
   renderActivityPopup();
+}
+
+function renderHomeLoading() {
+  const cards = count => Array.from({length:count},()=>'<div class="home-loading-card" aria-hidden="true"><div class="skeleton-box home-loading-art"></div><div class="skeleton-box skeleton-text"></div><div class="skeleton-box skeleton-text" style="width:65%"></div></div>').join('');
+  for (const [selector,count,grid] of [['#product-grid',getCatalogItemsPerPage(),false],['#featured-grid',4,false],['#olaf-steam-storefront',6,true],['#steam-preview-zone',4,true],['#catalog-game-preview',4,true],['#widget-zone',4,true]]) {
+    const zone=document.querySelector(selector);
+    if (!zone || zone.hasAttribute('data-home-loading')) continue;
+    zone.hidden=false;
+    zone.setAttribute('data-home-loading','');
+    zone.setAttribute('aria-busy','true');
+    zone.innerHTML=grid ? `<div class="home-loading-grid">${cards(count)}</div>` : cards(count);
+  }
 }
 
 function activityPopupKey(activity = {}) {
@@ -2006,6 +2030,7 @@ function renderWidgetList(zone, widgets) {
 }
 
 function renderWidgets() {
+  if (state.heroCatalogLoading) { renderHomeLoading(); return; }
   const zone = document.querySelector("#widget-zone");
   const steamZone = document.querySelector("#steam-preview-zone");
   const windowsZone = document.querySelector("#windows-license-zone");
@@ -2030,15 +2055,20 @@ function heroCarouselProducts() {
     .map((productId) => productsById.get(productId))
     .filter(Boolean);
 
-  return (orderedProducts.length ? orderedProducts : state.products)
+  return [...new Map([...orderedProducts, ...state.products].map(product => [String(product.id), product])).values()]
     .filter((product) => product.stock > 0)
     .slice(0, 5);
+}
+
+function heroLoadingMarkup() {
+  return `<section class="hero-game-carousel" aria-label="กำลังโหลดเกมแนะนำ" aria-busy="true"><div class="hero-game-carousel-stage">${Array.from({length:5},()=>'<article class="hero-game-card hero-game-skeleton skeleton-box" aria-hidden="true"><span class="hero-game-card-info"><span class="skeleton-box skeleton-text"></span><span class="skeleton-box skeleton-text" style="width:60%"></span></span></article>').join('')}</div></section>`;
 }
 
 function renderHeroDeal() {
   const deals = heroCarouselProducts();
   const heroDeal = $(selectors.heroDeal);
   if (!heroDeal) return;
+  if (state.heroCatalogLoading) { heroDeal.innerHTML = heroLoadingMarkup(); return; }
   if (!deals.length) {
     heroDeal.innerHTML = "";
     return;
@@ -2055,8 +2085,8 @@ function renderHeroDeal() {
           return `
             <article class="hero-game-card">
               <a class="hero-game-card-link" href="${productLink(product)}" aria-label="ดูรายละเอียด ${escapeHtml(productName)}">
-                <span class="hero-game-card-art">
-                  <img ${fastImg(product.image || product.heroImage, productName, { priority: index === 2 })} />
+                <span class="hero-game-card-art skeleton-box">
+                  <img ${fastImg(product.image || product.heroImage, productName, { priority: true })} />
                 </span>
                 <span class="hero-game-card-info">
                   <strong>${escapeHtml(productName)}</strong>
@@ -2073,6 +2103,11 @@ function renderHeroDeal() {
       </div>
     </section>
   `;
+  heroDeal.querySelectorAll('.hero-game-card-art img').forEach(image => {
+    const ready = () => image.parentElement?.classList.remove('skeleton-box');
+    if (image.complete) ready();
+    else { image.addEventListener('load', ready, {once:true}); image.addEventListener('error', ready, {once:true}); }
+  });
 }
 
 function renderStats() {
@@ -2347,7 +2382,7 @@ function renderSteamStorefrontLegacyV90() {
   if (!section) return;
   const products = steamStorefrontProducts();
   if (!products.length) {
-    section.innerHTML = `<div class="olaf-steam-store-loading"><span class="olaf-steam-loading-orbit" aria-hidden="true"></span><span>กำลังโหลดสินค้าจากร้าน...</span></div>`;
+    section.innerHTML = `<div class="olaf-steam-store-loading"><span>ยังไม่มีข้อมูลสินค้า กรุณาลองรีเฟรชอีกครั้ง</span></div>`;
     return;
   }
 
@@ -2706,7 +2741,7 @@ function catalogDiscoveryModel(products) {
       if (seen.has(key) || catalogDiscoverySkipped.has(key)) return false;
       seen.add(key); return true;
     });
-  const features = pool.slice(0, 20);
+  const features = pool.slice(0, 68);
   const used = new Set(features.map(catalogDiscoveryKey));
   const shelves = [];
   const genres = steamEditorialShuffle(catalogDiscoveryGenres.map(g => ({ ...g, name:g.label })), 'catalog-genres');
@@ -2717,6 +2752,11 @@ function catalogDiscoveryModel(products) {
     picked.forEach(p => used.add(catalogDiscoveryKey(p)));
     shelves.push({ ...genre, products:picked });
     if (shelves.length === 4) break;
+  }
+  const shelfCount = shelves.reduce((sum,shelf)=>sum+shelf.products.length,0);
+  for (const product of pool) {
+    if (features.length + shelfCount >= 80) break;
+    if (!used.has(catalogDiscoveryKey(product))) { features.push(product); used.add(catalogDiscoveryKey(product)); }
   }
   return { features, shelves };
 }
@@ -2803,21 +2843,73 @@ function steamEditorialFeaturesMarkupLegacy(products) {
   `;
 }
 
-function steamEditorialFeaturesMarkup(products) {
+function catalogDiscoveryEntries(products) {
   const { features, shelves } = catalogDiscoveryModel(products);
-  if (!features.length) return '';
+  const entries = [];
   const interval = Math.max(1, Math.floor(features.length / (shelves.length + 1)));
   let nextShelf = 0;
-  return `<section class="olaf-steam-taste-stack" aria-label="ค้นพบเกมจากร้าน">
-    ${features.map((product, index) => {
-      let html = steamEditorialFeatureMarkup(product);
-      if ((index + 1) % interval === 0 && nextShelf < shelves.length) html += catalogDiscoveryShelfMarkup(shelves[nextShelf++]);
-      return html;
-    }).join('')}
-  </section>`;
+  features.forEach((product,index)=>{
+    entries.push({product});
+    if ((index+1)%interval===0 && nextShelf<shelves.length) {
+      const shelf=shelves[nextShelf++];
+      shelf.products.forEach(product=>entries.push({product,shelf}));
+    }
+  });
+  return entries.slice(0,80);
+}
+
+function catalogDiscoveryBatchMarkup(entries, start, count=10) {
+  const batch=entries.slice(start,start+count);
+  let html='';
+  for(let index=0;index<batch.length;) {
+    const entry=batch[index];
+    if(!entry.shelf) { html+=steamEditorialFeatureMarkup(entry.product); index++; continue; }
+    const products=[];
+    while(index<batch.length && batch[index].shelf===entry.shelf) products.push(batch[index++].product);
+    html+=catalogDiscoveryShelfMarkup({...entry.shelf,products});
+  }
+  return html;
+}
+
+function steamEditorialFeaturesMarkup(products) {
+  return `<section class="olaf-steam-taste-stack" aria-label="ค้นพบเกมจากร้าน">${catalogDiscoveryBatchMarkup(catalogDiscoveryEntries(products),0)}</section>`;
+}
+
+let catalogFeedObserver = null;
+let catalogFeedEntries = [];
+let catalogFeedCount = 0;
+let catalogFeedSource = null;
+function mountCatalogDiscoveryFeed(products, reset=false) {
+  const preview=document.getElementById('catalog-game-preview');
+  if (!preview) return;
+  if (!reset && catalogFeedSource===state.products && preview.querySelector('[data-discovery-more]')) return;
+  catalogFeedObserver?.disconnect();
+  catalogFeedSource=state.products;
+  catalogFeedEntries=catalogDiscoveryEntries(products);
+  const initial=reset ? Math.max(10,catalogFeedCount) : 10;
+  catalogFeedCount=0;
+  preview.hidden=!catalogFeedEntries.length;
+  preview.innerHTML='<section class="olaf-steam-taste-stack" data-discovery-feed aria-label="ค้นพบเกมจากร้าน"></section><div class="discovery-load-more"><button type="button" class="secondary-button" data-discovery-more>โหลดเกมเพิ่ม</button></div>';
+  const button=preview.querySelector('[data-discovery-more]');
+  const append=(count=10)=>{
+    const next=Math.min(catalogFeedCount+count,catalogFeedEntries.length);
+    if(next===catalogFeedCount) return;
+    preview.querySelector('[data-discovery-feed]').insertAdjacentHTML('beforeend',catalogDiscoveryBatchMarkup(catalogFeedEntries,catalogFeedCount,count));
+    catalogFeedCount=next;
+    button.hidden=next>=catalogFeedEntries.length;
+    if(button.hidden) catalogFeedObserver?.disconnect();
+    createIconSet(); hydrateImages();
+  };
+  append(initial);
+  button.addEventListener('click',()=>append());
+  if ('IntersectionObserver' in window && !button.hidden) {
+    catalogFeedObserver=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)) append();},{rootMargin:'0px',threshold:.1});
+    catalogFeedObserver.observe(button);
+  }
 }
 
 function renderSteamStorefront() {
+  if (state.heroCatalogLoading) { renderHomeLoading(); return; }
   const section = document.querySelector("#olaf-steam-storefront");
   const catalogPreview = document.querySelector("#catalog-game-preview");
   if (!section) return;
@@ -2854,8 +2946,7 @@ function renderSteamStorefront() {
   `;
 
   if (catalogPreview) {
-    catalogPreview.innerHTML = steamEditorialFeaturesMarkup(products);
-    catalogPreview.hidden = !catalogPreview.innerHTML.trim();
+    mountCatalogDiscoveryFeed(products);
   }
 
   renderSteamSpotlightStage();
@@ -2930,6 +3021,7 @@ function categoryLayerProducts(categoryId) {
 }
 
 function renderCategoryLayerShowcase() {
+  if (state.heroCatalogLoading) return;
   const section = $(selectors.categoryLayerShowcase);
   if (!section) return;
 
@@ -3052,6 +3144,7 @@ function selectCatalogCategory(categoryId, options = {}) {
 }
 
 function renderProducts() {
+  if (state.heroCatalogLoading) { renderHomeLoading(); return; }
   const products = filteredProducts();
   const itemsPerPage = getCatalogItemsPerPage();
   const featured = [...products]
@@ -3770,7 +3863,7 @@ function bindEvents() {
         const oldTop = discoverySkip.closest('[data-discovery-product]')?.getBoundingClientRect().top || 0;
         const oldIndex = [...preview.querySelectorAll('[data-discovery-product]')].indexOf(discoverySkip.closest('[data-discovery-product]'));
         catalogDiscoverySkipped.add(catalogDiscoveryKey(product));
-        preview.innerHTML = steamEditorialFeaturesMarkup(steamStorefrontProducts());
+        mountCatalogDiscoveryFeed(steamStorefrontProducts(), true);
         createIconSet(); hydrateImages();
         const replacement = preview.querySelectorAll('[data-discovery-product]')[Math.max(0, oldIndex)];
         if (replacement) {
@@ -4240,6 +4333,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   loadRecentPurchases();
 
   await loadProducts();
+  state.heroCatalogLoading = false;
   renderAll();
   applySearchFromUrl();
 

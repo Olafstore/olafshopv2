@@ -151,12 +151,8 @@
     try {
       const settings = await window.OlafStoreSettings?.fetchStoreSettings?.();
       applyAdminBrandLogo(settings?.siteIconUrl);
-      const hero = document.querySelector('.hero-media > img');
-      if (hero && settings?.heroBackgroundUrl) {
-        hero.removeAttribute('srcset');
-        hero.src = settings.heroBackgroundUrl;
-        hero.alt = '';
-      }
+      // Home applies its freshly fetched hero setting in renderAll; navigation
+      // must not overwrite it with the older cached brand-settings response.
     } catch (error) {
       // Keep the local OLAF fallback mark when settings are temporarily unavailable.
     }

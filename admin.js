@@ -5500,6 +5500,8 @@ async function saveHeroBackground() {
     status.textContent='กำลังบันทึก…';
     const settings=await window.OlafStoreSettings.fetchStoreSettings({forceRefresh:true});
     await saveOnlineStoreSettings({...settings,heroBackgroundUrl:pendingHeroBackground});
+    const verified = await window.OlafStoreSettings.fetchStoreSettings({forceRefresh:true});
+    if (verified.heroBackgroundUrl !== pendingHeroBackground) throw new Error('ค่าพื้นหลังยังไม่ถูกบันทึกในฐานข้อมูล กรุณาตรวจสิทธิ์หรือฟังก์ชัน admin_save_store_settings');
     state.payload.store.heroBackgroundUrl=pendingHeroBackground;
     pendingHeroBackground='';
     status.textContent='บันทึกแล้ว เปิดหรือรีเฟรชหน้าแรกเพื่อดูพื้นหลังใหม่';

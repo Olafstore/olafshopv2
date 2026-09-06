@@ -948,7 +948,7 @@ function mergeStoreSettings(baseStore = {}, onlineSettings = {}) {
 async function fetchOnlineStoreSettings(quiet = false) {
   if (!window.OlafStoreSettings?.fetchStoreSettings) return {};
   try {
-    return await window.OlafStoreSettings.fetchStoreSettings();
+    return await window.OlafStoreSettings.fetchStoreSettings({ forceRefresh: true });
   } catch (error) {
     if (!quiet) console.warn("Store settings unavailable", error);
     return {};
@@ -1475,7 +1475,24 @@ function setApiStatus(message) {
   if (status) status.textContent = message;
 }
 
+function applyHomeHeroBackground(url) {
+  const current = document.querySelector('.hero-media > img');
+  const source = String(url || '').trim();
+  if (!current || !source || current.getAttribute('src') === source) return;
+  const replacement = new Image();
+  replacement.alt = '';
+  replacement.decoding = 'async';
+  replacement.fetchPriority = 'high';
+  current.dataset.requestedHero = source;
+  replacement.onload = () => {
+    if (current.isConnected && current.dataset.requestedHero === source) current.replaceWith(replacement);
+  };
+  replacement.onerror = () => console.warn('โหลดพื้นหลังจากการตั้งค่าร้านไม่สำเร็จ');
+  replacement.src = source;
+}
+
 function renderAll() {
+  applyHomeHeroBackground(state.store.heroBackgroundUrl);
   refreshAccountState();
   applySiteIcon(state.store.siteIconUrl);
   applyBrandIcon(state.store.siteIconUrl);

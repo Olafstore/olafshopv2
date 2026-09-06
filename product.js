@@ -3,6 +3,44 @@ const params = new URLSearchParams(location.search);
 const productId = params.get("id");
 let globalPayload = null;
 let currentProduct = null;
+
+function showProductTagResults(tag) {
+  let dialog = document.getElementById('product-tag-results');
+  if (!dialog) {
+    dialog = document.createElement('dialog');
+    dialog.id = 'product-tag-results';
+    dialog.className = 'tag-results-dialog';
+    dialog.setAttribute('aria-labelledby', 'product-tag-results-title');
+    document.body.append(dialog);
+    dialog.addEventListener('click', event => {
+      if (event.target.closest('[data-close-tag-results]')) dialog.close();
+      if (event.target === dialog) {
+        const bounds = dialog.getBoundingClientRect();
+        if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) dialog.close();
+      }
+    });
+  }
+  const normalize = value => cleanDisplayText(value).normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[™®©]/g,'').replace(/&/g,' and ').replace(/[^a-z0-9\u0E00-\u0E7F]+/gi,' ').trim().toLowerCase();
+  const matches = (globalPayload?.products || []).filter(product => product.status !== 'inactive' && getDisplayTags(product, 100).some(value => normalize(value) === normalize(tag)));
+  dialog.innerHTML = `<header class="tag-results-head"><h2 id="product-tag-results-title">${escapeHtml(tag)} · ${matches.length} เกม</h2><button type="button" data-close-tag-results aria-label="ปิดรายการเกม"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></header>
+    <div class="tag-results-grid">${matches.map(product => {
+      const price = Math.max(0, Number(product.price) || 0);
+      const original = Math.max(0, Number(product.compareAt) || 0);
+      const discount = original > price ? Math.round((original-price)/original*100) : 0;
+      return `<a class="tag-results-game" href="product.html?id=${encodeURIComponent(product.id)}"><img src="${escapeHtml(product.image || product.heroImage || '')}" alt="${escapeHtml(product.name)}" loading="lazy"><strong>${escapeHtml(product.name)}</strong><div class="tag-result-footer"><small>${Number(product.stock || 0) > 0 ? `พร้อมส่ง ${Number(product.stock).toLocaleString('th-TH')} ชิ้น` : 'สินค้าหมด'}</small><div class="tag-result-price">${discount > 0 ? `<b>-${discount}%</b>` : ''}<div>${original > price ? `<del>฿${original.toLocaleString('th-TH')}</del>` : ''}<em>฿${price.toLocaleString('th-TH')}</em></div></div></div></a>`;
+    }).join('')}</div>
+    ${matches.length ? '' : '<p>ไม่พบเกมในแท็กนี้</p>'}`;
+  if (!dialog.open) dialog.showModal();
+}
+
+document.addEventListener('click', event => {
+  const link = event.target.closest('a.pd-genre-tag');
+  if (!link || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+  const tag = new URL(link.href).searchParams.get('tag');
+  if (!tag) return;
+  event.preventDefault();
+  showProductTagResults(tag);
+});
 let detailQuantity = 1;
 let currentLang = localStorage.getItem("olafshop_lang") || "th";
 let currentQrOrder = null;
@@ -2018,7 +2056,7 @@ function renderProduct() {
   const displayProductName = getDisplayProductName(p);
 
   const genreTags = getSidebarDisplayTags(p)
-    .map((t) => `<span class="pd-genre-tag">${escapeHtml(t)}</span>`)
+    .map((t) => `<a class="pd-genre-tag" href="index.html?tag=${encodeURIComponent(t)}#catalog">${escapeHtml(t)}</a>`)
     .join("");
 
   // Gallery images from admin gallery field (left column main image)

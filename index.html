@@ -41,7 +41,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800;900&display=swap"
     rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260905-search-discovery-v170" />
+  <link rel="stylesheet" href="styles.css?v=20260906-tag-polish-v187" />
   <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
     <script src="supabase-client.js?v=20260906-avatar-shop-v171" defer></script>
@@ -51,8 +51,8 @@
     <script src="notifications.js?v=20260716-qr-alignment-v111" defer></script>
     <script src="site-navigation.js?v=20260906-avatar-shop-v171" defer></script>
   <script src="extra-products.js?v=20260905-category-layer-depth-v152" defer></script>
-    <script src="app.js?v=20260906-discovery-layout-v175" defer></script>
-  <link rel="stylesheet" href="catalog-discovery.css?v=20260906-discovery-cover-v177" />
+    <script src="app.js?v=20260906-tag-polish-v187" defer></script>
+  <link rel="stylesheet" href="catalog-discovery.css?v=20260906-tag-polish-v187" />
   <script src="free-games-data.js?v=20260905-free-games-full-strip-v159" defer></script>
   <script src="free-games.js?v=20260905-mobile-card-fit-v169" defer></script>
 </head>
@@ -307,7 +307,7 @@
         <div class="section-heading">
           <div>
             <p class="eyebrow">OLAF API Catalog</p>
-            <h2>สินค้าพร้อมจำหน่าย</h2>
+            <h2 id="catalog-products-heading">สินค้าพร้อมจำหน่าย</h2>
           </div>
           <div class="search-box">
             <i data-lucide="search"></i>
@@ -318,6 +318,7 @@
         <div class="toolbar">
           <div class="segmented" id="category-tabs" role="tablist" aria-label="หมวดสินค้า"></div>
           <div class="filter-dropdown-wrap" style="position:relative; margin-left: auto;">
+            <button class="secondary-button" id="open-tag-panel" type="button" aria-expanded="false" aria-controls="catalog-tag-panel">หมวดหมู่แท็ก <svg class="tag-panel-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></button>
             <button class="secondary-button" id="open-filter-btn" type="button" aria-expanded="false"
               style="gap: 8px; padding: 0 16px; min-height: 40px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font-weight: 500; transition: all 0.2s;">
               <i data-lucide="sliders-horizontal"></i>
@@ -401,6 +402,12 @@
 
         <div class="catalog-layout">
           <aside class="side-panel" aria-label="ตัวกรองสินค้า">
+            <details class="panel-block catalog-tag-panel" id="catalog-tag-panel" open>
+              <summary>หมวดหมู่แท็กเกม <svg class="tag-panel-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg></summary>
+              <p>เลือกแท็กเพื่อดูเกมแนวเดียวกัน</p>
+              <nav id="catalog-tag-categories" aria-label="หมวดหมู่แท็กเกม"></nav>
+            </details>
+            <div hidden style="display:none">
             <div class="panel-block">
               <h3>สรุปสต็อก</h3>
               <div class="stock-meter">
@@ -416,6 +423,7 @@
               <h3 data-i18n="safeOrder">สั่งซื้อแบบปลอดภัย</h3>
               <p data-i18n="safeOrderText">ระบบจะเปิดชำระเงินเฉพาะเมื่อกดสั่งซื้อจากหน้ารายละเอียดสินค้า</p>
               <span class="api-status" id="api-status">API จำลองพร้อมใช้งาน</span>
+            </div>
             </div>
           </aside>
 

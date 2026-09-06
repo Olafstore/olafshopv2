@@ -1,5 +1,17 @@
 /* Discovery feed, with scoped home hero/featured responsive repairs below. */
 #catalog-game-preview .olaf-steam-taste-stack { display:grid; gap:24px; }
+#catalog-game-preview .catalog-mobile-eyebrow { display:none; }
+#catalog-game-preview .catalog-mobile-tags { margin-top:12px; }
+#catalog-game-preview .catalog-product-tags,
+body.home-page #product-grid .product-card .tags { display:flex; flex-wrap:wrap; align-content:flex-start; gap:6px; min-width:0; height:auto; max-height:none; overflow:visible; }
+#catalog-game-preview .catalog-product-tags .tag,
+body.home-page #product-grid .product-card .tags .tag { display:inline-block; max-width:100%; padding:2px 7px; border:1px solid rgba(100,116,139,.22); border-radius:999px; background:rgba(30,41,59,.4); color:#a2afc2; font-size:10px; font-weight:400; line-height:1.5; white-space:normal; overflow-wrap:anywhere; }
+#catalog-game-preview .catalog-product-tags .catalog-category-tag,
+body.home-page #product-grid .product-card .tags .catalog-category-tag { background:var(--category-tag-bg,#183e68); border-color:var(--category-tag-border,#437fbc); color:var(--category-tag-text,#a8d8ff); font-weight:700; }
+.catalog-category-tag[data-tag-category="steam-key"] { --category-tag-bg:#153c65; --category-tag-border:#448bcc; --category-tag-text:#b7e0ff; }
+.catalog-category-tag[data-tag-category="steam-account"] { --category-tag-bg:#103e36; --category-tag-border:#3a947a; --category-tag-text:#a3f3d5; }
+.catalog-category-tag[data-tag-category="offline"] { --category-tag-bg:#382451; --category-tag-border:#9165bb; --category-tag-text:#ead0ff; }
+.catalog-category-tag[data-tag-category="bundle"] { --category-tag-bg:#473519; --category-tag-border:#a88038; --category-tag-text:#ffe0a1; }
 #catalog-game-preview .olaf-steam-taste-row {
   padding:22px !important; border:1px solid rgba(111,139,224,.18) !important; border-radius:20px !important;
   background:radial-gradient(ellipse at top right,rgba(87,65,171,.12),transparent 55%),linear-gradient(125deg,#101b30,#080e1d 75%) !important;
@@ -53,9 +65,13 @@
 #catalog-game-preview .catalog-genre-grid { display:grid; gap:14px; grid-template-columns:repeat(2,minmax(0,1fr)); }
 #catalog-game-preview .catalog-genre-grid.is-compact { grid-template-columns:repeat(4,minmax(0,1fr)); }
 #catalog-game-preview .catalog-genre-game { min-width:0; display:flex; flex-direction:column; overflow:hidden; border-radius:12px; background:rgba(20,32,55,.7); color:#dce8f0; text-decoration:none; }
-#catalog-game-preview .catalog-genre-game > img { display:block; width:100%; aspect-ratio:2.1 / 1; object-fit:cover; height:auto; }
-#catalog-game-preview .catalog-genre-game-foot { display:grid; grid-template-columns:minmax(0,1fr); grid-template-rows:auto 1fr; flex:1; align-items:end; gap:10px; padding:12px; }
-#catalog-game-preview .catalog-genre-game-foot > strong { display:block; width:100%; font-size:16px; font-weight:750; line-height:1.5; color:#edf3ff; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+#catalog-game-preview .catalog-genre-image-link { display:block; min-width:0; }
+#catalog-game-preview .catalog-genre-game img { display:block; width:100%; aspect-ratio:2.1 / 1; object-fit:cover; height:auto; }
+#catalog-game-preview .catalog-genre-game-foot > strong a { color:inherit; text-decoration:none; }
+#catalog-game-preview .catalog-genre-game-foot { display:grid; grid-auto-flow:row; grid-template-columns:minmax(0,1fr); grid-template-rows:auto auto 1fr; width:100%; min-width:0; box-sizing:border-box; flex:1; align-items:end; gap:10px; padding:12px; }
+#catalog-game-preview .catalog-genre-game-foot > .catalog-product-tags { grid-column:1; grid-row:2; width:100%; box-sizing:border-box; }
+#catalog-game-preview .catalog-genre-game-foot > .olaf-steam-price { grid-column:1; grid-row:3; }
+#catalog-game-preview .catalog-genre-game-foot > strong { grid-column:1; grid-row:1; display:block; width:100%; font-size:16px; font-weight:750; line-height:1.5; color:#edf3ff; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
 #catalog-game-preview .catalog-genre-game-foot > .olaf-steam-price { justify-self:end; }
 #catalog-game-preview a:focus-visible,#catalog-game-preview button:focus-visible { outline:2px solid #8ed1ff; outline-offset:3px; }
 @media(max-width:980px) {
@@ -69,25 +85,29 @@
 @media(max-width:640px) {
   #catalog-game-preview { min-width:0; max-width:100%; }
   #catalog-game-preview .olaf-steam-taste-stack { min-width:0; gap:18px; }
-  #catalog-game-preview .olaf-steam-taste-row { min-width:0; height:auto; padding:12px !important; contain-intrinsic-size:auto 820px; }
-  #catalog-game-preview .olaf-steam-taste-head { width:100%; min-width:0; }
-  #catalog-game-preview .olaf-steam-taste-head > div:first-child { width:100%; }
+  #catalog-game-preview .olaf-steam-taste-row { display:grid; grid-template-columns:minmax(0,1fr); gap:12px; min-width:0; height:auto; padding:0 0 14px !important; contain-intrinsic-size:auto 540px; background:linear-gradient(145deg,#102636,#091827) !important; }
+  #catalog-game-preview .olaf-steam-taste-head { display:contents; }
+  #catalog-game-preview .olaf-steam-taste-head > div:first-child { grid-row:2; width:auto; min-width:0; margin:0 14px; }
+  #catalog-game-preview .catalog-mobile-eyebrow { display:block; margin-bottom:6px; color:#70b9e5; font-size:9px; font-weight:700; letter-spacing:1.4px; }
   #catalog-game-preview .olaf-steam-taste-head h3 { font-size:20px; white-space:normal; overflow:visible; text-overflow:clip; -webkit-line-clamp:unset; }
   #catalog-game-preview .olaf-steam-taste-head p { white-space:normal; overflow-wrap:anywhere; }
-  #catalog-game-preview .olaf-steam-taste-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); width:100%; flex:none; gap:8px; }
-  #catalog-game-preview .olaf-steam-taste-gallery { grid-template-columns:minmax(0,1fr) !important; gap:10px; }
-  /* 4:4 artwork; content below remains auto-height so no details are clipped. */
-  #catalog-game-preview .olaf-steam-taste-main { aspect-ratio:1 / 1; }
+  #catalog-game-preview .olaf-steam-taste-actions { grid-row:6; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); width:auto; margin:0 14px; flex:none; gap:8px; }
+  #catalog-game-preview .olaf-steam-taste-gallery { display:contents !important; }
+  #catalog-game-preview .olaf-steam-taste-main { grid-row:1; aspect-ratio:16 / 9; border-radius:0 !important; }
+  #catalog-game-preview .olaf-steam-taste-main::after { content:''; position:absolute; inset:65% 0 0; background:linear-gradient(transparent,#102332); pointer-events:none; }
   #catalog-game-preview .olaf-steam-taste-main img { object-fit:cover !important; object-position:center !important; background:#080f20; }
-  #catalog-game-preview .olaf-steam-taste-shots { gap:8px; }
-  #catalog-game-preview .olaf-steam-taste-shots a,#catalog-game-preview .catalog-shot-empty { aspect-ratio:1 / 1; }
-  #catalog-game-preview .catalog-shot-empty { min-width:0; padding:6px; overflow-wrap:anywhere; }
-  #catalog-game-preview .olaf-steam-taste-foot { justify-content:space-between; gap:10px; }
+  #catalog-game-preview .olaf-steam-taste-shots { grid-row:3; grid-template-columns:repeat(4,minmax(0,1fr)) !important; grid-template-rows:auto; margin:4px 14px 0; gap:4px; }
+  #catalog-game-preview .olaf-steam-taste-shots a,#catalog-game-preview .catalog-shot-empty { aspect-ratio:16 / 9; border-radius:3px !important; }
+  #catalog-game-preview .catalog-shot-empty { min-width:0; padding:3px; font-size:8px; overflow-wrap:anywhere; }
+  #catalog-game-preview .catalog-mobile-tags { grid-row:4; display:flex; flex-wrap:wrap; gap:5px; margin:0 14px; min-width:0; }
+  #catalog-game-preview .catalog-mobile-tags:empty { display:none; }
+  #catalog-game-preview .catalog-mobile-tags span { max-width:100%; padding:2px 6px; border-radius:3px; background:#203c4e; color:#b7cddd; font-size:10px; overflow-wrap:anywhere; }
+  #catalog-game-preview .olaf-steam-taste-foot { grid-row:5; justify-content:space-between; gap:10px; margin:0 14px; }
   #catalog-game-preview .olaf-steam-taste-foot > span { min-width:0; white-space:normal; overflow-wrap:anywhere; }
-  #catalog-game-preview .catalog-genre-grid,#catalog-game-preview .catalog-genre-grid.is-compact { grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+  #catalog-game-preview .catalog-genre-grid,#catalog-game-preview .catalog-genre-grid.is-compact { grid-template-columns:minmax(0,1fr); gap:12px; }
   #catalog-game-preview .catalog-genre-shelf { min-width:0; padding:12px; }
   #catalog-game-preview .catalog-genre-shelf header { min-width:0; overflow-wrap:anywhere; }
-  #catalog-game-preview .catalog-genre-game > img { aspect-ratio:1 / 1; object-fit:contain; background:#080f20; }
+  #catalog-game-preview .catalog-genre-game img { aspect-ratio:16 / 9; object-fit:cover; background:#080f20; }
   #catalog-game-preview .catalog-genre-game-foot { padding:9px 7px; gap:8px; }
   #catalog-game-preview .catalog-genre-game-foot > strong { font-size:14px; white-space:normal; overflow:visible; overflow-wrap:anywhere; text-overflow:clip; -webkit-line-clamp:unset; align-self:start; }
   #catalog-game-preview .catalog-genre-game-foot .olaf-steam-discount { font-size:13px !important; padding:6px !important; }
@@ -96,6 +116,38 @@
   #catalog-game-preview .olaf-steam-taste-actions a,#catalog-game-preview .olaf-steam-taste-actions button { display:flex; align-items:center; justify-content:center; gap:6px; width:100%; min-width:0; min-height:44px; padding:8px 6px; box-sizing:border-box; white-space:normal; overflow-wrap:anywhere; text-align:center; line-height:1.4; }
   #catalog-game-preview .olaf-steam-taste-actions svg { flex-shrink:0; }
 }
+body.home-page .catalog-layout > .side-panel { grid-template-columns:minmax(0,1fr) !important; }
+#catalog-tag-categories { display:flex; flex-direction:column; gap:6px; max-height:560px; overflow:auto; }
+#catalog-tag-categories a { display:flex; justify-content:space-between; gap:10px; padding:9px 10px; border-radius:8px; color:#c9dbef; background:#111e32; text-decoration:none; }
+#catalog-tag-categories a span { min-width:0; overflow-wrap:anywhere; }
+#catalog-tag-categories a strong { flex-shrink:0; color:#88c8ff; }
+#catalog-tag-categories a[aria-current],#catalog-tag-categories a:hover { background:#24476d; color:#fff; }
+.catalog-tag-panel { background:linear-gradient(140deg,rgba(29,46,76,.55),rgba(10,19,35,.5)) !important; border:1px solid rgba(129,161,214,.2) !important; backdrop-filter:blur(18px); box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 12px 28px rgba(0,0,0,.16); }
+.catalog-tag-panel summary { display:flex; justify-content:space-between; align-items:center; gap:8px; cursor:pointer; font-weight:700; list-style:none; }
+.catalog-tag-panel summary::-webkit-details-marker { display:none; }
+.catalog-tag-panel { overflow:hidden; box-sizing:border-box; }
+.tag-panel-chevron { flex-shrink:0; padding:3px; border-radius:50%; background:rgba(100,160,220,.1); transition:transform 220ms ease; }
+.catalog-tag-panel[open] .tag-panel-chevron,#open-tag-panel[aria-expanded="true"] .tag-panel-chevron { transform:rotate(180deg); }
+@media(prefers-reduced-motion:reduce) { .tag-panel-chevron { transition:none; } }
+.catalog-tag-panel #catalog-tag-categories a { background:rgba(43,64,94,.27); border:1px solid rgba(134,164,207,.1); }
+.catalog-tag-panel #catalog-tag-categories a[aria-current] { background:rgba(65,121,181,.35); }
+#open-tag-panel { display:none; }
+#catalog-products-heading { scroll-margin-top:90px; }
+@media(max-width:640px) {
+  body.home-page .filter-dropdown-wrap { display:flex; width:100%; gap:8px; }
+  #open-tag-panel,#open-filter-btn { display:flex; flex:1; min-width:0; align-items:center; justify-content:center; min-height:42px; padding:6px 8px !important; gap:5px; font-size:12px; border-radius:10px; }
+  body.home-page .catalog-layout > .side-panel { display:none; }
+  body.home-page .catalog-layout > .side-panel.is-tag-open { display:grid; }
+  #catalog-tag-categories { max-height:320px; }
+  body.home-page #catalog { margin-bottom:0 !important; padding-bottom:0 !important; }
+  body.home-page #catalog-game-preview { margin-top:16px !important; padding-top:0 !important; }
+  body.home-page #pagination-controls { margin-top:16px; margin-bottom:4px; }
+}
+.catalog-tag-selection { color:#a8d8ff; overflow-wrap:anywhere; }
+body.home-page .olaf-steam-tags a,body.home-page .olaf-preview-tags a { display:inline-block; padding:3px 7px; border-radius:999px; background:#20364c; color:#c8d9e9; font-size:11px; text-decoration:none; }
+#catalog-game-preview a.tag,body.home-page .product-card a.tag { text-decoration:none; cursor:pointer; }
+#catalog-game-preview a.tag:hover,body.home-page .product-card a.tag:hover { filter:brightness(1.3); }
+#catalog-game-preview a.tag:focus-visible,#catalog-tag-categories a:focus-visible { outline:2px solid #8fc7ff; outline-offset:2px; }
 @media(max-width:360px) {
   #catalog-game-preview .catalog-genre-grid,#catalog-game-preview .catalog-genre-grid.is-compact { grid-template-columns:minmax(0,1fr); }
 }

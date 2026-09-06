@@ -129,6 +129,7 @@ const state = {
   steamPreviewOrder: [],
   homeCategory: "",
   selectedCategory: "all",
+  selectedTag: "",
   query: "",
   stockOnly: false,
   priceFilter: "all",
@@ -789,7 +790,8 @@ function filteredProducts() {
       ...getDisplayTags(product, 5)
     ].join(" "));
     const matchesQuery = !queryTerms.length || queryTerms.every((term) => searchable.includes(term));
-    return matchesCategory && matchesStock && matchesPrice && matchesQuery;
+    const matchesTag = !state.selectedTag || getDisplayTags(product, 100).some(tag => normalizeCatalogSearch(tag) === normalizeCatalogSearch(state.selectedTag));
+    return matchesCategory && matchesStock && matchesPrice && matchesQuery && matchesTag;
   });
 
   // Stable throughout this visit (filters/pagination do not reshuffle); a reload gets a fresh seed.
@@ -1775,7 +1777,7 @@ function renderSteamShowcaseWidget() {
             <h3>${escapeHtml(productName)}</h3>
             <p>รีวิวโดยรวม <span>${escapeHtml(rating)}</span> · ขายแล้ว ${Number(product.sold || 0).toLocaleString("th-TH")} ชิ้น</p>
             <div class="olaf-preview-tags">
-              ${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}
+              ${tags.map((tag) => `<a href="index.html?tag=${encodeURIComponent(tag)}#catalog">${escapeHtml(tag)}</a>`).join("")}
             </div>
             <div class="olaf-preview-images">
               ${images.map((image) => `<img ${fastImg(image, `${productName} preview`)} />`).join("")}
@@ -2180,7 +2182,7 @@ function steamSpotlightMarkup(product, products) {
           `).join("")}
         </div>
         <div class="olaf-steam-tags">
-          ${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}
+          ${tags.map((tag) => `<a href="index.html?tag=${encodeURIComponent(tag)}#catalog">${escapeHtml(tag)}</a>`).join("")}
         </div>
         <div class="olaf-steam-spotlight-foot">
           <span class="olaf-steam-stock ${stock.className}">${escapeHtml(stock.label)}</span>
@@ -2258,7 +2260,7 @@ function steamDiscoveryPreviewMarkup(product) {
           sizes: "320px"
         })} />`).join("")}
       </div>
-      <div class="olaf-steam-tags">${tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("")}</div>
+      <div class="olaf-steam-tags">${tags.map((tag) => `<a href="index.html?tag=${encodeURIComponent(tag)}#catalog">${escapeHtml(tag)}</a>`).join("")}</div>
     </div>
   `;
 }
@@ -2698,14 +2700,23 @@ function catalogDiscoveryModel(products) {
   return { features, shelves };
 }
 
+function catalogProductTagsMarkup(product) {
+  const category = getCategoryLabel(product.category);
+  const tags = [...new Set((Array.isArray(product.tags) ? product.tags : [])
+    .filter(tag => typeof tag === 'string' && tag.trim())
+    .map(translateTagToThai).filter(Boolean))];
+  return `<a class="tag catalog-category-tag" data-tag-category="${escapeHtml(product.category || 'other')}" href="index.html?category=${encodeURIComponent(product.category || 'all')}#catalog">${escapeHtml(category)}</a>`
+    + tags.filter(tag => tag !== category).slice(0, 3).map(tag => `<a class="tag" href="index.html?tag=${encodeURIComponent(tag)}#catalog">${escapeHtml(tag)}</a>`).join('');
+}
+
 function catalogDiscoveryShelfMarkup(shelf) {
   return `<section class="catalog-genre-shelf" data-discovery-genre="${escapeHtml(shelf.id)}" aria-label="${escapeHtml(shelf.label)}">
     <header><h3>${escapeHtml(shelf.label)}</h3><p>สุ่มจากสินค้าในร้านที่มีแท็กแนวเดียวกัน</p></header>
     <div class="catalog-genre-grid is-${shelf.products.length <= 2 ? 'wide' : 'compact'}">
-      ${shelf.products.map(p => `<a class="catalog-genre-game" href="${productLink(p)}">
-        <img ${fastImg(p.image || p.heroImage || p.gallery[0], cleanDisplayText(p.name), {loading:'lazy',width:640,height:300,sizes:'(max-width: 640px) 85vw, 45vw'})} />
-        <div class="catalog-genre-game-foot"><strong>${escapeHtml(cleanDisplayText(p.name))}</strong>${steamPriceMarkup(p, 'is-compact')}</div>
-      </a>`).join('')}
+      ${shelf.products.map(p => `<article class="catalog-genre-game">
+        <a class="catalog-genre-image-link" href="${productLink(p)}"><img ${fastImg(p.image || p.heroImage || p.gallery[0], cleanDisplayText(p.name), {loading:'lazy',width:640,height:300,sizes:'(max-width: 640px) 85vw, 45vw'})} /></a>
+        <div class="catalog-genre-game-foot"><strong><a href="${productLink(p)}">${escapeHtml(cleanDisplayText(p.name))}</a></strong><div class="catalog-product-tags">${catalogProductTagsMarkup(p)}</div>${steamPriceMarkup(p, 'is-compact')}</div>
+      </article>`).join('')}
     </div></section>`;
 }
 
@@ -2717,6 +2728,7 @@ function steamEditorialFeatureMarkup(product) {
     <article class="olaf-steam-taste-row" data-discovery-product="${escapeHtml(product.id)}">
       <header class="olaf-steam-taste-head">
         <div>
+          <span class="catalog-mobile-eyebrow">FEATURED &amp; RECOMMENDED</span>
           <h3>${escapeHtml(cleanDisplayText(product.name))}</h3>
           <p>ค้นพบจากสินค้าในร้าน · ${escapeHtml(getCategoryLabel(product.category))}</p>
         </div>
@@ -2748,6 +2760,7 @@ function steamEditorialFeatureMarkup(product) {
           ${Array.from({length:4-gallery.length}, () => '<span class="catalog-shot-empty">ยังไม่มีภาพตัวอย่างเพิ่มเติม</span>').join('')}
         </div>
       </div>
+      <div class="catalog-mobile-tags catalog-product-tags">${catalogProductTagsMarkup(product)}</div>
       <footer class="olaf-steam-taste-foot">
         <span class="${stock.className}">${escapeHtml(stock.label)}</span>
         ${steamPriceMarkup(product, "is-compact")}
@@ -2859,6 +2872,23 @@ function renderCategories() {
     .join("");
 
   $(selectors.categoryList).innerHTML = categoryRows;
+  renderTagCategories();
+}
+
+function renderTagCategories() {
+  const target = document.getElementById('catalog-tag-categories');
+  if (!target) return;
+  const counts = new Map();
+  for (const product of state.products) {
+    if (product.status === 'inactive') continue;
+    for (const tag of new Set((product.tags || []).filter(tag => typeof tag === 'string').map(translateTagToThai).filter(Boolean))) {
+      counts.set(tag, (counts.get(tag) || 0) + 1);
+    }
+  }
+  const rows = [...counts].sort((a,b) => b[1]-a[1] || a[0].localeCompare(b[0], 'th'));
+  target.innerHTML = `<a class="catalog-tag-reset" href="index.html#catalog">ดูเกมทั้งหมด</a>`
+    + (state.selectedTag ? `<p class="catalog-tag-selection">แท็กที่เลือก: ${escapeHtml(state.selectedTag)}</p>` : '')
+    + rows.map(([tag,count]) => `<a href="index.html?tag=${encodeURIComponent(tag)}#catalog" ${normalizeCatalogSearch(tag) === normalizeCatalogSearch(state.selectedTag) ? 'aria-current="true"' : ''}><span>${escapeHtml(tag)}</span><strong>${count}</strong></a>`).join('');
 }
 
 function categoryLayerProducts(categoryId) {
@@ -3020,7 +3050,7 @@ function renderProducts() {
     .map((product, index) => renderProductCard(product, index))
     .join("");
   const emptyState = $(selectors.emptyState);
-  if (emptyState) emptyState.hidden = true;
+  if (emptyState) emptyState.hidden = products.length > 0;
 
   renderPagination(totalPages);
   createIconSet();
@@ -3309,9 +3339,7 @@ function renderProductCard(product, index = 0) {
   const stock = getStockState(product.stock);
   const discount = getDiscount(product);
   const publisher = String(product.publisher || "").trim();
-  const tags = getDisplayTags(product, 4)
-    .map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`)
-    .join("");
+  const tags = catalogProductTagsMarkup(product);
 
   return `
     <article class="product-card ${product.stock <= 0 ? "is-out-of-stock" : ""}">
@@ -3357,7 +3385,7 @@ function openProduct(productId) {
 function renderProductDetail(product) {
   const stock = getStockState(product.stock);
   const discount = getDiscount(product);
-  const tags = getDisplayTags(product, 5).map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("");
+  const tags = getDisplayTags(product, 5).map((tag) => `<a class="tag" href="index.html?tag=${encodeURIComponent(tag)}#catalog">${escapeHtml(tag)}</a>`).join("");
   const canAdd = product.stock > 0;
 
   $(selectors.productDetail).innerHTML = `
@@ -4081,8 +4109,27 @@ function bindEvents() {
   });
 }
 
+function resetTagOnReload() {
+  if (window.performance?.getEntriesByType('navigation')[0]?.type !== 'reload') return;
+  const url = new URL(window.location.href);
+  url.searchParams.delete('tag');
+  url.searchParams.delete('category');
+  window.history.replaceState(null, '', url.href);
+}
+resetTagOnReload();
+
 function applySearchFromUrl() {
   const urlParams = new URLSearchParams(window.location.search);
+  const tagFromUrl = urlParams.get('tag');
+  const categoryFromUrl = urlParams.get('category');
+  if (tagFromUrl || categoryFromUrl) {
+    state.selectedTag = tagFromUrl || '';
+    state.selectedCategory = state.categories.some(category => category.id === categoryFromUrl) ? categoryFromUrl : 'all';
+    state.currentPage = 1;
+    renderCategories();
+    renderProducts();
+    requestAnimationFrame(() => document.getElementById('catalog-products-heading')?.scrollIntoView({block:'start'}));
+  }
   const searchFromUrl = urlParams.get("search");
   if (!searchFromUrl) return;
 
@@ -4096,6 +4143,66 @@ function applySearchFromUrl() {
     if (catalog) setTimeout(() => catalog.scrollIntoView({ behavior: "smooth", block: "start" }), 200);
   }
 }
+
+// Same-page tag browsing keeps the loaded catalog and the current session intact.
+document.addEventListener('click', event => {
+  const link = event.target.closest('a[href]');
+  if (!link || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+  const url = new URL(link.href, window.location.href);
+  const current = new URL(window.location.href);
+  const isReset = link.classList.contains('catalog-tag-reset');
+  if (url.origin !== current.origin || url.pathname !== current.pathname || (!url.searchParams.has('tag') && !url.searchParams.has('category') && !isReset)) return;
+  event.preventDefault();
+  event.stopPropagation();
+  state.selectedTag = url.searchParams.get('tag') || '';
+  state.selectedCategory = url.searchParams.get('category') || 'all';
+  state.query = '';
+  state.currentPage = 1;
+  const input = document.getElementById('search-input');
+  if (input) input.value = '';
+  window.history.pushState(null, '', url.href);
+  renderCategories();
+  renderProducts();
+  document.querySelector('#catalog-products-heading')?.scrollIntoView({behavior:'smooth', block:'start'});
+}, true);
+
+function animateTagPanel(open, mobile) {
+  const panel = document.getElementById('catalog-tag-panel');
+  const aside = panel?.closest('.side-panel');
+  if (!aside) return;
+  panel.getAnimations().forEach(animation => animation.cancel());
+  panel.dataset.expanded = String(open);
+  if (mobile) aside.classList.add('is-tag-open');
+  const before = open && mobile ? 0 : panel.getBoundingClientRect().height;
+  panel.open = true;
+  const full = panel.getBoundingClientRect().height;
+  const collapsed = mobile ? 0 : panel.querySelector('summary').getBoundingClientRect().height + 40;
+  document.getElementById('open-tag-panel').setAttribute('aria-expanded', String(open));
+  const finish = () => { panel.open = open; if (mobile && !open) aside.classList.remove('is-tag-open'); };
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { finish(); return; }
+  const animation = panel.animate([{height:`${before}px`,opacity:open ? .6 : 1},{height:`${open ? full : collapsed}px`,opacity:open ? 1 : .6}],{duration:220,easing:'cubic-bezier(.22,1,.36,1)'});
+  animation.onfinish = finish;
+}
+document.addEventListener('click', event => {
+  const button = event.target.closest('#open-tag-panel');
+  const summary = event.target.closest('#catalog-tag-panel summary');
+  if (!button && !summary) return;
+  event.preventDefault();
+  const panel = document.getElementById('catalog-tag-panel');
+  const mobile = window.matchMedia('(max-width:640px)').matches;
+  const expanded = button ? button.getAttribute('aria-expanded') === 'true' : (panel.dataset.expanded ? panel.dataset.expanded === 'true' : panel.open);
+  animateTagPanel(!expanded, mobile);
+});
+
+window.addEventListener('popstate', () => {
+  state.selectedTag = '';
+  state.selectedCategory = 'all';
+  state.query = '';
+  state.currentPage = 1;
+  applySearchFromUrl();
+  renderCategories();
+  renderProducts();
+});
 
 document.addEventListener("DOMContentLoaded", async () => {
   const authReady = window.OlafStore?.ready?.catch((error) => {

@@ -2741,17 +2741,17 @@ function catalogDiscoveryModel(products) {
       if (seen.has(key) || catalogDiscoverySkipped.has(key)) return false;
       seen.add(key); return true;
     });
-  const features = pool.slice(0, 68);
+  const features = pool.slice(0, 56);
   const used = new Set(features.map(catalogDiscoveryKey));
   const shelves = [];
   const genres = steamEditorialShuffle(catalogDiscoveryGenres.map(g => ({ ...g, name:g.label })), 'catalog-genres');
   for (const genre of genres) {
     const matches = pool.filter(p => !used.has(catalogDiscoveryKey(p)) && catalogDiscoveryTags(p).some(tag => genre.tags.includes(tag)));
     if (matches.length < 2) continue;
-    const picked = matches.slice(0, shelves.length % 2 === 0 ? 2 : 4);
+    const picked = matches.slice(0, shelves.length % 2 === 0 || matches.length < 4 ? 2 : 4);
     picked.forEach(p => used.add(catalogDiscoveryKey(p)));
     shelves.push({ ...genre, products:picked });
-    if (shelves.length === 4) break;
+    if (shelves.length === 8) break;
   }
   const shelfCount = shelves.reduce((sum,shelf)=>sum+shelf.products.length,0);
   for (const product of pool) {
@@ -2846,15 +2846,19 @@ function steamEditorialFeaturesMarkupLegacy(products) {
 function catalogDiscoveryEntries(products) {
   const { features, shelves } = catalogDiscoveryModel(products);
   const entries = [];
-  const interval = Math.max(1, Math.floor(features.length / (shelves.length + 1)));
-  let nextShelf = 0;
-  features.forEach((product,index)=>{
-    entries.push({product});
-    if ((index+1)%interval===0 && nextShelf<shelves.length) {
-      const shelf=shelves[nextShelf++];
-      shelf.products.forEach(product=>entries.push({product,shelf}));
-    }
+  let featureIndex = 0;
+  // One intact shelf per ten-game batch, with at least two large cards on
+  // each side. This keeps shelves separated and avoids splitting 4 into 1+3.
+  shelves.forEach((shelf,index)=>{
+    const featureCount=Math.min(10-shelf.products.length,features.length-featureIndex);
+    const score=steamEditorialRandomScore({id:shelf.id,name:String(index)},'shelf-position');
+    const before=featureCount>=4 ? 2+score%(featureCount-3) : Math.ceil(featureCount/2);
+    features.slice(featureIndex,featureIndex+before).forEach(product=>entries.push({product}));
+    shelf.products.forEach(product=>entries.push({product,shelf}));
+    features.slice(featureIndex+before,featureIndex+featureCount).forEach(product=>entries.push({product}));
+    featureIndex+=featureCount;
   });
+  features.slice(featureIndex).forEach(product=>entries.push({product}));
   return entries.slice(0,80);
 }
 

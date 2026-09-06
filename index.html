@@ -51,7 +51,8 @@
     <script src="notifications.js?v=20260716-qr-alignment-v111" defer></script>
     <script src="site-navigation.js?v=20260906-avatar-shop-v171" defer></script>
   <script src="extra-products.js?v=20260905-category-layer-depth-v152" defer></script>
-    <script src="app.js?v=20260905-category-layer-depth-v152" defer></script>
+    <script src="app.js?v=20260906-discovery-layout-v175" defer></script>
+  <link rel="stylesheet" href="catalog-discovery.css?v=20260906-discovery-cover-v177" />
   <script src="free-games-data.js?v=20260905-free-games-full-strip-v159" defer></script>
   <script src="free-games.js?v=20260905-mobile-card-fit-v169" defer></script>
 </head>
@@ -302,7 +303,6 @@
       </section>
       <section class="catalog-section" id="catalog">
         <section class="steam-preview-zone" id="steam-preview-zone" hidden></section>
-        <section class="category-layer-showcase" id="category-layer-showcase" hidden aria-label="สินค้าแยกตามหมวดหมู่"></section>
 
         <div class="section-heading">
           <div>
@@ -338,7 +338,7 @@
                   <label class="filter-radio-label">
                     <input type="radio" name="sort" value="default" checked>
                     <span class="radio-custom"></span>
-                    <span>เรียงตามความเกี่ยวข้อง</span>
+                    <span>สุ่มสินค้าเมื่อรีเฟรช</span>
                   </label>
                   <label class="filter-radio-label">
                     <input type="radio" name="sort" value="priceAsc">
@@ -426,6 +426,8 @@
           </section>
         </div>
       </section>
+
+      <section class="olaf-steam-storefront" id="catalog-game-preview" aria-label="เกมแนะนำเพิ่มเติม" hidden></section>
 
       <section class="checkout-band info-band" id="contact">
         <div>

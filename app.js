@@ -134,7 +134,7 @@ const state = {
   priceFilter: "all",
   sortBy: "default",
   currentPage: 1,
-  itemsPerPage: 52,
+  itemsPerPage: 24,
   cart: new Map(),
   favoriteIds: new Set(loadFavoriteIds()),
   detailQuantity: 1,
@@ -414,10 +414,25 @@ function t(key) {
 }
 
 function getCatalogItemsPerPage() {
-  const isIpadViewport =
-    window.matchMedia("(min-width: 768px) and (max-width: 1180px) and (min-height: 700px)").matches ||
-    window.matchMedia("(min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) and (min-height: 700px)").matches;
-  return isIpadViewport ? 51 : state.itemsPerPage;
+  const grid = document.querySelector("#product-grid");
+  const tracks = grid ? window.getComputedStyle(grid).gridTemplateColumns : "";
+  const columns = tracks && tracks !== "none" ? tracks.trim().split(/\s+/).length : 4;
+  return Math.max(1, columns) * 6;
+}
+
+function bindCatalogRowLimit() {
+  const grid = document.querySelector("#product-grid");
+  if (!grid || typeof ResizeObserver === "undefined") return;
+  let pageSize = getCatalogItemsPerPage();
+  const observer = new ResizeObserver(() => {
+    const nextSize = getCatalogItemsPerPage();
+    if (nextSize === pageSize) return;
+    const firstIndex = (state.currentPage - 1) * pageSize;
+    pageSize = nextSize;
+    state.currentPage = Math.floor(firstIndex / nextSize) + 1;
+    renderProducts();
+  });
+  observer.observe(grid);
 }
 
 function applyLanguage() {
@@ -777,7 +792,9 @@ function filteredProducts() {
     return matchesCategory && matchesStock && matchesPrice && matchesQuery;
   });
 
-  const originalPosition = new Map(state.products.map((product, index) => [product.id, index]));
+  // Stable throughout this visit (filters/pagination do not reshuffle); a reload gets a fresh seed.
+  const originalPosition = new Map(steamEditorialShuffle(state.products, "index-catalog")
+    .map((product, index) => [product.id, index]));
   const selectedComparator = (a, b) => {
     if (state.sortBy === "priceAsc") return a.price - b.price;
     if (state.sortBy === "priceDesc") return b.price - a.price;
@@ -2632,20 +2649,81 @@ function steamEditorialImages(product) {
   return productOwnedImages(product, 5);
 }
 
+const catalogDiscoverySkipped = new Set();
+const catalogDiscoveryGenres = [
+  { id: 'racing', label: 'เกมแข่งความเร็ว', tags: ['racing', 'แข่งความเร็ว', 'แข่งรถ'] },
+  { id: 'rpg', label: 'เกมสวมบทบาท', tags: ['rpg', 'role-playing', 'เกมสวมบทบาท', 'สวมบทบาท'] },
+  { id: 'simulation', label: 'เกมจำลองสถานการณ์', tags: ['simulation', 'จำลองสถานการณ์'] },
+  { id: 'strategy', label: 'เกมกลยุทธ์', tags: ['strategy', 'กลยุทธ์', 'วางแผน'] },
+  { id: 'survival', label: 'เกมเอาชีวิตรอด', tags: ['survival', 'เอาชีวิตรอด'] },
+  { id: 'horror', label: 'เกมสยองขวัญ', tags: ['horror', 'สยองขวัญ'] },
+  { id: 'sports', label: 'เกมกีฬา', tags: ['sports', 'กีฬา'] },
+  { id: 'fighting', label: 'เกมต่อสู้', tags: ['fighting', 'ต่อสู้'] },
+  { id: 'adventure', label: 'เกมผจญภัย', tags: ['adventure', 'ผจญภัย'] },
+  { id: 'action', label: 'เกมแอ็กชัน', tags: ['action', 'แอ็คชั่น', 'แอ็คชัน', 'แอ็กชัน', 'แอ็กชั่น'] },
+  { id: 'casual', label: 'เกมเล่นสบาย ๆ', tags: ['casual', 'แคชชวล', 'เล่นสบาย'] }
+];
+
+function catalogDiscoveryKey(product) {
+  return product.steamAppId ? `steam:${product.steamAppId}`
+    : cleanDisplayText(product.name || product.id).trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+function catalogDiscoveryTags(product) {
+  return (Array.isArray(product.tags) ? product.tags : []).map(tag => cleanDisplayText(tag).trim().toLowerCase());
+}
+
+function catalogDiscoveryModel(products) {
+  const seen = new Set();
+  const pool = steamEditorialShuffle(products.filter(p => p.id && Number(p.stock) > 0 && p.isActive !== false
+    && p.is_active !== false && (p.image || p.heroImage || p.gallery?.length)
+    && catalogDiscoveryTags(p).some(tag => catalogDiscoveryGenres.some(genre => genre.tags.includes(tag)))), 'catalog-discovery')
+    .filter(p => {
+      const key = catalogDiscoveryKey(p);
+      if (seen.has(key) || catalogDiscoverySkipped.has(key)) return false;
+      seen.add(key); return true;
+    });
+  const features = pool.slice(0, 20);
+  const used = new Set(features.map(catalogDiscoveryKey));
+  const shelves = [];
+  const genres = steamEditorialShuffle(catalogDiscoveryGenres.map(g => ({ ...g, name:g.label })), 'catalog-genres');
+  for (const genre of genres) {
+    const matches = pool.filter(p => !used.has(catalogDiscoveryKey(p)) && catalogDiscoveryTags(p).some(tag => genre.tags.includes(tag)));
+    if (matches.length < 2) continue;
+    const picked = matches.slice(0, shelves.length % 2 === 0 ? 2 : 4);
+    picked.forEach(p => used.add(catalogDiscoveryKey(p)));
+    shelves.push({ ...genre, products:picked });
+    if (shelves.length === 4) break;
+  }
+  return { features, shelves };
+}
+
+function catalogDiscoveryShelfMarkup(shelf) {
+  return `<section class="catalog-genre-shelf" data-discovery-genre="${escapeHtml(shelf.id)}" aria-label="${escapeHtml(shelf.label)}">
+    <header><h3>${escapeHtml(shelf.label)}</h3><p>สุ่มจากสินค้าในร้านที่มีแท็กแนวเดียวกัน</p></header>
+    <div class="catalog-genre-grid is-${shelf.products.length <= 2 ? 'wide' : 'compact'}">
+      ${shelf.products.map(p => `<a class="catalog-genre-game" href="${productLink(p)}">
+        <img ${fastImg(p.image || p.heroImage || p.gallery[0], cleanDisplayText(p.name), {loading:'lazy',width:640,height:300,sizes:'(max-width: 640px) 85vw, 45vw'})} />
+        <div class="catalog-genre-game-foot"><strong>${escapeHtml(cleanDisplayText(p.name))}</strong>${steamPriceMarkup(p, 'is-compact')}</div>
+      </a>`).join('')}
+    </div></section>`;
+}
+
 function steamEditorialFeatureMarkup(product) {
-  const images = steamEditorialImages(product);
-  const mainImage = images[0] || product.heroImage || product.image || "";
-  const gallery = images.slice(1, 5);
+  const mainImage = product.image || product.heroImage || productOwnedImages(product, 1)[0] || "";
+  const gallery = productOwnedImages(product, 8).filter(image => image !== mainImage).slice(0, 4);
   const stock = getStockState(product.stock);
   return `
-    <article class="olaf-steam-taste-row">
+    <article class="olaf-steam-taste-row" data-discovery-product="${escapeHtml(product.id)}">
       <header class="olaf-steam-taste-head">
         <div>
           <h3>${escapeHtml(cleanDisplayText(product.name))}</h3>
-          <p>แนะนำจากความนิยมในหมวด ${escapeHtml(getCategoryLabel(product.category))}</p>
+          <p>ค้นพบจากสินค้าในร้าน · ${escapeHtml(getCategoryLabel(product.category))}</p>
         </div>
         <div class="olaf-steam-taste-actions">
           <a href="${productLink(product)}">ดูรายละเอียดสินค้า</a>
+          ${favoriteToggleMarkup(product, 'catalog-discovery-favorite')}
+          <button type="button" data-discovery-skip="${escapeHtml(product.id)}">ข้ามเกมนี้</button>
           <button type="button" data-steam-category="${escapeHtml(product.category)}">ค้นหาเกมประเภทนี้</button>
         </div>
       </header>
@@ -2667,6 +2745,7 @@ function steamEditorialFeatureMarkup(product) {
               })} />
             </a>
           `).join("")}
+          ${Array.from({length:4-gallery.length}, () => '<span class="catalog-shot-empty">ยังไม่มีภาพตัวอย่างเพิ่มเติม</span>').join('')}
         </div>
       </div>
       <footer class="olaf-steam-taste-foot">
@@ -2691,27 +2770,26 @@ function steamEditorialFeaturesMarkupLegacy(products) {
 }
 
 function steamEditorialFeaturesMarkup(products) {
-  const featurePool = products
-    .filter((product) => Number(product.stock || 0) > 0)
-    .filter((product) => !/\bhelldivers?\s*2\b/.test(steamEditorialSearchText(product)))
-    .sort((a, b) => Number(b.sold || 0) - Number(a.sold || 0))
-    .slice(0, 30);
-  const randomFeature = steamEditorialShuffle(featurePool, "last-feature")[0];
-  const activity = steamActivityCarouselMarkup(products);
-  if (!activity && !randomFeature) return "";
-  return `
-    <section class="olaf-steam-taste-stack" aria-label="รายการที่คุณอาจสนใจ">
-      ${activity}
-      ${randomFeature ? steamEditorialFeatureMarkup(randomFeature) : ""}
-    </section>
-  `;
+  const { features, shelves } = catalogDiscoveryModel(products);
+  if (!features.length) return '';
+  const interval = Math.max(1, Math.floor(features.length / (shelves.length + 1)));
+  let nextShelf = 0;
+  return `<section class="olaf-steam-taste-stack" aria-label="ค้นพบเกมจากร้าน">
+    ${features.map((product, index) => {
+      let html = steamEditorialFeatureMarkup(product);
+      if ((index + 1) % interval === 0 && nextShelf < shelves.length) html += catalogDiscoveryShelfMarkup(shelves[nextShelf++]);
+      return html;
+    }).join('')}
+  </section>`;
 }
 
 function renderSteamStorefront() {
   const section = document.querySelector("#olaf-steam-storefront");
+  const catalogPreview = document.querySelector("#catalog-game-preview");
   if (!section) return;
   const products = steamStorefrontProducts();
   if (!products.length) {
+    if (catalogPreview) { catalogPreview.hidden = true; catalogPreview.innerHTML = ""; }
     section.innerHTML = `<div class="olaf-steam-store-loading"><span class="olaf-steam-loading-orbit" aria-hidden="true"></span><span>กำลังโหลดสินค้าจากร้าน...</span></div>`;
     return;
   }
@@ -2738,8 +2816,13 @@ function renderSteamStorefront() {
     ` : ""}
 
     ${steamEditorialCollectionsMarkup(products)}
-    ${steamEditorialFeaturesMarkup(products)}
+    <section class="olaf-steam-taste-stack" aria-label="กิจกรรมร้านค้า">${steamActivityCarouselMarkup(products)}</section>
   `;
+
+  if (catalogPreview) {
+    catalogPreview.innerHTML = steamEditorialFeaturesMarkup(products);
+    catalogPreview.hidden = !catalogPreview.innerHTML.trim();
+  }
 
   renderSteamSpotlightStage();
   syncSteamActivityCarousel();
@@ -2923,9 +3006,10 @@ function renderProducts() {
   const featured = [...products]
     .filter((product) => product.stock > 0)
     .sort((a, b) => b.sold - a.sold)
-    .slice(0, 3);
+    .slice(0, 4);
 
   const totalPages = Math.ceil(products.length / itemsPerPage) || 1;
+  state.currentPage = Math.min(Math.max(1, state.currentPage), totalPages);
   const startIndex = (state.currentPage - 1) * itemsPerPage;
   const paginatedProducts = products.slice(startIndex, startIndex + itemsPerPage);
 
@@ -3546,6 +3630,7 @@ function openPaymentResult(order, payment) {
 }
 
 function bindEvents() {
+  bindCatalogRowLimit();
   $(selectors.searchInput).addEventListener("input", (event) => {
     state.query = event.target.value;
     state.currentPage = 1;
@@ -3604,6 +3689,7 @@ function bindEvents() {
     const addButton = event.target.closest("[data-add]");
     const detailAddButton = event.target.closest("[data-detail-add]");
     const favoriteButton = event.target.closest("[data-favorite]");
+    const discoverySkip = event.target.closest("[data-discovery-skip]");
     const quantityButton = event.target.closest("[data-qty]");
     const copyOrder = event.target.closest("[data-copy-order]");
     const authFromReview = event.target.closest("[data-open-auth-from-review]");
@@ -3625,6 +3711,24 @@ function bindEvents() {
       event.preventDefault();
       event.stopPropagation();
       toggleFavorite(favoriteButton.dataset.favorite);
+      return;
+    }
+
+    if (discoverySkip) {
+      const product = productById(discoverySkip.dataset.discoverySkip);
+      const preview = document.querySelector('#catalog-game-preview');
+      if (product && preview) {
+        const oldTop = discoverySkip.closest('[data-discovery-product]')?.getBoundingClientRect().top || 0;
+        const oldIndex = [...preview.querySelectorAll('[data-discovery-product]')].indexOf(discoverySkip.closest('[data-discovery-product]'));
+        catalogDiscoverySkipped.add(catalogDiscoveryKey(product));
+        preview.innerHTML = steamEditorialFeaturesMarkup(steamStorefrontProducts());
+        createIconSet(); hydrateImages();
+        const replacement = preview.querySelectorAll('[data-discovery-product]')[Math.max(0, oldIndex)];
+        if (replacement) {
+          window.scrollBy({top:replacement.getBoundingClientRect().top-oldTop,behavior:'instant'});
+          replacement.querySelector('a')?.focus({preventScroll:true});
+        }
+      }
       return;
     }
 

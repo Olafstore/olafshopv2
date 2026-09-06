@@ -24,6 +24,7 @@ export default async function handler(req, res) {
     res.setHeader('Allow', 'GET, POST');
     return reply(res, 405, { error: 'METHOD_NOT_ALLOWED' });
   }
+  let stage = 'catalog';
   try {
     const catalog = await scanAvatarCatalog();
     if (req.method === 'GET') return reply(res, 200, { catalog });
@@ -33,6 +34,7 @@ export default async function handler(req, res) {
     if (!url || !key || !service) return reply(res, 503, { error: 'SHOP_CONFIG_REQUIRED' });
     const token = /^Bearer (.+)$/i.exec(req.headers.authorization || '')?.[1];
     if (!token) return reply(res, 401, { error: 'AUTH_REQUIRED' });
+    stage = 'authentication';
     const auth = await fetch(`${url}/auth/v1/user`, {
       headers: { apikey: key, Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(10000)
     });
@@ -45,21 +47,38 @@ export default async function handler(req, res) {
     const avatar = catalog.find(item => item.id === body.avatarId);
     if (!avatar) return reply(res, 404, { error: 'AVATAR_NOT_FOUND' });
     const rpc = async (name, params, admin = false) => {
+      stage = name;
       const response = await fetch(`${url}/rest/v1/rpc/${name}`, {
         method: 'POST', headers: { apikey: admin ? service : key,
           Authorization: `Bearer ${admin ? service : token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(params), signal: AbortSignal.timeout(15000)
       });
-      const result = await response.json();
-      if (!response.ok) throw Object.assign(new Error(result.message || 'SHOP_UNAVAILABLE'), { status: response.status });
+      // shop_register_avatar RETURNS void: PostgREST correctly sends 204 with no JSON body.
+      // Only registration may omit a result; purchase/equip must return the wallet state.
+      if (response.status === 204 && response.ok && name === 'shop_register_avatar') return null;
+      let result;
+      try { result = await response.json(); }
+      catch { throw new Error('SHOP_DATABASE_RESPONSE_INVALID'); }
+      if (!response.ok) throw Object.assign(new Error(result.message || 'SHOP_UNAVAILABLE'), {
+        status: response.status, databaseCode: result.code
+      });
       return result;
     };
     await rpc('shop_register_avatar', { p_id: avatar.id, p_path: avatar.id }, true);
     const state = await rpc(body.action === 'purchase' ? 'shop_purchase_avatar' : 'shop_equip_avatar', { p_avatar: avatar.id });
     return reply(res, 200, { state });
   } catch (error) {
+    const databaseCode = /^[A-Z0-9]{5,12}$/.test(error.databaseCode || '') ? error.databaseCode : undefined;
     const code = ['SHOP_POINTS_INSUFFICIENT','AVATAR_NOT_OWNED','AVATAR_NOT_FOUND','AUTH_REQUIRED','ACCESS_DENIED']
-      .find(value => String(error.message).includes(value)) || 'SHOP_UNAVAILABLE';
-    return reply(res, code === 'SHOP_UNAVAILABLE' ? 503 : 400, { error: code });
+      .find(value => String(error.message).includes(value))
+      || (['PGRST202','PGRST205','42883','42P01'].includes(databaseCode) ? 'SHOP_SCHEMA_NOT_READY'
+        : databaseCode === '42501' ? 'SHOP_DATABASE_PERMISSION'
+        : ['TimeoutError','AbortError'].includes(error.name) ? 'SHOP_TIMEOUT'
+        : stage === 'catalog' ? 'SHOP_ASSETS_MISSING'
+        : databaseCode ? 'SHOP_DATABASE_ERROR' : 'SHOP_UNAVAILABLE');
+    // Log only diagnostic labels, never tokens, customer data or provider payloads.
+    console.error('Profile shop request failed', { code, stage, databaseCode });
+    return reply(res, code.startsWith('SHOP_') && code !== 'SHOP_POINTS_INSUFFICIENT' ? 503 : 400,
+      { error: code, diagnostic: { stage, databaseCode } });
   }
 }

@@ -755,8 +755,7 @@ export default async function handler(request, response) {
 
     order = await fetchOrder(orderId, user.id, config);
     if (order.payment_status === "verified") {
-      const shopPointsEarned = isPointTopupOrder(order)
-        ? await callRpc("shop_reward_verified_topup", { p_order_id: order.id }, config) : 0;
+      const shopPointsEarned = await callRpc("shop_reward_verified_topup", { p_order_id: order.id }, config);
       return responseJson(response, 200, {
         success: true,
         alreadyVerified: true,
@@ -810,8 +809,7 @@ export default async function handler(request, response) {
       p_payload_type: payloadInfo.type
     }, config);
     if (begin?.alreadyVerified) {
-      const shopPointsEarned = isPointTopupOrder(order)
-        ? await callRpc("shop_reward_verified_topup", { p_order_id: order.id }, config) : 0;
+      const shopPointsEarned = await callRpc("shop_reward_verified_topup", { p_order_id: order.id }, config);
       return responseJson(response, 200, {
         success: true,
         alreadyVerified: true,
@@ -889,7 +887,7 @@ export default async function handler(request, response) {
 
     const fulfilled = await callRpc(isPointTopupOrder(order)
       ? "server_verify_point_topup_with_rewards"
-      : "server_verify_payment_and_fulfill_order", {
+      : "server_verify_order_with_rewards", {
       p_attempt_id: attemptId,
       p_provider_transaction_id: normalized.transactionId,
       p_verified_amount: normalized.amount,

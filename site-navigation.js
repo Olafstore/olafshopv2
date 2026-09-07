@@ -1,4 +1,43 @@
 (function () {
+  // Rank adornments are opt-in and derived from the signed-in account only.
+  const rankBadgeNames = ['brone','gold','platinum','diamonds','super','supreme'];
+  let rankBadgeState=null, rankBadgeOwner=null, rankBadgePending=false;
+  function paintRankBadge() {
+    const user=window.OlafStore?.currentUser?.();
+    const rank=user?.id===rankBadgeOwner && rankBadgeState?.show ? rankBadgeNames[rankBadgeState.rank-1] : null;
+    document.querySelectorAll('.user-popover-info > strong, .member-identity h2').forEach(node=>{
+      const previous=node.querySelector('[data-member-rank]');
+      if(!rank) { previous?.remove(); return; }
+      if(previous?.dataset.memberRank===rank) return;
+      previous?.remove();
+      const badge=document.createElement('img');
+      badge.dataset.memberRank=rank; badge.src=`api/rank-image?rank=${rank}`;
+      badge.alt=`แรงค์ ${rank}`; badge.title=`แรงค์ ${rank}`; badge.width=32; badge.height=32;
+      badge.style.cssText='display:inline-block;width:1.35em;height:1.35em;min-width:24px;min-height:24px;max-width:44px;max-height:44px;object-fit:contain;vertical-align:middle;margin-left:8px;filter:drop-shadow(0 2px 5px #8bbaff55)';
+      node.append(badge);
+    });
+  }
+  window.OlafRankBadge = {update(state) {rankBadgeOwner=window.OlafStore?.currentUser?.()?.id;rankBadgeState=state;paintRankBadge();}};
+  async function refreshRankBadge() {
+    if(rankBadgePending || document.hidden) return;
+    const user=window.OlafStore?.currentUser?.();
+    if(!user) {rankBadgeState=null;rankBadgeOwner=null;paintRankBadge();return;}
+    rankBadgePending=true;
+    try {
+      const result=await window.olafSupabase.rpc('shop_rank_badge_state');
+      if(!result.error && window.OlafStore?.currentUser?.()?.id===user.id) window.OlafRankBadge.update(result.data);
+    } catch { /* Optional decoration must not prevent navigation. */ }
+    finally {rankBadgePending=false;}
+  }
+  document.addEventListener('DOMContentLoaded',async()=>{
+    await window.OlafStore?.ready;
+    new MutationObserver(paintRankBadge).observe(document.body,{childList:true,subtree:true});
+    refreshRankBadge();
+    document.addEventListener('visibilitychange',refreshRankBadge);
+    window.addEventListener('focus',refreshRankBadge);
+    window.addEventListener('olaf-profile-ready',paintRankBadge);
+    window.setInterval(refreshRankBadge,60000);
+  });
   const ORDER_DESTINATION = "profile.html#inventory";
   const MOBILE_DRAWER_VERSION = "drawer-v68";
   const MOBILE_DRAWER_ID = "olaf-mobile-drawer";

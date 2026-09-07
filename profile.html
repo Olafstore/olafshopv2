@@ -21,13 +21,13 @@
   <script src="platform-store.js?v=20260619-profile-update-fix" defer></script>
   <script src="image-performance.js?v=20260907-store-updates-v199" defer></script>
 <script src="delivery-payload.js?v=20260716-qr-alignment-v111" defer></script>
-    <script src="site-navigation.js?v=20260907-profile-store-v203" defer></script>
+    <script src="site-navigation.js?v=20260907-rank-display-v205" defer></script>
   <script src="notifications.js?v=20260907-notification-media-v200" defer></script>
   <link rel="stylesheet" href="profile-shop.css?v=20260907-backgrounds-v203" />
   <link rel="stylesheet" href="profile-overview.css?v=20260907-profile-v203" />
-  <script src="profile-overview.js?v=20260907-profile-v203" defer></script>
-  <link rel="stylesheet" href="profile-rank.css?v=20260907-rank-v204" />
-  <script src="profile-rank.js?v=20260907-rank-v204" defer></script>
+  <script src="profile-overview.js?v=20260907-rank-display-v205" defer></script>
+  <link rel="stylesheet" href="profile-rank.css?v=20260907-rank-display-v205" />
+  <script src="profile-rank.js?v=20260907-rank-display-v205" defer></script>
       <link rel="stylesheet" href="styles.css?v=20260905-search-discovery-v170" />
   <style>
     body {
@@ -3029,7 +3029,7 @@
       <!-- Panels -->
       <div class="profile-panels">
         <!-- Info Panel -->
-        <section class="profile-panel" id="panel-overview" aria-label="โปรไฟล์ของฉัน"><div id="profile-rank-root">กำลังโหลดแรงค์…</div><div id="profile-overview-root" aria-live="polite">กำลังโหลดโปรไฟล์…</div></section>
+        <section class="profile-panel" id="panel-overview" aria-label="โปรไฟล์ของฉัน"><div id="profile-rank-root" hidden>กำลังโหลดแรงค์…</div><div id="profile-overview-root" aria-live="polite">กำลังโหลดโปรไฟล์…</div></section>
         <div class="profile-panel is-active" id="panel-info">
           <div class="panel-card">
             <div class="panel-card-header">

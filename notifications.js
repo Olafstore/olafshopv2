@@ -1,6 +1,7 @@
 (function () {
   const emptyIcon = "bell";
   const readStoragePrefix = "olafshop_read_delivery_notifications";
+  let newProducts = [];
 
   function escapeHtml(value = "") {
     return String(value).replace(/[&<>"']/g, (char) => {
@@ -111,7 +112,7 @@
     const item = [...document.querySelectorAll("[data-delivery-notification]")]
       .find((node) => node.dataset.deliveryNotification === String(orderId));
     if (item) item.classList.remove("unread");
-    setBadge(document.querySelectorAll("[data-delivery-notification].unread, [data-coupon-notification].unread").length);
+    setBadge(document.querySelectorAll("[data-delivery-notification].unread, [data-coupon-notification].unread, [data-product-notification].unread").length);
   }
 
   function renderEmpty(message) {
@@ -125,6 +126,19 @@
     createIconSet();
   }
 
+  function isVisibleCouponCampaign(coupon, now = Date.now()) {
+    if (!coupon || coupon.expired === true) return false;
+    if ([coupon.isActive, coupon.is_active, coupon.active, coupon.enabled].some(value => value === false || value === 'false' || value === 0)) return false;
+    if (['expired','inactive','disabled','cancelled','canceled','revoked','closed'].includes(String(coupon.status || '').toLowerCase())) return false;
+    const expiration = coupon.expiresAt || coupon.expires_at;
+    if (expiration) {
+      const expires = new Date(expiration).getTime();
+      if (!Number.isFinite(expires) || expires <= now) return false;
+    }
+    return true;
+  }
+
+  let campaignExpiryTimer = null;
   function renderNotifications(orders, campaigns, user) {
     const list = document.querySelector("#notification-list");
     if (!list) return;
@@ -133,13 +147,24 @@
       .filter((order) => order?.status === "delivered")
       .sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
     const couponCampaigns = (campaigns || [])
+      .filter(coupon => isVisibleCouponCampaign(coupon))
       .sort((a, b) => new Date(a.expiresAt || 8640000000000000) - new Date(b.expiresAt || 8640000000000000));
-    const readIds = user ? readDeliveryNotificationIds(user) : new Set();
+    clearTimeout(campaignExpiryTimer);
+    const expiryTimes = couponCampaigns.map(coupon => new Date(coupon.expiresAt || coupon.expires_at || '').getTime()).filter(Number.isFinite);
+    if (expiryTimes.length) {
+      const delay = Math.min(2147483647, Math.max(1, Math.min(...expiryTimes) - Date.now() + 20));
+      campaignExpiryTimer = setTimeout(() => renderNotifications(orders, campaigns, user), delay);
+    }
+    const readIds = readDeliveryNotificationIds(user);
+    const recentProducts = newProducts.filter(product => {
+      const age = Date.now() - new Date(product.createdAt).getTime();
+      return age >= 0 && age < 7 * 86400000;
+    });
     const unreadCoupons = couponCampaigns.filter((coupon) => !coupon.expired && !coupon.claimed).length;
     const unreadCount = deliveredOrders.filter((order) => !readIds.has(String(order.id))).length + unreadCoupons;
-    setBadge(unreadCount);
+    setBadge(unreadCount + recentProducts.filter(product => !readIds.has(`product:${product.id}`)).length);
 
-    if (!deliveredOrders.length && !couponCampaigns.length) {
+    if (!deliveredOrders.length && !couponCampaigns.length && !recentProducts.length) {
       renderEmpty(user ? "ยังไม่มีแจ้งเตือนใหม่" : "ยังไม่มีกิจกรรมในขณะนี้");
       return;
     }
@@ -182,21 +207,37 @@
         </a>`;
     }).join("");
 
-    list.innerHTML = couponHtml + deliveredHtml;
+    const productHtml = recentProducts.map(product => {
+      const imageUrl = product.image || product.heroImage || '';
+      const media = imageUrl
+        ? `<span class="notification-thumb"><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(product.name)}" loading="lazy" decoding="async" width="46" height="46" /></span>`
+        : '<span class="notification-icon"><i data-lucide="package-plus"></i></span>';
+      const price = Number(product.price);
+      const priceHtml = product.price != null && product.price !== '' && Number.isFinite(price) && price >= 0
+        ? `<strong class="notification-product-price">฿${price.toLocaleString('th-TH', { maximumFractionDigits: 2 })}</strong>` : '';
+      return `<a class="notification-item ${readIds.has(`product:${product.id}`) ? '' : 'unread'}" href="product.html?id=${encodeURIComponent(product.id)}" data-product-notification="${escapeHtml(product.id)}">${media}<span class="notification-content"><strong>สินค้าใหม่เข้าร้าน</strong><p>${escapeHtml(product.name)}</p>${priceHtml}<span>${escapeHtml(formatDate(product.createdAt))}</span></span></a>`;
+    }).join('');
+    list.innerHTML = productHtml + couponHtml + deliveredHtml;
     createIconSet();
   }
 
+  let notificationRequest = 0;
   async function refreshDeliveryNotifications() {
+    const request = ++notificationRequest;
     if (!document.querySelector("#notification-list")) return;
     await window.OlafStore?.ready;
     const user = currentUser();
     try {
-      const [orders, campaigns] = await Promise.all([
+      const [orders, campaigns, products] = await Promise.all([
         user && window.OlafOrders?.fetchMyOrders ? window.OlafOrders.fetchMyOrders({ summary: true }).catch(() => []) : Promise.resolve([]),
-        window.OlafCoupons?.fetchCampaigns ? window.OlafCoupons.fetchCampaigns().catch(() => []) : Promise.resolve([])
+        window.OlafCoupons?.fetchCampaigns ? window.OlafCoupons.fetchCampaigns().catch(() => []) : Promise.resolve([]),
+        window.OlafProducts?.fetchNewProducts ? window.OlafProducts.fetchNewProducts().catch(() => newProducts) : Promise.resolve([])
       ]);
+      if (request !== notificationRequest) return;
+      newProducts = Array.isArray(products) ? products : [];
       renderNotifications(Array.isArray(orders) ? orders : [], Array.isArray(campaigns) ? campaigns : [], user);
     } catch (error) {
+      if (request !== notificationRequest) return;
       console.warn("Delivery notifications unavailable", error);
       setBadge(0);
       renderEmpty("โหลดแจ้งเตือนไม่สำเร็จ");
@@ -212,6 +253,16 @@
     }
 
     document.addEventListener("click", async (event) => {
+      const productLink = event.target.closest('[data-product-notification]');
+      if (productLink) {
+        const user = currentUser();
+        const ids = readDeliveryNotificationIds(user);
+        ids.add(`product:${productLink.dataset.productNotification}`);
+        writeDeliveryNotificationIds(user, ids);
+        productLink.classList.remove('unread');
+        setBadge(document.querySelectorAll('[data-delivery-notification].unread, [data-coupon-notification].unread, [data-product-notification].unread').length);
+      }
+      if (event.target.closest('.notification-button')) refreshDeliveryNotifications();
       const notificationLink = event.target.closest("[data-delivery-notification]");
       if (notificationLink) markDeliveryNotificationRead(notificationLink.dataset.deliveryNotification);
 
@@ -235,8 +286,15 @@
           "error"
         );
         claimButton.disabled = false;
+        await refreshDeliveryNotifications();
       }
     });
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) refreshDeliveryNotifications();
+    });
+    window.setInterval(() => {
+      if (!document.hidden) refreshDeliveryNotifications();
+    }, 60000);
   });
 
   window.OlafNotifications = { refreshDeliveryNotifications };

@@ -142,6 +142,8 @@
     }
     if (img.complete && img.naturalWidth > 0) {
       img.classList.add("is-loaded");
+    } else if (img.complete && img.getAttribute('src')) {
+      recoverImage(img);
     }
   }
 
@@ -160,6 +162,7 @@
 
   function hydrate(root = document) {
     const scope = root?.querySelectorAll ? root : document;
+    if (scope.tagName === 'IMG') hydrateImage(scope);
     scope.querySelectorAll("img").forEach(hydrateImage);
     hydrateBackgrounds(scope);
   }
@@ -169,7 +172,7 @@
     hydrateQueued = true;
     idle(() => {
       hydrateQueued = false;
-      hydrate(root);
+      hydrate(document);
     });
   }
 
@@ -231,11 +234,24 @@
     true
   );
 
-  document.addEventListener(
-    "error",
-    (event) => {
-      const target = event.target;
+  function recoverImage(target) {
       if (target?.tagName !== "IMG" || target.dataset.fallbackApplied === "true") return;
+      if (target.dataset.retryPending === 'true') return;
+      // Retry the original src once before giving up on a transient mobile error.
+      if (!target.dataset.imageFallbacks && target.dataset.imageRetried !== 'true' && target.getAttribute('src') && !target.src.startsWith('data:')) {
+        target.dataset.imageRetried = 'true';
+        target.dataset.retryPending = 'true';
+        const source = target.getAttribute('src');
+        target.removeAttribute('srcset');
+        target.removeAttribute('sizes');
+        window.setTimeout(() => {
+          delete target.dataset.retryPending;
+          if (target.isConnected && target.getAttribute('src') === source && !target.naturalWidth) {
+            target.src = source;
+          }
+        }, 800);
+        return;
+      }
       // Otherwise the browser keeps selecting a failed srcset candidate.
       target.removeAttribute("srcset");
       target.removeAttribute("sizes");
@@ -258,9 +274,8 @@
       target.dataset.fallbackApplied = "true";
       target.src = FALLBACK_IMAGE;
       target.classList.add("is-loaded");
-    },
-    true
-  );
+  }
+  document.addEventListener('error', event => recoverImage(event.target), true);
 
   if ("MutationObserver" in window) {
     const observer = new MutationObserver((records) => {

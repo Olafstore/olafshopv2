@@ -27,10 +27,13 @@ function showProductTagResults(tag) {
       const price = Math.max(0, Number(product.price) || 0);
       const original = Math.max(0, Number(product.compareAt) || 0);
       const discount = original > price ? Math.round((original-price)/original*100) : 0;
-      return `<a class="tag-results-game" href="product.html?id=${encodeURIComponent(product.id)}"><img src="${escapeHtml(product.image || product.heroImage || '')}" alt="${escapeHtml(product.name)}" loading="lazy"><strong>${escapeHtml(product.name)}</strong><div class="tag-result-footer"><small>${Number(product.stock || 0) > 0 ? `พร้อมส่ง ${Number(product.stock).toLocaleString('th-TH')} ชิ้น` : 'สินค้าหมด'}</small><div class="tag-result-price">${discount > 0 ? `<b>-${discount}%</b>` : ''}<div>${original > price ? `<del>฿${original.toLocaleString('th-TH')}</del>` : ''}<em>฿${price.toLocaleString('th-TH')}</em></div></div></div></a>`;
+      const href = `product.html?id=${encodeURIComponent(product.id)}`;
+      const tags = getDisplayTags(product, 4).slice(0, 4).map(value => `<a class="pd-genre-tag" href="index.html?tag=${encodeURIComponent(value)}#catalog">${escapeHtml(value)}</a>`).join('');
+      return `<article class="tag-results-game"><a class="tag-result-image" href="${href}"><img src="${escapeHtml(product.image || product.heroImage || '')}" alt="${escapeHtml(product.name)}" loading="lazy"></a><strong><a href="${href}">${escapeHtml(product.name)}</a></strong><div class="pd-genre-tags tag-result-tags">${tags}</div><div class="tag-result-footer"><small>${Number(product.stock || 0) > 0 ? `พร้อมส่ง ${Number(product.stock).toLocaleString('th-TH')} ชิ้น` : 'สินค้าหมด'}</small><div class="tag-result-price">${discount > 0 ? `<b>-${discount}%</b>` : ''}<div>${original > price ? `<del>฿${original.toLocaleString('th-TH')}</del>` : ''}<em>฿${price.toLocaleString('th-TH')}</em></div></div></div></article>`;
     }).join('')}</div>
     ${matches.length ? '' : '<p>ไม่พบเกมในแท็กนี้</p>'}`;
   if (!dialog.open) dialog.showModal();
+  dialog.scrollTop = 0;
 }
 
 document.addEventListener('click', event => {

@@ -9331,7 +9331,21 @@ body.product-detail-page .pd-genre-tags .pd-genre-tag {
 .tag-result-price del { color:#8c9aaa; font-size:10px; }
 .tag-result-price em { color:#e0eaf3; font-size:14px; font-weight:700; font-style:normal; }
 @media(max-width:640px) { .tag-results-game > strong { font-size:13px; } .tag-result-footer { gap:5px; } .tag-result-price > b { padding:5px 7px; font-size:12px; } }
-body.product-detail-page .pd-badges > .pd-badge:nth-child(n+2) { border:1px solid currentColor; }
+body.product-detail-page .pd-badges > .pd-badge:nth-child(n+2) { border:1px solid color-mix(in srgb, currentColor 24%, transparent); border-radius:8px; box-shadow:none; }
+.tag-results-dialog .tag-results-game { grid-template-rows:auto auto 1fr; align-items:start; gap:8px 12px; }
+.tag-results-game .tag-result-image { grid-column:1; grid-row:1 / 4; display:block; min-width:0; align-self:start; }
+.tag-results-game .tag-result-image img { display:block; }
+.tag-results-game > strong { min-width:0; }
+.tag-results-game > strong > a { color:inherit; text-decoration:none; }
+.tag-results-game .tag-result-tags { grid-column:2; grid-row:2; display:flex; flex-wrap:wrap; gap:5px; min-width:0; margin:0; }
+.tag-results-game .tag-result-footer { grid-row:3; }
+.tag-results-game a:focus-visible { outline:2px solid #80baff; outline-offset:3px; border-radius:7px; }
+@media(max-width:640px) {
+  .tag-results-dialog .tag-results-game { grid-template-columns:minmax(80px,30%) minmax(0,1fr); }
+  .tag-results-game .tag-result-image { grid-row:1; }
+  .tag-results-game .tag-result-tags { grid-column:1 / -1; }
+  .tag-results-game .tag-result-footer { grid-column:1 / -1; }
+}
 
 /* Price section */
 .pd-price-label {
@@ -10462,6 +10476,18 @@ dialog[open].is-closing {
   height: 1.2rem;
   margin-bottom: 0.5rem;
   border-radius: 4px;
+}
+
+.hero-game-skeleton { pointer-events:none; }
+.home-loading-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:16px; }
+.home-loading-card { min-width:0; padding:12px; border:1px solid var(--border); border-radius:12px; background:var(--bg-card); }
+.home-loading-art { aspect-ratio:16/10; margin-bottom:16px; }
+.home-loading-card .skeleton-text { height:14px; margin-top:10px; }
+@media(max-width:640px) { .home-loading-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; } .home-loading-card { padding:9px; } }
+@media(prefers-reduced-motion:reduce) { [data-home-loading] .skeleton-box { animation:none; } }
+.hero-game-skeleton .skeleton-text { height:10px; margin-bottom:7px; }
+@media(prefers-reduced-motion:reduce) {
+  .hero-game-carousel .skeleton-box { animation:none; }
 }
 
 .skeleton-img {
@@ -37207,9 +37233,12 @@ body.product-detail-page .pd-brand-hero > * {
   z-index: 2;
 }
 
-body.product-detail-page .pd-feature-item[class*="pd-feature-"] {
-  border-color: color-mix(in srgb, currentColor 24%, var(--border));
-  background: linear-gradient(145deg, color-mix(in srgb, currentColor 9%, transparent), rgba(255, 255, 255, 0.018));
+body.product-detail-page .pd-feature-item {
+  min-width: 0;
+  border-color: rgba(148, 163, 184, 0.12);
+  border-radius: 13px;
+  background: linear-gradient(145deg, rgba(148, 163, 184, 0.045), rgba(255, 255, 255, 0.015));
+  box-shadow: none;
 }
 
 body.product-detail-page .pd-feature-windows,

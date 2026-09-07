@@ -814,6 +814,15 @@
     }
   }
 
+  async function fetchNewProducts() {
+    const { data, error } = await requireClient().from('products')
+      .select('id,name,price,image_url,hero_image_url,created_at').eq('is_active', true)
+      .gte('created_at', new Date(Date.now() - 7 * 86400000).toISOString())
+      .order('created_at', { ascending: false }).limit(20);
+    if (error) throw error;
+    return normalizeArray(data).map(row => ({ id: row.id, name: row.name, price: row.price, image: row.image_url || row.hero_image_url || '', createdAt: row.created_at }));
+  }
+
   async function fetchProductById(productId) {
     const { data, error } = await requireClient()
       .from("products")
@@ -2333,6 +2342,7 @@
     mapOfflineStockItemRow,
     mapInventorySummaryRow,
     fetchActiveProducts,
+    fetchNewProducts,
     fetchProductById,
     fetchRelatedProducts,
     fetchAdminProducts,

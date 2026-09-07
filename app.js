@@ -2159,7 +2159,9 @@ function steamDealsProducts() {
     .filter((product) => product.stock > 0 && getDiscount(product) > 0)
     .sort((a, b) => getDiscount(b) - getDiscount(a) || Number(b.sold || 0) - Number(a.sold || 0));
   const fallback = products.filter((product) => product.stock > 0 && !discounted.includes(product));
-  return [...discounted, ...fallback].slice(0, 12);
+  const seen = new Set();
+  return [...steamEditorialShuffle(discounted, 'special-offers'), ...steamEditorialShuffle(fallback, 'special-offers-fallback')]
+    .filter(product => { const key = catalogDiscoveryKey(product); if (seen.has(key)) return false; seen.add(key); return true; }).slice(0, 12);
 }
 
 function steamDiscoveryProducts(mode = steamDiscoveryMode) {
@@ -3147,14 +3149,22 @@ function selectCatalogCategory(categoryId, options = {}) {
   }
 }
 
+function featuredRandomProducts(products) {
+  const seen = new Set();
+  return steamEditorialShuffle(products.filter(product => Number(product.stock) > 0), 'catalog-featured')
+    .filter(product => {
+      const key = catalogDiscoveryKey(product);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    }).slice(0, 4);
+}
+
 function renderProducts() {
   if (state.heroCatalogLoading) { renderHomeLoading(); return; }
   const products = filteredProducts();
   const itemsPerPage = getCatalogItemsPerPage();
-  const featured = [...products]
-    .filter((product) => product.stock > 0)
-    .sort((a, b) => b.sold - a.sold)
-    .slice(0, 4);
+  const featured = featuredRandomProducts(products);
 
   const totalPages = Math.ceil(products.length / itemsPerPage) || 1;
   state.currentPage = Math.min(Math.max(1, state.currentPage), totalPages);
@@ -3349,13 +3359,13 @@ function renderUserPopover() {
 
   popover.innerHTML = `
     <div class="user-profile-card">
-      <div class="user-popover-header">
+      <a class="user-popover-header user-popover-header-link" href="profile.html#overview">
         <div class="user-popover-avatar">${escapeHtml((user.displayName || user.username || "U").slice(0, 1).toUpperCase())}</div>
         <div class="user-popover-info">
           <strong>${escapeHtml(user.displayName || user.username)}</strong>
           <span>${escapeHtml(user.email)}</span>
         </div>
-      </div>
+      </a>
       <div class="user-popover-badge-row">
         <span class="user-badge-role">${escapeHtml(user.role || 'Member')}</span>
         <a class="user-badge-points" href="profile.html#info" data-topbar-point-balance>${formatPointAmount(0)} Points</a>
@@ -3364,6 +3374,8 @@ function renderUserPopover() {
     <div class="user-popover-menu">
       <div class="user-popover-menu-title">หน้าหลัก</div>
       <a href="profile.html"><i data-lucide="user"></i>ข้อมูลส่วนตัว</a>
+      <a href="profile.html#overview"><i data-lucide="contact-round"></i>โปรไฟล์ของฉัน</a>
+      <a href="profile-store.html"><i data-lucide="shopping-cart"></i>ร้านค้าและคลังโปรไฟล์</a>
       <a href="point-topup.html"><i data-lucide="coins"></i>เติม Point</a>
       <a href="profile.html#inventory"><i data-lucide="package"></i>คลังสินค้า (ID/Pass)</a>
       <a href="profile.html#orders"><i data-lucide="list"></i>ประวัติคำสั่งซื้อ</a>

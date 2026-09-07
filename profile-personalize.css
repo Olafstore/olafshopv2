@@ -6,7 +6,9 @@
 .member-theme-control select,.member-select-games { font:inherit; color:#d7e1f6; background:#16243b; border:1px solid #adc4ec30; border-radius:9px; padding:9px 12px; }
 .member-select-games { margin-bottom:12px; cursor:pointer; font-size:12px; }
 .member-showcase .member-ranks { border:0; background:transparent; box-shadow:none; }
-.rank-display-toggle { width:fit-content; padding:9px 14px; border:1px solid #b1c3eb22; border-radius:12px; background:#b1c3eb09; }
+#profile-rank-root .rank-display-toggle { display:flex; flex-direction:row; align-items:center; justify-content:flex-start; width:100%; box-sizing:border-box; gap:12px; padding:9px 14px; border:1px solid #b1c3eb22; border-radius:12px; background:#b1c3eb09; }
+#profile-rank-root .rank-display-toggle > input { flex:0 0 34px; width:34px; min-width:34px; height:20px; min-height:20px; margin:0; padding:0; }
+#profile-rank-root .rank-display-toggle > span { flex:1; min-width:0; text-align:left; line-height:1.6; white-space:normal; word-break:normal; writing-mode:horizontal-tb; }
 .rank-display-toggle input { appearance:none; position:relative; width:34px; height:20px; border-radius:20px; background:#48546a; flex-shrink:0; transition:background .2s; cursor:pointer; }
 .rank-display-toggle input::after { content:''; position:absolute; top:3px; left:3px; width:14px; height:14px; border-radius:50%; background:white; transition:transform .2s; }
 .rank-display-toggle input:checked { background:#8678df; }

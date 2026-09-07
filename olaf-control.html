@@ -659,6 +659,15 @@
                 </button>
               </div>
               <form class="admin-form" id="user-form">
+                <div class="admin-point-editor" id="admin-shop-point-editor">
+                  <div class="point-editor-balance"><span>แต้มร้านค้า (สำหรับแลกโปรไฟล์)</span><strong id="user-shop-balance">—</strong></div>
+                  <p>เพิ่ม Point 1 บาท ได้แต้มร้านค้า 10 แต้มอัตโนมัติ หรือเพิ่มเฉพาะแต้มด้านล่างได้ โดยไม่เปลี่ยนยอดเงิน Point</p>
+                  <div class="form-row">
+                    <label>จำนวนแต้มร้านค้า<input name="shopPointAmount" type="number" min="1" max="10000000" step="1" inputmode="numeric" placeholder="1,000" /></label>
+                    <label>หมายเหตุ<input name="shopPointNote" type="text" maxlength="300" placeholder="เหตุผลที่เพิ่มแต้ม" /></label>
+                  </div>
+                  <button class="primary-button" id="grant-user-shop-points" type="button"><i data-lucide="sparkles"></i>เพิ่มแต้มร้านค้า</button>
+                </div>
                 <label>
                   อีเมล Google
                   <input name="email" type="email" placeholder="name@gmail.com" required />
@@ -783,15 +792,6 @@
                 <div>
                   <h2 id="order-form-title">จัดการออเดอร์</h2>
                   <span id="editing-order-id">ยังไม่ได้เลือก</span>
-                </div>
-                <div class="admin-point-editor" id="admin-shop-point-editor">
-                  <div class="point-editor-balance"><span>แต้มร้านค้า (สำหรับแลกโปรไฟล์)</span><strong id="user-shop-balance">—</strong></div>
-                  <p>เพิ่ม Point 1 บาท ได้แต้มร้านค้า 10 แต้มอัตโนมัติ หรือเพิ่มเฉพาะแต้มด้านล่างได้ โดยไม่เปลี่ยนยอดเงิน Point</p>
-                  <div class="form-row">
-                    <label>จำนวนแต้มร้านค้า<input name="shopPointAmount" type="number" min="1" max="10000000" step="1" inputmode="numeric" placeholder="1,000" /></label>
-                    <label>หมายเหตุ<input name="shopPointNote" type="text" maxlength="300" placeholder="เหตุผลที่เพิ่มแต้ม" /></label>
-                  </div>
-                  <button class="primary-button" id="grant-user-shop-points" type="button"><i data-lucide="sparkles"></i>เพิ่มแต้มร้านค้า</button>
                 </div>
                 <button class="admin-editor-close" type="button" data-close-admin-editor="order" aria-label="ปิดหน้าต่างจัดการออเดอร์">
                   <i data-lucide="x"></i>

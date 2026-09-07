@@ -14,6 +14,30 @@ export async function scanAvatarCatalog(root = process.cwd()) {
   return [...free, ...paid];
 }
 
+export function backgroundFolderPrice(name) {
+  if (!/^\d+(?:\.\d+)?k?$/i.test(name)) return null;
+  const value = Number(name.replace(/k$/i, '')) * (/k$/i.test(name) ? 1000 : 1);
+  return Number.isSafeInteger(value) && value > 0 && value <= 10000000 ? value : null;
+}
+
+export async function scanBackgroundCatalog(root = process.cwd()) {
+  const base = 'iconprofile/BGolaf';
+  const entries = async folder => {
+    try { return await readdir(path.join(root, folder), { withFileTypes: true }); }
+    catch (error) { if (error.code === 'ENOENT') return []; throw error; }
+  };
+  const images = async (folder, price) => (await entries(folder))
+    .filter(entry => entry.isFile() && imageName.test(entry.name))
+    .map(entry => ({ id: `${folder}/${entry.name}`, name: entry.name.replace(/\.[^.]+$/, ''),
+      image: `api/profile-avatar?id=${encodeURIComponent(`${folder}/${entry.name}`)}`, price, kind: 'background' }));
+  const catalog = await images(base, 0);
+  for (const entry of await entries(`${base}/BGpoint`)) {
+    const price = backgroundFolderPrice(entry.name);
+    if (entry.isDirectory() && price !== null) catalog.push(...await images(`${base}/BGpoint/${entry.name}`, price));
+  }
+  return catalog.sort((a,b) => a.price-b.price || a.name.localeCompare(b.name,'en',{numeric:true}));
+}
+
 function reply(res, status, body) {
   res.setHeader('Cache-Control', 'no-store');
   return res.status(status).json(body);
@@ -26,7 +50,7 @@ export default async function handler(req, res) {
   }
   let stage = 'catalog';
   try {
-    const catalog = await scanAvatarCatalog();
+    const catalog = [...await scanAvatarCatalog(), ...await scanBackgroundCatalog()];
     if (req.method === 'GET') return reply(res, 200, { catalog });
     const url = String(process.env.SUPABASE_URL || '').replace(/\/+$/, '');
     const key = process.env.SUPABASE_PUBLISHABLE_KEY || process.env.SUPABASE_ANON_KEY;
@@ -55,7 +79,7 @@ export default async function handler(req, res) {
       });
       // shop_register_avatar RETURNS void: PostgREST correctly sends 204 with no JSON body.
       // Only registration may omit a result; purchase/equip must return the wallet state.
-      if (response.status === 204 && response.ok && name === 'shop_register_avatar') return null;
+      if (response.status === 204 && response.ok && ['shop_register_avatar','shop_register_background'].includes(name)) return null;
       let result;
       try { result = await response.json(); }
       catch { throw new Error('SHOP_DATABASE_RESPONSE_INVALID'); }
@@ -64,8 +88,14 @@ export default async function handler(req, res) {
       });
       return result;
     };
-    await rpc('shop_register_avatar', { p_id: avatar.id, p_path: avatar.id }, true);
-    const state = await rpc(body.action === 'purchase' ? 'shop_purchase_avatar' : 'shop_equip_avatar', { p_avatar: avatar.id });
+    let state;
+    if (avatar.kind === 'background') {
+      await rpc('shop_register_background', { p_id: avatar.id, p_price: avatar.price }, true);
+      state = await rpc('shop_use_background', { p_id: avatar.id, p_purchase: body.action === 'purchase' });
+    } else {
+      await rpc('shop_register_avatar', { p_id: avatar.id, p_path: avatar.id }, true);
+      state = await rpc(body.action === 'purchase' ? 'shop_purchase_avatar' : 'shop_equip_avatar', { p_avatar: avatar.id });
+    }
     return reply(res, 200, { state });
   } catch (error) {
     const databaseCode = /^[A-Z0-9]{5,12}$/.test(error.databaseCode || '') ? error.databaseCode : undefined;

@@ -1,4 +1,20 @@
+.profile-store-page *, .atelier-dialog { box-sizing:border-box; }
+.atelier-dialog img.confirmation-background { width:100%; height:auto; aspect-ratio:16/9; border-radius:12px; }
+.profile-store-page { margin:0; min-height:100svh; font-family:Kanit,sans-serif; background:radial-gradient(ellipse at top,#172440,#060c19 65%); color:#e8eef9; }
+.profile-store-shell { max-width:1200px; margin:auto; padding:24px 16px 60px; }
+.profile-store-nav { display:flex; justify-content:space-between; gap:12px; margin-bottom:24px; }
+.profile-store-nav a { color:#b6d3ff; text-decoration:none; padding:10px 0; }
 #avatar-shop-root { --atelier-line: rgba(155,183,229,.16); color: #e8eef9; min-width: 0; }
+#avatar-shop-root[data-kind="background"] .atelier-grid { grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); }
+#avatar-shop-root[data-kind="background"] .atelier-portrait img { width:100%; height:auto; aspect-ratio:16/9; border-radius:10px; }
+.atelier-preview-image.is-background { width:100%; height:auto; aspect-ratio:16/9; border-radius:12px; object-fit:cover; }
+.atelier-dialog .decoration-preview { position:relative; min-height:220px; isolation:isolate; border-radius:16px; overflow:hidden; background:#12233d; }
+.atelier-dialog .decoration-preview-bg { position:absolute; inset:0; width:100%; height:100%; max-width:none; border-radius:0; object-fit:cover; z-index:-1; opacity:.65; margin:0; }
+.decoration-preview-person { padding:50px 20px 20px; text-shadow:0 2px 8px #000; background:linear-gradient(transparent,#071225cc); }
+.atelier-dialog .decoration-preview-person img { width:80px; height:80px; border-radius:18px; object-fit:cover; }
+.decoration-preview-person strong { display:block; }
+.atelier-dialog { max-height:85svh; overflow:auto; }
+.atelier-dialog button:disabled { opacity:.45; cursor:not-allowed; }
 .avatar-atelier { border-radius: 24px; background: radial-gradient(ellipse at top right,rgba(89,96,178,.16),transparent 55%),#091223; border: 1px solid var(--atelier-line); overflow: hidden; }
 .avatar-atelier button { font: inherit; cursor: pointer; }
 .avatar-atelier button:focus-visible { outline: 2px solid #a5cfff; outline-offset: 4px; }

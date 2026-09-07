@@ -2,7 +2,7 @@
   const escape = value => String(value ?? '').replace(/[&<>"']/g, ch => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
   const number = value => Number(value || 0).toLocaleString('th-TH');
   const messages = {
-    SHOP_POINTS_INSUFFICIENT: 'แต้มร้านค้าไม่พอ ต้องใช้ 1,000 แต้มต่อรูป',
+    SHOP_POINTS_INSUFFICIENT: 'แต้มร้านค้าไม่พอสำหรับรายการนี้',
     AVATAR_NOT_OWNED: 'กรุณาแลกรูปนี้ก่อนเลือกใช้งาน',
     AVATAR_NOT_FOUND: 'ไม่พบรูปนี้ในโฟลเดอร์ กรุณาโหลดรายการใหม่',
     AUTH_REQUIRED: 'กรุณาเข้าสู่ระบบใหม่', ACCESS_DENIED: 'บัญชีนี้ไม่สามารถใช้ร้านค้าได้',
@@ -21,6 +21,8 @@
   };
   let root, catalog = [], wallet = { balance:0, owned:[], equipped:null, ledger:[] };
   let selected = null, tab = 'library', busy = false, loaded = false, lastRefresh = 0;
+  let kind = 'avatar';
+  const equipped = item => (item?.kind === 'background' ? wallet.background : wallet.equipped) === item?.id;
   let refreshPromise, channel, timer, dialog, notice = '', noticeError = false;
   const owned = item => item.price === 0 || wallet.owned.includes(item.id);
   const current = () => catalog.find(item => item.id === selected);
@@ -55,31 +57,35 @@
     if (!state || !Number.isFinite(Number(state.balance)) || Number(state.balance) < 0 || !Array.isArray(state.owned)) {
       throw new Error('SHOP_STATE_INVALID');
     }
-    return { balance:Number(state.balance), owned:state.owned, equipped:state.equipped || null,
+    return { balance:Number(state.balance), owned:[...state.owned, ...(state.backgroundOwned || [])], equipped:state.equipped || null, background:state.background || null,
       ledger:Array.isArray(state.ledger) ? state.ledger : [] };
   }
   function render() {
+    const group = catalog.filter(p => (p.kind || 'avatar') === kind);
+    const items = (tab === 'library' ? group.filter(owned) : group.filter(p => p.price > 0)).sort((a,b) => a.price-b.price);
+    if (!group.some(p => p.id === selected)) selected = items.find(equipped)?.id || items[0]?.id || null;
     const item = current();
-    const items = tab === 'library' ? catalog.filter(owned) : catalog.filter(p => p.price > 0);
+    const label = kind === 'background' ? 'พื้นหลัง' : 'รูปโปรไฟล์';
+    root.dataset.kind = kind;
     root.innerHTML = `<div class="avatar-atelier">
       <header class="atelier-heading"><div><span class="atelier-eyebrow">OLAF · PROFILE ATELIER</span>
-        <h2>Profile</h2><p>ตกแต่งโปรไฟล์สไตล์คุณ</p></div>
+        <h2>ร้านค้าและคลังโปรไฟล์</h2><p>ตกแต่งโปรไฟล์สไตล์คุณ</p></div>
         <div class="atelier-wallet"><small>แต้มร้านค้าของคุณ</small><strong>${loaded ? number(wallet.balance) : '—'}</strong><small>แยกจากยอดเงิน Point</small></div></header>
-      <div class="atelier-body"><aside class="atelier-preview">
-        ${item ? `<img class="atelier-preview-image" src="${escape(item.image)}" alt="ตัวอย่างโปรไฟล์" />` : ''}
-        <h3>${item ? `โปรไฟล์ ${escape(item.name)}` : 'เลือกรูปโปรไฟล์'}</h3>
-        <p>${item ? (owned(item) ? (wallet.equipped === item.id ? 'กำลังใช้งานรูปนี้' : 'พร้อมใช้งาน · เลือกแล้วกดบันทึก') : 'รูปสะสม · 1,000 แต้ม') : 'รูปฟรีพร้อมใช้สำหรับสมาชิกทุกคน'}</p>
+      <nav class="atelier-tabs" aria-label="หมวดของตกแต่ง"><button type="button" data-shop-kind="avatar" aria-pressed="${kind === 'avatar'}">รูปโปรไฟล์</button><button type="button" data-shop-kind="background" aria-pressed="${kind === 'background'}">พื้นหลัง</button></nav><div class="atelier-body"><aside class="atelier-preview">
+        ${item ? `<img class="atelier-preview-image ${kind === 'background' ? 'is-background' : ''}" src="${escape(item.image)}" alt="ตัวอย่างโปรไฟล์" />` : ''}
+        <h3>${item ? `${label} ${escape(item.name)}` : `เลือก${label}`}</h3>
+        <p>${item ? (owned(item) ? (equipped(item) ? 'กำลังใช้งานรูปนี้' : 'พร้อมใช้งาน · เลือกแล้วกดบันทึก') : `รูปสะสม · ${number(item.price)} แต้ม`) : 'รูปฟรีพร้อมใช้สำหรับสมาชิกทุกคน'}</p>
         <button type="button" class="atelier-save" data-shop-action="${item && owned(item) ? 'equip' : 'buy'}"
-          ${!loaded || busy || !item || wallet.equipped === item.id || (!owned(item) && wallet.balance < 1000) ? 'disabled' : ''}>
-          ${busy ? 'กำลังบันทึก…' : item && owned(item) ? 'บันทึกรูปโปรไฟล์' : 'แลกด้วย 1,000 แต้ม'}</button>
+          ${!loaded || busy || !item || equipped(item) || (!owned(item) && wallet.balance < item.price) ? 'disabled' : ''}>
+          ${busy ? 'กำลังบันทึก…' : item && owned(item) ? `บันทึก${label}` : `แลกด้วย ${number(item?.price)} แต้ม`}</button>
         <p>เติมเงินสำเร็จ 100 บาท = 1,000 แต้ม</p>
       </aside><div class="atelier-content"><nav class="atelier-tabs" aria-label="รายการโปรไฟล์">
-        <button type="button" data-shop-tab="library" aria-pressed="${tab === 'library'}">คลังโปรไฟล์ · ${catalog.filter(owned).length}</button>
-        <button type="button" data-shop-tab="shop" aria-pressed="${tab === 'shop'}">ร้านค้าโปรไฟล์ · ${catalog.filter(p => p.price > 0).length}</button>
+        <button type="button" data-shop-tab="library" aria-pressed="${tab === 'library'}">คลังของฉัน · ${group.filter(owned).length}</button>
+        <button type="button" data-shop-tab="shop" aria-pressed="${tab === 'shop'}">ร้านค้า · ${group.filter(p => p.price > 0).length}</button>
         <button type="button" data-shop-action="refresh" ${busy ? 'disabled' : ''}>โหลดใหม่</button></nav>
         <div class="atelier-grid">${items.map(p => `<button type="button" class="atelier-portrait" data-avatar="${escape(p.id)}" aria-pressed="${selected === p.id}" ${busy ? 'disabled' : ''}>
           <img src="${escape(p.image)}" alt="โปรไฟล์ ${escape(p.name)}" width="88" height="88" loading="lazy" decoding="async" />
-          <strong>โปรไฟล์ ${escape(p.name)}</strong><small>${wallet.equipped === p.id ? '✓ กำลังใช้งาน' : p.price === 0 ? 'ฟรีสำหรับทุกคน' : owned(p) ? 'อยู่ในคลังแล้ว' : '1,000 แต้ม'}</small></button>`).join('')
+          <strong>โปรไฟล์ ${escape(p.name)}</strong><small>${equipped(p) ? '✓ กำลังใช้งาน' : p.price === 0 ? 'ฟรีสำหรับทุกคน' : owned(p) ? 'อยู่ในคลังแล้ว' : `${number(p.price)} แต้ม`}</small></button>`).join('')
           || '<p class="atelier-empty">ยังไม่มีรูปในหมวดนี้ รูปใหม่จะปรากฏเมื่อร้านอัปโหลดไฟล์</p>'}</div></div></div>
       <p class="atelier-status${noticeError ? ' is-error' : ''}" role="status">${escape(notice || (loaded ? 'เลือกรูปเพื่อดูตัวอย่าง · รูปที่แลกแล้วจะอยู่ในคลังถาวร' : 'กำลังโหลดข้อมูลร้านค้า…'))}</p>
       <details class="atelier-history"><summary>ประวัติแต้มร้านค้า</summary>${wallet.ledger.map(row => `<div class="atelier-history-row"><span>${escape(row.reason)}
@@ -95,15 +101,15 @@
         status('กำลังโหลดข้อมูลร้านค้า…');
         const [catalogResult, stateResult] = await Promise.allSettled([
           fetch('/api/profile-shop', { cache:'no-store', signal:AbortSignal.timeout(15000) }).then(apiResponse),
-          window.olafSupabase.rpc('shop_get_state')
+          window.olafSupabase.rpc('shop_decoration_state')
         ]);
         // A wallet error must not discard successfully loaded pictures.
         if (catalogResult.status === 'fulfilled') {
           if (!Array.isArray(catalogResult.value.catalog)) throw new Error('SHOP_RESPONSE_INVALID');
           catalog = catalogResult.value.catalog;
         }
-        if (stateResult.status === 'rejected') throw Object.assign(stateResult.reason, { stage:'shop_get_state' });
-        if (stateResult.value.error) throw Object.assign(stateResult.value.error, { stage:'shop_get_state' });
+        if (stateResult.status === 'rejected') throw Object.assign(stateResult.reason, { stage:'shop_decoration_state' });
+        if (stateResult.value.error) throw Object.assign(stateResult.value.error, { stage:'shop_decoration_state' });
         wallet = normalizeState(stateResult.value.data);
         if (catalogResult.status === 'rejected') throw catalogResult.reason;
         selected = catalog.some(p => p.id === selected) ? selected : wallet.equipped || catalog[0]?.id;
@@ -141,11 +147,13 @@
         body:JSON.stringify({ action, avatarId }), signal:AbortSignal.timeout(35000) });
       const result = await apiResponse(response);
       wallet = normalizeState(result.state);
+      const decoration = await window.olafSupabase.rpc('shop_decoration_state');
+      if (!decoration.error) wallet = normalizeState(decoration.data);
       if (action === 'purchase') tab = 'library';
       await syncIdentity();
       busy = false;
       render();
-      status(action === 'purchase' ? 'แลกสำเร็จ! รูปอยู่ในคลังแล้ว กดบันทึกเพื่อตั้งเป็นรูปโปรไฟล์' : 'บันทึกรูปโปรไฟล์แล้ว');
+      status(action === 'purchase' ? 'แลกสำเร็จ! รูปอยู่ในคลังแล้ว กดบันทึกเพื่อตั้งค่าบนโปรไฟล์' : 'บันทึกการตกแต่งโปรไฟล์แล้ว');
       root.querySelector('.atelier-save')?.focus({ preventScroll:true });
     } catch (error) {
       busy = false;
@@ -153,11 +161,26 @@
       status(errorText(error), true);
     }
   }
+  function previewSelection() {
+    const item = current();
+    if (!item || busy) return;
+    const member = window.OlafStore.currentUser();
+    dialog.innerHTML = `<h2>ตัวอย่างก่อนบันทึก</h2><div class="decoration-preview">
+      ${item.kind === 'background' ? `<img class="decoration-preview-bg" src="${escape(item.image)}" alt="" />` : ''}
+      <div class="decoration-preview-person">${member.avatarUrl || item.kind !== 'background' ? `<img src="${escape(item.kind === 'background' ? member.avatarUrl : item.image)}" alt="รูปโปรไฟล์" />` : ''}
+      <strong>${escape(member.displayName || member.username || 'โปรไฟล์ของคุณ')}</strong><p>โปรไฟล์สไตล์คุณ · OLAF SHOP</p></div></div>
+      <p>${owned(item) ? 'บันทึกเพื่อใช้รูปนี้บนโปรไฟล์ของคุณ' : `ใช้ ${number(item.price)} แต้ม · ซื้อแล้วกดบันทึกเพื่อตั้งค่า`}</p>
+      <div class="atelier-dialog-actions"><button type="button" class="atelier-cancel" data-cancel>ปิดตัวอย่าง</button><button type="button" class="atelier-confirm" data-save ${!loaded || equipped(item) || (!owned(item) && wallet.balance < item.price) ? 'disabled' : ''}>${owned(item) ? 'ยืนยันบันทึก' : 'ซื้อด้วยแต้ม'}</button></div>`;
+    dialog.querySelector('[data-cancel]').onclick = () => dialog.close();
+    dialog.querySelector('[data-save]').onclick = () => { dialog.close(); owned(item) ? mutate('equip') : confirmPurchase(); };
+    dialog.showModal();
+    dialog.querySelector('[data-cancel]').focus();
+  }
   function confirmPurchase() {
     const item = current();
     if (!item || owned(item) || busy) return;
-    dialog.innerHTML = `<h2>แลกรูปโปรไฟล์นี้?</h2><img src="${escape(item.image)}" alt="โปรไฟล์ ${escape(item.name)}" />
-      <p>ใช้ 1,000 แต้มร้านค้า · คงเหลือหลังแลก ${number(wallet.balance - 1000)} แต้ม<br>รูปจะเข้าคลังของคุณทันที โดยไม่หักยอดเงิน Point</p>
+    dialog.innerHTML = `<h2>แลก${item.kind === 'background' ? 'พื้นหลัง' : 'รูปโปรไฟล์'}นี้?</h2><img class="${item.kind === 'background' ? 'confirmation-background' : ''}" src="${escape(item.image)}" alt="${escape(item.name)}" />
+      <p>ใช้ ${number(item.price)} แต้มร้านค้า · คงเหลือหลังแลก ${number(wallet.balance - item.price)} แต้ม<br>รูปจะเข้าคลังของคุณทันที โดยไม่หักยอดเงิน Point</p>
       <div class="atelier-dialog-actions"><button class="atelier-cancel" type="button" data-cancel>ยกเลิก</button><button class="atelier-confirm" type="button" data-confirm>ยืนยันการแลก</button></div>`;
     dialog.querySelector('[data-cancel]').onclick = () => dialog.close();
     dialog.querySelector('[data-confirm]').onclick = () => { dialog.close(); mutate('purchase'); };
@@ -169,7 +192,7 @@
     if (!root) return;
     await window.OlafStore?.ready;
     const member = window.OlafStore?.currentUser();
-    if (!member) return;
+    if (!member) { location.href = 'login.html?return=profile-store.html'; return; }
     dialog = document.createElement('dialog');
     dialog.className = 'atelier-dialog';
     dialog.setAttribute('aria-label','ยืนยันการแลกรูปโปรไฟล์');
@@ -178,10 +201,11 @@
     root.addEventListener('click', event => {
       const button = event.target.closest('button');
       if (!button || button.disabled || busy) return;
+      if (button.dataset.shopKind) { kind = button.dataset.shopKind; selected = null; render(); }
       if (button.dataset.shopTab) { tab = button.dataset.shopTab; render(); }
-      if (button.dataset.avatar) { selected = button.dataset.avatar; render(); }
+      if (button.dataset.avatar) { selected = button.dataset.avatar; render(); previewSelection(); }
       if (button.dataset.shopAction === 'buy') confirmPurchase();
-      if (button.dataset.shopAction === 'equip') mutate('equip');
+      if (button.dataset.shopAction === 'equip') previewSelection();
       if (button.dataset.shopAction === 'refresh') refresh(true);
     });
     await refresh(true);

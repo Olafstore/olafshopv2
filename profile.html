@@ -16,15 +16,16 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" defer></script>
   <script src="slip-qr-scanner.js?v=20260621-slip-verify-v2" defer></script>
-  <script src="supabase-client.js?v=20260906-avatar-shop-v171" defer></script>
+  <script src="supabase-client.js?v=20260907-notification-media-v200" defer></script>
   <script src="order-action-popup.js?v=20260621-order-animation" defer></script>
   <script src="platform-store.js?v=20260619-profile-update-fix" defer></script>
-  <script src="image-performance.js?v=20260713-media-brand-v89" defer></script>
+  <script src="image-performance.js?v=20260907-store-updates-v199" defer></script>
 <script src="delivery-payload.js?v=20260716-qr-alignment-v111" defer></script>
-    <script src="site-navigation.js?v=20260907-more-shelves-v195" defer></script>
-  <script src="notifications.js?v=20260716-qr-alignment-v111" defer></script>
-  <link rel="stylesheet" href="profile-shop.css?v=20260906-avatar-shop-v1" />
-  <script src="profile-shop.js?v=20260907-profile-polish-v194" defer></script>
+    <script src="site-navigation.js?v=20260907-profile-store-v203" defer></script>
+  <script src="notifications.js?v=20260907-notification-media-v200" defer></script>
+  <link rel="stylesheet" href="profile-shop.css?v=20260907-backgrounds-v203" />
+  <link rel="stylesheet" href="profile-overview.css?v=20260907-profile-v203" />
+  <script src="profile-overview.js?v=20260907-profile-v203" defer></script>
       <link rel="stylesheet" href="styles.css?v=20260905-search-discovery-v170" />
   <style>
     body {
@@ -2926,7 +2927,7 @@
     <div class="profile-hero" id="profile-hero">
       <div class="profile-hero-inner">
         <div class="profile-avatar-wrap">
-          <a class="profile-avatar" id="profile-avatar-letter" href="#avatar-shop" aria-label="เลือกหรือเปลี่ยนรูปโปรไฟล์" title="เลือกหรือเปลี่ยนรูปโปรไฟล์">?</a>
+          <a class="profile-avatar" id="profile-avatar-letter" href="profile-store.html" aria-label="เลือกหรือเปลี่ยนรูปโปรไฟล์" title="เลือกหรือเปลี่ยนรูปโปรไฟล์">?</a>
           <div class="profile-avatar-badge">
             <i data-lucide="check" style="width:12px;height:12px"></i>
           </div>
@@ -2957,7 +2958,7 @@
         <div class="profile-sidebar-card">
           <div class="profile-sidebar-user">
             <div class="profile-avatar-wrap">
-              <a class="profile-avatar" id="profile-sidebar-avatar" href="#avatar-shop" aria-label="เลือกหรือเปลี่ยนรูปโปรไฟล์" title="เลือกหรือเปลี่ยนรูปโปรไฟล์">?</a>
+              <a class="profile-avatar" id="profile-sidebar-avatar" href="profile-store.html" aria-label="เลือกหรือเปลี่ยนรูปโปรไฟล์" title="เลือกหรือเปลี่ยนรูปโปรไฟล์">?</a>
               <div class="profile-avatar-badge">
                 <i data-lucide="check" style="width:12px;height:12px"></i>
               </div>
@@ -2982,6 +2983,7 @@
             </div>
           </div>
           <nav class="profile-sidebar-nav" role="navigation" aria-label="เมนูโปรไฟล์">
+            <button class="profile-nav-item" type="button" data-panel="overview"><i data-lucide="contact-round"></i>โปรไฟล์ของฉัน</button>
             <button class="profile-nav-item is-active" type="button" data-panel="info">
               <i data-lucide="user" style="width:18px;height:18px"></i>
               ข้อมูลส่วนตัว
@@ -2990,9 +2992,9 @@
               <i data-lucide="key-round" style="width:18px;height:18px"></i>
               เปลี่ยนรหัสผ่าน
             </button>
-            <button class="profile-nav-item" type="button" data-panel="avatar-shop">
+            <a class="profile-nav-item" href="profile-store.html">
               <i data-lucide="shopping-cart"></i><span>ร้านค้าและคลังโปรไฟล์</span>
-            </button>
+            </a>
             <a class="profile-nav-item" href="point-topup.html">
               <i data-lucide="coins" style="width:18px;height:18px"></i>
               เติม Point
@@ -3025,6 +3027,7 @@
       <!-- Panels -->
       <div class="profile-panels">
         <!-- Info Panel -->
+        <section class="profile-panel" id="panel-overview" aria-label="โปรไฟล์ของฉัน"><div id="profile-overview-root" aria-live="polite">กำลังโหลดโปรไฟล์…</div></section>
         <div class="profile-panel is-active" id="panel-info">
           <div class="panel-card">
             <div class="panel-card-header">
@@ -3181,9 +3184,6 @@
           </div>
         </div>
 
-        <section class="profile-panel" id="panel-avatar-shop" aria-label="ร้านค้าและคลังโปรไฟล์">
-          <div id="avatar-shop-root" aria-live="polite"><p>กำลังเตรียมร้านค้าโปรไฟล์…</p></div>
-        </section>
         <!-- Reviews Panel -->
         <div class="profile-panel" id="panel-reviews">
           <div class="panel-card">
@@ -4319,13 +4319,13 @@
       const isAdmin = String(user.role || '').toLowerCase() === 'admin';
       popover.innerHTML = `
         <div class="user-profile-card">
-          <div class="user-popover-header">
+          <a class="user-popover-header user-popover-header-link" href="#overview">
             <div class="user-popover-avatar">${escape((user.displayName || user.username || 'U').slice(0, 1).toUpperCase())}</div>
             <div class="user-popover-info">
               <strong>${escape(user.displayName || user.username || 'สมาชิก')}</strong>
               <span>${escape(user.email || '-')}</span>
             </div>
-          </div>
+          </a>
           <div class="user-popover-badge-row">
             <span class="user-badge-role">${escape(user.role || 'member')}</span>
             <a class="user-badge-points" href="#info" data-topbar-point-balance data-refresh-points>${formatPointAmount(profileState.pointBalance || 0)} Points</a>
@@ -4335,6 +4335,8 @@
           <div class="user-popover-menu-title">เมนูบัญชี</div>
           ${isAdmin ? '<a href="olaf-control.html"><i data-lucide="shield"></i>หลังบ้าน (Admin)</a>' : ''}
           <a href="profile.html"><i data-lucide="user"></i>ข้อมูลส่วนตัว</a>
+          <a href="profile.html#overview"><i data-lucide="contact-round"></i>โปรไฟล์ของฉัน</a>
+          <a href="profile-store.html"><i data-lucide="shopping-cart"></i>ร้านค้าและคลังโปรไฟล์</a>
           <a href="point-topup.html"><i data-lucide="coins"></i>เติม Point</a>
           <a href="profile.html#inventory"><i data-lucide="package"></i>คลังสินค้า (ID/Pass)</a>
           <a href="profile.html#orders"><i data-lucide="receipt-text"></i>ประวัติคำสั่งซื้อ</a>
@@ -4542,7 +4544,7 @@
       applyTopbarStoreIcon(storeSettings?.siteIconUrl);
       ensureTopbarSearchProducts().catch(() => []);
 
-      const validPanels = ['info', 'password', 'inventory', 'orders', 'coupons', 'reviews', 'avatar-shop'];
+      const validPanels = ['overview', 'info', 'password', 'inventory', 'orders', 'coupons', 'reviews'];
       const sidebarNav = document.querySelector('.profile-sidebar-nav');
       const topbarSearchInput = document.getElementById('topbar-search-input');
 
@@ -4564,6 +4566,7 @@
       }
 
       function switchPanel(panelName) {
+        if (panelName === 'avatar-shop') { location.href = 'profile-store.html'; return 'info'; }
         const nextPanel = validPanels.includes(panelName) ? panelName : 'info';
         document.querySelectorAll('.profile-nav-item').forEach((button) => button.classList.remove('is-active'));
         document.querySelectorAll('.profile-panel').forEach((panel) => panel.classList.remove('is-active'));

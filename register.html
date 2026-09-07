@@ -15,7 +15,7 @@
     <script src="supabase-client.js?v=20260906-avatar-shop-v171" defer></script>
     <script src="platform-store.js?v=20260605-admin-users" defer></script>
     <script src="image-performance.js?v=20260607-performance" defer></script>
-    <script src="site-navigation.js?v=20260906-avatar-shop-v171" defer></script>
+    <script src="site-navigation.js?v=20260907-profile-store-v203" defer></script>
     <style>
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
       :root {
@@ -195,8 +195,9 @@
         .auth-card { padding: 28px 22px; }
       }
     </style>
+    <link rel="stylesheet" href="auth-design.css?v=20260907-auth-icons-v202" />
   </head>
-  <body>
+  <body class="auth-redesign">
     <div class="bg-blobs">
       <div class="blob blob-1"></div>
       <div class="blob blob-2"></div>
@@ -207,6 +208,7 @@
     <div class="auth-page">
       <!-- Left Card -->
       <div class="auth-card">
+        <nav class="auth-tabs" aria-label="บัญชีสมาชิก"><a href="login.html">เข้าสู่ระบบ</a><a href="register.html" aria-current="page">สมัครสมาชิก</a></nav>
         <div class="auth-card-header">
           <div class="icon-wrap">
             <i data-lucide="user-plus" style="width:28px;height:28px"></i>
@@ -256,7 +258,7 @@
             <div class="form-input-wrap">
               <i data-lucide="lock" class="input-icon" style="width:18px;height:18px"></i>
               <input class="form-input" id="password" name="password" type="password" placeholder="อย่างน้อย 6 ตัวอักษร" minlength="6" autocomplete="new-password" required />
-              <button type="button" class="toggle-pw" id="toggle-pw">
+              <button type="button" class="toggle-pw" id="toggle-pw" aria-label="แสดง/ซ่อนรหัสผ่าน">
                 <i data-lucide="eye" style="width:18px;height:18px"></i>
               </button>
             </div>

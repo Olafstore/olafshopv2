@@ -600,7 +600,7 @@
   function ensureAccountButtonIcon(button = document.querySelector("#open-auth")) {
     if (!button) return;
     const isLoading = button.classList.contains("is-auth-loading") || button.getAttribute("aria-busy") === "true";
-    const iconName = isLoading ? "loader-circle" : currentNavUser() ? "circle-user-round" : "log-in";
+    const iconName = isLoading ? "loader-circle" : currentNavUser() ? "user-round" : "log-in";
     const hasIcon = button.querySelector("[data-olaf-account-icon], svg, i");
     let needsIconRefresh = false;
     if (!hasIcon) {
@@ -654,7 +654,7 @@
     const currentIcon = button.querySelector("i, svg");
     if (currentIcon) {
       const icon = document.createElement("i");
-      icon.setAttribute("data-lucide", user ? "circle-user-round" : "log-in");
+      icon.setAttribute("data-lucide", user ? "user-round" : "log-in");
       currentIcon.replaceWith(icon);
     }
     if (register) register.style.display = user ? "none" : "";
@@ -717,7 +717,7 @@
     popover.dataset.olafUserMenuVersion = USER_MENU_VERSION;
     popover.innerHTML = `
       <div class="user-profile-card">
-        <a class="user-popover-header user-popover-header-link" href="profile.html#info">
+        <a class="user-popover-header user-popover-header-link" href="profile.html#overview">
           <span class="user-popover-avatar">${escapeHtml(initial)}</span>
           <span class="user-popover-info">
             <strong>${escapeHtml(displayName)}</strong>
@@ -735,7 +735,8 @@
         <div class="user-popover-menu-title">เมนูบัญชี</div>
         ${role === "admin" ? '<a href="olaf-control.html"><i data-lucide="shield"></i><span>หลังบ้าน (Admin)</span></a>' : ""}
         <a href="profile.html#info"><i data-lucide="circle-user-round"></i><span>ข้อมูลส่วนตัว</span></a>
-        <a href="profile.html#avatar-shop"><i data-lucide="shopping-cart"></i><span>ร้านค้าและคลังโปรไฟล์</span></a>
+        <a href="profile.html#overview"><i data-lucide="contact-round"></i><span>โปรไฟล์ของฉัน</span></a>
+        <a href="profile-store.html"><i data-lucide="shopping-cart"></i><span>ร้านค้าและคลังโปรไฟล์</span></a>
         <a href="point-topup.html"><i data-lucide="coins"></i><span>เติม Point</span></a>
         <a href="profile.html#inventory"><i data-lucide="archive"></i><span>คลังสินค้า</span></a>
         <a href="profile.html#orders"><i data-lucide="receipt-text"></i><span>ประวัติคำสั่งซื้อ</span></a>

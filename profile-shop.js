@@ -26,7 +26,7 @@
   const shopIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 9h18l-2-6H5L3 9Zm1 0v11h16V9M9 20v-7h6v7"/><path d="M3 9c0 4 6 4 6 0 0 4 6 4 6 0 0 4 6 4 6 0"/></svg>';
   function storeCard(p, featured=false) {
     return `<button type="button" class="atelier-portrait store-product ${featured?'is-featured':''}" data-avatar="${escape(p.id)}" aria-label="ดูตัวอย่าง ${escape(p.name)}" ${busy?'disabled':''}>
-      <img src="${escape(p.image)}" alt="${escape(p.name)}" loading="lazy" decoding="async" width="320" height="320">
+      <img src="${escape(p.image)}" data-image-fallbacks="${escape(JSON.stringify([p.id.split('/').map(encodeURIComponent).join('/')]))}" alt="${escape(p.name)}" loading="lazy" decoding="async" width="320" height="320">
       <span class="store-product-type">${p.kind==='background'?'พื้นหลัง':'รูปโปรไฟล์'}</span>
       <span class="store-product-caption"><strong>${escape(p.name)}</strong><small>${p.price===0?'ฟรี':`${number(p.price)} แต้ม`}</small>${equipped(p)?'<em>✓ กำลังใช้งาน</em>':owned(p)?'<em>อยู่ในคลังแล้ว</em>':''}</span>
     </button>`;
@@ -206,6 +206,18 @@
     dialog.querySelector('[data-save]').onclick = () => { dialog.close(); owned(item) ? mutate('equip') : confirmPurchase(); };
     dialog.showModal();
     dialog.querySelector('[data-cancel]').focus();
+    const media=dialog.querySelector(item.kind==='background'?'.decoration-preview-bg':'.portrait-full-preview img');
+    if(media) {
+      media.dataset.imageFallbacks=JSON.stringify([item.id.split('/').map(encodeURIComponent).join('/')]);
+      const stage=media.parentElement;
+      stage.classList.add('preview-media-loading');
+      const indicator=document.createElement('span'); indicator.className='preview-loading-label'; indicator.textContent='กำลังโหลดตัวอย่าง…'; indicator.setAttribute('role','status'); stage.append(indicator);
+      const done=()=>{stage.classList.remove('preview-media-loading');indicator.remove();};
+      media.addEventListener('load',done,{once:true});
+      media.addEventListener('error',()=>{indicator.textContent='กำลังลองโหลดรูปอีกครั้ง…';},{once:true});
+      if(media.complete&&media.naturalWidth>0) done();
+      window.OlafImages?.scheduleHydrate?.(dialog);
+    }
     if(item.kind === 'background') loadPreviewRank(dialog.querySelector('[data-preview-rank]'));
   }
   async function loadPreviewRank(slot) {

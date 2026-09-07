@@ -4,7 +4,7 @@ import path from 'node:path';
 const imageName = /^[^/\\<>"\x00-\x1f]+\.(png|jpe?g|webp|gif|avif)$/;
 export async function scanAvatarCatalog(root = process.cwd()) {
   const read = async (folder, price) => {
-    const entries = await readdir(path.join(root, folder), { withFileTypes: true });
+    const entries = await readdir(path.join(root, folder), { withFileTypes: true }).catch(error => {if(error.code==='ENOENT') return []; throw error;});
     return entries.filter(entry => entry.isFile() && imageName.test(entry.name))
       .sort((a, b) => a.name.localeCompare(b.name, 'en', { numeric: true }))
       .map(entry => ({ id: `${folder}/${entry.name}`, name: entry.name.replace(/\.[^.]+$/, ''),

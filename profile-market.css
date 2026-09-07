@@ -1,4 +1,10 @@
 /* Image-led points storefront. Shared atelier dialogs keep purchase/equip logic. */
+.portrait-full-preview { position:relative; }
+.preview-media-loading { min-height:240px; }
+.preview-media-loading::after { content:''; position:absolute; inset:0; pointer-events:none; background:linear-gradient(110deg,transparent 20%,#c7b6f51f 45%,transparent 70%); background-size:200% 100%; animation:previewShimmer 1.4s linear infinite; }
+.preview-loading-label { position:absolute; top:16px; left:16px; z-index:2; color:#e4d9ff; font-size:12px; border-radius:8px; background:#14121de8; padding:8px 12px; }
+@keyframes previewShimmer { to {background-position:-200% 0;} }
+@media(prefers-reduced-motion:reduce) {.preview-media-loading::after {animation:none;}}
 .profile-store-page .atelier-dialog { width:min(600px,calc(100vw - 24px)); padding:22px; border-color:#ffffff26; background:#101115; border-radius:16px; font-family:Kanit,sans-serif; }
 .profile-store-page .atelier-dialog.is-profile-preview { width:min(860px,calc(100vw - 24px)); }
 .preview-heading { position:sticky; top:-22px; z-index:3; display:flex; align-items:center; justify-content:space-between; gap:16px; background:#101115f5; padding:12px 0; }

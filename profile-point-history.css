@@ -1,0 +1,14 @@
+.shop-point-history { margin-bottom:20px; border:1px solid #9cbbe425; border-radius:16px; background:#101b2de8; padding:18px; color:#dce8fc; }
+.shop-point-history summary { cursor:pointer; font-weight:600; line-height:1.6; }
+.shop-point-history summary span { font-size:11px; color:#93aaca; margin-left:10px; font-weight:400; }
+.shop-history-toolbar { display:flex; gap:12px; justify-content:space-between; align-items:center; margin:18px 0 10px; }
+.shop-history-toolbar label { display:flex; align-items:center; gap:10px; font-size:12px; }
+.shop-point-history button,.shop-point-history select { background:#1a2941; border:1px solid #aec7ef30; border-radius:9px; color:#dce8fc; font:inherit; font-size:12px; padding:10px 12px; cursor:pointer; }
+.shop-point-history button:disabled,.shop-point-history select:disabled { opacity:.5; cursor:wait; }
+.shop-history-note,[data-shop-history-status] { font-size:11px; color:#9bb0cc; line-height:1.7; }
+.shop-history-row { display:flex; justify-content:space-between; gap:18px; padding:15px 0; border-bottom:1px solid #a9bde514; }
+.shop-history-row > div { min-width:0; }.shop-history-row strong { font-size:13px; overflow-wrap:anywhere; }
+.shop-history-row time,.shop-history-row small { display:block; font-size:10px; color:#92a7c4; margin-top:5px; }
+.shop-history-amount { text-align:right; flex-shrink:0; }.shop-history-amount.is-earned > strong { color:#8ddbbc; }.shop-history-amount.is-spent > strong { color:#dab6f4; }
+.shop-point-history :focus-visible { outline:2px solid #a3c6ff; outline-offset:3px; }
+@media(max-width:600px){.shop-point-history {padding:14px;}.shop-history-row {flex-direction:column;gap:7px;}.shop-history-amount {text-align:left;}.shop-history-toolbar {flex-wrap:wrap;}.shop-point-history summary span {display:block;margin:0;}}

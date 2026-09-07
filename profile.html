@@ -30,6 +30,8 @@
   <link rel="stylesheet" href="profile-rank.css?v=20260907-rank-display-v205" />
   <script src="profile-rank.js?v=20260907-layout-fix-v209" defer></script>
   <link rel="stylesheet" href="profile-personalize.css?v=20260907-layout-fix-v209" />
+  <script src="profile-point-history.js?v=20260907-history-v210" defer></script>
+  <link rel="stylesheet" href="profile-point-history.css?v=20260907-history-v210" />
       <link rel="stylesheet" href="styles.css?v=20260905-search-discovery-v170" />
   <style>
     body {
@@ -3158,6 +3160,13 @@
 
         <!-- Orders Panel -->
         <div class="profile-panel" id="panel-orders">
+          <details class="shop-point-history" id="shop-point-history">
+            <summary>ประวัติแต้มร้านค้าโปรไฟล์ <span>รับแต้ม / ใช้แต้ม</span></summary>
+            <div class="shop-history-toolbar"><label>แสดงรายการ <select data-shop-history-filter><option value="all">ทั้งหมด</option><option value="earned">ได้รับแต้ม</option><option value="spent">ใช้แต้ม</option></select></label><button type="button" data-shop-history-refresh>รีเฟรช</button></div>
+            <p class="shop-history-note">แต้มสำหรับร้านโปรไฟล์ แยกจากยอดเงิน Point · แสดงเฉพาะรายการที่บันทึกสำเร็จ</p>
+            <div data-shop-history-list></div><p data-shop-history-status role="status">เปิดเพื่อโหลดประวัติแต้ม</p>
+            <button type="button" data-shop-history-more hidden>โหลดรายการเพิ่มเติม</button>
+          </details>
           <div class="panel-card">
             <div class="panel-card-header">
               <div class="panel-title-copy">

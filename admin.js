@@ -3531,8 +3531,10 @@ function fillUserForm(user) {
   });
   if (form.elements.shopPointAmount) form.elements.shopPointAmount.value = "";
   if (form.elements.shopPointNote) form.elements.shopPointNote.value = "";
-  const grantButton = $("#grant-user-shop-points");
-  if (grantButton) grantButton.disabled = isNew;
+  ["#grant-user-shop-points", "#deduct-user-shop-points"].forEach(selector => {
+    const button = $(selector);
+    if (button) button.disabled = isNew || grantingShopPoints;
+  });
   const shopLabel = $("#user-shop-balance");
   if (shopLabel) {
     shopLabel.textContent = isNew ? "บันทึก user ก่อนเพิ่มแต้ม" : "กำลังโหลด…";
@@ -3545,7 +3547,9 @@ function fillUserForm(user) {
 }
 
 let grantingShopPoints = false;
-async function grantSelectedUserShopPoints() {
+async function grantSelectedUserShopPoints(direction = 1) {
+  const deduct = direction === -1;
+  const action = deduct ? "หัก" : "เพิ่ม";
   const user = selectedUser();
   const form = $("#user-form");
   if (!user || !form || grantingShopPoints) return;
@@ -3554,23 +3558,27 @@ async function grantSelectedUserShopPoints() {
   if (!Number.isSafeInteger(amount) || amount < 1 || amount > 10000000) {
     showAdminToast("ระบุแต้มเป็นจำนวนเต็ม 1–10,000,000 แต้ม", "warning"); return;
   }
+  if (deduct && !note) {
+    showAdminToast("กรุณาระบุเหตุผลที่หักแต้มร้านค้า", "warning"); return;
+  }
   grantingShopPoints = true;
-  const button = $("#grant-user-shop-points");
+  const buttons = [$("#grant-user-shop-points"), $("#deduct-user-shop-points")].filter(Boolean);
+  buttons.forEach(button => button.disabled = true);
   try {
-    if (!(await adminConfirm(`เพิ่มแต้มร้านค้าให้ ${user.email || user.username} จำนวน ${formatPointAmount(amount)} แต้ม ใช่ไหม? (ไม่เพิ่มยอดเงิน Point)`))) return;
-    button.disabled = true;
-    const result = await window.OlafAdminFinance.adminGrantShopPoints({ userId:user.id, amount, note });
+    if (!(await adminConfirm(`${action}แต้มร้านค้าของ ${user.email || user.username} จำนวน ${formatPointAmount(amount)} แต้ม ใช่ไหม? (ไม่เปลี่ยนยอดเงิน Point)${deduct ? '\nเหตุผล: ' + note : ''}`))) return;
+    const result = await window.OlafAdminFinance.adminGrantShopPoints({ userId:user.id, amount:deduct ? -amount : amount, note });
     if (state.selectedUserId === user.id) {
       $("#user-shop-balance").textContent = `${formatPointAmount(result.shopBalance)} แต้ม`;
       form.elements.shopPointAmount.value = "";
       form.elements.shopPointNote.value = "";
     }
-    showAdminToast(`เพิ่ม ${formatPointAmount(amount)} แต้มร้านค้าให้ ${user.email || user.username} แล้ว`, "success");
+    showAdminToast(`${action} ${formatPointAmount(amount)} แต้มร้านค้าของ ${user.email || user.username} แล้ว`, "success");
   } catch (error) {
-    showAdminToast(`เพิ่มแต้มไม่สำเร็จ กรุณาตรวจการติดตั้ง supabase-profile-shop.sql (${error.message || 'ไม่สามารถเชื่อมต่อได้'})`, "error");
+    const message = String(error.message || 'ไม่สามารถเชื่อมต่อได้');
+    showAdminToast(message.includes('SHOP_POINTS_INSUFFICIENT') ? 'แต้มร้านค้าคงเหลือไม่พอ ไม่สามารถหักเกินยอดที่มีได้' : `${action}แต้มไม่สำเร็จ กรุณาตรวจการติดตั้ง SQL ร้านค้าโปรไฟล์ (${message})`, "error");
   } finally {
     grantingShopPoints = false;
-    if (button) button.disabled = !selectedUser();
+    buttons.forEach(button => button.disabled = !selectedUser());
   }
 }
 
@@ -5959,6 +5967,7 @@ function bindEvents() {
   $("#add-user-point")?.addEventListener("click", () => adjustSelectedUserPoints("add"));
   $("#remove-user-point")?.addEventListener("click", () => adjustSelectedUserPoints("remove"));
   $("#grant-user-shop-points")?.addEventListener("click", grantSelectedUserShopPoints);
+  $("#deduct-user-shop-points")?.addEventListener("click", () => grantSelectedUserShopPoints(-1));
 
   $("#finance-refresh")?.addEventListener("click", async () => {
     const button = $("#finance-refresh");

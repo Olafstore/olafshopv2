@@ -83,7 +83,7 @@
     if (!state || !Number.isFinite(Number(state.balance)) || Number(state.balance) < 0 || !Array.isArray(state.owned)) {
       throw new Error('SHOP_STATE_INVALID');
     }
-    return { balance:Number(state.balance), owned:[...state.owned, ...(state.backgroundOwned || [])], equipped:state.equipped || null, background:state.background || null,
+    return { balance:Number(state.balance), owned:[...state.owned, ...(state.backgroundOwned || [])], equipped:state.equipped || null, background:state.background || null, bio:state.bio || '',
       ledger:Array.isArray(state.ledger) ? state.ledger : [] };
   }
   function render() {
@@ -192,20 +192,41 @@
     const item = current();
     if (!item || busy) return;
     const member = window.OlafStore.currentUser();
-    dialog.innerHTML = `<h2>ตัวอย่างก่อนบันทึก</h2><div class="decoration-preview">
-      ${item.kind === 'background' ? `<img class="decoration-preview-bg" src="${escape(item.image)}" alt="" />` : ''}
-      <div class="decoration-preview-person">${member.avatarUrl || item.kind !== 'background' ? `<img src="${escape(item.kind === 'background' ? member.avatarUrl : item.image)}" alt="รูปโปรไฟล์" />` : ''}
-      <strong>${escape(member.displayName || member.username || 'โปรไฟล์ของคุณ')}</strong><p>โปรไฟล์สไตล์คุณ · OLAF SHOP</p></div></div>
+    dialog.classList.toggle('is-profile-preview', item.kind === 'background');
+    const fullImage = item.image.startsWith('api/profile-avatar?') ? `${item.image}&view=full` : item.image;
+    dialog.innerHTML = `<header class="preview-heading"><div><small>OLAF · PROFILE PREVIEW</small><h2>ตัวอย่างก่อนบันทึก</h2></div><button type="button" data-cancel aria-label="ปิดตัวอย่าง">×</button></header>
+      ${item.kind !== 'background' ? `<div class="portrait-full-preview"><img src="${escape(fullImage)}" alt="${escape(item.name)} แบบเต็มภาพ" /></div>` : `<div class="preview-profile-card"><div class="decoration-preview"><img class="decoration-preview-bg" src="${escape(item.image)}" alt="พื้นหลังที่เลือก" />
+      <div class="decoration-preview-person">${member.avatarUrl ? `<img src="${escape(member.avatarUrl)}" alt="รูปโปรไฟล์ปัจจุบัน" />` : '<span class="preview-avatar-placeholder">O</span>'}
+      <div><small>OLAF COMMUNITY · โปรไฟล์ของฉัน</small><strong>${escape(member.displayName || member.username || 'โปรไฟล์ของคุณ')}<span data-preview-name-rank></span></strong><p>พื้นที่ของคุณ สำหรับเกมที่คุณรัก</p></div></div></div>
+      <div class="preview-profile-stats"><div><small>ยอดเงินในเว็บ · Point</small><strong data-preview-money>—</strong></div><div><small>แต้มร้านค้าตกแต่ง</small><strong>${number(wallet.balance)}</strong></div></div>
+      <div class="preview-profile-bio"><h3>สังเขป</h3><p>${escape(wallet.bio || 'ยังไม่ได้เขียนสังเขป แนะนำตัวในสไตล์คุณได้เลย')}</p></div><section class="preview-profile-rank" data-preview-rank><p>กำลังโหลดแรงค์ปัจจุบัน…</p></section></div>`}
       <p>${owned(item) ? 'บันทึกเพื่อใช้รูปนี้บนโปรไฟล์ของคุณ' : `ใช้ ${number(item.price)} แต้ม · ซื้อแล้วกดบันทึกเพื่อตั้งค่า`}</p>
       <div class="atelier-dialog-actions"><button type="button" class="atelier-cancel" data-cancel>ปิดตัวอย่าง</button><button type="button" class="atelier-confirm" data-save ${!loaded || equipped(item) || (!owned(item) && wallet.balance < item.price) ? 'disabled' : ''}>${owned(item) ? 'ยืนยันบันทึก' : 'ซื้อด้วยแต้ม'}</button></div>`;
-    dialog.querySelector('[data-cancel]').onclick = () => dialog.close();
+    dialog.querySelectorAll('[data-cancel]').forEach(button => { button.onclick = () => dialog.close(); });
     dialog.querySelector('[data-save]').onclick = () => { dialog.close(); owned(item) ? mutate('equip') : confirmPurchase(); };
     dialog.showModal();
     dialog.querySelector('[data-cancel]').focus();
+    if(item.kind === 'background') loadPreviewRank(dialog.querySelector('[data-preview-rank]'));
+  }
+  async function loadPreviewRank(slot) {
+    const tiers=[['brone','Brone'],['gold','Gold'],['platinum','Platinum'],['diamonds','Diamonds'],['super','Super'],['supreme','Supreme']];
+    const [rankResult,badgeResult,moneyResult]=await Promise.allSettled([
+      window.olafSupabase.rpc('shop_rank_state'),window.olafSupabase.rpc('shop_rank_badge_state'),
+      window.OlafOrders?.fetchPointBalance?.()
+    ]);
+    if(!slot.isConnected) return;
+    const state=rankResult.status==='fulfilled'&&!rankResult.value?.error ? rankResult.value?.data : null;
+    const rank=Number(state?.rank);
+    if(Number.isInteger(rank)&&rank>=0&&rank<=6) {
+      slot.innerHTML=`<h3>แรงค์ปัจจุบัน · ${tiers[rank-1]?.[1] || 'ยังไม่มีแรงค์'}</h3><div class="preview-rank-track">${tiers.map(([id,label],index)=>`<div class="${rank===index+1?'is-current':''}" style="--preview-opacity:${Math.max(.25,1-Math.abs(index+1-rank)*.15)}"><img src="api/rank-image?rank=${id}" alt="${label}"><small>${label}</small></div>`).join('')}</div>`;
+      if(rank>0&&badgeResult.status==='fulfilled'&&badgeResult.value?.data?.show) dialog.querySelector('[data-preview-name-rank]').innerHTML=`<img src="api/rank-image?rank=${tiers[rank-1][0]}" alt="แรงค์ ${tiers[rank-1][1]}">`;
+    } else slot.textContent='โหลดแรงค์ไม่สำเร็จ สามารถปิดแล้วเปิดตัวอย่างเพื่อลองใหม่';
+    if(moneyResult.status==='fulfilled'&&moneyResult.value) dialog.querySelector('[data-preview-money]').textContent=number(moneyResult.value.balance);
   }
   function confirmPurchase() {
     const item = current();
     if (!item || owned(item) || busy) return;
+    dialog.classList.remove('is-profile-preview');
     dialog.innerHTML = `<h2>แลก${item.kind === 'background' ? 'พื้นหลัง' : 'รูปโปรไฟล์'}นี้?</h2><img class="${item.kind === 'background' ? 'confirmation-background' : ''}" src="${escape(item.image)}" alt="${escape(item.name)}" />
       <p>ใช้ ${number(item.price)} แต้มร้านค้า · คงเหลือหลังแลก ${number(wallet.balance - item.price)} แต้ม<br>รูปจะเข้าคลังของคุณทันที โดยไม่หักยอดเงิน Point</p>
       <div class="atelier-dialog-actions"><button class="atelier-cancel" type="button" data-cancel>ยกเลิก</button><button class="atelier-confirm" type="button" data-confirm>ยืนยันการแลก</button></div>`;

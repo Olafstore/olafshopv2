@@ -1,4 +1,35 @@
 /* Image-led points storefront. Shared atelier dialogs keep purchase/equip logic. */
+.profile-store-page .atelier-dialog { width:min(600px,calc(100vw - 24px)); padding:22px; border-color:#ffffff26; background:#101115; border-radius:16px; font-family:Kanit,sans-serif; }
+.profile-store-page .atelier-dialog.is-profile-preview { width:min(860px,calc(100vw - 24px)); }
+.preview-heading { position:sticky; top:-22px; z-index:3; display:flex; align-items:center; justify-content:space-between; gap:16px; background:#101115f5; padding:12px 0; }
+.preview-heading small { font-size:10px; color:#a89dc5; letter-spacing:2px; }
+.preview-heading h2 { font-size:22px; margin:6px 0 14px; }
+.preview-heading button { min-width:40px; height:40px; font-size:25px; color:#ddd7ef; background:#ffffff08; border:1px solid #ffffff22; border-radius:10px; cursor:pointer; }
+.profile-store-page .atelier-dialog .portrait-full-preview { background:#08090c; border:1px solid #ffffff14; border-radius:12px; padding:14px; }
+.profile-store-page .atelier-dialog .portrait-full-preview img { width:100%; height:auto; max-height:55svh; border-radius:0; object-fit:contain; margin:0; }
+.preview-profile-card { border:1px solid #ffffff1c; border-radius:16px; overflow:hidden; background:#0d111b; }
+.profile-store-page .atelier-dialog .decoration-preview { min-height:280px; display:flex; align-items:flex-end; border-radius:0; }
+.profile-store-page .atelier-dialog .decoration-preview-bg { opacity:1; }
+.profile-store-page .decoration-preview-person { display:flex; align-items:center; gap:18px; width:100%; padding:80px 24px 24px; background:linear-gradient(transparent,#0d111bf0); }
+.profile-store-page .atelier-dialog .decoration-preview-person > img { margin:0; width:88px; height:88px; border:2px solid #b5c9f65c; border-radius:20px; flex-shrink:0; }
+.decoration-preview-person > div { min-width:0; }
+.decoration-preview-person > div > strong { font-size:27px; overflow-wrap:anywhere; }
+.decoration-preview-person > div > small { font-size:10px; color:#bcc9e5; }
+.profile-store-page .atelier-dialog [data-preview-name-rank] img { display:inline-block; width:36px; height:36px; margin:0 0 0 8px; object-fit:contain; border-radius:0; vertical-align:middle; }
+.preview-avatar-placeholder { display:grid; place-items:center; width:88px; height:88px; background:#272637; border-radius:20px; font-size:30px; }
+.preview-profile-stats { display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:18px 24px; border-bottom:1px solid #ffffff12; }
+.preview-profile-stats small { display:block; font-size:11px; color:#929bb1; }
+.preview-profile-stats strong { font-size:23px; }
+.preview-profile-bio,.preview-profile-rank { padding:18px 24px; }
+.preview-profile-bio h3,.preview-profile-rank h3 { margin:0 0 10px; font-size:15px; }
+.preview-profile-bio p { white-space:pre-wrap; overflow-wrap:anywhere; }
+.preview-rank-track { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; }
+.preview-rank-track > div { text-align:center; padding:10px 2px; border-radius:10px; }
+.preview-rank-track > .is-current { background:#ae9adc14; box-shadow:inset 0 0 0 1px #ae9adc30; }
+.profile-store-page .atelier-dialog .preview-rank-track img { width:100%; height:auto; aspect-ratio:1; object-fit:contain; border-radius:0; margin:0; opacity:var(--preview-opacity); }
+.preview-rank-track small { font-size:10px; color:#b5bad1; }
+.profile-store-page .atelier-dialog .atelier-confirm { background:#bca8eb; color:#161021; }
+@media(max-width:600px) { .profile-store-page .atelier-dialog { padding:16px; } .preview-heading { top:-16px; } .profile-store-page .decoration-preview-person { gap:12px; padding:70px 16px 20px; } .decoration-preview-person > div > strong { font-size:22px; } .preview-rank-track { grid-template-columns:repeat(6,72px); overflow:auto; } .preview-profile-bio,.preview-profile-rank,.preview-profile-stats { padding:16px; } }
 .profile-store-page { background:#08090c; color:#f0f1f5; }
 .profile-store-shell { max-width:none; padding:0 0 40px; }
 .profile-store-nav { display:none; }

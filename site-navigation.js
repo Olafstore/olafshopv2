@@ -2,19 +2,41 @@
   // Rank adornments are opt-in and derived from the signed-in account only.
   const rankBadgeNames = ['brone','gold','platinum','diamonds','super','supreme'];
   let rankBadgeState=null, rankBadgeOwner=null, rankBadgePending=false;
+  let menuBackground=null, menuBackgroundOwner=null;
+  function paintMenuBackground(){
+    const user=window.OlafStore?.currentUser?.();
+    const path=user?.id===menuBackgroundOwner?menuBackground:null;
+    document.querySelectorAll('.user-profile-card').forEach(card=>{
+      const previous=card.querySelector('[data-menu-background]');
+      if(!path){previous?.remove();return;}
+      if(previous?.dataset.menuBackground===path)return;
+      previous?.remove();const img=document.createElement('img');img.dataset.menuBackground=path;
+      img.src='api/profile-avatar?id='+encodeURIComponent(path);img.alt='';img.loading='lazy';img.className='user-menu-background';
+      card.prepend(img);
+    });
+  }
+  async function refreshMenuBackground(){
+    const user=window.OlafStore?.currentUser?.();
+    if(!user){menuBackgroundOwner=null;menuBackground=null;paintMenuBackground();return;}
+    try{const result=await window.olafSupabase.rpc('shop_decoration_state');
+      if(!result.error&&window.OlafStore?.currentUser?.()?.id===user.id){menuBackgroundOwner=user.id;menuBackground=typeof result.data?.background==='string'?result.data.background:null;paintMenuBackground();}
+    }catch{/* Keep navigation available if decoration cannot load. */}
+  }
   function paintRankBadge() {
     const user=window.OlafStore?.currentUser?.();
     const rank=user?.id===rankBadgeOwner && rankBadgeState?.show ? rankBadgeNames[rankBadgeState.rank-1] : null;
     document.querySelectorAll('.user-popover-info > strong, .member-identity h2').forEach(node=>{
       const previous=node.querySelector('[data-member-rank]');
-      if(!rank) { previous?.remove(); return; }
+      if(!rank) { (previous?.closest('.rank-badge-tip')||previous)?.remove(); return; }
       if(previous?.dataset.memberRank===rank) return;
-      previous?.remove();
+      (previous?.closest('.rank-badge-tip')||previous)?.remove();
       const badge=document.createElement('img');
       badge.dataset.memberRank=rank; badge.src=`api/rank-image?rank=${rank}`;
-      badge.alt=`แรงค์ ${rank}`; badge.title=`แรงค์ ${rank}`; badge.width=32; badge.height=32;
+      badge.alt=`แรงค์ ${rank}`; badge.width=32; badge.height=32;
       badge.style.cssText='display:inline-block;width:1.35em;height:1.35em;min-width:24px;min-height:24px;max-width:44px;max-height:44px;object-fit:contain;vertical-align:middle;margin-left:8px;filter:drop-shadow(0 2px 5px #8bbaff55)';
-      node.append(badge);
+      const wrap=document.createElement('span');wrap.className='rank-badge-tip';wrap.tabIndex=0;wrap.setAttribute('aria-label',`Rank ${rank}`);
+      const tooltip=document.createElement('span');tooltip.className='rank-badge-label';tooltip.textContent=`Rank · ${rank}`;tooltip.setAttribute('aria-hidden','true');
+      wrap.append(badge,tooltip);node.append(wrap);
     });
   }
   window.OlafRankBadge = {update(state) {rankBadgeOwner=window.OlafStore?.currentUser?.()?.id;rankBadgeState=state;paintRankBadge();}};
@@ -30,8 +52,20 @@
     finally {rankBadgePending=false;}
   }
   document.addEventListener('DOMContentLoaded',async()=>{
+    const style=document.createElement('style');style.textContent=`
+      .rank-badge-tip{position:relative;display:inline-flex;vertical-align:middle;outline-offset:4px}
+      .rank-badge-label{position:absolute;bottom:calc(100% + 9px);left:50%;transform:translate(-50%,5px);opacity:0;visibility:hidden;pointer-events:none;white-space:nowrap;padding:7px 11px;font:500 11px Kanit,sans-serif;color:#e5edf6;background:#1d2937f5;border:1px solid #a8c4df35;border-radius:9px;box-shadow:0 5px 18px #0006;transition:opacity .18s,transform .18s;z-index:20}
+      .rank-badge-tip:hover .rank-badge-label,.rank-badge-tip:focus-visible .rank-badge-label{opacity:1;visibility:visible;transform:translate(-50%,0)}
+      .user-profile-card{position:relative;isolation:isolate;overflow:hidden}
+      .user-profile-card .user-menu-background{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.38;z-index:-1;pointer-events:none;mask-image:linear-gradient(#000,#0005)}
+      .user-profile-card:has(.user-menu-background) .user-popover-header{background:transparent}
+      .user-profile-card:has(.user-menu-background) .user-popover-info{text-shadow:0 1px 5px #000}
+      @media(prefers-reduced-motion:reduce){.rank-badge-label{transition:none}}
+    `;document.head.append(style);
     await window.OlafStore?.ready;
-    new MutationObserver(paintRankBadge).observe(document.body,{childList:true,subtree:true});
+    new MutationObserver(()=>{paintRankBadge();paintMenuBackground();}).observe(document.body,{childList:true,subtree:true});
+    refreshMenuBackground();
+    window.addEventListener('focus',refreshMenuBackground);
     refreshRankBadge();
     document.addEventListener('visibilitychange',refreshRankBadge);
     window.addEventListener('focus',refreshRankBadge);

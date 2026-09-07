@@ -1,4 +1,8 @@
 /* Image-led points storefront. Shared atelier dialogs keep purchase/equip logic. */
+.profile-store-page .atelier-dialog {scrollbar-width:thin;scrollbar-color:#71829470 #15191e;scrollbar-gutter:stable;}
+.profile-store-page .atelier-dialog::-webkit-scrollbar {width:6px;}
+.profile-store-page .atelier-dialog::-webkit-scrollbar-track {background:#15191e;}
+.profile-store-page .atelier-dialog::-webkit-scrollbar-thumb {background:#71829470;border-radius:20px;}
 .portrait-full-preview { position:relative; }
 .preview-media-loading { min-height:240px; }
 .preview-media-loading::after { content:''; position:absolute; inset:0; pointer-events:none; background:linear-gradient(110deg,transparent 20%,#c7b6f51f 45%,transparent 70%); background-size:200% 100%; animation:previewShimmer 1.4s linear infinite; }

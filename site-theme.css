@@ -5,6 +5,17 @@
 .member-theme-control summary {display:flex;align-items:center;gap:6px;}
 .member-theme-control summary::before {content:'◐';font-size:16px;}
 .member-theme-options {max-width:280px;}
+.member-cover .member-theme-control summary::after {content:'';width:7px;height:7px;border-right:1.7px solid currentColor;border-bottom:1.7px solid currentColor;transform:rotate(45deg);margin-left:12px;margin-top:-4px;}
+.member-cover .member-theme-control[open] summary::after {transform:rotate(225deg);margin-top:4px;}
+.profile-orders-card > .shop-point-history {margin:0 20px 20px;border:0;border-top:1px solid var(--theme-edge);border-radius:0;box-shadow:none;background:transparent!important;}
+.member-game-picker {padding:22px;box-shadow:0 24px 90px #0008;border-color:var(--theme-edge);scrollbar-width:thin;scrollbar-color:#667d9160 transparent;}
+.member-game-picker::backdrop {background:#04080dcc;backdrop-filter:blur(9px);}
+.member-game-picker header h3 {font-size:17px;margin:0;}
+.member-game-picker [data-close] {width:34px;height:34px;padding:0;display:grid;place-items:center;flex-shrink:0;border-radius:11px;font-size:22px;line-height:1;background:var(--theme-control);}
+.member-picker-list label {border:1px solid transparent;padding:12px;border-radius:12px;transition:background .2s,border-color .2s;}
+.member-picker-list label:has(input:checked) {border-color:var(--theme-edge);background:var(--theme-control);}
+.member-picker-list input {accent-color:var(--theme-accent);width:16px;height:16px;flex-shrink:0;}
+.member-game-picker::-webkit-scrollbar {width:6px;}.member-game-picker::-webkit-scrollbar-thumb {background:#667d9160;border-radius:10px;}
 .member-cover .member-identity .member-bio textarea {background:transparent!important;border:1px solid transparent!important;box-shadow:none;resize:none;min-height:30px;padding:4px 0;transition:background .22s,border-color .22s,padding .22s;}
 .member-cover .member-identity .member-bio textarea::placeholder {color:#c7d1da;opacity:1;}
 .member-cover .member-identity .member-bio textarea:focus {background:#b8c2cc12!important;border-color:#bbc8d522!important;padding:4px 8px;}

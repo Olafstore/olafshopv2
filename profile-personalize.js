@@ -12,7 +12,7 @@
       identity.querySelector('p')?.remove(); bio.querySelector('h3')?.remove(); identity.append(bio);
     }
     const theme=document.createElement('details'); theme.className='member-theme-control';
-    theme.innerHTML='<summary>เลือกธีมเว็บไซต์</summary><div class="member-theme-options"><button type="button" data-theme="main">น้ำเงิน · เว็บหลัก</button><button type="button" data-theme="store">ดำม่วง · ร้านโปรไฟล์</button></div><select hidden aria-label="ธีมโปรไฟล์"><option value="main">น้ำเงิน · เว็บหลัก</option><option value="store">ดำม่วง · ร้านโปรไฟล์</option></select><span role="status"></span>';
+    theme.innerHTML='<summary>ธีมเว็บไซต์</summary><div class="member-theme-options"><button type="button" data-theme="main">น้ำเงิน · เว็บหลัก</button><button type="button" data-theme="store">ดำเทา · Steam</button></div><select hidden aria-label="ธีมโปรไฟล์"><option value="main">น้ำเงิน · เว็บหลัก</option><option value="store">ดำเทา · Steam</option></select><span role="status"></span>';
     root.querySelector('.member-cover').append(theme);
     const select=theme.querySelector('select'); select.value=document.documentElement.dataset.siteTheme || (prefs.theme==='store'?'store':'main');
     root.dataset.theme=select.value;

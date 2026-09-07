@@ -1,16 +1,32 @@
 :root { --theme-panel:#101b2d; --theme-control:#1a2941; --theme-accent:#86baff; --theme-edge:#9bbcea30; }
-html[data-site-theme="store"] { --bg:#09090d; --bg-card:#15131d; --bg-card-hover:#211d2c; --bg-elevated:#262031; --surface:#15131d; --surface-2:#211d2c; --surface-3:#262031; --brand:#9b83ee; --brand-hover:#bfa7ff; --brand-strong:#7958d5; --accent:#a58bdd; --border:#c9b4ef25; --line:#c9b4ef25; --theme-panel:#15131d; --theme-control:#262031; --theme-accent:#c7adff; --theme-edge:#cab1f030; }
-html[data-site-theme="store"] body { background:#09090d!important; }
+.member-cover {padding-top:70px!important;}
+.member-cover .member-customize {position:absolute;right:18px;top:18px;display:inline-flex;align-items:center;gap:6px;font-size:11px;padding:7px 10px;border-radius:10px;backdrop-filter:blur(14px);background:#202932a8;color:#dae5ed;box-shadow:0 4px 16px #0002;}
+.member-cover .member-theme-control {align-self:flex-start;width:fit-content;max-width:100%;font-size:12px;background:var(--theme-panel);box-shadow:0 8px 24px #0003;}
+.member-theme-control summary {display:flex;align-items:center;gap:6px;}
+.member-theme-control summary::before {content:'◐';font-size:16px;}
+.member-theme-options {max-width:280px;}
+.member-cover .member-identity .member-bio textarea {background:transparent!important;border:1px solid transparent!important;box-shadow:none;resize:none;min-height:30px;padding:4px 0;transition:background .22s,border-color .22s,padding .22s;}
+.member-cover .member-identity .member-bio textarea::placeholder {color:#c7d1da;opacity:1;}
+.member-cover .member-identity .member-bio textarea:focus {background:#b8c2cc12!important;border-color:#bbc8d522!important;padding:4px 8px;}
+.shop-point-history button {display:inline-flex;align-items:center;justify-content:center;gap:7px;transition:background .2s,transform .2s;}
+.shop-point-history button:hover:not(:disabled) {filter:brightness(1.12);transform:translateY(-1px);}
+.shop-point-history button svg {width:15px;height:15px;flex-shrink:0;}
+.shop-point-history [hidden] {display:none!important;}
+html[data-site-theme="store"] #profile-overview-root .member-cover {background:radial-gradient(ellipse at top right,#2b3a45,#171b20);}
+html[data-site-theme="store"] #profile-overview-root .member-cover::after {background:linear-gradient(transparent,#171b20e8);}
+@media(prefers-reduced-motion:reduce){.member-cover .member-identity .member-bio textarea,.shop-point-history button {transition:none;}}
+html[data-site-theme="store"] { --bg:#101214; --bg-card:#1b1e22; --bg-card-hover:#24292e; --bg-elevated:#2b3036; --surface:#1b1e22; --surface-2:#24292e; --surface-3:#2b3036; --brand:#769bb4; --brand-hover:#a9c7da; --brand-strong:#426b86; --accent:#84a7bd; --border:#b8c9d325; --line:#b8c9d325; --theme-panel:#1b1e22; --theme-control:#2b3036; --theme-accent:#bad3e2; --theme-edge:#b8c9d330; }
+html[data-site-theme="store"] body { background:#101214!important; }
 html[data-site-theme="store"] :is(.topbar,.profile-sidebar-card,.profile-hero,.profile-sidebar-user,.profile-orders-table,.profile-order-delivery,.notification-panel,.home-free-games-rail,.home-free-game-card,.discovery-row,.discovery-theme-row,.discovery-card,.catalog-toolbar,.point-topup-card,.qr-dialog-shell) {background:var(--theme-panel)!important;border-color:var(--theme-edge)!important;}
-html[data-site-theme="store"] .member-cover {background:radial-gradient(ellipse at top right,#34253f,#111116);}
-html[data-site-theme="store"] .member-cover::after {background:linear-gradient(transparent,#101115e8);}
-html[data-site-theme="store"] .profile-nav-item.is-active {background:#9b83ee25!important;color:var(--theme-accent)!important;}
+html[data-site-theme="store"] .member-cover {background:radial-gradient(ellipse at top right,#2b3a45,#171b20);}
+html[data-site-theme="store"] .member-cover::after {background:linear-gradient(transparent,#171b20e8);}
+html[data-site-theme="store"] .profile-nav-item.is-active {background:#769bb425!important;color:var(--theme-accent)!important;}
 html[data-site-theme="store"] #catalog-game-preview :is(.olaf-steam-taste-row,.olaf-steam-theme-row,.olaf-steam-theme-card) {background:var(--theme-panel)!important;border-color:var(--theme-edge)!important;}
 html[data-site-theme="store"] #catalog-game-preview .catalog-discovery-actions :is(a,button) {background:var(--theme-control)!important;border-color:var(--theme-edge)!important;}
 html[data-site-theme="store"] :is(.site-header,.site-footer,.profile-sidebar,.profile-card,.panel-card,.profile-order-row,.profile-orders-summary,.profile-orders-table-head,.profile-coupon-card,.user-popover,.notification-dropdown,.panel-block,.recent-purchases-card,.video-showcase-card,.catalog-discovery-group,.member-showcase,.member-stats,.member-game-grid a,.product-card,.game-card,.filter-popover,.product-dialog,.favorites-dialog,.payment-dialog) { background:var(--theme-panel)!important; border-color:var(--theme-edge)!important; }
-html[data-site-theme="store"] :is(.profile-panel,.profile-content,.home-page main) { color:#eee9f8; }
-html[data-site-theme="store"] :is(.primary-button,.profile-save-button) { background:linear-gradient(110deg,#7756ce,#a681e0)!important; }
-html[data-site-theme="store"] :is(.secondary-button,.ghost-button,.profile-order-open,.profile-nav-item,.member-customize,.profile-panel input,.profile-panel textarea,.profile-panel select) { background:var(--theme-control); border-color:var(--theme-edge); color:#eee9f8; }
+html[data-site-theme="store"] :is(.profile-panel,.profile-content,.home-page main) { color:#e3e8ed; }
+html[data-site-theme="store"] :is(.primary-button,.profile-save-button) { background:linear-gradient(110deg,#385b73,#648da5)!important; }
+html[data-site-theme="store"] :is(.secondary-button,.ghost-button,.profile-order-open,.profile-nav-item,.member-customize,.profile-panel input,.profile-panel textarea,.profile-panel select) { background:var(--theme-control); border-color:var(--theme-edge); color:#e3e8ed; }
 .member-theme-control { display:block; position:relative; z-index:2; border:1px solid var(--theme-edge); border-radius:14px; background:var(--theme-panel); padding:10px 14px; box-sizing:border-box; }
 .member-theme-control summary { cursor:pointer; list-style:none; color:var(--theme-accent); font-weight:600; }.member-theme-control summary::after {content:'⌄';margin-left:16px;display:inline-block;transition:transform .24s;}.member-theme-control[open] summary::after{transform:rotate(180deg);}
 .member-theme-options {display:flex;gap:8px;flex-wrap:wrap;padding-top:12px;}

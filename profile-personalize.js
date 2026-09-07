@@ -11,30 +11,30 @@
     if(bio&&identity) {
       identity.querySelector('p')?.remove(); bio.querySelector('h3')?.remove(); identity.append(bio);
     }
-    const theme=document.createElement('label'); theme.className='member-theme-control';
-    theme.innerHTML='ธีมโปรไฟล์ <select aria-label="ธีมโปรไฟล์"><option value="main">น้ำเงิน · เว็บหลัก</option><option value="store">ดำม่วง · ร้านโปรไฟล์</option></select><span role="status"></span>';
+    const theme=document.createElement('details'); theme.className='member-theme-control';
+    theme.innerHTML='<summary>เลือกธีมเว็บไซต์</summary><div class="member-theme-options"><button type="button" data-theme="main">น้ำเงิน · เว็บหลัก</button><button type="button" data-theme="store">ดำม่วง · ร้านโปรไฟล์</button></div><select hidden aria-label="ธีมโปรไฟล์"><option value="main">น้ำเงิน · เว็บหลัก</option><option value="store">ดำม่วง · ร้านโปรไฟล์</option></select><span role="status"></span>';
     root.querySelector('.member-cover').append(theme);
-    const select=theme.querySelector('select'); select.value=prefs.theme==='store'?'store':'main';
+    const select=theme.querySelector('select'); select.value=document.documentElement.dataset.siteTheme || (prefs.theme==='store'?'store':'main');
     root.dataset.theme=select.value;
-    select.addEventListener('change',()=>{prefs.theme=select.value;root.dataset.theme=prefs.theme;theme.querySelector('span').textContent=save()?'':'บันทึกธีมในเบราว์เซอร์ไม่ได้';});
+    const sync=()=>theme.querySelectorAll('button[data-theme]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.theme===select.value)));
+    select.addEventListener('change',()=>{prefs.theme=select.value;root.dataset.theme=prefs.theme;window.OlafTheme?.set(prefs.theme);sync();theme.querySelector('span').textContent=save()?'':'บันทึกธีมในเบราว์เซอร์ไม่ได้';});
+    theme.querySelectorAll('button[data-theme]').forEach(button=>button.onclick=()=>{select.value=button.dataset.theme;select.dispatchEvent(new Event('change'));});sync();window.OlafTheme?.animateDetails(theme);
     const games=event.detail?.games||[];
     if(!event.detail?.ordersLoaded) return;
     const allowed=new Set(games.map(game=>game.id));
     let chosen=Array.isArray(prefs.games)?[...new Set(prefs.games)].filter(id=>allowed.has(id)).slice(0,12):games.slice(0,6).map(g=>g.id);
-    const minimum=Math.min(6,games.length);
-    if(chosen.length<minimum) chosen=games.slice(0,minimum).map(g=>g.id);
-    const paint=()=>{root.querySelector('.member-game-grid').innerHTML=games.filter(g=>chosen.includes(g.id)).map(g=>`<a href="product.html?id=${encodeURIComponent(g.id)}">${g.image?`<img src="${esc(g.image)}" alt="" loading="lazy">`:''}<strong>${esc(g.name)}</strong></a>`).join('')||'<p>ยังไม่มีเกมที่ซื้อ</p>';};
+    const paint=()=>{root.querySelector('.member-game-grid').innerHTML=games.filter(g=>chosen.includes(g.id)).map(g=>`<a href="product.html?id=${encodeURIComponent(g.id)}">${g.image?`<img src="${esc(g.image)}" alt="" loading="lazy">`:''}<strong>${esc(g.name)}</strong></a>`).join('')||'<p>ยังไม่ได้เลือกเกมมาแสดง</p>';};
     paint();
-    const button=document.createElement('button'); button.type='button';button.className='member-select-games';button.textContent='เลือกเกมที่โชว์ · 6–12 เกม';
+    const button=document.createElement('button'); button.type='button';button.className='member-select-games';button.textContent='เลือกเกมที่โชว์ · สูงสุด 12 เกม';
     root.querySelector('.member-games h3').after(button);
     button.addEventListener('click',()=>{
       const dialog=document.createElement('dialog');dialog.className='member-game-picker';
-      dialog.innerHTML=`<form><header><h3>เลือกเกมที่โชว์ (${minimum}–12 เกม)</h3><button type="button" data-close aria-label="ปิด">×</button></header><p>เลือกจากเกมที่ซื้อแล้วเท่านั้น</p><div class="member-picker-list">${games.map(g=>`<label><input type="checkbox" value="${esc(g.id)}" ${chosen.includes(g.id)?'checked':''}>${esc(g.name)}</label>`).join('')}</div><footer><span role="status"></span><button type="submit">บันทึกเกมที่เลือก</button></footer></form>`;
+      dialog.innerHTML=`<form><header><h3>เลือกเกมที่โชว์ (สูงสุด 12 เกม)</h3><button type="button" data-close aria-label="ปิด">×</button></header><p>เลือกจากเกมที่ซื้อแล้ว ไม่จำเป็นต้องเลือกขั้นต่ำ</p><div class="member-picker-list">${games.map(g=>`<label><input type="checkbox" value="${esc(g.id)}" ${chosen.includes(g.id)?'checked':''}>${esc(g.name)}</label>`).join('')}</div><footer><span role="status"></span><button type="submit">บันทึกเกมที่เลือก</button></footer></form>`;
       document.body.append(dialog); dialog.addEventListener('close',()=>dialog.remove(),{once:true});dialog.querySelector('[data-close]').onclick=()=>dialog.close();
       const checks=[...dialog.querySelectorAll('input')],status=dialog.querySelector('[role="status"]');
       const update=()=>{const count=checks.filter(c=>c.checked).length;status.textContent=`เลือกแล้ว ${count}/12 เกม`;checks.forEach(c=>c.disabled=!c.checked&&count>=12);};
       dialog.addEventListener('change',update);update();
-      dialog.querySelector('form').onsubmit=e=>{e.preventDefault();const ids=checks.filter(c=>c.checked).map(c=>c.value);if(ids.length<minimum||ids.length>12){status.textContent=`กรุณาเลือก ${minimum}–12 เกม`;return;}prefs.games=ids;if(!save()){status.textContent='บันทึกไม่ได้ กรุณาตรวจการอนุญาตพื้นที่จัดเก็บ';return;}chosen=ids;paint();dialog.close();};
+      dialog.querySelector('form').onsubmit=e=>{e.preventDefault();const ids=checks.filter(c=>c.checked).map(c=>c.value);if(ids.length>12){status.textContent='เลือกได้สูงสุด 12 เกม';return;}prefs.games=ids;if(!save()){status.textContent='บันทึกไม่ได้ กรุณาตรวจการอนุญาตพื้นที่จัดเก็บ';return;}chosen=ids;paint();dialog.close();};
       dialog.showModal();
     });
   });

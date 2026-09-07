@@ -566,13 +566,18 @@
     return input;
   }
 
+  let checkingTopupSlip = false;
   async function uploadTopupSlip(file) {
+    if(checkingTopupSlip)return;
     if (!state.order?.id) {
       showToast("กรุณาสร้างรายการเติม Point ก่อนแนบสลิป", "error");
       return;
     }
     const uploadButton = $("[data-topup-qr-upload]");
     const status = $("[data-topup-qr-status]");
+    checkingTopupSlip = true;
+    status?.classList.add('is-checking');
+    status?.setAttribute('aria-busy','true');
     try {
       setButtonBusy(uploadButton, true, "กำลังตรวจสลิป...");
       if (status) status.innerHTML = `<i data-lucide="loader-circle"></i> กำลังตรวจสลิป`;
@@ -612,6 +617,9 @@
       if (status) status.innerHTML = `<i data-lucide="alert-circle"></i> ตรวจสลิปไม่สำเร็จ`;
       createIcons();
     } finally {
+      checkingTopupSlip = false;
+      status?.classList.remove('is-checking');
+      status?.removeAttribute('aria-busy');
       setButtonBusy(uploadButton, false);
       renderAuthState();
     }

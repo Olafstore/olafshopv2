@@ -22,6 +22,32 @@
   let root, catalog = [], wallet = { balance:0, owned:[], equipped:null, ledger:[] };
   let selected = null, tab = 'library', busy = false, loaded = false, lastRefresh = 0;
   let kind = 'avatar';
+  let shopQuery = '', shopSort = 'price', shuffledIds = [];
+  const shopIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 9h18l-2-6H5L3 9Zm1 0v11h16V9M9 20v-7h6v7"/><path d="M3 9c0 4 6 4 6 0 0 4 6 4 6 0 0 4 6 4 6 0"/></svg>';
+  function storeCard(p, featured=false) {
+    return `<button type="button" class="atelier-portrait store-product ${featured?'is-featured':''}" data-avatar="${escape(p.id)}" aria-label="ดูตัวอย่าง ${escape(p.name)}" ${busy?'disabled':''}>
+      <img src="${escape(p.image)}" alt="${escape(p.name)}" loading="lazy" decoding="async" width="320" height="320">
+      <span class="store-product-type">${p.kind==='background'?'พื้นหลัง':'รูปโปรไฟล์'}</span>
+      <span class="store-product-caption"><strong>${escape(p.name)}</strong><small>${p.price===0?'ฟรี':`${number(p.price)} แต้ม`}</small>${equipped(p)?'<em>✓ กำลังใช้งาน</em>':owned(p)?'<em>อยู่ในคลังแล้ว</em>':''}</span>
+    </button>`;
+  }
+  function renderStore() {
+    const group=catalog.filter(p=>kind==='all'||(p.kind||'avatar')===kind);
+    const items=(tab==='library'?group.filter(owned):group).filter(p=>p.name.toLocaleLowerCase().includes(shopQuery.toLocaleLowerCase()));
+    items.sort((a,b)=>shopSort==='name'?a.name.localeCompare(b.name,'th',{numeric:true}):shopSort==='random'?shuffledIds.indexOf(a.id)-shuffledIds.indexOf(b.id):a.price-b.price||a.name.localeCompare(b.name,'th',{numeric:true}));
+    root.dataset.kind='store';
+    root.innerHTML=`<div class="avatar-atelier store-market">
+      <header class="store-topbar"><a href="index.html" class="store-mark" aria-label="กลับหน้าร้าน">${shopIcon}</a><nav aria-label="ร้านแต้ม"><button data-shop-tab="shop" aria-pressed="${tab==='shop'}">แนะนำ / ร้านค้า</button><button data-shop-tab="library" aria-pressed="${tab==='library'}">คลังของฉัน</button><a href="profile.html#overview">โปรไฟล์ของฉัน ↗</a></nav>
+      <form class="store-search" data-store-search role="search"><input name="query" type="search" value="${escape(shopQuery)}" placeholder="ค้นหาในร้านค้า" aria-label="ค้นหาสินค้าตกแต่ง"><button type="submit" aria-label="ค้นหา">⌕</button></form>
+      <div class="atelier-wallet store-balance" aria-label="แต้มร้านค้าคงเหลือ"><span>◇</span><strong>${loaded?number(wallet.balance):'—'}</strong><small>แต้ม</small></div></header>
+      <div class="store-market-content"><div class="store-intro"><div><span>OLAF · POINT SHOP</span><h1>แต่งโปรไฟล์ให้เป็นคุณ</h1><p>เลือกสไตล์ที่ชอบ ดูตัวอย่างก่อนซื้อ และเก็บไว้ในคลังของคุณ</p></div><button data-shop-action="refresh" ${busy?'disabled':''}>โหลดใหม่</button></div>
+      ${tab==='shop'&&!shopQuery&&items.length?`<section class="store-featured" aria-label="ของตกแต่งแนะนำ"><div class="store-section-heading"><h2>แนะนำสำหรับคุณ</h2><div><button data-featured-scroll="-1" aria-label="เลื่อนซ้าย">←</button><button data-featured-scroll="1" aria-label="เลื่อนขวา">→</button></div></div><div class="store-featured-track">${items.slice(0,6).map(p=>storeCard(p,true)).join('')}</div></section>`:''}
+      <section><div class="store-toolbar"><h2>${tab==='library'?'คลังสไตล์ของคุณ':'ค้นหาสไตล์ของคุณ'}</h2><nav class="store-categories" aria-label="หมวดสินค้า">${[['all','ทั้งหมด'],['avatar','รูปโปรไฟล์'],['background','พื้นหลัง']].map(([id,label])=>`<button data-shop-kind="${id}" aria-pressed="${kind===id}">${label}</button>`).join('')}</nav><label>เรียงตาม <select data-store-sort><option value="price" ${shopSort==='price'?'selected':''}>ราคาน้อยไปมาก</option><option value="name" ${shopSort==='name'?'selected':''}>ชื่อสินค้า</option><option value="random" ${shopSort==='random'?'selected':''}>สุ่ม</option></select></label><button data-store-random>สุ่ม!</button></div>
+      <div class="atelier-grid store-product-grid">${items.map(p=>storeCard(p)).join('')||`<div class="store-empty">${shopQuery?'ไม่พบสินค้าที่ค้นหา':'ยังไม่มีของตกแต่งในหมวดนี้'}<small>${shopQuery?'ลองค้นหาด้วยชื่ออื่น':'รูปใหม่จะแสดงที่นี่เมื่อร้านอัปโหลดไฟล์ ไม่ต้องแก้หน้าเว็บ'}</small></div>`}</div></section>
+      <p class="atelier-status${noticeError?' is-error':''}" role="status">${escape(notice||(!loaded?'กำลังโหลดข้อมูลร้านค้า…':'เลือกรูปเพื่อดูตัวอย่างก่อนยืนยัน · เติมเงินสำเร็จ 100 บาท = 1,000 แต้ม'))}</p>
+      <details class="atelier-history"><summary>ประวัติแต้มร้านค้า</summary>${wallet.ledger.map(row=>`<div class="atelier-history-row"><span>${escape(row.reason)}</span><strong>${number(row.amount)} แต้ม</strong></div>`).join('')||'ยังไม่มีรายการแต้ม'}</details></div></div>`;
+    root.querySelector('[data-store-sort]').value = shopSort;
+  }
   const equipped = item => (item?.kind === 'background' ? wallet.background : wallet.equipped) === item?.id;
   let refreshPromise, channel, timer, dialog, notice = '', noticeError = false;
   const owned = item => item.price === 0 || wallet.owned.includes(item.id);
@@ -61,6 +87,7 @@
       ledger:Array.isArray(state.ledger) ? state.ledger : [] };
   }
   function render() {
+    if (document.body.classList.contains('profile-store-page')) { renderStore(); return; }
     const group = catalog.filter(p => (p.kind || 'avatar') === kind);
     const items = (tab === 'library' ? group.filter(owned) : group.filter(p => p.price > 0)).sort((a,b) => a.price-b.price);
     if (!group.some(p => p.id === selected)) selected = items.find(equipped)?.id || items[0]?.id || null;
@@ -190,6 +217,7 @@
   document.addEventListener('DOMContentLoaded', async () => {
     root = document.getElementById('avatar-shop-root');
     if (!root) return;
+    if(document.body.classList.contains('profile-store-page')) { tab='shop'; kind='all'; }
     await window.OlafStore?.ready;
     const member = window.OlafStore?.currentUser();
     if (!member) { location.href = 'login.html?return=profile-store.html'; return; }
@@ -198,9 +226,19 @@
     dialog.setAttribute('aria-label','ยืนยันการแลกรูปโปรไฟล์');
     document.body.append(dialog);
     render();
+    root.addEventListener('submit',event=>{
+      if(!event.target.matches('[data-store-search]')) return;
+      event.preventDefault(); shopQuery=event.target.elements.query.value.trim(); render();
+      root.querySelector('.store-search input')?.focus();
+    });
+    root.addEventListener('change',event=>{
+      if(event.target.matches('[data-store-sort]')) { shopSort=event.target.value; if(shopSort==='random') shuffleStore(); render(); }
+    });
     root.addEventListener('click', event => {
       const button = event.target.closest('button');
       if (!button || button.disabled || busy) return;
+      if(button.dataset.featuredScroll) root.querySelector('.store-featured-track')?.scrollBy({left:Number(button.dataset.featuredScroll)*300,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+      if(button.hasAttribute('data-store-random')) { shuffleStore(); shopSort='random'; render(); }
       if (button.dataset.shopKind) { kind = button.dataset.shopKind; selected = null; render(); }
       if (button.dataset.shopTab) { tab = button.dataset.shopTab; render(); }
       if (button.dataset.avatar) { selected = button.dataset.avatar; render(); previewSelection(); }
@@ -220,4 +258,8 @@
     window.addEventListener('focus', () => { if (!busy && !dialog.open) refresh(); });
     window.addEventListener('pagehide', () => { clearTimeout(timer); window.olafSupabase.removeChannel(channel); }, { once:true });
   });
+  function shuffleStore() {
+    shuffledIds=catalog.map(p=>p.id);
+    for(let i=shuffledIds.length-1;i>0;i--) {const j=Math.floor(Math.random()*(i+1)); [shuffledIds[i],shuffledIds[j]]=[shuffledIds[j],shuffledIds[i]];}
+  }
 })();

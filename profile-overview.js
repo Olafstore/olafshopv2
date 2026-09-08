@@ -15,6 +15,7 @@
     return [...games.values()];
   }
   document.addEventListener('DOMContentLoaded', async () => {
+    if(window.OlafProfileRoute?.visiting)return;
     const root = document.getElementById('profile-overview-root');
     if (!root) return;
     await window.OlafStore?.ready;

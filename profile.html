@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="utf-8" />
+  <script src="profile-member-route.js?v=20260909-member-v229"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="ข้อมูลส่วนตัว — OLAF SHOP" />
   <title>บัญชีของฉัน | OLAF SHOP</title>
@@ -21,18 +22,18 @@
   <script src="platform-store.js?v=20260619-profile-update-fix" defer></script>
   <script src="image-performance.js?v=20260907-store-updates-v199" defer></script>
 <script src="delivery-payload.js?v=20260716-qr-alignment-v111" defer></script>
-    <script src="site-navigation.js?v=20260909-floating-rank-v225" defer></script>
+    <script src="site-navigation.js?v=20260909-member-v229" defer></script>
   <script src="notifications.js?v=20260909-updates-v224" defer></script>
   <link rel="stylesheet" href="profile-shop.css?v=20260907-backgrounds-v203" />
   <link rel="stylesheet" href="profile-overview.css?v=20260907-profile-v203" />
-  <script src="profile-overview.js?v=20260909-rank-controls-v227" defer></script>
-  <script src="profile-personalize.js?v=20260909-v226" defer></script>
-  <script src="profile-sharing.js?v=20260909-sharing-errors-v228" defer></script>
-  <link rel="stylesheet" href="profile-sharing.css?v=20260909-v226" />
+  <script src="profile-overview.js?v=20260909-member-v229" defer></script>
+  <script src="profile-personalize.js?v=20260909-member-v229" defer></script>
+  <script src="profile-member.js?v=20260909-member-v229" defer></script>
+  <link rel="stylesheet" href="profile-member.css?v=20260909-member-v229" />
   <link rel="stylesheet" href="profile-rank.css?v=20260907-rank-display-v205" />
-  <script src="profile-rank.js?v=20260909-rank-controls-v227" defer></script>
+  <script src="profile-rank.js?v=20260909-member-v229" defer></script>
   <link rel="stylesheet" href="profile-personalize.css?v=20260907-layout-fix-v209" />
-  <script src="profile-point-history.js?v=20260907-v213" defer></script>
+  <script src="profile-point-history.js?v=20260909-member-v229" defer></script>
   <link rel="stylesheet" href="profile-point-history.css?v=20260907-history-v210" />
       <link rel="stylesheet" href="styles.css?v=20260905-search-discovery-v170" />
   <style>
@@ -4345,7 +4346,7 @@
       const isAdmin = String(user.role || '').toLowerCase() === 'admin';
       popover.innerHTML = `
         <div class="user-profile-card">
-          <a class="user-popover-header user-popover-header-link" href="#overview">
+          <a class="user-popover-header user-popover-header-link" href="#user">
             <div class="user-popover-avatar">${escape((user.displayName || user.username || 'U').slice(0, 1).toUpperCase())}</div>
             <div class="user-popover-info">
               <strong>${escape(user.displayName || user.username || 'สมาชิก')}</strong>
@@ -4361,7 +4362,7 @@
           <div class="user-popover-menu-title">เมนูบัญชี</div>
           ${isAdmin ? '<a href="olaf-control.html"><i data-lucide="shield"></i>หลังบ้าน (Admin)</a>' : ''}
           <a href="profile.html"><i data-lucide="user"></i>ข้อมูลส่วนตัว</a>
-          <a href="profile.html#overview"><i data-lucide="contact-round"></i>โปรไฟล์ของฉัน</a>
+          <a href="profile.html#user"><i data-lucide="contact-round"></i>โปรไฟล์ของฉัน</a>
           <a href="profile-store.html"><i data-lucide="shopping-cart"></i>ร้านค้าและคลังโปรไฟล์</a>
           <a href="point-topup.html"><i data-lucide="coins"></i>เติม Point</a>
           <a href="profile.html#inventory"><i data-lucide="package"></i>คลังสินค้า (ID/Pass)</a>
@@ -4555,6 +4556,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
+      if(window.OlafProfileRoute?.visiting)return;
       lucide.createIcons();
       await window.OlafStore?.ready;
 
@@ -4592,6 +4594,7 @@
       }
 
       function switchPanel(panelName) {
+        if(panelName==='user')panelName='overview';
         if (panelName === 'avatar-shop') { location.href = 'profile-store.html'; return 'info'; }
         const nextPanel = validPanels.includes(panelName) ? panelName : 'info';
         document.querySelectorAll('.profile-nav-item').forEach((button) => button.classList.remove('is-active'));
@@ -4606,12 +4609,12 @@
         const trigger = event.target.closest('.profile-nav-item[data-panel]');
         if (!trigger) return;
         const panelName = switchPanel(trigger.dataset.panel);
-        history.replaceState(null, '', `#${panelName}`);
+        history.replaceState(null, '', `#${panelName==='overview'?'user':panelName}`);
       });
 
       const initialPanel = switchPanel(window.location.hash.replace('#', ''));
       if (window.location.hash.replace('#', '') !== initialPanel) {
-        history.replaceState(null, '', `#${initialPanel}`);
+        history.replaceState(null, '', `#${initialPanel==='overview'?'user':initialPanel}`);
       }
 
       document.getElementById('lang-toggle')?.addEventListener('click', (event) => {
@@ -4669,7 +4672,7 @@
         event.preventDefault();
         closeTopbarMenus();
         const panelName = switchPanel('info');
-        history.replaceState(null, '', `#${panelName}`);
+        history.replaceState(null, '', `#${panelName==='overview'?'user':panelName}`);
         await refreshProfilePoints();
         showToast(`Point คงเหลือ ${formatPointAmount(profileState.pointBalance)} Point`, 'success');
       });
@@ -4913,7 +4916,7 @@
         const panelJump = event.target.closest('[data-panel-jump]');
         if (panelJump) {
           const panelName = switchPanel(panelJump.getAttribute('data-panel-jump'));
-          history.replaceState(null, '', `#${panelName}`);
+          history.replaceState(null, '', `#${panelName==='overview'?'user':panelName}`);
           return;
         }
 
@@ -4934,7 +4937,7 @@
           }
           const row = profileState.inventoryRows.find(item => item.orderId === orderId);
           const panelName = switchPanel('inventory');
-          history.replaceState(null, '', `?order=${encodeURIComponent(orderId)}#${panelName}`);
+          history.replaceState(null, '', `?order=${encodeURIComponent(orderId)}#${panelName==='overview'?'user':panelName}`);
           if (row) await openInventoryModalWithOrder(row);
           return;
         }

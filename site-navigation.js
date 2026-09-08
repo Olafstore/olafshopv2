@@ -26,6 +26,7 @@
     const user=window.OlafStore?.currentUser?.();
     const rank=user?.id===rankBadgeOwner && rankBadgeState?.show ? rankBadgeNames[rankBadgeState.rank-1] : null;
     document.querySelectorAll('.user-popover-info > strong, .member-identity h2').forEach(node=>{
+      if(node.closest('.member-visitor-showcase'))return;
       if(node.matches('.user-popover-info > strong')){
         [...node.childNodes].filter(child=>child.nodeType===Node.TEXT_NODE&&child.textContent.trim()).forEach(child=>{
           const name=document.createElement('span');name.className='rank-member-name';name.textContent=child.textContent;child.replaceWith(name);
@@ -799,7 +800,7 @@
     popover.dataset.olafUserMenuVersion = USER_MENU_VERSION;
     popover.innerHTML = `
       <div class="user-profile-card">
-        <a class="user-popover-header user-popover-header-link" href="profile.html#overview">
+        <a class="user-popover-header user-popover-header-link" href="profile.html#user">
           <span class="user-popover-avatar">${escapeHtml(initial)}</span>
           <span class="user-popover-info">
             <strong>${escapeHtml(displayName)}</strong>
@@ -816,7 +817,7 @@
       <div class="user-popover-menu">
         <div class="user-popover-menu-title">เมนูบัญชี</div>
         ${role === "admin" ? '<a href="olaf-control.html"><i data-lucide="shield"></i><span>หลังบ้าน (Admin)</span></a>' : ""}
-        <a href="profile.html#overview"><i data-lucide="contact-round"></i><span>โปรไฟล์ของฉัน</span></a>
+        <a href="profile.html#user"><i data-lucide="contact-round"></i><span>โปรไฟล์ของฉัน</span></a>
         <a href="profile-store.html"><i data-lucide="shopping-cart"></i><span>ร้านค้าและคลังโปรไฟล์</span></a>
         <a href="profile.html#inventory"><i data-lucide="archive"></i><span>คลังสินค้า</span></a>
         <a href="profile.html#coupons"><i data-lucide="ticket-percent"></i><span>คูปองของฉัน</span></a>

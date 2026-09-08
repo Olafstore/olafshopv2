@@ -58,6 +58,7 @@
     } finally { pending=false; }
   }
   document.addEventListener('DOMContentLoaded', async()=>{
+    if(window.OlafProfileRoute?.visiting)return;
     root=document.getElementById('profile-rank-root');
     if(!root) return;
     (document.getElementById('panel-overview')||root).addEventListener('change',async event=>{

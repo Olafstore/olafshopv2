@@ -2,6 +2,7 @@
   const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const number=value=>Number(value).toLocaleString('th-TH');
   document.addEventListener('DOMContentLoaded',async()=>{
+    if(window.OlafProfileRoute?.visiting)return;
     const root=document.getElementById('shop-point-history');if(!root)return;
     await window.OlafStore?.ready;
     const user=window.OlafStore?.currentUser();if(!user)return;

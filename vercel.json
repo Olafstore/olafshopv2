@@ -23,6 +23,16 @@
   },
   "redirects": [
     {
+      "source": "/public-profile.html",
+      "destination": "/profile.html#user",
+      "permanent": false
+    },
+    {
+      "source": "/profie/user",
+      "destination": "/profile.html#user",
+      "permanent": false
+    },
+    {
       "source": "/admin",
       "destination": "/",
       "permanent": false
@@ -59,10 +69,6 @@
     }
   ],
   "rewrites": [
-    {
-      "source": "/profie/user",
-      "destination": "/public-profile.html"
-    },
     {
       "source": "/",
       "destination": "/index.html"

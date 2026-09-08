@@ -1,0 +1,16 @@
+html[data-profile-visitor=true] .profile-sidebar,html[data-profile-visitor=true] .profile-panel:not(#panel-overview),html[data-profile-visitor=true] #profile-rank-root{display:none!important}
+html[data-profile-visitor=true] .profile-content{grid-template-columns:minmax(0,1fr)!important}
+html[data-profile-visitor=true] #profile-hero{display:none!important}
+html[data-profile-visitor=true] .member-showcase:not(.member-visitor-showcase){display:none!important}
+html[data-profile-visitor=true] #panel-overview{display:block!important}
+.member-visit-nav{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;color:var(--text-secondary)}
+.member-visit-nav>a{margin-right:auto;color:var(--theme-accent);font-size:13px}
+.member-visit-nav label{display:flex;align-items:center;gap:10px;font-size:12px;min-width:0}
+.member-visit-nav input{width:180px;min-width:0;max-width:100%;background:var(--theme-panel);border:1px solid var(--theme-edge);border-radius:10px;padding:9px 12px;color:var(--text);font:inherit}
+.member-visit-nav button{width:auto;border:1px solid var(--theme-edge);background:var(--theme-control);color:var(--theme-accent);padding:9px 14px;border-radius:10px;cursor:pointer;font:inherit;font-size:12px}
+.member-visit-message{padding:40px 24px;text-align:center;color:var(--text-secondary)}
+.member-visitor-badge{display:inline-block;width:42px;height:42px;object-fit:contain;vertical-align:middle;margin-left:10px}
+.member-visitor-bio{white-space:pre-wrap;overflow-wrap:anywhere}
+#profile-overview-root .member-visitor-showcase .member-identity{grid-row:1 / span 2}
+.member-visitor-showcase .member-identity h2{overflow-wrap:anywhere}
+@media(max-width:600px){.member-visit-nav{gap:10px}.member-visit-nav>a{flex-basis:100%}.member-visit-nav label{flex:1}.member-visit-nav label span{display:none}.member-visit-nav input{width:100%}}

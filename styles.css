@@ -37642,6 +37642,24 @@ body.product-detail-page .pd-feature-icon-support {
   background: rgba(190, 24, 93, 0.14);
 }
 
+/* Shared, fixed-size counters: never inherit a stretched flex/grid line box. */
+body .topbar .notification-button .notification-badge,
+body .topbar .favorites-button .favorites-badge {
+  position:absolute!important;top:0!important;right:0!important;
+  display:grid!important;place-items:center!important;box-sizing:border-box!important;
+  width:18px!important;min-width:18px!important;max-width:18px!important;
+  height:18px!important;min-height:18px!important;max-height:18px!important;
+  padding:0!important;border:0!important;border-radius:50%!important;
+  background:#ef4444!important;color:#fff!important;
+  font-family:Arial,sans-serif!important;font-size:8px!important;font-weight:700!important;
+  line-height:1!important;letter-spacing:0!important;font-variant-numeric:tabular-nums;
+  white-space:nowrap!important;text-align:center!important;text-indent:0!important;
+  transform:none!important;pointer-events:none;z-index:6;
+  box-shadow:0 0 0 2px #020617,0 2px 7px #ef44443a!important;
+}
+body .topbar .notification-button .notification-badge[hidden],
+body .topbar .favorites-button .favorites-badge[hidden] {display:none!important;}
+
 .favorites-badge {
   position: absolute;
   top: -8px;

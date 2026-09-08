@@ -284,6 +284,7 @@ function syncProductFavoriteControls() {
   if (badge) {
     badge.hidden = count === 0;
     badge.textContent = count > 99 ? "99+" : String(count);
+    badge.setAttribute('aria-label', `รายการโปรด ${count} รายการ`);
   }
 }
 

@@ -90,7 +90,7 @@
     if (!badge || !button) return;
     if (count > 0) {
       badge.hidden = false;
-      badge.textContent = "";
+      badge.textContent = count > 99 ? "99+" : String(count);
       badge.title = `${count} แจ้งเตือน`;
       button.classList.add("has-notifications");
       button.setAttribute("aria-label", `แจ้งเตือน ${count} รายการ`);
@@ -118,6 +118,14 @@
   function renderEmpty(message) {
     const list = document.querySelector("#notification-list");
     if (!list) return;
+    const eventTime = (item,kind) => {
+      const candidates=kind==='order'
+        ? [item.deliveredAt,item.delivered_at,item.updatedAt,item.updated_at,item.createdAt,item.created_at]
+        : kind==='coupon'
+          ? [item.notificationCreatedAt,item.notification_created_at,item.publishedAt,item.published_at,item.createdAt,item.created_at,item.startsAt,item.starts_at]
+          : [item.createdAt,item.created_at];
+      return candidates.find(value=>value&&Number.isFinite(new Date(value).getTime())) || '';
+    };
     list.innerHTML = `
       <div class="notification-empty">
         <i data-lucide="${emptyIcon}"></i>
@@ -145,10 +153,9 @@
 
     const deliveredOrders = orders
       .filter((order) => order?.status === "delivered")
-      .sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
+      .sort((a, b) => new Date(eventTime(b,'order')) - new Date(eventTime(a,'order')));
     const couponCampaigns = (campaigns || [])
-      .filter(coupon => isVisibleCouponCampaign(coupon))
-      .sort((a, b) => new Date(a.expiresAt || 8640000000000000) - new Date(b.expiresAt || 8640000000000000));
+      .filter(coupon => isVisibleCouponCampaign(coupon));
     clearTimeout(campaignExpiryTimer);
     const expiryTimes = couponCampaigns.map(coupon => new Date(coupon.expiresAt || coupon.expires_at || '').getTime()).filter(Number.isFinite);
     if (expiryTimes.length) {
@@ -183,11 +190,12 @@
             <strong>${escapeHtml(coupon.title || "กิจกรรมรับโค้ดส่วนลด")}</strong>
             <p>${escapeHtml(coupon.message || couponValueLabel(coupon))}</p>
             <span>${escapeHtml(couponValueLabel(coupon))} · ${escapeHtml(couponPeriodLabel(coupon))}</span>
+            ${eventTime(coupon,'coupon') ? `<span class="notification-event-date">${escapeHtml(formatDate(eventTime(coupon,'coupon')))}</span>` : ''}
             ${!expired && !claimed ? `<button type="button" class="notification-coupon-claim" data-claim-coupon="${escapeHtml(codeId)}"><i data-lucide="gift"></i>รับคูปอง</button>` : ""}
             ${claimed ? `<a class="notification-coupon-open" href="profile.html#coupons"><i data-lucide="ticket-check"></i>ดูคูปองของฉัน</a>` : ""}
           </span>
         </article>`;
-    }).join("");
+    });
 
     const deliveredHtml = deliveredOrders.map((order) => {
       const imageUrl = orderProductImage(order);
@@ -195,7 +203,7 @@
       const mediaHtml = imageUrl
         ? `<span class="notification-thumb"><img src="${escapeHtml(imageUrl)}" alt="${escapeHtml(orderProductText(order))}" /></span>`
         : `<span class="notification-icon"><i data-lucide="check-circle"></i></span>`;
-      const dateText = formatDate(order.updatedAt || order.createdAt);
+      const dateText = formatDate(eventTime(order,'order'));
       return `
         <a class="notification-item ${isUnread ? "unread" : ""} notification-delivered" href="profile.html?order=${encodeURIComponent(order.id)}#inventory" data-delivery-notification="${escapeHtml(order.id)}">
           ${mediaHtml}
@@ -205,7 +213,7 @@
             <span>${escapeHtml(orderLabel(order))}${dateText ? ` · ${escapeHtml(dateText)}` : ""}</span>
           </span>
         </a>`;
-    }).join("");
+    });
 
     const productHtml = recentProducts.map(product => {
       const imageUrl = product.image || product.heroImage || '';
@@ -216,8 +224,13 @@
       const priceHtml = product.price != null && product.price !== '' && Number.isFinite(price) && price >= 0
         ? `<strong class="notification-product-price">฿${price.toLocaleString('th-TH', { maximumFractionDigits: 2 })}</strong>` : '';
       return `<a class="notification-item ${readIds.has(`product:${product.id}`) ? '' : 'unread'}" href="product.html?id=${encodeURIComponent(product.id)}" data-product-notification="${escapeHtml(product.id)}">${media}<span class="notification-content"><strong>สินค้าใหม่เข้าร้าน</strong><p>${escapeHtml(product.name)}</p>${priceHtml}<span>${escapeHtml(formatDate(product.createdAt))}</span></span></a>`;
-    }).join('');
-    list.innerHTML = productHtml + couponHtml + deliveredHtml;
+    });
+    const entries=(items,html,kind)=>items.map((item,index)=>({html:html[index],time:new Date(eventTime(item,kind)).getTime()||0,key:`${kind}:${item.id||item.codeId||index}`}));
+    list.innerHTML = [
+      ...entries(recentProducts,productHtml,'product'),
+      ...entries(couponCampaigns,couponHtml,'coupon'),
+      ...entries(deliveredOrders,deliveredHtml,'order')
+    ].sort((a,b)=>b.time-a.time||a.key.localeCompare(b.key)).map(entry=>entry.html).join('');
     createIconSet();
   }
 

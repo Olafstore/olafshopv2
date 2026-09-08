@@ -575,6 +575,7 @@ function syncFavoriteControls() {
   if (badge) {
     badge.hidden = count === 0;
     badge.textContent = count > 99 ? "99+" : String(count);
+    badge.setAttribute('aria-label', `รายการโปรด ${count} รายการ`);
   }
 }
 
@@ -3385,12 +3386,9 @@ function renderUserPopover() {
     </div>
     <div class="user-popover-menu">
       <div class="user-popover-menu-title">หน้าหลัก</div>
-      <a href="profile.html"><i data-lucide="user"></i>ข้อมูลส่วนตัว</a>
       <a href="profile.html#overview"><i data-lucide="contact-round"></i>โปรไฟล์ของฉัน</a>
       <a href="profile-store.html"><i data-lucide="shopping-cart"></i>ร้านค้าและคลังโปรไฟล์</a>
-      <a href="point-topup.html"><i data-lucide="coins"></i>เติม Point</a>
       <a href="profile.html#inventory"><i data-lucide="package"></i>คลังสินค้า (ID/Pass)</a>
-      <a href="profile.html#orders"><i data-lucide="list"></i>ประวัติคำสั่งซื้อ</a>
       <a href="profile.html#coupons"><i data-lucide="ticket-percent"></i>คูปองของฉัน</a>
       
       <div class="user-popover-divider"></div>

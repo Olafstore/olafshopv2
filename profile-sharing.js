@@ -1,4 +1,16 @@
 (() => {
+  function sharingError(error) {
+    const code=/^[A-Z0-9_]{1,24}$/.test(error?.code||'')?error.code:'';
+    const message=String(error?.message||'');
+    let explanation='ยังยืนยันผลการบันทึกไม่ได้ กรุณารีเฟรชเพื่อตรวจสถานะก่อนลองอีกครั้ง';
+    if(message.includes('GAME_NOT_OWNED'))explanation='มีเกมที่ตรวจสิทธิ์ไม่ผ่าน กรุณาเลือกเกมที่โชว์ใหม่จากรายการที่ชำระสำเร็จ แล้วลองแชร์อีกครั้ง';
+    else if(message.includes('INVALID_PUBLIC_PROFILE'))explanation='ตรวจชื่อสาธารณะให้มี 1–80 ตัวอักษร และเลือกเกมไม่ซ้ำกันไม่เกิน 12 เกม';
+    else if(code==='PGRST202'||code==='PGRST203'||code==='42883')explanation='ฟังก์ชันบันทึกแชร์ในฐานข้อมูลไม่ตรงกับหน้าเว็บ ให้แอดมินตรวจการติดตั้ง supabase-public-profile.sql';
+    else if(code==='42703'||code==='42P01')explanation='โครงสร้างฐานข้อมูลแชร์โปรไฟล์ยังไม่ครบ ให้แอดมินตรวจการติดตั้ง supabase-public-profile.sql';
+    else if(code==='22P02')explanation='ชนิดข้อมูลที่ฐานข้อมูลรับไม่ตรงกับข้อมูลโปรไฟล์ กรุณาส่งรหัสนี้ให้แอดมินตรวจสอบ';
+    else if(code==='42501'||code==='PGRST301'||message.includes('AUTH_REQUIRED')||message.includes('SESSION_CHANGED'))explanation='สิทธิ์หรือเซสชันไม่พร้อม กรุณาเข้าสู่ระบบใหม่ หากยังพบปัญหาให้แอดมินตรวจสิทธิ์ฟังก์ชันแชร์';
+    return `บันทึกการแชร์ไม่สำเร็จ${code?` [${code}]`:''} · ${explanation}`;
+  }
   const icon='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4M8.6 13.5l6.8 4"/></svg>';
   window.addEventListener('olaf-profile-ready',async event=>{
     const root=document.getElementById('profile-overview-root'),user=window.OlafStore?.currentUser();
@@ -28,7 +40,7 @@
     };
     const rpc=async(action,args)=>{if(!current())throw new Error('SESSION_CHANGED');const result=await window.olafSupabase.rpc(action,args);if(result.error)throw result.error;if(!current())throw new Error('SESSION_CHANGED');return result.data;};
     const schedule=operation=>{
-      pending++;paint();queue=queue.then(operation).catch(()=>{if(current())status.textContent='บันทึกการแชร์ไม่สำเร็จ กรุณาลองอีกครั้ง การตั้งค่าที่บันทึกสำเร็จล่าสุดยังคงเดิม';}).finally(()=>{pending--;if(current())paint();});return queue;
+      pending++;paint();queue=queue.then(operation).catch(error=>{if(current())status.textContent=sharingError(error);}).finally(()=>{pending--;if(current())paint();});return queue;
     };
     form.addEventListener('submit',e=>{
       e.preventDefault();if(!state||pending||!name.value.trim()||(!state.enabled&&!consent.checked))return;

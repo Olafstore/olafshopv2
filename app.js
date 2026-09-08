@@ -2930,7 +2930,19 @@ function renderSteamStorefront() {
   section.innerHTML = `
     <header class="olaf-steam-section-head">
       <div><p>OLAF STORE HIGHLIGHTS</p><h2>สินค้าเด่นและแนะนำ</h2></div>
-      <a href="#catalog">เลือกดูสินค้าทั้งหมด <i data-lucide="arrow-right"></i></a>
+      <div class="highlight-heading-actions">
+        <a class="highlight-profile-store" href="profile-store.html">
+          <svg class="profile-store-card-art" viewBox="0 0 76 48" width="64" height="42" fill="none" aria-hidden="true">
+            <rect x="7" y="8" width="28" height="36" rx="5" transform="rotate(-14 7 8)" fill="#245d91" stroke="#78beee" stroke-opacity=".5"/>
+            <rect x="40" y="2" width="28" height="36" rx="5" transform="rotate(13 40 2)" fill="#3683ba" stroke="#b0dfff" stroke-opacity=".6"/>
+            <rect x="24" y="3" width="29" height="39" rx="5" fill="#172d4c" stroke="#91cefa"/>
+            <circle cx="38.5" cy="17" r="5" fill="#badfff"/>
+            <path d="M30 32c0-6 3.8-9 8.5-9s8.5 3 8.5 9" fill="#70b6e9"/>
+            <path d="m61 18 1.5 4.5L67 24l-4.5 1.5L61 30l-1.5-4.5L55 24l4.5-1.5z" fill="#d0edff"/>
+          </svg>
+          <span>ร้านค้าโปรไฟล์</span><i data-lucide="arrow-up-right"></i>
+        </a>
+      </div>
     </header>
     <div class="olaf-steam-spotlight-stage" data-steam-spotlight-stage></div>
 

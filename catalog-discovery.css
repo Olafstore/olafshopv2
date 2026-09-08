@@ -1,4 +1,15 @@
 /* Discovery feed, with scoped home hero/featured responsive repairs below. */
+body.home-page .highlight-heading-actions {display:flex;align-items:center;justify-content:flex-end;gap:18px;flex-wrap:wrap;}
+body.home-page .highlight-profile-store {position:relative;display:inline-flex;align-items:center;gap:0;min-height:42px;padding:0;border:0;border-radius:0;background:none;box-shadow:none;text-decoration:none;color:#f0f8ff;font-size:13px;font-weight:600;transition:transform .18s,filter .18s;}
+body.home-page .highlight-profile-store {margin-left:24px;overflow:visible;}
+body.home-page .highlight-profile-store>span {padding:7px 12px 7px 48px;line-height:18px;border-radius:2px;background:linear-gradient(110deg,#15638e,#2a9bd1);}
+body.home-page .highlight-profile-store > svg:last-child {display:none;}
+body.home-page .highlight-profile-store .profile-store-card-art {position:absolute;left:-24px;top:-1px;width:68px;height:44px;z-index:1;flex-shrink:0;filter:drop-shadow(0 3px 4px #05152755);transition:transform .22s;}
+body.home-page .highlight-profile-store:hover {transform:translateY(-1px);filter:brightness(1.12);box-shadow:none;}
+body.home-page .highlight-profile-store:hover .profile-store-card-art {transform:rotate(-4deg);}
+body.home-page .highlight-profile-store:focus-visible {outline:2px solid #a5d9ff;outline-offset:4px;}
+@media(max-width:640px){body.home-page .highlight-heading-actions {gap:8px;}body.home-page .highlight-profile-store {font-size:11px;margin-left:18px;}body.home-page .highlight-profile-store>span {padding-left:38px;}body.home-page .highlight-profile-store .profile-store-card-art {left:-18px;top:3px;width:52px;height:35px;}}
+@media(prefers-reduced-motion:reduce){body.home-page .highlight-profile-store,body.home-page .highlight-profile-store .profile-store-card-art {transition:none;}}
 #catalog-game-preview .olaf-steam-taste-stack { display:grid; gap:24px; }
 #catalog-game-preview .discovery-load-more { display:grid; justify-items:center; gap:8px; padding:20px 8px; }
 #catalog-game-preview [data-discovery-progress] { color:#95abc5; font-size:13px; margin:0; }

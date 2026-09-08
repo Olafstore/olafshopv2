@@ -1949,7 +1949,7 @@ function relatedSectionMarkup(product, relatedProducts = []) {
       <div class="pd-related-heading">
         <div>
           <h3 class="pd-section-title">
-            <span class="pd-section-icon-box"><i data-lucide="sparkles"></i></span>
+            <span class="pd-section-icon-box"><i data-lucide="gamepad-2" aria-hidden="true"></i></span>
             เกมแนะนำหมวด ${escapeHtml(categoryLabel)}
           </h3>
           <p>${crossCategory ? "สินค้าในหมวดนี้มีจำนวนจำกัด จึงเพิ่มเกมยอดนิยมที่น่าสนใจให้ด้วย" : `คัดเกมจากหมวด ${escapeHtml(categoryLabel)} ที่คุณกำลังดู`}</p>

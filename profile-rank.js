@@ -18,7 +18,7 @@
       <div class="rank-progress"><div role="progressbar" aria-label="ยอดสะสมเพื่อแรงค์ถัดไป" aria-valuemin="0" aria-valuemax="${next?.[2] || 5000}" aria-valuenow="${Math.min(Number(state.total),next?.[2] || 5000)}"><i style="width:${next?Math.min(100,Number(state.total)/next[2]*100):100}%"></i></div>
       <p>${next ? `สะสมยอดให้มากกว่า ฿${money(next[2])} เพื่อขึ้น ${next[1]}` : 'คุณอยู่ในแรงค์สูงสุดของเดือนนี้แล้ว'}</p></div>
       <p class="rank-rules">เปิดเพื่อโชว์ระดับ Rank ของคุณที่หน้าโปรไฟล์</p>
-      <label class="rank-display-toggle"><input type="checkbox" data-rank-display ${displayState?.show?'checked':''} ${displayState===null?'disabled':''}><span>แสดง rank ของคุณที่หน้าโปรไฟล์</span></label><span class="rank-display-status" role="status">${displayState===null?'โหลดตัวเลือกไม่สำเร็จ กรุณาตรวจ SQL การแสดงแรงค์':''}</span>
+      <label class="rank-display-toggle"><input type="checkbox" data-rank-display ${displayState?.show?'checked':''} ${displayState===null?'disabled':''}><i class="rank-switch-track" aria-hidden="true"></i><span>แสดง rank ของคุณที่หน้าโปรไฟล์</span></label><span class="rank-display-status" role="status">${displayState===null?'โหลดตัวเลือกไม่สำเร็จ กรุณาตรวจ SQL การแสดงแรงค์':''}</span>
       <p class="rank-announcement" role="status" aria-live="polite"></p></section>`;
   }
   async function refresh() {

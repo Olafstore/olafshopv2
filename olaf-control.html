@@ -14,7 +14,9 @@
     <script src="platform-store.js?v=20260605-admin-users" defer></script>
     <script src="image-performance.js?v=20260607-performance" defer></script>
 <script src="delivery-payload.js?v=20260716-qr-alignment-v111" defer></script>
-    <script src="admin.js?v=20260907-shop-deduct-v211" defer></script>
+    <script src="admin-shop-history.js?v=20260908-v215" defer></script>
+    <link rel="stylesheet" href="admin-shop-history.css?v=20260908-v215" />
+    <script src="admin.js?v=20260908-v215" defer></script>
   </head>
   <body>
     <section class="admin-login-screen" id="admin-login-screen">
@@ -659,6 +661,12 @@
                 </button>
               </div>
               <form class="admin-form" id="user-form">
+                <section id="admin-shop-history" aria-label="ประวัติแต้มของผู้ใช้">
+                  <h3>ประวัติแต้มร้านค้าของผู้ใช้</h3>
+                  <div class="history-controls"><select aria-label="ประเภทประวัติแต้ม"><option value="earned">ได้รับแต้ม</option><option value="spent">ใช้ / หักแต้ม</option><option value="all">ทั้งหมด</option></select><button type="button" data-history-refresh>รีเฟรช</button></div>
+                  <div data-history-list></div><p role="status">เลือกผู้ใช้เพื่อดูประวัติแต้ม</p>
+                  <button type="button" data-history-more hidden>โหลดเพิ่มอีก 10 รายการ</button>
+                </section>
                 <div class="admin-point-editor" id="admin-shop-point-editor">
                   <div class="point-editor-balance"><span>แต้มร้านค้า (สำหรับแลกโปรไฟล์)</span><strong id="user-shop-balance">—</strong></div>
                   <p>เพิ่ม Point 1 บาท ได้แต้มร้านค้า 10 แต้มอัตโนมัติ หรือเพิ่มเฉพาะแต้มด้านล่างได้ โดยไม่เปลี่ยนยอดเงิน Point</p>

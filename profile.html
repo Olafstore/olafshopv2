@@ -28,7 +28,7 @@
   <script src="profile-overview.js?v=20260907-v213" defer></script>
   <script src="profile-personalize.js?v=20260907-v213" defer></script>
   <link rel="stylesheet" href="profile-rank.css?v=20260907-rank-display-v205" />
-  <script src="profile-rank.js?v=20260907-v213" defer></script>
+  <script src="profile-rank.js?v=20260908-v215" defer></script>
   <link rel="stylesheet" href="profile-personalize.css?v=20260907-layout-fix-v209" />
   <script src="profile-point-history.js?v=20260907-v213" defer></script>
   <link rel="stylesheet" href="profile-point-history.css?v=20260907-history-v210" />
@@ -2861,7 +2861,7 @@
     }
   </style>
     <script src="site-theme.js?v=20260907-v214"></script>
-    <link rel="stylesheet" href="site-theme.css?v=20260907-v214" />
+    <link rel="stylesheet" href="site-theme.css?v=20260908-v215" />
   </head>
 
 <body class="profile-page">
@@ -3753,11 +3753,14 @@
         .join(', ') || '-';
     }
 
+    let profileOrdersPage = 0;
     function renderOrdersList(orders) {
       const ordersList = document.getElementById('orders-list');
       if (!ordersList) return;
       if (orders.length) {
         const sortedOrders = [...orders].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+        const pageCount = Math.ceil(sortedOrders.length / 10);
+        profileOrdersPage = Math.min(profileOrdersPage, pageCount - 1);
         const totalPaid = sortedOrders
           .filter(order => !['cancelled', 'expired'].includes(order.status))
           .reduce((sum, order) => sum + Number(order.total || 0), 0);
@@ -3779,7 +3782,7 @@
             <span>สถานะ</span>
             <span>จัดการ</span>
           </div>
-          ${sortedOrders.map(o => `
+          ${sortedOrders.slice(profileOrdersPage * 10, (profileOrdersPage + 1) * 10).map(o => `
             <article class="profile-order-row">
               <div class="profile-order-cell profile-order-main" data-label="Order">
                 <div class="order-item-id">${escape(o.orderNumber || o.id)}</div>
@@ -3815,6 +3818,12 @@
             </article>
           `).join('')}
         `;
+        if(pageCount > 1){
+          const nav=document.createElement('nav');nav.className='profile-order-pagination';nav.setAttribute('aria-label','หน้าประวัติคำสั่งซื้อ');
+          nav.innerHTML=`<button type="button" ${profileOrdersPage===0?'disabled':''} data-order-page="prev">ก่อนหน้า</button><span role="status">หน้า ${profileOrdersPage+1} / ${pageCount}</span><button type="button" ${profileOrdersPage===pageCount-1?'disabled':''} data-order-page="next">ถัดไป</button>`;
+          nav.addEventListener('click',event=>{const button=event.target.closest('[data-order-page]');if(!button||button.disabled)return;profileOrdersPage+=button.dataset.orderPage==='next'?1:-1;renderOrdersList(orders);window.lucide?.createIcons();document.querySelector(`#orders-list [data-order-page="${button.dataset.orderPage}"]:not(:disabled)`)?.focus({preventScroll:true});});
+          ordersList.append(nav);
+        }
         startProfileOrderCountdowns();
       } else {
         if (profileOrderCountdownTimer) window.clearInterval(profileOrderCountdownTimer);

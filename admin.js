@@ -3498,6 +3498,7 @@ function walletRowForUser(userId) {
 }
 
 function fillUserForm(user) {
+  window.dispatchEvent(new CustomEvent('olaf-admin-user-selected',{detail:{userId:user?.id||null}}));
   const form = $("#user-form");
   const isNew = !user;
   $("#user-form-title").textContent = isNew ? "เพิ่ม user ใหม่" : "แก้ไข user";
@@ -3571,6 +3572,7 @@ async function grantSelectedUserShopPoints(direction = 1) {
       $("#user-shop-balance").textContent = `${formatPointAmount(result.shopBalance)} แต้ม`;
       form.elements.shopPointAmount.value = "";
       form.elements.shopPointNote.value = "";
+      window.dispatchEvent(new CustomEvent('olaf-admin-user-selected',{detail:{userId:user.id}}));
     }
     showAdminToast(`${action} ${formatPointAmount(amount)} แต้มร้านค้าของ ${user.email || user.username} แล้ว`, "success");
   } catch (error) {

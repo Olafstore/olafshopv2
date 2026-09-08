@@ -1,0 +1,9 @@
+#admin-shop-history {border:1px solid #99bde329;border-radius:16px;padding:18px;background:linear-gradient(145deg,#132239,#0d1423);min-width:0;}
+#admin-shop-history h3 {margin:0 0 8px;font-size:16px;}#admin-shop-history .history-controls {display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;}
+#admin-shop-history :is(button,select) {font:inherit;font-size:12px;background:#1d3049;color:#c9def7;border:1px solid #90b5e32e;border-radius:9px;padding:8px 12px;cursor:pointer;}
+#admin-shop-history article {display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #c3d9ff12;font-size:12px;overflow-wrap:anywhere;}
+#admin-shop-history article>div {min-width:0;}#admin-shop-history small {display:block;color:#9babc2;font-size:11px;margin-top:5px;}
+#admin-shop-history .history-amount {text-align:right;flex-shrink:0;}#admin-shop-history .earned {color:#86d9b6;}#admin-shop-history .spent {color:#f3b2b8;}
+#admin-shop-history [role=status] {color:#9babc2;font-size:12px;}#admin-shop-history [hidden] {display:none!important;}
+#admin-shop-history :disabled {opacity:.5;cursor:wait;}
+@media(max-width:540px){#admin-shop-history article {flex-direction:column;gap:4px;}#admin-shop-history .history-amount {text-align:left;}}

@@ -5,7 +5,7 @@
     ['super','Super',3000,'#c1a0ff'], ['supreme','Supreme',5000,'#ffb2ce']
   ];
   const money = value => Number(value).toLocaleString('th-TH',{maximumFractionDigits:2});
-  let root, pending=false, refreshTimer, displayState=null, saving=false;
+  let root, controls, pending=false, refreshTimer, displayState=null, saving=false;
   const visible = () => root && !root.hidden && !document.hidden && document.getElementById('panel-overview')?.classList.contains('is-active');
   function render(state) {
     const active = ranks[state.rank-1];
@@ -21,6 +21,14 @@
       <label class="rank-display-toggle"><input type="checkbox" data-rank-display ${displayState?.show?'checked':''} ${displayState===null?'disabled':''}><i class="rank-switch-track" aria-hidden="true"></i><span>แสดง rank ของคุณที่หน้าโปรไฟล์</span></label><span class="rank-display-status" role="status">${displayState===null?'โหลดตัวเลือกไม่สำเร็จ กรุณาตรวจ SQL การแสดงแรงค์':''}</span>
       <p class="rank-announcement" role="status" aria-live="polite"></p></section>`;
   }
+  function placeControls() {
+    const slot=document.querySelector('#profile-overview-root [data-profile-rank-controls-slot]');
+    controls=root;
+    if(!slot)return;
+    controls=document.createElement('div');controls.id='profile-rank-controls';
+    for(const element of root.querySelectorAll('.rank-progress,.rank-rules,.rank-display-toggle,.rank-display-status'))controls.append(element);
+    slot.replaceChildren(controls);
+  }
   async function refresh() {
     if (!visible() || pending || saving) return;
     pending=true;
@@ -32,6 +40,7 @@
       if(displayState) window.OlafRankBadge?.update(displayState);
       if(!visible()) return;
       render(data);
+      placeControls();
       if(data.rank>data.seen) {
         const claim=await window.olafSupabase.rpc('shop_claim_rank_animation',{p_month:data.month,p_rank:data.rank});
         if(claim.error) throw claim.error;
@@ -51,10 +60,10 @@
   document.addEventListener('DOMContentLoaded', async()=>{
     root=document.getElementById('profile-rank-root');
     if(!root) return;
-    root.addEventListener('change',async event=>{
+    (document.getElementById('panel-overview')||root).addEventListener('change',async event=>{
       if(!event.target.matches('[data-rank-display]') || saving) return;
       const input=event.target; saving=true; input.disabled=true;
-      const status=root.querySelector('.rank-display-status');
+      const status=(controls||root).querySelector('.rank-display-status');
       status.textContent='กำลังบันทึก…';
       try {
         const result=await window.olafSupabase.rpc('shop_set_rank_display',{p_show:input.checked});

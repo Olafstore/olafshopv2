@@ -60,6 +60,10 @@
   ],
   "rewrites": [
     {
+      "source": "/profie/user",
+      "destination": "/public-profile.html"
+    },
+    {
       "source": "/",
       "destination": "/index.html"
     },

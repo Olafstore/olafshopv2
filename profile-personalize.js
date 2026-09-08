@@ -34,7 +34,7 @@
       const checks=[...dialog.querySelectorAll('input')],status=dialog.querySelector('[role="status"]');
       const update=()=>{const count=checks.filter(c=>c.checked).length;status.textContent=`เลือกแล้ว ${count}/12 เกม`;checks.forEach(c=>c.disabled=!c.checked&&count>=12);};
       dialog.addEventListener('change',update);update();
-      dialog.querySelector('form').onsubmit=e=>{e.preventDefault();const ids=checks.filter(c=>c.checked).map(c=>c.value);if(ids.length>12){status.textContent='เลือกได้สูงสุด 12 เกม';return;}prefs.games=ids;if(!save()){status.textContent='บันทึกไม่ได้ กรุณาตรวจการอนุญาตพื้นที่จัดเก็บ';return;}chosen=ids;paint();dialog.close();};
+      dialog.querySelector('form').onsubmit=e=>{e.preventDefault();const ids=checks.filter(c=>c.checked).map(c=>c.value);if(ids.length>12){status.textContent='เลือกได้สูงสุด 12 เกม';return;}prefs.games=ids;if(!save()){status.textContent='บันทึกไม่ได้ กรุณาตรวจการอนุญาตพื้นที่จัดเก็บ';return;}chosen=ids;paint();dialog.close();window.dispatchEvent(new CustomEvent('olaf-profile-games-changed',{detail:{userId:user.id,games:ids}}));};
       dialog.showModal();
     });
   });

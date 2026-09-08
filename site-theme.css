@@ -1,5 +1,9 @@
 :root { --theme-panel:#101b2d; --theme-control:#1a2941; --theme-accent:#86baff; --theme-edge:#9bbcea30; }
-/* Rank UI lives on the profile artwork, not in a separate card. */
+/* Rank artwork floats on the cover; its controls stay below the profile details. */
+#profile-overview-root #profile-rank-controls {margin:20px 24px 12px;min-width:0;}
+#profile-overview-root #profile-rank-controls .rank-display-toggle {background:none!important;border:0!important;box-shadow:none!important;padding:8px 0;}
+#profile-rank-controls .rank-display-status:empty {display:none;}
+@media(max-width:600px){#profile-overview-root #profile-rank-controls {margin:16px 16px 10px;}}
 #profile-overview-root .member-cover {display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);grid-template-rows:1fr auto;align-items:end;gap:18px 26px;min-height:390px;}
 #profile-overview-root .member-cover>.member-identity {grid-column:1;grid-row:1;min-width:0;}
 #profile-overview-root .member-cover>.member-theme-control {grid-column:1;grid-row:2;justify-self:start;align-self:end;}
@@ -22,20 +26,20 @@
  #profile-overview-root .member-cover>.member-theme-control {grid-column:1;grid-row:2;}
  #profile-overview-root .member-cover>[data-profile-rank-slot] {grid-column:1;grid-row:3;width:min(100%,560px);justify-self:end;}}
 @media(max-width:480px){#profile-overview-root .member-cover {padding-left:16px;padding-right:16px;}#profile-overview-root .member-cover .rank-track {gap:2px;}#profile-overview-root .member-cover .rank-emblem small {font-size:7px;}}
-#profile-rank-root .rank-display-toggle {position:relative!important;display:grid!important;grid-template-columns:40px minmax(0,1fr)!important;align-items:center!important;gap:12px!important;min-height:48px;width:100%!important;max-width:100%;text-align:left;}
-#profile-rank-root .rank-display-toggle > input {position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;min-width:0!important;min-height:0!important;margin:0!important;padding:0!important;opacity:0!important;z-index:1;cursor:pointer;}
-#profile-rank-root .rank-display-toggle > input::after {display:none!important;}
-#profile-rank-root .rank-display-toggle > span {width:auto!important;min-width:0!important;white-space:normal!important;word-break:normal!important;overflow-wrap:break-word;line-height:1.6;writing-mode:horizontal-tb!important;}
-#profile-rank-root .rank-switch-track {display:block;width:40px;height:24px;background:#495563;border-radius:24px;position:relative;pointer-events:none;transition:background .2s;}
-#profile-rank-root .rank-switch-track::after {content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;border-radius:50%;background:#f5f8fc;box-shadow:0 2px 5px #0004;transition:transform .2s;}
-#profile-rank-root input:checked + .rank-switch-track {background:#537f9d;}
-#profile-rank-root input:checked + .rank-switch-track::after {transform:translateX(16px);}
-#profile-rank-root input:focus-visible + .rank-switch-track {outline:2px solid var(--theme-accent);outline-offset:4px;}
-#profile-rank-root input:disabled ~ :is(i,span) {opacity:.5;}
+:is(#profile-rank-root,#profile-rank-controls) .rank-display-toggle {position:relative!important;display:grid!important;grid-template-columns:40px minmax(0,1fr)!important;align-items:center!important;gap:12px!important;min-height:48px;width:100%!important;max-width:100%;text-align:left;}
+:is(#profile-rank-root,#profile-rank-controls) .rank-display-toggle > input {position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;min-width:0!important;min-height:0!important;margin:0!important;padding:0!important;opacity:0!important;z-index:1;cursor:pointer;}
+:is(#profile-rank-root,#profile-rank-controls) .rank-display-toggle > input::after {display:none!important;}
+:is(#profile-rank-root,#profile-rank-controls) .rank-display-toggle > span {width:auto!important;min-width:0!important;white-space:normal!important;word-break:normal!important;overflow-wrap:break-word;line-height:1.6;writing-mode:horizontal-tb!important;}
+:is(#profile-rank-root,#profile-rank-controls) .rank-switch-track {display:block;width:40px;height:24px;background:#495563;border-radius:24px;position:relative;pointer-events:none;transition:background .2s;}
+:is(#profile-rank-root,#profile-rank-controls) .rank-switch-track::after {content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;border-radius:50%;background:#f5f8fc;box-shadow:0 2px 5px #0004;transition:transform .2s;}
+:is(#profile-rank-root,#profile-rank-controls) input:checked + .rank-switch-track {background:#537f9d;}
+:is(#profile-rank-root,#profile-rank-controls) input:checked + .rank-switch-track::after {transform:translateX(16px);}
+:is(#profile-rank-root,#profile-rank-controls) input:focus-visible + .rank-switch-track {outline:2px solid var(--theme-accent);outline-offset:4px;}
+:is(#profile-rank-root,#profile-rank-controls) input:disabled ~ :is(i,span) {opacity:.5;}
 .profile-order-pagination {display:flex;align-items:center;justify-content:center;gap:14px;padding:18px;flex-wrap:wrap;}
 .profile-order-pagination button {font:inherit;font-size:12px;color:var(--theme-accent);background:var(--theme-control);border:1px solid var(--theme-edge);border-radius:10px;padding:9px 14px;cursor:pointer;}
 .profile-order-pagination button:disabled {opacity:.4;cursor:default;}.profile-order-pagination span {font-size:12px;color:var(--text-secondary);}
-@media(prefers-reduced-motion:reduce){#profile-rank-root .rank-switch-track,#profile-rank-root .rank-switch-track::after {transition:none;}}
+@media(prefers-reduced-motion:reduce){:is(#profile-rank-root,#profile-rank-controls) .rank-switch-track,:is(#profile-rank-root,#profile-rank-controls) .rank-switch-track::after {transition:none;}}
 .member-cover {padding-top:70px!important;}
 .member-cover .member-customize {position:absolute;right:18px;top:18px;display:inline-flex;align-items:center;gap:6px;font-size:11px;padding:7px 10px;border-radius:10px;backdrop-filter:blur(14px);background:#202932a8;color:#dae5ed;box-shadow:0 4px 16px #0002;}
 .member-cover .member-theme-control {align-self:flex-start;width:fit-content;max-width:100%;font-size:12px;background:var(--theme-panel);box-shadow:0 8px 24px #0003;}

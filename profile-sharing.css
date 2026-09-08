@@ -1,0 +1,21 @@
+#profile-overview-root .member-sharing{margin:20px;border:1px solid #9bb7d12c;border-radius:16px;background:#11223866;color:inherit;overflow:hidden}
+#profile-overview-root .member-sharing summary{display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none;padding:16px;font-weight:600}
+#profile-overview-root .member-sharing summary::-webkit-details-marker{display:none}
+#profile-overview-root .member-sharing svg{width:18px;height:18px;flex:none}
+#profile-overview-root .member-sharing summary small{margin-left:auto;color:#a9c5da;font-size:11px;font-weight:400}
+#profile-overview-root .member-sharing-body{padding:0 18px 18px}
+#profile-overview-root .member-sharing-body p{color:#a8b8cb;font-size:12px;line-height:1.8}
+#profile-overview-root .member-sharing label{display:block;font-size:12px;color:inherit}
+#profile-overview-root .member-sharing input:not([type=checkbox]){display:block;width:100%;box-sizing:border-box;margin:8px 0 14px;padding:11px 12px;background:#080e1980;border:1px solid #95b6d135;color:inherit;border-radius:10px;font:inherit}
+#profile-overview-root .member-sharing .member-share-consent{display:grid;grid-template-columns:18px minmax(0,1fr);align-items:start;gap:10px;margin:16px 0;line-height:1.8}
+#profile-overview-root .member-share-consent input{width:16px;height:16px;margin:3px 0;accent-color:#64aef2}
+#profile-overview-root .member-share-actions{display:flex;flex-wrap:wrap;gap:10px}
+#profile-overview-root .member-share-actions button,#profile-overview-root .member-share-actions a{display:inline-flex;align-items:center;justify-content:center;gap:8px;width:auto;padding:10px 14px;border-radius:10px;background:#29425a66;border:1px solid #9ecfff36;color:#d0e7fa;font:inherit;font-size:12px;text-decoration:none;cursor:pointer;transition:background .2s,transform .2s}
+#profile-overview-root .member-share-actions button:hover,#profile-overview-root .member-share-actions a:hover{background:#375c7b88;transform:translateY(-1px)}
+#profile-overview-root .member-share-actions button:disabled{opacity:.5;cursor:wait}
+#profile-overview-root .member-share-link{margin-top:20px}
+#profile-overview-root .member-sharing [hidden]{display:none!important}
+html[data-site-theme=store] #profile-overview-root .member-sharing{background:#21252b88}
+html[data-site-theme=store] #profile-overview-root .member-share-actions button,html[data-site-theme=store] #profile-overview-root .member-share-actions a{background:#343a44;color:#e2e8f1;border-color:#737f9144}
+@media(max-width:600px){#profile-overview-root .member-sharing{margin:14px}#profile-overview-root .member-sharing summary{padding:14px;font-size:13px}#profile-overview-root .member-sharing-body{padding:0 14px 14px}}
+@media(prefers-reduced-motion:reduce){#profile-overview-root .member-share-actions button,#profile-overview-root .member-share-actions a{transition:none}}

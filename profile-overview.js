@@ -36,6 +36,7 @@
       <div class="member-bio"><h3>สังเขป</h3><p data-bio-text>${escape(decoration?.bio || 'ยังไม่ได้เขียนสังเขป แนะนำตัวในสไตล์คุณได้เลย')}</p>
       ${decoration ? `<form data-bio-form><textarea id="member-bio" aria-label="สังเขป คลิกเพื่อแก้ไข บันทึกเมื่อออกจากช่อง สูงสุด 300 ตัวอักษร" placeholder="สวัสดี" maxlength="300" rows="1">${escape(decoration.bio || '')}</textarea><span role="status" data-bio-status></span></form>` : '<p role="status">โหลดการตกแต่งไม่สำเร็จ กรุณาตรวจการติดตั้ง SQL พื้นหลังแล้วรีเฟรช</p>'}</div>
       <div data-profile-rank-slot></div>
+      <div data-profile-rank-controls-slot></div>
       <section class="member-games"><h3>คอลเลกชันเกมของฉัน</h3><p class="member-private">ข้อมูลการซื้อและยอดเงินนี้แสดงเฉพาะเจ้าของบัญชี</p><div class="member-game-grid">${games.slice(0,6).map(game => `<a href="product.html?id=${encodeURIComponent(game.id)}">${game.image ? `<img src="${escape(game.image)}" alt="" loading="lazy" />` : ''}<strong>${escape(game.name)}</strong></a>`).join('') || `<p>${orderResult.status === 'fulfilled' ? 'ยังไม่มีเกมที่ชำระเงินสำเร็จ' : 'โหลดรายการเกมไม่สำเร็จ กรุณารีเฟรชเพื่อลองใหม่'}</p>`}</div></section>
       </article>`;
     const rankRoot = document.getElementById('profile-rank-root');

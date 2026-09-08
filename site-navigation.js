@@ -76,7 +76,7 @@
   const MOBILE_DRAWER_VERSION = "drawer-v68";
   const MOBILE_DRAWER_ID = "olaf-mobile-drawer";
   const MOBILE_BACKDROP_ID = "olaf-mobile-menu-backdrop";
-  const USER_MENU_VERSION = "user-menu-avatar-v171";
+  const USER_MENU_VERSION = "user-menu-compact-v222";
   function paintMemberAvatar(member) {
     const source = String(member?.avatarUrl || "");
     if (!/^api\/profile-avatar\?id=iconprofile%2F(?:iconpoint%2F)?[^/]+\.(png|jpe?g|webp|gif|avif)$/.test(source)) return;
@@ -97,9 +97,8 @@
     { href: "index.html", label: "หน้าหลัก", icon: "house", match: ["index.html", ""] },
     { href: "index.html#catalog", label: "สินค้า", icon: "shopping-bag", matchHash: "#catalog" },
     { href: "more-products.html", label: "หมวดหมู่", icon: "layout-grid", match: ["more-products.html"] },
-    { href: "point-topup.html", label: "เติม Point", icon: "coins", match: ["point-topup.html"] },
-    { href: "free-random.html", label: "สุ่ม 1 Point", icon: "dices", match: ["free-random.html"] },
-    { href: ORDER_DESTINATION, label: "คลังสินค้า", icon: "archive", match: ["profile.html"], matchHash: "#inventory" },
+    { href: "point-topup.html", label: "เติมเงิน", icon: "coins", match: ["point-topup.html"] },
+    { href: "free-random.html", label: "สุ่มเกม", icon: "dices", match: ["free-random.html"] },
     { href: "https://www.facebook.com/byOlafshop", label: "ติดต่อเรา", icon: "messages-square", external: true }
   ];
 
@@ -807,14 +806,10 @@
       <div class="user-popover-menu">
         <div class="user-popover-menu-title">เมนูบัญชี</div>
         ${role === "admin" ? '<a href="olaf-control.html"><i data-lucide="shield"></i><span>หลังบ้าน (Admin)</span></a>' : ""}
-        <a href="profile.html#info"><i data-lucide="circle-user-round"></i><span>ข้อมูลส่วนตัว</span></a>
         <a href="profile.html#overview"><i data-lucide="contact-round"></i><span>โปรไฟล์ของฉัน</span></a>
         <a href="profile-store.html"><i data-lucide="shopping-cart"></i><span>ร้านค้าและคลังโปรไฟล์</span></a>
-        <a href="point-topup.html"><i data-lucide="coins"></i><span>เติม Point</span></a>
         <a href="profile.html#inventory"><i data-lucide="archive"></i><span>คลังสินค้า</span></a>
-        <a href="profile.html#orders"><i data-lucide="receipt-text"></i><span>ประวัติคำสั่งซื้อ</span></a>
         <a href="profile.html#coupons"><i data-lucide="ticket-percent"></i><span>คูปองของฉัน</span></a>
-        <a href="free-random.html"><i data-lucide="dices"></i><span>สุ่มเกม 1 Point</span></a>
         <div class="user-popover-divider"></div>
         <button class="danger-item" type="button" data-olaf-nav-logout><i data-lucide="log-out"></i><span>ออกจากระบบ</span></button>
       </div>

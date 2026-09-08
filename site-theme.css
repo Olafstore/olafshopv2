@@ -1,4 +1,27 @@
 :root { --theme-panel:#101b2d; --theme-control:#1a2941; --theme-accent:#86baff; --theme-edge:#9bbcea30; }
+/* Rank UI lives on the profile artwork, not in a separate card. */
+#profile-overview-root .member-cover {display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);grid-template-rows:1fr auto;align-items:end;gap:18px 26px;min-height:390px;}
+#profile-overview-root .member-cover>.member-identity {grid-column:1;grid-row:1;min-width:0;}
+#profile-overview-root .member-cover>.member-theme-control {grid-column:1;grid-row:2;justify-self:start;align-self:end;}
+#profile-overview-root .member-cover>[data-profile-rank-slot] {grid-column:2;grid-row:1 / span 2;align-self:end;justify-self:end;width:min(100%,560px);min-width:0;text-shadow:0 2px 8px #000c;}
+#profile-overview-root .member-cover .member-ranks {padding:0;margin:0;background:none!important;border:0!important;border-radius:0;box-shadow:none!important;}
+#profile-overview-root .member-cover .member-ranks header {gap:8px;}
+#profile-overview-root .member-cover .member-ranks h3 {font-size:13px;}
+#profile-overview-root .member-cover .rank-month-total strong {font-size:18px;}
+#profile-overview-root .member-cover .rank-track {grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;padding:12px 0 8px;overflow:visible;}
+#profile-overview-root .member-cover .rank-emblem {padding:5px 0;border:0;background:none;box-shadow:none;}
+#profile-overview-root .member-cover .rank-emblem img {max-width:75px;}
+#profile-overview-root .member-cover .rank-emblem>strong {font-size:10px;}
+#profile-overview-root .member-cover .rank-emblem small,#profile-overview-root .member-cover .rank-emblem>span {font-size:8px;}
+#profile-overview-root .member-cover .rank-progress p {margin:4px 0;font-size:10px;}
+#profile-overview-root .member-cover .rank-rules {margin:4px 0;font-size:10px;}
+#profile-overview-root .member-cover #profile-rank-root .rank-display-toggle {background:none!important;border:0!important;box-shadow:none!important;padding:4px 0;min-height:40px;font-size:11px;}
+#profile-overview-root .member-cover .rank-display-status:empty {display:none;}
+@media(max-width:1000px){#profile-overview-root .member-cover {grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto;gap:18px;}
+ #profile-overview-root .member-cover>.member-identity {grid-column:1;grid-row:1;}
+ #profile-overview-root .member-cover>.member-theme-control {grid-column:1;grid-row:2;}
+ #profile-overview-root .member-cover>[data-profile-rank-slot] {grid-column:1;grid-row:3;width:min(100%,560px);justify-self:end;}}
+@media(max-width:480px){#profile-overview-root .member-cover {padding-left:16px;padding-right:16px;}#profile-overview-root .member-cover .rank-track {gap:2px;}#profile-overview-root .member-cover .rank-emblem small {font-size:7px;}}
 #profile-rank-root .rank-display-toggle {position:relative!important;display:grid!important;grid-template-columns:40px minmax(0,1fr)!important;align-items:center!important;gap:12px!important;min-height:48px;width:100%!important;max-width:100%;text-align:left;}
 #profile-rank-root .rank-display-toggle > input {position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;min-width:0!important;min-height:0!important;margin:0!important;padding:0!important;opacity:0!important;z-index:1;cursor:pointer;}
 #profile-rank-root .rank-display-toggle > input::after {display:none!important;}

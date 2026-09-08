@@ -39,7 +39,11 @@
       <section class="member-games"><h3>คอลเลกชันเกมของฉัน</h3><p class="member-private">ข้อมูลการซื้อและยอดเงินนี้แสดงเฉพาะเจ้าของบัญชี</p><div class="member-game-grid">${games.slice(0,6).map(game => `<a href="product.html?id=${encodeURIComponent(game.id)}">${game.image ? `<img src="${escape(game.image)}" alt="" loading="lazy" />` : ''}<strong>${escape(game.name)}</strong></a>`).join('') || `<p>${orderResult.status === 'fulfilled' ? 'ยังไม่มีเกมที่ชำระเงินสำเร็จ' : 'โหลดรายการเกมไม่สำเร็จ กรุณารีเฟรชเพื่อลองใหม่'}</p>`}</div></section>
       </article>`;
     const rankRoot = document.getElementById('profile-rank-root');
-    if (rankRoot) { root.querySelector('[data-profile-rank-slot]').append(rankRoot); rankRoot.hidden = false; }
+    if (rankRoot) {
+      const slot=root.querySelector('[data-profile-rank-slot]');
+      root.querySelector('.member-cover').append(slot);
+      slot.append(rankRoot); rankRoot.hidden = false;
+    }
     window.dispatchEvent(new CustomEvent('olaf-profile-ready', {detail:{games, ordersLoaded:orderResult.status === 'fulfilled'}}));
     const form=root.querySelector('[data-bio-form]');
     if(form){

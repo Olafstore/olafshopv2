@@ -26,6 +26,11 @@
     const user=window.OlafStore?.currentUser?.();
     const rank=user?.id===rankBadgeOwner && rankBadgeState?.show ? rankBadgeNames[rankBadgeState.rank-1] : null;
     document.querySelectorAll('.user-popover-info > strong, .member-identity h2').forEach(node=>{
+      if(node.matches('.user-popover-info > strong')){
+        [...node.childNodes].filter(child=>child.nodeType===Node.TEXT_NODE&&child.textContent.trim()).forEach(child=>{
+          const name=document.createElement('span');name.className='rank-member-name';name.textContent=child.textContent;child.replaceWith(name);
+        });
+      }
       const previous=node.querySelector('[data-member-rank]');
       if(!rank) { (previous?.closest('.rank-badge-tip')||previous)?.remove(); return; }
       if(previous?.dataset.memberRank===rank) return;
@@ -54,6 +59,11 @@
   document.addEventListener('DOMContentLoaded',async()=>{
     const style=document.createElement('style');style.textContent=`
       .rank-badge-tip{position:relative;display:inline-flex;vertical-align:middle;outline-offset:4px}
+      body #user-popover:not([hidden]) .user-popover-info>strong{display:flex!important;align-items:center!important;gap:6px;white-space:nowrap!important;overflow:visible!important;min-width:0;max-width:100%}
+      body #user-popover .user-popover-info>strong>.rank-member-name{display:block!important;flex:0 1 auto;min-width:0;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;font:inherit!important;color:inherit!important}
+      body #user-popover .user-popover-info>strong>.rank-badge-tip{display:inline-flex!important;flex:0 0 26px!important;align-items:center!important;width:26px!important;height:28px!important;overflow:visible!important;max-width:none!important;line-height:1}
+      body #user-popover .rank-badge-tip>img{margin-left:0!important;width:26px!important;height:26px!important}
+      body #user-popover .user-popover-info .rank-badge-label{overflow:visible!important;max-width:none!important;font-size:11px!important;color:#e5edf6!important}
       .rank-badge-label{position:absolute;bottom:calc(100% + 9px);left:50%;transform:translate(-50%,5px);opacity:0;visibility:hidden;pointer-events:none;white-space:nowrap;padding:7px 11px;font:500 11px Kanit,sans-serif;color:#e5edf6;background:#1d2937f5;border:1px solid #a8c4df35;border-radius:9px;box-shadow:0 5px 18px #0006;transition:opacity .18s,transform .18s;z-index:20}
       .rank-badge-tip:hover .rank-badge-label,.rank-badge-tip:focus-visible .rank-badge-label{opacity:1;visibility:visible;transform:translate(-50%,0)}
       .user-profile-card{position:relative;isolation:isolate;overflow:hidden}

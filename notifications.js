@@ -118,14 +118,6 @@
   function renderEmpty(message) {
     const list = document.querySelector("#notification-list");
     if (!list) return;
-    const eventTime = (item,kind) => {
-      const candidates=kind==='order'
-        ? [item.deliveredAt,item.delivered_at,item.updatedAt,item.updated_at,item.createdAt,item.created_at]
-        : kind==='coupon'
-          ? [item.notificationCreatedAt,item.notification_created_at,item.publishedAt,item.published_at,item.createdAt,item.created_at,item.startsAt,item.starts_at]
-          : [item.createdAt,item.created_at];
-      return candidates.find(value=>value&&Number.isFinite(new Date(value).getTime())) || '';
-    };
     list.innerHTML = `
       <div class="notification-empty">
         <i data-lucide="${emptyIcon}"></i>
@@ -148,6 +140,14 @@
 
   let campaignExpiryTimer = null;
   function renderNotifications(orders, campaigns, user) {
+    const eventTime = (item,kind) => {
+      const candidates=kind==='order'
+        ? [item.deliveredAt,item.delivered_at,item.updatedAt,item.updated_at,item.createdAt,item.created_at]
+        : kind==='coupon'
+          ? [item.notificationCreatedAt,item.notification_created_at,item.publishedAt,item.published_at,item.createdAt,item.created_at,item.startsAt,item.starts_at]
+          : [item.createdAt,item.created_at];
+      return candidates.find(value=>value&&Number.isFinite(new Date(value).getTime())) || '';
+    };
     const list = document.querySelector("#notification-list");
     if (!list) return;
 

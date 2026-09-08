@@ -1,4 +1,6 @@
 (() => {
+  // Profile has its own collection editor; never show shopping hover windows there.
+  if (/\/profile\.html$/i.test(location.pathname)) return;
   const desktop=matchMedia('(min-width: 1024px) and (hover: hover) and (pointer: fine)');
   const cards='article.product-card,article.feature-card,article.hero-game-card,article.olaf-steam-spotlight,article.catalog-genre-game,article.olaf-steam-taste-row,article.extras-product-card,article.license-card,.pd-related-card,.olaf-steam-deal-card,.olaf-steam-discovery-row,.olaf-steam-editorial-card,.olaf-steam-activity-card,.member-game-grid > a';
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');

@@ -13,14 +13,14 @@ export default async function handler(req, res) {
     if (!item) return res.status(404).end();
     const file = path.join(process.cwd(), item.id);
     const info = await stat(file);
-    const animated = item.kind === 'background' && path.extname(item.id).toLowerCase() === '.gif';
-    const etag = `"artwork-v3-${full?'full':'card'}-${info.size}-${Math.floor(info.mtimeMs)}"`;
+    const animated = path.extname(item.id).toLowerCase() === '.gif';
+    const etag = `"artwork-v4-${full?'full':'card'}-${info.size}-${Math.floor(info.mtimeMs)}"`;
     res.setHeader('Cache-Control','public, max-age=0, must-revalidate');
     res.setHeader('ETag',etag);
     res.setHeader('Content-Type',animated ? 'image/gif' : 'image/webp');
     if (req.headers['if-none-match'] === etag) return res.status(304).end();
     if (req.method === 'HEAD') return res.status(200).end();
-    // Preserve all GIF frames and timing; never flatten animated backgrounds.
+    // Preserve all GIF frames and timing for both avatars and backgrounds.
     if (animated) return res.status(200).end(await readFile(file));
     const output = await sharp(await readFile(file), { limitInputPixels:25000000 }).rotate()
       .resize(item.kind === 'background' ? 1920 : full ? 960 : 320, item.kind === 'background' ? 1080 : full ? 960 : 320,

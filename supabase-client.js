@@ -1218,6 +1218,7 @@
       stockReleased: row.stock_released === true,
       deliveryNote: row.delivery_note || "",
       deliveredPayload: row.delivered_payload || "",
+      deliveredAt: row.delivered_at || "",
       createdAt: row.created_at || "",
       updatedAt: row.updated_at || "",
       items

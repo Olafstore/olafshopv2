@@ -1,5 +1,10 @@
-html[data-profile-visitor=true] .profile-sidebar,html[data-profile-visitor=true] .profile-panel:not(#panel-overview),html[data-profile-visitor=true] #profile-rank-root{display:none!important}
-html[data-profile-visitor=true] .profile-content{grid-template-columns:minmax(0,1fr)!important}
+html[data-profile-visitor=true] .profile-panel:not(#panel-overview),html[data-profile-visitor=true] #profile-rank-root{display:none!important}
+html[data-profile-visitor=true] .profile-content{grid-template-columns:270px minmax(0,1fr)!important}
+html[data-profile-visitor=true] .profile-sidebar{display:block!important}
+.member-sidebar-message{padding:22px;color:var(--text-secondary);line-height:1.8;font-size:13px}
+.member-sidebar-message a{display:inline-flex;padding:10px 14px;margin-top:12px;border-radius:10px;background:var(--theme-control);color:var(--theme-accent)}
+html[data-profile-visitor=true] .profile-sidebar [data-viewer-status]{color:var(--text-secondary);font-size:11px;padding:0 16px}
+@media(max-width:900px){html[data-profile-visitor=true] .profile-content{grid-template-columns:minmax(0,1fr)!important}html[data-profile-visitor=true] .profile-sidebar{position:static;order:2}html[data-profile-visitor=true] .profile-panels{order:1}}
 html[data-profile-visitor=true] #profile-hero{display:none!important}
 html[data-profile-visitor=true] .member-showcase:not(.member-visitor-showcase){display:none!important}
 html[data-profile-visitor=true] #panel-overview{display:block!important}

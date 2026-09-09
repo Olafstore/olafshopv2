@@ -10,7 +10,6 @@ html[data-profile-visitor=true] .member-showcase:not(.member-visitor-showcase){d
 html[data-profile-visitor=true] #panel-overview{display:block!important}
 .member-visit-nav{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;color:var(--text-secondary)}
 .member-visit-nav>a{margin-right:auto;color:var(--theme-accent);font-size:13px}
-.member-visit-nav .member-admin-link{margin-right:0;font-size:12px;padding:8px 10px;border:1px solid var(--theme-edge);border-radius:10px;background:var(--theme-control)}
 .member-visit-nav label{display:flex;align-items:center;gap:10px;font-size:12px;min-width:0}
 .member-visit-nav input{width:180px;min-width:0;max-width:100%;background:var(--theme-panel);border:1px solid var(--theme-edge);border-radius:10px;padding:9px 12px;color:var(--text);font:inherit}
 .member-visit-nav button{width:auto;border:1px solid var(--theme-edge);background:var(--theme-control);color:var(--theme-accent);padding:9px 14px;border-radius:10px;cursor:pointer;font:inherit;font-size:12px}

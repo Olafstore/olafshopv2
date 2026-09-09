@@ -43,7 +43,7 @@
  }
  function navigation(root){
   const form=document.createElement('form');form.className='member-visit-nav';
-  form.innerHTML='<a href="profile.html#user">โปรไฟล์ของฉัน</a><a class="member-admin-link" href="profile.html#user/ssonx">โปรไฟล์แอดมิน ↗</a><label><span>ค้นหาสมาชิก</span><input name="username" aria-label="ค้นหาจากชื่อเล่นหรือ user" maxlength="80" placeholder="ชื่อเล่น หรือ user" autocomplete="off" required></label><button type="submit">ค้นหา →</button><div class="member-search-results" aria-live="polite" hidden></div>';
+  form.innerHTML='<a href="profile.html#user">โปรไฟล์ของฉัน</a><label><span>ค้นหาสมาชิก</span><input name="username" aria-label="ค้นหาจากชื่อเล่นหรือ user" maxlength="80" placeholder="ชื่อเล่น หรือ user" autocomplete="off" required></label><button type="submit">ค้นหา →</button><div class="member-search-results" aria-live="polite" hidden></div>';
   const input=form.elements.username,button=form.querySelector('[type="submit"]'),results=form.querySelector('.member-search-results');let version=0;
   input.addEventListener('input',()=>{version++;results.replaceChildren();results.hidden=true;button.disabled=false;form.removeAttribute('aria-busy');});
   form.onsubmit=async e=>{

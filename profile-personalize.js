@@ -21,13 +21,25 @@
     theme.querySelectorAll('button[data-theme]').forEach(button=>button.onclick=()=>{select.value=button.dataset.theme;select.dispatchEvent(new Event('change'));});sync();window.OlafTheme?.animateDetails(theme);
     const games=event.detail?.games||[];
     if(!event.detail?.ordersLoaded) return;
+    const publicStatus=document.createElement('p');publicStatus.className='member-private';publicStatus.dataset.showcaseSyncStatus='';publicStatus.setAttribute('role','status');publicStatus.textContent='กำลังตรวจเกมที่ตั้งให้แสดง…';
+    root.querySelector('.member-games h3').after(publicStatus);
+    const stillOwner=()=>window.OlafStore?.currentUser()?.id===user.id;
+    const validState=result=>!result.error&&result.data&&Object.hasOwn(result.data,'games')&&(result.data.games===null||Array.isArray(result.data.games));
+    const legacyGames=Array.isArray(prefs.games)?[...new Set(prefs.games.map(String))].slice(0,12):null;
     try {
-      const result=await window.olafSupabase.rpc('shop_profile_showcase_state');
-      if(!result.error&&Array.isArray(result.data?.games))prefs.games=result.data.games;
-    } catch {}
-    if(window.OlafStore?.currentUser()?.id!==user.id)return;
+      let result=await window.olafSupabase.rpc('shop_profile_showcase_state');
+      if(!stillOwner())return;if(!validState(result))throw new Error('SHOWCASE_STATE_UNAVAILABLE');
+      if(result.data.games===null&&legacyGames!==null){
+        publicStatus.textContent='กำลังย้ายเกมที่เคยเลือกไว้ให้ผู้เยี่ยมชมเห็น…';
+        result=await window.olafSupabase.rpc('shop_import_profile_showcase',{p_games:legacyGames});
+        if(!stillOwner())return;if(!validState(result)||!Array.isArray(result.data.games))throw new Error('SHOWCASE_IMPORT_FAILED');
+        publicStatus.textContent=`ซิงก์เกมที่เคยเลือกไว้แล้ว ${result.data.games.length} เกม`;
+      }else publicStatus.textContent=`บันทึกบนเว็บแล้ว ${result.data.games?.length||0}/12 เกม · ผู้เยี่ยมชมเห็นรายการเดียวกัน`;
+      prefs.games=Array.isArray(result.data.games)?result.data.games:null;save();
+    } catch {publicStatus.textContent='ยังยืนยันรายการบนเว็บไม่ได้ เกมด้านล่างอาจเป็นข้อมูลในเครื่อง กรุณาลองรีเฟรช หรือให้แอดมินตรวจ supabase-member-profiles.sql และ supabase-profile-showcase-sync.sql';}
+    if(!stillOwner())return;
     const allowed=new Set(games.map(game=>game.id));
-    let chosen=Array.isArray(prefs.games)?[...new Set(prefs.games)].filter(id=>allowed.has(id)).slice(0,12):games.slice(0,6).map(g=>g.id);
+    let chosen=Array.isArray(prefs.games)?[...new Set(prefs.games.map(String))].filter(id=>allowed.has(id)).slice(0,12):[];
     const paint=()=>{root.querySelector('.member-game-grid').innerHTML=games.filter(g=>chosen.includes(g.id)).map(g=>`<a href="product.html?id=${encodeURIComponent(g.id)}">${g.image?`<img src="${esc(g.image)}" alt="" loading="lazy">`:''}<strong>${esc(g.name)}</strong></a>`).join('')||'<p>ยังไม่ได้เลือกเกมมาแสดง</p>';};
     paint();
     const button=document.createElement('button'); button.type='button';button.className='member-select-games';button.textContent='เลือกเกมที่โชว์ · สูงสุด 12 เกม';
@@ -49,7 +61,8 @@
           if(window.OlafStore?.currentUser()?.id!==user.id)throw new Error('SESSION_CHANGED');
           const result=await window.olafSupabase.rpc('shop_save_profile_showcase',{p_games:ids});if(result.error)throw result.error;
           if(window.OlafStore?.currentUser()?.id!==user.id)throw new Error('SESSION_CHANGED');
-          prefs.games=ids;save();chosen=ids;paint();dialog.close();
+          if(!Array.isArray(result.data?.games))throw new Error('INVALID_SAVE_RESPONSE');
+          prefs.games=result.data.games.map(String);save();chosen=prefs.games;paint();publicStatus.textContent=`บันทึกบนเว็บแล้ว ${chosen.length}/12 เกม · ผู้เยี่ยมชมเห็นรายการเดียวกัน`;dialog.close();
         }catch{status.textContent='บันทึกเกมไม่สำเร็จ กรุณาลองใหม่ หรือให้แอดมินตรวจ supabase-member-profiles.sql';}
         finally{savingGames=false;submit.disabled=false;}
       };

@@ -6,12 +6,11 @@ html body.home-page .topbar.site-topbar-unified #open-favorites svg{width:18px!i
 /* Wide-screen neighbors are real previous/next products, not extra gallery shots. */
 html body.home-page #olaf-steam-storefront{overflow:visible;}
 html body.home-page{overflow-x:clip;}
-html body.home-page #olaf-steam-storefront .olaf-steam-spotlight-stage{max-width:1200px;margin-inline:auto;overflow:visible;}
+html body.home-page #olaf-steam-storefront .olaf-steam-spotlight-stage{width:100%;max-width:none;margin-inline:0;overflow:visible;}
 html body.home-page #olaf-steam-storefront .olaf-steam-spotlight{position:relative;overflow:visible;}
 .spotlight-neighbor{display:none;}
 @media(min-width:1200px){
- html body.home-page #olaf-steam-storefront .olaf-steam-spotlight-stage{width:calc(100% - 140px);}
- html body.home-page #olaf-steam-storefront > header.olaf-steam-section-head{width:calc(100% - 140px);max-width:1200px;margin-inline:auto;}
+ html body.home-page #olaf-steam-storefront > header.olaf-steam-section-head{width:100%;max-width:none;margin-inline:0;}
  html body.home-page #olaf-steam-storefront .spotlight-neighbor{display:block;position:absolute;top:4%;height:92%;width:auto;aspect-ratio:16/9;padding:0;overflow:hidden;border:0;border-radius:0;cursor:pointer;background:var(--theme-panel,#0d182a);opacity:.34;transition:opacity .2s;}
  html body.home-page #olaf-steam-storefront .spotlight-neighbor.is-prev{right:calc(100% + 40px);}
  html body.home-page #olaf-steam-storefront .spotlight-neighbor.is-next{left:calc(100% + 40px);}
@@ -19,8 +18,8 @@ html body.home-page #olaf-steam-storefront .olaf-steam-spotlight{position:relati
  .spotlight-neighbor span{display:none;}
  .spotlight-neighbor::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,#030912b8,transparent 55%);pointer-events:none;}
  html body.home-page #olaf-steam-storefront .spotlight-neighbor:hover,.spotlight-neighbor:focus-visible{opacity:.7;}
- html body.home-page #olaf-steam-storefront .olaf-steam-arrow.is-prev{left:-80px;z-index:3;}
- html body.home-page #olaf-steam-storefront .olaf-steam-arrow.is-next{right:-80px;z-index:3;}
+ html body.home-page #olaf-steam-storefront .olaf-steam-arrow.is-prev{left:clamp(-80px,calc((1440px - 100vw)/2),8px);z-index:3;}
+ html body.home-page #olaf-steam-storefront .olaf-steam-arrow.is-next{right:clamp(-80px,calc((1440px - 100vw)/2),8px);z-index:3;}
 }
 /* One shelf surface instead of an outer card, inner card and nested tiles. */
 html[data-site-theme] body.home-page .olaf-steam-activity-row{background:none!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:0!important;overflow:visible;}

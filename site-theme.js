@@ -1,5 +1,5 @@
 (() => {
-  const apply=value=>{const theme=/\/profile\.html$/.test(location.pathname)&&value==='store'?'store':'main';document.documentElement.dataset.siteTheme=theme;const root=document.getElementById('profile-overview-root');if(root)root.dataset.theme=theme;return theme;};
+  const apply=value=>{const theme=value==='store'?'store':'main';document.documentElement.dataset.siteTheme=theme;const root=document.getElementById('profile-overview-root');if(root)root.dataset.theme=theme;window.dispatchEvent(new CustomEvent('olaf-theme-changed',{detail:{theme}}));return theme;};
   try{apply(localStorage.getItem('olaf-site-theme'));}catch{apply('main');}
   window.OlafTheme={set(value){const theme=apply(value);try{localStorage.setItem('olaf-site-theme',theme);}catch{}},
     animateDetails(root){

@@ -1,0 +1,57 @@
+/* Match every topbar action, including favorites, without altering count badges. */
+html body.home-page .topbar.site-topbar-unified .topbar-actions :is(button.lang-toggle,button.notification-button,button.favorites-button){width:36px!important;min-width:36px!important;max-width:36px!important;height:36px!important;min-height:36px!important;max-height:36px!important;flex:0 0 36px!important;box-sizing:border-box!important;border-radius:9px!important;padding:0!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;background:var(--theme-control,#17283e)!important;border:1px solid var(--theme-edge,#88b8eb29)!important;}
+html body.home-page .topbar.site-topbar-unified #open-favorites{position:relative;overflow:visible!important;}
+html body.home-page .topbar.site-topbar-unified :is(#lang-toggle,#open-notifications,#open-favorites){width:36px!important;min-width:36px!important;max-width:36px!important;height:36px!important;min-height:36px!important;max-height:36px!important;flex:0 0 36px!important;padding:0!important;border-radius:9px!important;background:var(--theme-control,#17283e)!important;border:1px solid var(--theme-edge,#88b8eb29)!important;box-sizing:border-box!important;}
+html body.home-page .topbar.site-topbar-unified #open-favorites svg{width:18px!important;height:18px!important;flex:none;}
+/* Wide-screen neighbors are real previous/next products, not extra gallery shots. */
+html body.home-page #olaf-steam-storefront{overflow:visible;}
+html body.home-page{overflow-x:clip;}
+html body.home-page #olaf-steam-storefront .olaf-steam-spotlight-stage{max-width:1200px;margin-inline:auto;overflow:visible;}
+html body.home-page #olaf-steam-storefront .olaf-steam-spotlight{position:relative;overflow:visible;}
+.spotlight-neighbor{display:none;}
+@media(min-width:1200px){
+ html body.home-page #olaf-steam-storefront .olaf-steam-spotlight-stage{width:calc(100% - 140px);}
+ html body.home-page #olaf-steam-storefront .olaf-steam-section-head{width:calc(100% - 140px);}
+ html body.home-page #olaf-steam-storefront .olaf-steam-section-head{max-width:1200px;margin-inline:auto;}
+ html body.home-page #olaf-steam-storefront .spotlight-neighbor{display:block;position:absolute;top:4%;bottom:4%;width:250px;padding:0;overflow:hidden;border:0;border-radius:0;cursor:pointer;background:var(--theme-panel,#0d182a);opacity:.34;transition:opacity .2s;}
+ html body.home-page #olaf-steam-storefront .spotlight-neighbor.is-prev{right:calc(100% + 24px);}
+ html body.home-page #olaf-steam-storefront .spotlight-neighbor.is-next{left:calc(100% + 24px);}
+ .spotlight-neighbor img{width:100%;height:100%;display:block;object-fit:cover;}
+ .spotlight-neighbor span{position:absolute;left:14px;right:14px;bottom:18px;color:white;font:inherit;font-size:13px;text-shadow:0 2px 8px black;text-align:left;}
+ .spotlight-neighbor::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,#030912b8,transparent 55%);pointer-events:none;}
+ html body.home-page #olaf-steam-storefront .spotlight-neighbor:hover,.spotlight-neighbor:focus-visible{opacity:.7;}
+ html body.home-page #olaf-steam-storefront .olaf-steam-arrow.is-prev{left:-54px;z-index:3;}
+ html body.home-page #olaf-steam-storefront .olaf-steam-arrow.is-next{right:-54px;z-index:3;}
+}
+/* One shelf surface instead of an outer card, inner card and nested tiles. */
+html[data-site-theme] body.home-page .olaf-steam-activity-row{background:none!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:0!important;}
+html[data-site-theme] body.home-page .olaf-steam-activity-viewport{background:linear-gradient(115deg,var(--theme-raised,#1b334a),var(--theme-panel,#0d182a))!important;border:0!important;box-shadow:none!important;border-radius:0!important;}
+html body.home-page .olaf-steam-activity-head>div>span,html body.home-page .olaf-steam-activity-head p{display:none;}
+html body.home-page .olaf-steam-activity-head{margin-bottom:16px;}
+html body.home-page .olaf-steam-activity-head>a{border-radius:3px;padding:5px 14px;font-size:11px;}
+html body.home-page .olaf-steam-activity-slide{padding:16px 20px;gap:18px;height:clamp(360px,34vw,490px);}
+html[data-site-theme] body.home-page .olaf-steam-activity-card{display:grid;grid-template-rows:minmax(0,1fr) 34px;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:hidden;transform:none!important;}
+html body.home-page .olaf-steam-activity-card::after{display:none;}
+html body.home-page .olaf-steam-activity-media{min-height:0;height:100%;overflow:hidden;}
+html body.home-page .olaf-steam-activity-media img{height:100%;object-fit:cover;}
+html body.home-page .olaf-steam-activity-info{position:absolute;width:1px;height:1px;padding:0;clip-path:inset(50%);overflow:hidden;white-space:nowrap;}
+html body.home-page .olaf-steam-activity-price{position:static;justify-self:end;align-self:start;display:flex;height:34px;width:max-content;max-width:100%;border-radius:0;margin:0;background:var(--theme-panel-end,#08101e);}
+html body.home-page .olaf-steam-activity-label{top:0;left:0;border-radius:0;box-shadow:none;border:0;font-size:11px;}
+html body.home-page .olaf-steam-activity-slide.is-mixed .is-slot-1{grid-column:1/span 4;grid-row:1/3;}
+html body.home-page .olaf-steam-activity-slide.is-mixed .is-slot-2{grid-column:5/span 4;grid-row:1;}
+html body.home-page .olaf-steam-activity-slide.is-mixed .is-slot-3{grid-column:5/span 4;grid-row:2;}
+html body.home-page .olaf-steam-activity-slide.is-mixed .is-slot-4{grid-column:9/span 4;grid-row:1;}
+html body.home-page .olaf-steam-activity-slide.is-mixed .is-slot-5{grid-column:9/span 4;grid-row:2;}
+html body.home-page .olaf-steam-activity-arrow{border:0;border-radius:0;box-shadow:none;background:transparent;font-size:28px;}
+html body.home-page .olaf-steam-activity-arrow{background:transparent!important;box-shadow:none!important;width:34px;}
+html body.home-page .olaf-steam-activity-arrow svg{width:30px;height:30px;}
+@media(min-width:1000px){html body.home-page .olaf-steam-activity-row{max-width:1200px;width:calc(100% - 72px);margin-inline:auto;}
+ html body.home-page .olaf-steam-activity-arrow.is-prev{left:-38px;}html body.home-page .olaf-steam-activity-arrow.is-next{right:-38px;}}
+@media(max-width:760px){html body.home-page .olaf-steam-activity-slide{height:auto;min-height:600px;padding:12px;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,200px);}
+ html body.home-page .olaf-steam-activity-slide .olaf-steam-activity-card,html body.home-page .olaf-steam-activity-slide.is-mixed .olaf-steam-activity-card{grid-column:auto;grid-row:auto;}
+ html body.home-page .olaf-steam-activity-slide:not(.is-mixed){grid-template-rows:repeat(2,220px);min-height:464px;}
+ html body.home-page .olaf-steam-activity-label{font-size:9px;padding:4px 6px;}
+}
+@media(prefers-reduced-motion:reduce){.spotlight-neighbor{transition:none;}}
+@media(max-width:760px){html body.home-page .olaf-steam-activity-viewport{height:476px;transition:height .25s ease;}html body.home-page .olaf-steam-activity-viewport:has(.olaf-steam-activity-slide.is-active.is-mixed){height:648px;}}
+@media(prefers-reduced-motion:reduce){html body.home-page .olaf-steam-activity-viewport{transition:none;}}

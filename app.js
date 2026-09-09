@@ -2212,9 +2212,16 @@ function steamSpotlightMarkup(product, products) {
   const tags = getDisplayTags(product, 5);
   const stock = getStockState(product.stock);
   const index = products.findIndex((item) => item.id === product.id);
+  const neighbor = (step) => {
+    const item = products[(index + step + products.length) % products.length];
+    if (products.length < 2 || !item) return "";
+    const name = cleanDisplayText(item.name);
+    return `<button type="button" class="spotlight-neighbor ${step < 0 ? 'is-prev' : 'is-next'}" data-steam-spotlight-step="${step}" aria-label="${step < 0 ? 'ก่อนหน้า' : 'ถัดไป'}: ${escapeHtml(name)}"><img ${fastImg(item.heroImage || item.image || (item.gallery || [])[0] || '', name, {width:460,height:518,sizes:'240px'})} /><span>${escapeHtml(name)}</span></button>`;
+  };
 
   return `
     <article class="olaf-steam-spotlight">
+      ${neighbor(-1)}${neighbor(1)}
       <a class="olaf-steam-spotlight-cover" href="${productLink(product)}" aria-label="ดูรายละเอียด ${escapeHtml(productName)}">
         <img ${fastImg(cover, productName, {
           loading: "eager",
@@ -2614,7 +2621,7 @@ function steamActivitySlides(products) {
   const slides = [];
   for (let slideIndex = 0; slideIndex < 4; slideIndex += 1) {
     const selected = [];
-    for (let offset = 0; offset < pool.length && selected.length < 4; offset += 1) {
+    for (let offset = 0; offset < pool.length && selected.length < (slideIndex % 2 ? 5 : 4); offset += 1) {
       const product = pool[(slideIndex * 4 + offset) % pool.length];
       if (product && !selected.some((item) => item.id === product.id)) selected.push(product);
     }
@@ -2671,7 +2678,7 @@ function steamActivityCarouselMarkup(products) {
         <div class="olaf-steam-activity-viewport">
           <div class="olaf-steam-activity-track" data-steam-activity-track style="--activity-index:${steamActivitySlideIndex}">
             ${slides.map((slide, slideIndex) => `
-              <div class="olaf-steam-activity-slide${slideIndex === steamActivitySlideIndex ? " is-active" : ""}" data-steam-activity-slide aria-hidden="${slideIndex === steamActivitySlideIndex ? "false" : "true"}">
+              <div class="olaf-steam-activity-slide${slide.length === 5 ? ' is-mixed' : ''}${slideIndex === steamActivitySlideIndex ? " is-active" : ""}" data-steam-activity-slide aria-hidden="${slideIndex === steamActivitySlideIndex ? "false" : "true"}" ${slideIndex !== steamActivitySlideIndex ? 'inert' : ''}>
                 ${slide.map(steamActivityCardMarkup).join("")}
               </div>
             `).join("")}
@@ -2697,6 +2704,7 @@ function syncSteamActivityCarousel() {
     const active = index === steamActivitySlideIndex;
     slide.classList.toggle("is-active", active);
     slide.setAttribute("aria-hidden", String(!active));
+    slide.inert = !active;
   });
   document.querySelectorAll("[data-steam-activity-dot]").forEach((dot, index) => {
     const active = index === steamActivitySlideIndex;

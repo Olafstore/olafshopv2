@@ -2216,7 +2216,7 @@ function steamSpotlightMarkup(product, products) {
     const item = products[(index + step + products.length) % products.length];
     if (products.length < 2 || !item) return "";
     const name = cleanDisplayText(item.name);
-    return `<button type="button" class="spotlight-neighbor ${step < 0 ? 'is-prev' : 'is-next'}" data-steam-spotlight-step="${step}" aria-label="${step < 0 ? 'ก่อนหน้า' : 'ถัดไป'}: ${escapeHtml(name)}"><img ${fastImg(item.heroImage || item.image || (item.gallery || [])[0] || '', name, {width:460,height:518,sizes:'240px'})} /><span>${escapeHtml(name)}</span></button>`;
+    return `<button type="button" class="spotlight-neighbor ${step < 0 ? 'is-prev' : 'is-next'}" data-steam-spotlight-step="${step}" aria-label="${step < 0 ? 'ก่อนหน้า' : 'ถัดไป'}: ${escapeHtml(name)}"><img ${fastImg(item.heroImage || item.image || (item.gallery || [])[0] || '', name, {width:920,height:518,sizes:'920px'})} /></button>`;
   };
 
   return `

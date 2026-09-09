@@ -11,24 +11,24 @@ html body.home-page #olaf-steam-storefront .olaf-steam-spotlight{position:relati
 .spotlight-neighbor{display:none;}
 @media(min-width:1200px){
  html body.home-page #olaf-steam-storefront .olaf-steam-spotlight-stage{width:calc(100% - 140px);}
- html body.home-page #olaf-steam-storefront .olaf-steam-section-head{width:calc(100% - 140px);}
- html body.home-page #olaf-steam-storefront .olaf-steam-section-head{max-width:1200px;margin-inline:auto;}
- html body.home-page #olaf-steam-storefront .spotlight-neighbor{display:block;position:absolute;top:4%;bottom:4%;width:250px;padding:0;overflow:hidden;border:0;border-radius:0;cursor:pointer;background:var(--theme-panel,#0d182a);opacity:.34;transition:opacity .2s;}
- html body.home-page #olaf-steam-storefront .spotlight-neighbor.is-prev{right:calc(100% + 24px);}
- html body.home-page #olaf-steam-storefront .spotlight-neighbor.is-next{left:calc(100% + 24px);}
+ html body.home-page #olaf-steam-storefront > header.olaf-steam-section-head{width:calc(100% - 140px);max-width:1200px;margin-inline:auto;}
+ html body.home-page #olaf-steam-storefront .spotlight-neighbor{display:block;position:absolute;top:4%;height:92%;width:auto;aspect-ratio:16/9;padding:0;overflow:hidden;border:0;border-radius:0;cursor:pointer;background:var(--theme-panel,#0d182a);opacity:.34;transition:opacity .2s;}
+ html body.home-page #olaf-steam-storefront .spotlight-neighbor.is-prev{right:calc(100% + 40px);}
+ html body.home-page #olaf-steam-storefront .spotlight-neighbor.is-next{left:calc(100% + 40px);}
  .spotlight-neighbor img{width:100%;height:100%;display:block;object-fit:cover;}
- .spotlight-neighbor span{position:absolute;left:14px;right:14px;bottom:18px;color:white;font:inherit;font-size:13px;text-shadow:0 2px 8px black;text-align:left;}
+ .spotlight-neighbor span{display:none;}
  .spotlight-neighbor::after{content:'';position:absolute;inset:0;background:linear-gradient(0deg,#030912b8,transparent 55%);pointer-events:none;}
  html body.home-page #olaf-steam-storefront .spotlight-neighbor:hover,.spotlight-neighbor:focus-visible{opacity:.7;}
- html body.home-page #olaf-steam-storefront .olaf-steam-arrow.is-prev{left:-54px;z-index:3;}
- html body.home-page #olaf-steam-storefront .olaf-steam-arrow.is-next{right:-54px;z-index:3;}
+ html body.home-page #olaf-steam-storefront .olaf-steam-arrow.is-prev{left:-80px;z-index:3;}
+ html body.home-page #olaf-steam-storefront .olaf-steam-arrow.is-next{right:-80px;z-index:3;}
 }
 /* One shelf surface instead of an outer card, inner card and nested tiles. */
-html[data-site-theme] body.home-page .olaf-steam-activity-row{background:none!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:0!important;}
+html[data-site-theme] body.home-page .olaf-steam-activity-row{background:none!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:0!important;overflow:visible;}
 html[data-site-theme] body.home-page .olaf-steam-activity-viewport{background:linear-gradient(115deg,var(--theme-raised,#1b334a),var(--theme-panel,#0d182a))!important;border:0!important;box-shadow:none!important;border-radius:0!important;}
 html body.home-page .olaf-steam-activity-head>div>span,html body.home-page .olaf-steam-activity-head p{display:none;}
 html body.home-page .olaf-steam-activity-head{margin-bottom:16px;}
-html body.home-page .olaf-steam-activity-head>a{border-radius:3px;padding:5px 14px;font-size:11px;}
+html body.home-page .olaf-steam-activity-head>a{border-radius:9px;padding:8px 16px;font-size:12px;color:var(--theme-accent);background:var(--theme-button);border:1px solid var(--theme-edge);box-shadow:inset 0 1px #ffffff08;}
+html body.home-page .olaf-steam-activity-head>a:hover{background:var(--theme-raised);border-color:var(--theme-accent);}
 html body.home-page .olaf-steam-activity-slide{padding:16px 20px;gap:18px;height:clamp(360px,34vw,490px);}
 html[data-site-theme] body.home-page .olaf-steam-activity-card{display:grid;grid-template-rows:minmax(0,1fr) 34px;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;overflow:hidden;transform:none!important;}
 html body.home-page .olaf-steam-activity-card::after{display:none;}
@@ -45,8 +45,22 @@ html body.home-page .olaf-steam-activity-slide.is-mixed .is-slot-5{grid-column:9
 html body.home-page .olaf-steam-activity-arrow{border:0;border-radius:0;box-shadow:none;background:transparent;font-size:28px;}
 html body.home-page .olaf-steam-activity-arrow{background:transparent!important;box-shadow:none!important;width:34px;}
 html body.home-page .olaf-steam-activity-arrow svg{width:30px;height:30px;}
-@media(min-width:1000px){html body.home-page .olaf-steam-activity-row{max-width:1200px;width:calc(100% - 72px);margin-inline:auto;}
- html body.home-page .olaf-steam-activity-arrow.is-prev{left:-38px;}html body.home-page .olaf-steam-activity-arrow.is-next{right:-38px;}}
+html body.home-page .olaf-steam-activity-row{max-width:none;width:100%;margin-inline:0;}
+html body.home-page .olaf-steam-activity-arrow.is-prev{left:0;}html body.home-page .olaf-steam-activity-arrow.is-next{right:0;}
+/* Keep controls visible inside the shelf, even when the page has no side gutter. */
+html body.home-page .olaf-steam-activity-arrow{width:44px;height:80px;background:linear-gradient(90deg,#030912eb,#081628c9)!important;border:1px solid var(--theme-edge);border-radius:8px;backdrop-filter:blur(8px);color:var(--theme-accent);}
+html body.home-page .olaf-steam-activity-arrow:hover{background:var(--theme-control)!important;}
+/* Large, unboxed chevrons use CSS so they don't depend on icon hydration. */
+html body.home-page #olaf-steam-storefront .olaf-steam-arrow{width:44px;height:88px;padding:0;border:0;border-radius:0;background:transparent!important;box-shadow:none;backdrop-filter:none;color:#d8e5f0;display:grid;place-items:center;}
+html body.home-page :is(.olaf-steam-arrow,.olaf-steam-activity-arrow)::before{content:'';display:block;width:22px;height:22px;border-top:6px solid currentColor;border-right:6px solid currentColor;transform:rotate(45deg);}
+html body.home-page :is(.olaf-steam-arrow,.olaf-steam-activity-arrow).is-prev::before{transform:rotate(-135deg);}
+html body.home-page :is(.olaf-steam-arrow,.olaf-steam-activity-arrow)>:is(svg,i){display:none;}
+html body.home-page #olaf-steam-storefront .olaf-steam-arrow:hover{color:white;}
+html body.home-page :is(.olaf-steam-arrow,.olaf-steam-activity-arrow):focus-visible{outline:2px solid var(--theme-accent);outline-offset:3px;}
+/* The outer stats strip is a layout grid, not another themed card. */
+html[data-site-theme] body.home-page .stats-strip{width:min(1380px,calc(100% - 40px));margin:24px auto 0;padding:0;border:0;background:transparent!important;contain:layout;}
+html[data-site-theme] body.home-page .stats-strip article{background:var(--theme-card);border-color:var(--theme-edge);}
+html[data-site-theme] body.home-page :is(.home-free-games-rail,.home-free-game-card){background:transparent!important;}
 @media(max-width:760px){html body.home-page .olaf-steam-activity-slide{height:auto;min-height:600px;padding:12px;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(3,200px);}
  html body.home-page .olaf-steam-activity-slide .olaf-steam-activity-card,html body.home-page .olaf-steam-activity-slide.is-mixed .olaf-steam-activity-card{grid-column:auto;grid-row:auto;}
  html body.home-page .olaf-steam-activity-slide:not(.is-mixed){grid-template-rows:repeat(2,220px);min-height:464px;}

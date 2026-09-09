@@ -43,8 +43,23 @@
  }
  function navigation(root){
   const form=document.createElement('form');form.className='member-visit-nav';
-  form.innerHTML='<a href="profile.html#user">โปรไฟล์ของฉัน</a><label><span>ดูโปรไฟล์สมาชิก</span><input name="username" aria-label="ชื่อผู้ใช้ที่ต้องการเยี่ยมชม" maxlength="80" placeholder="ชื่อผู้ใช้" required></label><button type="submit">ดูโปรไฟล์ →</button>';
-  form.onsubmit=e=>{e.preventDefault();const name=form.elements.username.value.trim();if(name)location.hash='user/'+encodeURIComponent(name);};root.before(form);
+  form.innerHTML='<a href="profile.html#user">โปรไฟล์ของฉัน</a><label><span>ค้นหาสมาชิก</span><input name="username" aria-label="ค้นหาจากชื่อเล่นหรือ user" maxlength="80" placeholder="ชื่อเล่น หรือ user" autocomplete="off" required></label><button type="submit">ค้นหา →</button><div class="member-search-results" aria-live="polite" hidden></div>';
+  const input=form.elements.username,button=form.querySelector('[type="submit"]'),results=form.querySelector('.member-search-results');let version=0;
+  input.addEventListener('input',()=>{version++;results.replaceChildren();results.hidden=true;button.disabled=false;form.removeAttribute('aria-busy');});
+  form.onsubmit=async e=>{
+   e.preventDefault();const query=input.value.trim();if(!query)return;
+   const request=++version;button.disabled=true;form.setAttribute('aria-busy','true');results.hidden=false;results.textContent='กำลังค้นหาสมาชิก…';
+   try{
+    const {data,error}=await window.olafSupabase.rpc('shop_search_members',{p_query:query});if(request!==version)return;if(error)throw error;
+    const members=Array.isArray(data)?data.slice(0,10):[];
+    results.innerHTML=members.length?`<p>เลือกโปรไฟล์ที่ต้องการเยี่ยมชม${members.length===10?' · แสดงสูงสุด 10 คน ระบุชื่อเพิ่มเพื่อค้นหาให้ตรงขึ้น':''}</p><div>${members.map(member=>{
+     const avatar=artwork(member.avatar);
+     const portrait=avatar?`<img src="${esc(avatar)}" alt="" loading="lazy">`:`<span class="member-search-avatar" aria-hidden="true">${esc((member.nickname||member.username||'U').slice(0,1))}</span>`;
+     return `<a href="profile.html#user/${encodeURIComponent(member.username)}">${portrait}<span><strong>${esc(member.nickname||member.username)}</strong><small>@${esc(member.username)}</small></span><span aria-hidden="true">→</span></a>`;
+    }).join('')}</div>`:'ไม่พบสมาชิกจากชื่อเล่นหรือ user นี้';
+   }catch{if(request===version)results.textContent='ค้นหาไม่สำเร็จ กรุณาลองใหม่ หรือให้แอดมินตรวจการติดตั้ง supabase-member-search.sql';}
+   finally{if(request===version){button.disabled=false;form.removeAttribute('aria-busy');}}
+  };root.before(form);
  }
  window.addEventListener('olaf-profile-ready',()=>{
   const root=document.getElementById('profile-overview-root');if(root&&!document.querySelector('.member-visit-nav'))navigation(root);

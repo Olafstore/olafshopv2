@@ -55,7 +55,7 @@
     results.innerHTML=members.length?`<p>เลือกโปรไฟล์ที่ต้องการเยี่ยมชม${members.length===10?' · แสดงสูงสุด 10 คน ระบุชื่อเพิ่มเพื่อค้นหาให้ตรงขึ้น':''}</p><div>${members.map(member=>{
      const avatar=artwork(member.avatar);
      const portrait=avatar?`<img src="${esc(avatar)}" alt="" loading="lazy">`:`<span class="member-search-avatar" aria-hidden="true">${esc((member.nickname||member.username||'U').slice(0,1))}</span>`;
-     return `<a href="profile.html#user/${encodeURIComponent(member.username)}">${portrait}<span><strong>${esc(member.nickname||member.username)}</strong><small>@${esc(member.username)}</small></span><span aria-hidden="true">→</span></a>`;
+     return `<a href="profile.html#user/${encodeURIComponent(member.profileKey||member.username)}">${portrait}<span><strong>${esc(member.nickname||member.username)}</strong><small>@${esc(member.username)}</small></span><span aria-hidden="true">→</span></a>`;
     }).join('')}</div>`:'ไม่พบสมาชิกจากชื่อเล่นหรือ user นี้';
    }catch{if(request===version)results.textContent='ค้นหาไม่สำเร็จ กรุณาลองใหม่ หรือให้แอดมินตรวจการติดตั้ง supabase-member-search.sql';}
    finally{if(request===version){button.disabled=false;form.removeAttribute('aria-busy');}}

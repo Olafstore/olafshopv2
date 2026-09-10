@@ -1,6 +1,8 @@
 .friends-launch{position:fixed;left:20px;bottom:20px;z-index:95;display:flex;align-items:center;gap:8px;padding:11px 16px;border:1px solid #87b5df44;border-radius:16px;background:#101c30ed;backdrop-filter:blur(12px);color:#c6e2ff;box-shadow:0 6px 24px #0005;cursor:pointer;font:inherit;font-size:13px}
 .friends-launch svg,.friend-avatar-placeholder svg{width:20px;height:20px}.friends-launch [data-friend-dot]{width:8px;height:8px;background:#65b8ff;border-radius:50%}.friends-launch [hidden]{display:none!important}
 .friends-launch[hidden]{display:none!important}
+/* Mobile uses the Friends page in the profile menu instead of a floating launcher. */
+@media(max-width:760px),(hover:none) and (pointer:coarse){.friends-launch{display:none!important}}
 .friends-dialog{width:min(540px,calc(100vw - 28px));max-height:80dvh;padding:22px;border:1px solid #87b5df33;border-radius:22px;background:var(--theme-panel,#101b2d);color:#dce9f8;box-shadow:0 24px 90px #0008;overflow:auto;scrollbar-width:thin;scrollbar-color:#416180 transparent}
 .friends-dialog::backdrop{background:#010610ac;backdrop-filter:blur(5px)}.friends-dialog[open]{animation:friends-enter .18s ease-out}
 .friends-dialog header{display:flex;align-items:center;justify-content:space-between;gap:16px}.friends-dialog header small{font-size:9px;letter-spacing:2px;color:#83b6dc}.friends-dialog h2{font-size:22px;margin:4px 0 18px}

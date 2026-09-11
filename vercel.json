@@ -2,6 +2,9 @@
   "cleanUrls": false,
   "trailingSlash": false,
   "functions": {
+    "api/free-games.js": {
+      "maxDuration": 15
+    },
     "api/rank-image.js": {
       "includeFiles": "Rank/**",
       "maxDuration": 20

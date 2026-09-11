@@ -38,9 +38,9 @@
   document.addEventListener('click',event=>{const button=event.target.closest?.('[data-site-theme-open]');if(button)window.OlafTheme.open(button);});
   document.addEventListener('DOMContentLoaded',()=>{
     document.querySelectorAll('.shop-point-history').forEach(window.OlafTheme.animateDetails);
-    const host=document.querySelector('.topbar-actions,.profile-store-nav,.public-profile-nav');
-    const wrapper=document.createElement('div');wrapper.className='site-theme-switcher'+(host?'':' is-standalone');wrapper.innerHTML=window.OlafTheme.controlMarkup();
-    if(host)host.append(wrapper);else document.body.append(wrapper);sync();
+    // Theme selection lives in profile personalization; every page still restores it.
+    document.querySelectorAll('.site-theme-switcher').forEach(node=>node.remove());
+    sync();
   });
   window.addEventListener('olaf-profile-ready',sync);
 })();

@@ -3,6 +3,8 @@
 
   const data = window.OlafFreeGamesData || { offers: [], platforms: [] };
   const state = { filter: "all", offers: Array.isArray(data.offers) ? [...data.offers] : [], upcomingOffers: Array.isArray(data.upcomingOffers) ? [...data.upcomingOffers] : [] };
+  let checking=false,lastAttempt=0,checkedAt=null,epicError=false,lastSignature='';
+  const activeOffers=()=>[...new Map([...state.offers,...state.upcomingOffers].filter(isActive).map(o=>[o.id,o])).values()];
   const platformNames = Object.fromEntries((data.platforms || []).map((platform) => [platform.id, platform.name]));
   const platformClasses = { steam: "is-steam", epic: "is-epic", ea: "is-ea", ubisoft: "is-ubisoft" };
 
@@ -39,7 +41,7 @@
     return days ? `อีก ${days} วัน ${hours} ชม.` : `อีก ${Math.max(hours, 0)} ชม. ${minutes % 60} นาที`;
   };
   const upcomingTiming = (offer) => offer.startDateOnly ? "รอแพลตฟอร์มประกาศเวลา" : untilStart(offer.startsAt);
-  const isActive = (offer) => !offer.endsAt || new Date(offer.endsAt).getTime() > Date.now();
+  const isActive = (offer) => !offer.startDateOnly && (!offer.startsAt || new Date(offer.startsAt).getTime() <= Date.now()) && (!offer.endsAt || new Date(offer.endsAt).getTime() > Date.now());
   const isUpcoming = (offer) => new Date(offer.startsAt).getTime() > Date.now();
   const getImage = (offer) => offer.image
     ? `<img class="free-game-image" src="${escapeHtml(offer.image)}" alt="" loading="lazy" referrerpolicy="no-referrer" />`
@@ -141,9 +143,9 @@
   function renderHomeOffers() {
     const target = document.getElementById("index-free-games-list");
     if (!target) return;
-    const activeOffers = state.offers.filter(isActive).slice(0, 2);
+    const currentOffers = activeOffers().sort((a,b)=>Number(b.platform==='epic')-Number(a.platform==='epic')).slice(0, 6);
     const upcomingOffers = state.upcomingOffers.filter(isUpcoming).sort((left, right) => new Date(left.startsAt) - new Date(right.startsAt)).slice(0, 4);
-    const cards = [...activeOffers.map(homeOfferCard), ...upcomingOffers.map(homeUpcomingOfferCard)];
+    const cards = [...currentOffers.map(homeOfferCard), ...upcomingOffers.map(homeUpcomingOfferCard)];
     target.innerHTML = cards.length ? cards.join("") : `<div class="home-free-games-empty"><i data-lucide="radar"></i><span>กำลังตรวจสอบเกมฟรีจากแพลตฟอร์มทางการ</span></div>`;
     bindImageFallbacks(target);
     bindHomeOfferScroll(target);
@@ -171,9 +173,9 @@
       renderHomeOffers();
       return;
     }
-    const matching = state.offers.filter((offer) => state.filter === "all" || offer.platform === state.filter).filter(isActive);
+    const matching = activeOffers().filter((offer) => state.filter === "all" || offer.platform === state.filter);
     const liveCount = document.getElementById("free-games-live-count");
-    if (liveCount) liveCount.textContent = `${state.offers.filter(isActive).length} รายการกำลังเปิดรับ`;
+    if (liveCount) liveCount.textContent = `${activeOffers().length} รายการตามช่วงเวลาที่ประกาศ`;
     grid.innerHTML = matching.length
       ? matching.map(offerCard).join("")
       : `<div class="free-games-empty"><i data-lucide="radar"></i><h2>ยังไม่พบข้อเสนอที่กำลังรับได้</h2><p>เปิดหน้าทางการของแพลตฟอร์มเพื่อดูเกมเล่นฟรีและข่าวล่าสุด</p></div>`;
@@ -192,7 +194,7 @@
 
   function updateCountdowns() {
     document.querySelectorAll("[data-free-game-countdown]").forEach((element) => {
-      const offer = state.offers.find((item) => item.id === element.dataset.freeGameCountdown);
+      const offer = [...state.offers,...state.upcomingOffers].find((item) => item.id === element.dataset.freeGameCountdown);
       if (!offer) return;
       element.textContent = remaining(offer.endsAt);
     });
@@ -208,7 +210,11 @@
 
   function setLastChecked() {
     const target = document.getElementById("free-games-last-checked");
-    if (target) target.textContent = `ตรวจข้อมูลล่าสุด ${dateTime(data.updatedAt)}`;
+    if (target) target.textContent = checkedAt ? `Epic: ยืนยันล่าสุด ${dateTime(checkedAt)} · ภูมิภาคไทย` : 'Epic: ยังไม่ได้ยืนยันข้อมูลสด';
+    const status=document.getElementById('free-games-feed-status');
+    if(status){status.dataset.state=checking?'loading':epicError?'error':'ready';status.textContent=checking?'กำลังตรวจข้อมูลกับ Epic Games…':epicError?'เชื่อมต่อ Epic ไม่สำเร็จ — รายการที่เห็นอาจเป็นข้อมูลเดิม โปรดตรวจหน้าทางการก่อนรับเกม':checkedAt?'เชื่อมต่อ Epic สำเร็จ · ตรวจอัตโนมัติทุก 1 นาทีขณะเปิดหน้านี้':'กำลังเตรียมตรวจข้อมูล Epic';}
+    const curated=document.getElementById('free-games-curated-checked');if(curated)curated.textContent=`Steam / EA / Ubisoft: ข้อมูลข่าวที่รวบรวมไว้ ณ ${dateTime(data.updatedAt)} ไม่ใช่การตรวจสด`;
+    const button=document.getElementById('free-games-refresh');if(button){button.disabled=checking;button.textContent=checking?'กำลังตรวจสอบ…':'ตรวจสอบอีกครั้ง';}
   }
 
   function setFilter(filter) {
@@ -217,39 +223,27 @@
     renderOffers();
   }
 
-  async function refreshEpicOffers() {
-    const endpoint = "https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions?locale=en-US&country=US&allowCountries=US";
+  async function refreshEpicOffers(force=false) {
+    if(checking||(!force&&Date.now()-lastAttempt<10000))return;
+    checking=true;lastAttempt=Date.now();setLastChecked();
+    const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),12000);
     try {
-      const response = await fetch(endpoint, { cache: "no-store" });
-      if (!response.ok) throw new Error("Epic promotion feed unavailable");
-      const elements = (await response.json())?.data?.Catalog?.searchStore?.elements || [];
-      const now = Date.now();
-      const offers = elements.flatMap((item) => {
-        const promotions = item.promotions?.promotionalOffers || [];
-        return promotions.flatMap((group) => group.promotionalOffers || []).filter((promotion) => promotion.discountSetting?.discountPercentage === 0 && new Date(promotion.startDate).getTime() <= now && new Date(promotion.endDate).getTime() > now).map((promotion) => {
-          const asset = (item.keyImages || []).find((image) => image.type === "OfferImageTall") || (item.keyImages || []).find((image) => image.type === "DieselStoreFrontWide") || {};
-          const slug = item.productSlug || item.catalogNs?.mappings?.find((mapping) => mapping.pageType === "productHome")?.pageSlug || item.urlSlug;
-          return { id: `epic-${item.id}`, title: item.title, platform: "epic", platformLabel: "Epic Games", type: "keep", typeLabel: "รับเข้าคลังฟรี", startsAt: promotion.startDate, endsAt: promotion.endDate, url: slug ? `https://store.epicgames.com/en-US/p/${slug}` : "https://store.epicgames.com/free-games", sourceUrl: "https://store.epicgames.com/free-games", image: asset.url, summary: item.description || "กดรับเข้าคลังผ่านบัญชี Epic Games ก่อนหมดเวลา" };
-        });
-      });
-      if (offers.length) {
-        state.offers = [...state.offers.filter((offer) => offer.platform !== "epic"), ...offers];
-        renderOffers();
-      }
+      const response=await fetch('/api/free-games',{cache:'no-store',signal:controller.signal});
+      if(!response.ok)throw new Error('EPIC_UNAVAILABLE');
+      const result=await response.json();
+      if(!Array.isArray(result.offers)||!Array.isArray(result.upcomingOffers)||!Number.isFinite(Date.parse(result.checkedAt)))throw new Error('INVALID_FEED');
+      // An empty successful feed must clear old Epic offers, not leave stale games behind.
+      state.offers=[...state.offers.filter(o=>o.platform!=='epic'),...result.offers];
+      state.upcomingOffers=[...state.upcomingOffers.filter(o=>o.platform!=='epic'),...result.upcomingOffers];
+      checkedAt=result.checkedAt;epicError=false;
+    } catch { epicError=true; }
+    finally { clearTimeout(timeout);checking=false;setLastChecked();renderOffers();renderUpcomingOffers(); }
+  }
 
-      const upcomingOffers = elements.flatMap((item) => {
-        const promotions = item.promotions?.upcomingPromotionalOffers || [];
-        return promotions.flatMap((group) => group.promotionalOffers || []).filter((promotion) => promotion.discountSetting?.discountPercentage === 0 && new Date(promotion.startDate).getTime() > now).map((promotion) => {
-          const asset = (item.keyImages || []).find((image) => image.type === "OfferImageTall") || (item.keyImages || []).find((image) => image.type === "DieselStoreFrontWide") || {};
-          const slug = item.productSlug || item.catalogNs?.mappings?.find((mapping) => mapping.pageType === "productHome")?.pageSlug || item.urlSlug;
-          return { id: `epic-upcoming-${item.id}`, title: item.title, platform: "epic", platformLabel: "Epic Games", type: "keep", typeLabel: "รับเข้าคลังฟรี", startsAt: promotion.startDate, endsAt: promotion.endDate, url: slug ? `https://store.epicgames.com/en-US/p/${slug}` : "https://store.epicgames.com/free-games", sourceUrl: "https://store.epicgames.com/free-games", image: asset.url, summary: item.description || "Epic Games ประกาศช่วงเวลาแจกเกมล่วงหน้า" };
-        });
-      });
-      if (upcomingOffers.length) state.upcomingOffers = [...state.upcomingOffers.filter((offer) => offer.platform !== "epic"), ...upcomingOffers];
-      renderUpcomingOffers();
-    } catch (_) {
-      // The official page cards remain usable when a browser or region blocks the feed.
-    }
+  function refreshTimeWindows(){
+    const signature=JSON.stringify([activeOffers().map(o=>o.id),state.upcomingOffers.filter(isUpcoming).map(o=>o.id)]);
+    if(signature!==lastSignature){lastSignature=signature;renderOffers();renderUpcomingOffers();}
+    updateCountdowns();
   }
 
   document.addEventListener("DOMContentLoaded", () => {
@@ -259,7 +253,11 @@
     renderHomeOffers();
     renderUpcomingOffers();
     document.querySelectorAll("[data-free-game-filter]").forEach((button) => button.addEventListener("click", () => setFilter(button.dataset.freeGameFilter || "all")));
+    document.getElementById('free-games-refresh')?.addEventListener('click',()=>refreshEpicOffers(true));
     refreshEpicOffers();
-    window.setInterval(updateCountdowns, 30000);
+    window.setInterval(()=>{if(!document.hidden){refreshTimeWindows();refreshEpicOffers();}},60000);
+    window.setInterval(()=>{if(!document.hidden)refreshTimeWindows();},10000);
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden){refreshTimeWindows();refreshEpicOffers();}});
+    window.addEventListener('focus',()=>{refreshTimeWindows();refreshEpicOffers();});
   });
 })();

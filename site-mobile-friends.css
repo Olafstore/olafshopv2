@@ -1,0 +1,63 @@
+/* v245: one shared companion surface, driven by the selected site palette. */
+html[data-site-theme] body .friends-dialog{width:min(370px,calc(100vw - 24px));border-radius:20px;background:var(--theme-card)!important;border:1px solid var(--theme-edge)!important;box-shadow:var(--theme-shadow);color:var(--text);}
+html[data-site-theme] body .friends-dialog.is-expanded{width:min(500px,calc(100vw - 24px));}
+html[data-site-theme] body .friends-dialog.is-floating{z-index:1100;}
+html[data-site-theme] body .friends-dialog>header{padding:10px 12px 8px 16px;background:var(--theme-panel);border-bottom:1px solid var(--theme-edge);}
+html[data-site-theme] body .friends-window-title{font-size:11px;color:var(--theme-muted);}
+html[data-site-theme] body .friends-dialog .friends-window-actions button{width:30px;height:30px;border-radius:9px;color:var(--theme-muted);background:var(--theme-control);}
+html[data-site-theme] body .friends-dialog [data-friends-self]{padding:16px;background:linear-gradient(120deg,var(--theme-glow),transparent);}
+html[data-site-theme] body :is(.friends-self-menu,.friends-self-preview){background:var(--theme-card)!important;border-color:var(--theme-edge)!important;box-shadow:var(--theme-shadow);border-radius:14px;color:var(--text)!important;}
+html[data-site-theme] body .friends-self :is(img,.friends-self-monogram){border-radius:12px;box-shadow:0 3px 12px #0002;}
+html[data-site-theme] body .friends-dialog [data-friends-content]{padding:0 14px 14px;scrollbar-color:var(--theme-edge) transparent;}
+html[data-site-theme] body .friends-compact nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:10px 0;border-top:1px solid var(--theme-edge);}
+html[data-site-theme] body .friends-compact nav button{min-height:36px;padding:7px 4px;border-radius:10px;font-size:11px;background:var(--theme-control);color:var(--theme-muted);}
+html[data-site-theme] body .friends-compact nav [aria-pressed=true]{background:var(--theme-raised);color:var(--theme-accent);border-color:var(--theme-accent);}
+html[data-site-theme] body .friends-compact .friend-person{padding:10px 8px;gap:10px;border-radius:12px;background:transparent!important;box-shadow:none;}
+html[data-site-theme] body .friends-compact .friend-person:hover{background:var(--theme-control)!important;}
+html[data-site-theme] body .friends-compact .friend-person :is(img,.friend-avatar-placeholder){width:38px;height:38px;border-radius:10px;}
+html[data-site-theme] body .friend-avatar-placeholder{background:var(--theme-control);color:var(--theme-accent);}
+html[data-site-theme] body .friends-recent a{border-radius:10px;background:transparent!important;}
+html[data-site-theme] body .friends-compact .friend-person button{min-height:32px;padding:6px 8px;font-size:11px;border-radius:9px;}
+html[data-site-theme] body .friends-compact :is(.friend-person small,[role=status],.friends-presence-group h4 small){color:var(--theme-muted);font-size:11px;}
+html[data-site-theme] body .friends-surface [data-add-friend]{min-height:36px;padding:7px 10px;border-radius:10px;background:var(--theme-raised);color:var(--theme-accent);border-color:var(--theme-edge);box-shadow:none;}
+html[data-site-theme] body .friends-request-alert{background:var(--theme-raised)!important;color:var(--theme-accent)!important;border-color:var(--theme-accent)!important;border-radius:12px!important;box-shadow:none!important;}
+html[data-site-theme] body .friends-dialog footer{padding:12px 16px;background:var(--theme-panel);font-size:9px;}
+html[data-site-theme] body .friends-launch{background:var(--theme-card)!important;color:var(--theme-accent);border-color:var(--theme-edge);box-shadow:var(--theme-shadow);}
+html[data-site-theme] body .friends-launch-icon{background:var(--theme-raised);color:var(--theme-accent);}
+html[data-site-theme=light] body .friends-self [data-self-online].is-online{color:var(--theme-success);}
+/* Do not mount a second theme entry in navigation, including old cached markup. */
+html body .site-theme-switcher{display:none!important;}
+@media(max-width:760px){
+ html body{min-width:0!important;}
+ html body .topbar.site-topbar-unified{padding-inline:12px!important;gap:8px!important;}
+ html body .topbar.site-topbar-unified .topbar-actions{gap:6px!important;min-width:0;}
+ html body .topbar.site-topbar-unified :is(#open-favorites,#open-notifications,#open-auth,.mobile-nav-toggle,.site-global-search-toggle,.topbar-search-toggle){width:40px!important;min-width:40px!important;max-width:40px!important;height:40px!important;min-height:40px!important;max-height:40px!important;flex:0 0 40px!important;padding:0!important;border-radius:12px!important;display:inline-flex!important;align-items:center;justify-content:center;background:var(--theme-control)!important;color:var(--theme-accent)!important;border:1px solid var(--theme-edge)!important;box-sizing:border-box!important;}
+ html body .topbar.site-topbar-unified :is(#open-favorites,#open-notifications,#open-auth,.mobile-nav-toggle,.site-global-search-toggle,.topbar-search-toggle) svg{width:20px!important;height:20px!important;}
+ html body .topbar.site-topbar-unified #account-label{display:none!important;}
+ html body.home-page .olaf-steam-activity-head{align-items:center;gap:12px;margin-bottom:12px;}
+ html body.home-page .olaf-steam-activity-head h3{font-size:19px;line-height:1.4;}
+ html body.home-page .olaf-steam-activity-head>a{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:8px 12px;font-size:11px;white-space:nowrap;flex:none;border-radius:11px;}
+ html body.home-page .olaf-steam-activity-row{scroll-margin-top:85px;}
+ html body.home-page .olaf-steam-activity-viewport,html body.home-page .olaf-steam-activity-viewport:has(.is-active.is-mixed){height:auto!important;border-radius:14px!important;}
+ html body.home-page .olaf-steam-activity-track{align-items:flex-start;}
+ html body.home-page .olaf-steam-activity-slide,html body.home-page .olaf-steam-activity-slide:not(.is-mixed){box-sizing:border-box;height:auto;min-height:0;aspect-ratio:auto;padding:10px;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:none;grid-auto-rows:auto;}
+ html body.home-page .olaf-steam-activity-slide:not(.is-active){height:0;overflow:hidden;}
+ html body.home-page .olaf-steam-activity-slide .olaf-steam-activity-card,html body.home-page .olaf-steam-activity-slide.is-mixed .olaf-steam-activity-card{aspect-ratio:0.88;grid-column:auto;grid-row:auto;grid-template-rows:minmax(0,1fr) 32px;}
+ html body.home-page .olaf-steam-activity-slide.is-mixed .olaf-steam-activity-card:last-child{grid-column:1/-1;aspect-ratio:2.1;}
+ html body.home-page .olaf-steam-activity-price{height:32px;min-height:32px;font-size:10px;}
+ html body.home-page .olaf-steam-activity-price strong{font-size:12px;}
+ html body.home-page .olaf-steam-activity-label{max-width:calc(100% - 8px);font-size:9px;line-height:1.4;}
+ html body.home-page .olaf-steam-activity-arrow{top:auto;bottom:-54px;width:44px;height:44px;transform:none!important;border-radius:12px;background:var(--theme-control)!important;color:var(--theme-accent);border:1px solid var(--theme-edge);backdrop-filter:none;}
+ html body.home-page .olaf-steam-activity-arrow.is-prev{left:0;}
+ html body.home-page .olaf-steam-activity-arrow.is-next{right:0;}
+ html body.home-page .olaf-steam-activity-arrow::before{width:11px;height:11px;border-width:3px;}
+ html body.home-page .olaf-steam-activity-dots{min-height:44px;margin:10px 55px 0;gap:4px;}
+ html body.home-page .olaf-steam-activity-dots button{width:30px;height:36px;background:transparent!important;border:0!important;box-shadow:none!important;display:grid;place-items:center;}
+ html body.home-page .olaf-steam-activity-dots button::before{content:'';width:7px;height:7px;border-radius:9px;background:var(--theme-muted);}
+ html body.home-page .olaf-steam-activity-dots button.is-active::before{width:22px;background:var(--theme-accent);}
+ html body .discord-floating-link{width:44px!important;min-width:44px!important;height:44px!important;min-height:44px!important;padding:6px!important;right:12px!important;bottom:calc(12px + env(safe-area-inset-bottom))!important;border-radius:14px!important;gap:0!important;}
+ html body .discord-floating-link>:is(strong,small){display:none!important;}
+ html body .discord-floating-link>span{display:grid!important;place-items:center;width:30px!important;height:30px!important;margin:0!important;border-radius:9px;}
+ html body .discord-floating-link svg{width:22px;height:22px;}
+}
+@media(prefers-reduced-motion:reduce){.friends-dialog,.friends-launch,.friends-compact button{transition:none!important;}}

@@ -1,11 +1,11 @@
 (() => {
-  const themes=[{id:'store',name:'ดำ–น้ำเงินเข้ม',label:'MIDNIGHT',description:'ดำสนิท ไล่แสงน้ำเงินนุ่ม ๆ'},{id:'main',name:'น้ำเงินดั้งเดิม',label:'CLASSIC BLUE',description:'โทนน้ำเงินเข้มเอกลักษณ์ OLAF'},{id:'light',name:'สีขาว',label:'DAYLIGHT',description:'ขาวสะอาด สบายตา อ่านง่าย'}];
+  const themes=[{id:'main',name:'น้ำเงิน Steam',label:'STEAM BLUE',description:'น้ำเงินเทาแบบ Steam พร้อมสีฟ้าอ่อน'},{id:'store',name:'ดำเทาอมฟ้า',label:'SLATE DARK',description:'ดำเทานุ่ม ๆ แต้มโทนน้ำเงินเล็กน้อย'}];
   const normalize=value=>themes.some(item=>item.id===value)?value:'main';
   const icon='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 1-3.7c-.9-.5-.5-2 .5-2H17a4 4 0 0 0 4-4C21 6.7 17 3 12 3Z"/><circle cx="7.5" cy="10" r=".8"/><circle cx="11" cy="6.8" r=".8"/><circle cx="16" cy="8" r=".8"/></svg>';
   let dialog=null,opener=null;
   const sync=()=>{const theme=document.documentElement.dataset.siteTheme;document.querySelectorAll('[data-site-theme-choice]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.siteThemeChoice===theme)));document.querySelectorAll('[data-site-theme-name]').forEach(label=>label.textContent=themes.find(item=>item.id===theme)?.name||'น้ำเงินดั้งเดิม');};
   const apply=value=>{const theme=normalize(value);document.documentElement.dataset.siteTheme=theme;document.documentElement.style.colorScheme=theme==='light'?'light':'dark';const root=document.getElementById('profile-overview-root');if(root)root.dataset.theme=theme;sync();window.dispatchEvent(new CustomEvent('olaf-theme-changed',{detail:{theme}}));return theme;};
-  try{apply(localStorage.getItem('olaf-site-theme'));}catch{apply('main');}
+  try{const saved=localStorage.getItem('olaf-site-theme');const current=apply(saved);if(saved&&saved!==current)localStorage.setItem('olaf-site-theme',current);}catch{apply('main');}
   window.OlafTheme={set(value){const theme=apply(value);try{localStorage.setItem('olaf-site-theme',theme);return true;}catch{return false;}},
     controlMarkup:()=>'<button type="button" class="site-theme-trigger" data-site-theme-open aria-haspopup="dialog" aria-label="เปลี่ยนธีมเว็บไซต์">'+icon+'<span class="site-theme-trigger-copy"><small>ธีมเว็บไซต์</small><strong data-site-theme-name></strong></span><span class="site-theme-mini-swatches" aria-hidden="true"><i></i><i></i><i></i></span></button>',
     open(source){

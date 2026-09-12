@@ -1368,7 +1368,8 @@
       toggle.setAttribute("aria-controls", navId);
       header.insertBefore(toggle, nav);
     }
-    toggle.innerHTML = '<i data-lucide="menu"></i><span class="sr-only">เมนู</span>';
+    toggle.innerHTML = '<svg class="mobile-menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span class="sr-only">เมนู</span>';
+    toggle.id = 'olaf-mobile-nav-toggle';
     toggle.setAttribute("aria-label", "เปิดเมนู");
     toggle.setAttribute("aria-controls", nav.id);
     toggle.setAttribute("aria-expanded", "false");

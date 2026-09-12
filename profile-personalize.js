@@ -12,11 +12,11 @@
       identity.querySelector('p')?.remove(); bio.querySelector('h3')?.remove(); identity.append(bio);
     }
     const theme=document.createElement('div'); theme.className='member-theme-control site-theme-profile-control';
-    theme.innerHTML=(window.OlafTheme?.controlMarkup?.()||'<button type="button" data-site-theme-open>เปลี่ยนธีมเว็บไซต์</button>')+'<select hidden aria-label="ธีมโปรไฟล์"><option value="main">น้ำเงินดั้งเดิม</option><option value="store">ดำ–น้ำเงินเข้ม</option><option value="light">สีขาว</option></select><span role="status"></span>';
+    theme.innerHTML=(window.OlafTheme?.controlMarkup?.()||'<button type="button" data-site-theme-open>เปลี่ยนธีมเว็บไซต์</button>')+'<select hidden aria-label="ธีมโปรไฟล์"><option value="main">น้ำเงิน Steam</option><option value="store">ดำเทาอมฟ้า</option></select><span role="status"></span>';
     root.querySelector('.member-cover').append(theme);
-    const select=theme.querySelector('select'); select.value=document.documentElement.dataset.siteTheme || (['store','light'].includes(prefs.theme)?prefs.theme:'main');
+    const select=theme.querySelector('select'); select.value=document.documentElement.dataset.siteTheme || (prefs.theme==='store'?'store':'main');
     root.dataset.theme=select.value;
-    const sync=()=>{select.value=document.documentElement.dataset.siteTheme||select.value;const label=theme.querySelector('[data-site-theme-name]');if(label)label.textContent={main:'น้ำเงินดั้งเดิม',store:'ดำ–น้ำเงินเข้ม',light:'สีขาว'}[select.value];};
+    const sync=()=>{select.value=document.documentElement.dataset.siteTheme||select.value;const label=theme.querySelector('[data-site-theme-name]');if(label)label.textContent={main:'น้ำเงิน Steam',store:'ดำเทาอมฟ้า'}[select.value];};
     select.addEventListener('change',()=>{prefs.theme=select.value;root.dataset.theme=prefs.theme;window.OlafTheme?.set(prefs.theme);sync();theme.querySelector('[role=status]').textContent=save()?'':'บันทึกธีมในเบราว์เซอร์ไม่ได้';});
     window.addEventListener('olaf-theme-changed',()=>{if(!theme.isConnected)return;sync();prefs.theme=select.value;save();});sync();
     const games=event.detail?.games||[];

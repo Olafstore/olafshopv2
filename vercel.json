@@ -2,6 +2,8 @@
   "cleanUrls": false,
   "trailingSlash": false,
   "functions": {
+    "api/product-page.js": {"includeFiles": "product.html", "maxDuration": 15},
+    "api/sitemap.js": {"maxDuration": 60},
     "api/free-games.js": {
       "maxDuration": 15
     },
@@ -72,6 +74,8 @@
     }
   ],
   "rewrites": [
+    {"source":"/product.html","destination":"/api/product-page"},
+    {"source":"/sitemap.xml","destination":"/api/sitemap"},
     {
       "source": "/",
       "destination": "/index.html"
@@ -94,7 +98,7 @@
     },
     {
       "source": "/product",
-      "destination": "/product.html"
+      "destination": "/api/product-page"
     }
   ],
   "headers": [

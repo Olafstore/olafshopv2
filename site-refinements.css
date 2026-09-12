@@ -1,12 +1,11 @@
-/* v248: two dark palettes. Retired light rules below remain inert for compatibility. */
-html[data-site-theme=main]{--theme-base:#1b2838;--theme-panel:#223448;--theme-panel-end:#1b2838;--theme-control:#2a475e;--theme-raised:#35566e;--theme-accent:#66c0f4;--theme-edge:#476078;--theme-muted:#acb8c6;--theme-glow:#2a475e66;--text:#dce5ed;--text-secondary:#acb8c6;--brand:#4b9dcb;--brand-hover:#66c0f4;--brand-strong:#2878a8;--accent:#66c0f4;}
-html[data-site-theme=store]{--theme-base:#171b21;--theme-panel:#232a33;--theme-panel-end:#1c222a;--theme-control:#2b3541;--theme-raised:#354352;--theme-accent:#9dbbd2;--theme-edge:#404e5d;--theme-muted:#a5afb9;--theme-glow:#30425428;--text:#e0e5eb;--text-secondary:#a5afb9;--brand:#769bb9;--brand-hover:#a9c7dd;--brand-strong:#426580;--accent:#9dbbd2;--bg:var(--theme-base);--bg-card:var(--theme-panel);--bg-card-hover:var(--theme-raised);--bg-elevated:var(--theme-raised);--surface:var(--theme-panel);--surface-2:var(--theme-control);--surface-3:var(--theme-raised);--border:var(--theme-edge);--line:var(--theme-edge);}
+/* v249: use the original main/store palettes from site-theme-picker.css.
+   White remains disabled; retain layout and mobile fixes. */
 .site-theme-choices{grid-template-columns:repeat(2,minmax(0,1fr));}
-.site-theme-mini-swatches i:nth-child(1){background:#1b2838;}
-.site-theme-mini-swatches i:nth-child(2){background:#232a33;}
+.site-theme-mini-swatches i:nth-child(1){background:#21457e;}
+.site-theme-mini-swatches i:nth-child(2){background:#07111e;}
 .site-theme-mini-swatches i:nth-child(3){display:none;}
-.site-theme-preview[data-palette=main]{--preview-bg:#1b2838;--preview-card:#2a475e;--preview-bar:#66c0f4;}
-.site-theme-preview[data-palette=store]{--preview-bg:#171b21;--preview-card:#2b3541;--preview-bar:#769bb9;}
+.site-theme-preview[data-palette=main]{--preview-bg:#071630;--preview-card:#17375f;--preview-bar:#528cf0;}
+.site-theme-preview[data-palette=store]{--preview-bg:#050a12;--preview-card:#142238;--preview-bar:#325278;}
 html body #olaf-mobile-nav-toggle{position:relative!important;padding:0!important;}
 html body #olaf-mobile-nav-toggle>svg.mobile-menu-icon{position:absolute!important;inset:0!important;margin:auto!important;width:24px!important;height:24px!important;transform:none!important;translate:none!important;}
 .profile-live-preview{display:block;width:100%;min-height:420px;border:0;background:transparent;}

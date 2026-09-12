@@ -15,11 +15,28 @@ html body .topbar.site-topbar-unified .mobile-nav-toggle>svg{position:static!imp
 html body .topbar.site-topbar-unified .mobile-nav-toggle::before,
 html body .topbar.site-topbar-unified .mobile-nav-toggle::after{content:none!important;}
 @media(min-width:761px){
- html body.home-page .olaf-steam-activity-carousel{margin-inline:56px;overflow:visible;}
+ html body.home-page .olaf-steam-activity-carousel{margin-inline:0;width:100%;overflow:visible;}
  html body.home-page .olaf-steam-activity-arrow{width:40px!important;height:64px!important;border-radius:12px!important;background:var(--theme-control)!important;border:1px solid var(--theme-edge)!important;box-shadow:none!important;}
  html body.home-page .olaf-steam-activity-arrow.is-prev{left:-52px!important;}
  html body.home-page .olaf-steam-activity-arrow.is-next{right:-52px!important;}
  html body.home-page .olaf-steam-activity-arrow::before{width:15px!important;height:15px!important;border-width:4px!important;}
+}
+/* Keep the full shelf width on narrower desktops; controls use the dot row
+   when there is not enough page gutter for the outside arrows. */
+@media(min-width:761px) and (max-width:1499px){
+ html body.home-page .olaf-steam-activity-arrow{top:auto!important;bottom:-54px!important;transform:none!important;height:40px!important;}
+ html body.home-page .olaf-steam-activity-arrow.is-prev{left:0!important;}
+ html body.home-page .olaf-steam-activity-arrow.is-next{right:0!important;}
+ html body.home-page .olaf-steam-activity-dots{min-height:44px;margin:10px 52px 0;}
+}
+/* Profile search has one border and one surface, not a square icon over a pill. */
+@media(min-width:761px){
+ html body.profile-page #topbar-search-wrap{background:transparent!important;border:0!important;box-shadow:none!important;}
+ html body.profile-page #topbar-search-form{display:flex!important;align-items:center!important;gap:0!important;box-sizing:border-box;height:40px!important;padding:0!important;border:1px solid var(--theme-edge)!important;border-radius:12px!important;background:var(--theme-panel-end)!important;box-shadow:none!important;overflow:hidden;}
+ html body.profile-page #topbar-search-toggle{position:relative!important;inset:auto!important;display:grid!important;place-items:center!important;flex:0 0 38px!important;width:38px!important;min-width:38px!important;height:38px!important;padding:0!important;margin:0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:var(--theme-accent)!important;transform:none!important;}
+ html body.profile-page #topbar-search-toggle svg{position:static!important;display:block!important;width:18px!important;height:18px!important;margin:0!important;transform:none!important;}
+ html body.profile-page #topbar-search-input{flex:1 1 auto!important;min-width:0!important;width:0!important;height:38px!important;margin:0!important;padding:0 12px 0 0!important;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:var(--text)!important;}
+ html body.profile-page #topbar-search-form:focus-within{border-color:var(--theme-accent)!important;outline:2px solid var(--theme-edge);outline-offset:2px;}
 }
 html body .atelier-dialog.is-profile-preview{width:min(1240px,calc(100vw - 24px))!important;padding:18px!important;}
 html body .atelier-dialog.is-profile-preview :is(.preview-profile-card,.portrait-full-preview){background:transparent!important;padding:0!important;border:0!important;border-radius:18px;overflow:hidden;}

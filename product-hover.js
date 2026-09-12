@@ -74,6 +74,9 @@
   }
   document.addEventListener('pointerover',event=>{
     if(!desktop.matches||event.pointerType!=='mouse')return;
+    // The featured spotlight already contains its details. Exclude its links
+    // before the generic article/link fallback can turn them into previews.
+    if(event.target.closest?.('.olaf-steam-spotlight')){hide();return;}
     let card=event.target.closest?.(cards+',article.olaf-license-card');
     if(!card){const article=event.target.closest?.('article');const links=article?[...article.querySelectorAll('a[href*="product.html?"]')]:[];if(links.length&&new Set(links.map(link=>link.getAttribute('href'))).size===1)card=article;}
     card ||= event.target.closest?.('a[href*="product.html?"]');if(!card||card===active)return;

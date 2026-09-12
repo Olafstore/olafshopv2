@@ -12,6 +12,8 @@
    try{
     const doc=frame.contentDocument;if(!doc)throw new Error('NO_DOCUMENT');
     const style=doc.createElement('style');style.textContent='html,body{min-width:0!important;margin:0!important;padding:0!important}body{background:transparent!important} [data-preview-path]{display:block!important;width:100%!important;max-width:none!important;margin:0!important;padding:0!important;border:0!important} #profile-overview-root{margin:0!important;width:100%!important}';doc.head.append(style);
+    // The parent dialog owns scrolling. Avoid an inner iframe scrollbar/gutter.
+    style.textContent+='html,body{overflow:hidden!important;scrollbar-gutter:auto!important} [data-preview-path]{box-shadow:none!important;min-height:0!important}';
     doc.body.inert=true;
     const apply=()=>{
      if(disposed)return;const root=doc.getElementById('profile-overview-root'),cover=root?.querySelector('.member-cover');if(!cover)return;

@@ -2621,7 +2621,7 @@ function steamActivitySlides(products) {
   const slides = [];
   for (let slideIndex = 0; slideIndex < 4; slideIndex += 1) {
     const selected = [];
-    for (let offset = 0; offset < pool.length && selected.length < (slideIndex % 2 ? 5 : 4); offset += 1) {
+    for (let offset = 0; offset < pool.length && selected.length < 4; offset += 1) {
       const product = pool[(slideIndex * 4 + offset) % pool.length];
       if (product && !selected.some((item) => item.id === product.id)) selected.push(product);
     }

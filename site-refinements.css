@@ -1,5 +1,17 @@
-/* v246: consistent controls and stronger Daylight separation. */
+/* v247: consistent controls and stronger Daylight separation. */
 .profile-live-preview{display:block;width:100%;min-height:420px;border:0;background:transparent;}
+html body .atelier-dialog.is-profile-preview{overflow-x:hidden;overflow-y:auto;scrollbar-gutter:auto;box-sizing:border-box;}
+html body .topbar.site-topbar-unified .mobile-nav-toggle{position:relative!important;align-items:center!important;justify-content:center!important;padding:0!important;gap:0!important;}
+html body .topbar.site-topbar-unified .mobile-nav-toggle>svg{position:static!important;display:block!important;width:22px!important;height:22px!important;margin:0!important;transform:none!important;flex:none!important;}
+html body .topbar.site-topbar-unified .mobile-nav-toggle::before,
+html body .topbar.site-topbar-unified .mobile-nav-toggle::after{content:none!important;}
+@media(min-width:761px){
+ html body.home-page .olaf-steam-activity-carousel{margin-inline:56px;overflow:visible;}
+ html body.home-page .olaf-steam-activity-arrow{width:40px!important;height:64px!important;border-radius:12px!important;background:var(--theme-control)!important;border:1px solid var(--theme-edge)!important;box-shadow:none!important;}
+ html body.home-page .olaf-steam-activity-arrow.is-prev{left:-52px!important;}
+ html body.home-page .olaf-steam-activity-arrow.is-next{right:-52px!important;}
+ html body.home-page .olaf-steam-activity-arrow::before{width:15px!important;height:15px!important;border-width:4px!important;}
+}
 html body .atelier-dialog.is-profile-preview{width:min(1240px,calc(100vw - 24px))!important;padding:18px!important;}
 html body .atelier-dialog.is-profile-preview :is(.preview-profile-card,.portrait-full-preview){background:transparent!important;padding:0!important;border:0!important;border-radius:18px;overflow:hidden;}
 html body .atelier-dialog .preview-heading{top:-18px;background:var(--theme-panel)!important;border-bottom:1px solid var(--theme-edge);margin-bottom:14px;padding:12px 0;}
@@ -7,10 +19,36 @@ html body .atelier-dialog .preview-heading :is(small,button){color:var(--theme-a
 html body .atelier-dialog .preview-heading button{background:var(--theme-control);border-color:var(--theme-edge);}
 html[data-site-theme=light]{--theme-base:#edf2f8;--theme-panel:#fff;--theme-panel-end:#f0f5fc;--theme-control:#e2ebf8;--theme-raised:#d9e6f7;--theme-edge:#bdcfe4;--theme-muted:#405675;--theme-accent:#164d8f;--text:#101d30;}
 html[data-site-theme=light] body{background:#edf2f8!important;color:#101d30!important;}
+/* Component surfaces, not opacity overlays: keep ink legible and shadows single. */
+html[data-site-theme=light] body :is(.search-discovery-item,.search-discovery-empty,.recent-purchase-row,#catalog-tag-categories>a){background:#e5eef9!important;border:1px solid #c0d2e8!important;box-shadow:none!important;color:#183858!important;}
+html[data-site-theme=light] body :is(.search-discovery-item,.search-discovery-empty,.recent-purchase-row,#catalog-tag-categories>a) :is(strong,small,span,b,time){color:#28496e!important;}
+html[data-site-theme=light] body :is(.search-discovery-item:hover,#catalog-tag-categories>a:hover,#catalog-tag-categories>a[aria-current=true]){background:#ccdef5!important;}
+html[data-site-theme=light] body :is(.olaf-steam-discovery-preview,.olaf-steam-taste-row){background:#f8fbff!important;border:1px solid #b9cde5!important;box-shadow:0 4px 14px #23476e0d!important;}
+html[data-site-theme=light] body .olaf-steam-discovery-preview :is(h3,h4,p,small,strong){color:#183858!important;}
+html[data-site-theme=light] body :is(.tag,.hover-preview-tags>span,.olaf-steam-discovery-preview .tags>span){background:#dce8f7!important;color:#25496f!important;border-color:#b9cee6!important;box-shadow:none!important;}
+html[data-site-theme=light] body :is(.olaf-steam-price-stack,.olaf-steam-editorial-price,.olaf-steam-activity-price,.olaf-sale-price){background:#e1ebf8!important;color:#152e4c!important;box-shadow:none!important;}
+html[data-site-theme=light] body :is(.olaf-steam-price-stack,.olaf-sale-price) :is(strong,b){color:#152e4c!important;}
+html[data-site-theme=light] body :is(.olaf-steam-price-stack,.olaf-sale-price) del{color:#51657e!important;}
+html[data-site-theme=light] body :is(.olaf-steam-deal-card,.olaf-steam-editorial-card,.catalog-genre-game){border:1px solid #b9cde5!important;box-shadow:0 3px 10px #23476e10!important;}
+html[data-site-theme=light] body :is(.hero-content,.catalog-genre-game,.olaf-steam-editorial-overlay) :is(h1,h2,h3,p,strong,small){color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 3px #0008;}
+html[data-site-theme=light] body .discord-floating-link>span{background:#565cf0!important;color:#fff!important;box-shadow:none!important;}
+html[data-site-theme=light] body .discord-floating-link svg{color:#fff!important;stroke:currentColor!important;}
+html[data-site-theme=light] body .topbar.site-topbar-unified :is(.mobile-nav-toggle,#open-auth,#open-notifications,#open-favorites){color:#234b78!important;background:#e1ebf8!important;box-shadow:none!important;}
+html[data-site-theme=light] body :is(.topbar-search-wrap,.site-global-search,.store-search) :is(input,button){box-shadow:none!important;}
+html[data-site-theme=light] body :is(.topbar-search-wrap,.site-global-search,.store-search) input{border:0!important;background:transparent!important;}
+html[data-site-theme=light] body :is(.topbar-search-wrap,.store-search) .site-global-search{background:transparent!important;border:0!important;box-shadow:none!important;}
+html[data-site-theme=light] body :is(.olaf-steam-discovery-tabs button,.store-toolbar button,.olaf-steam-taste-actions a){background:#e0eafa!important;color:#22466e!important;border:1px solid #b9cde5!important;box-shadow:none!important;}
+html[data-site-theme=light] body :is(.olaf-steam-discovery-tabs button.is-active,.store-toolbar button[aria-pressed=true]){background:#245ab0!important;color:#fff!important;}
+html[data-site-theme=light] body :is(.store-featured-track,.store-product-grid,.olaf-steam-deal-track,.recent-purchases-list,#catalog-tag-categories){scrollbar-color:#8faacb #e3ebf6;}
+html[data-site-theme=light] body .store-market .store-product.atelier-portrait{display:grid;grid-template-rows:minmax(0,1fr) auto;aspect-ratio:auto!important;height:300px;}
+html[data-site-theme=light] body .store-market .store-product>img{min-height:0;height:100%;object-fit:cover;}
+html[data-site-theme=light] body .store-market .store-product::after{display:none;}
+html[data-site-theme=light] body .store-market .store-product-caption{position:relative;inset:auto;padding:12px 14px;background:#f7faff;border-top:1px solid #b9cde5;}
 html[data-site-theme=light] body :is(.store-topbar,.preview-heading,.store-toolbar,.store-search,.topbar-search-wrap,.site-global-search,.site-global-search-results,.olaf-mobile-search-card,.olaf-mobile-search-shell){background:#fff!important;border-color:#b9cce3!important;color:#142b48!important;box-shadow:0 5px 20px #244b7610;}
 html[data-site-theme=light] body :is(.store-topbar,.store-toolbar,.store-intro,.store-section-heading,.store-categories,.store-empty,.preview-heading,.atelier-dialog,.site-global-search-results,.olaf-mobile-search-shell) :is(p,small,strong,label,a,button,span){color:#203d61!important;}
 html[data-site-theme=light] body :is(.store-search,.site-global-search,.topbar-search-wrap,.olaf-mobile-search-shell) input{background:#f1f5fc!important;color:#101d30!important;border-color:#bccfe5!important;}
 html[data-site-theme=light] body input::placeholder{color:#506784!important;opacity:1;}
+html[data-site-theme=light] body :is(.store-search,.site-global-search,.topbar-search-wrap,.olaf-mobile-search-shell) input{background:transparent!important;box-shadow:none!important;}
 html[data-site-theme=light] body :is(.store-topbar,.store-categories) [aria-pressed=true]{background:#dae7f8!important;color:#103f78!important;border-color:#6489b9!important;}
 html[data-site-theme=light] body :is(.store-market-content,.store-market.avatar-atelier){background:transparent!important;}
 html[data-site-theme=light] body .store-market .store-product.atelier-portrait{background:#dce7f5!important;border:1px solid #b3c8e1!important;box-shadow:0 4px 16px #1c47791a;}

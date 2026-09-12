@@ -28,6 +28,11 @@
   },
   "redirects": [
     {
+      "source": "/product.html",
+      "destination": "/product",
+      "permanent": false
+    },
+    {
       "source": "/public-profile.html",
       "destination": "/profile.html#user",
       "permanent": false
@@ -74,7 +79,6 @@
     }
   ],
   "rewrites": [
-    {"source":"/product.html","destination":"/api/product-page"},
     {"source":"/sitemap.xml","destination":"/api/sitemap"},
     {
       "source": "/",

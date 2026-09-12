@@ -192,7 +192,7 @@
     const item = current();
     if (!item || busy) return;
     const member = window.OlafStore.currentUser();
-    dialog.classList.toggle('is-profile-preview', item.kind === 'background');
+    dialog.classList.add('is-profile-preview');
     const fullImage = item.image.startsWith('api/profile-avatar?') ? `${item.image}&view=full` : item.image;
     dialog.innerHTML = `<header class="preview-heading"><div><small>OLAF · PROFILE PREVIEW</small><h2>ตัวอย่างก่อนบันทึก</h2></div><button type="button" data-cancel aria-label="ปิดตัวอย่าง">×</button></header>
       ${item.kind !== 'background' ? `<div class="portrait-full-preview"><img src="${escape(fullImage)}" alt="${escape(item.name)} แบบเต็มภาพ" /></div>` : `<div class="preview-profile-card"><div class="decoration-preview"><img class="decoration-preview-bg" src="${escape(item.image)}" alt="พื้นหลังที่เลือก" />
@@ -218,7 +218,10 @@
       if(media.complete&&media.naturalWidth>0) done();
       window.OlafImages?.scheduleHydrate?.(dialog);
     }
-    if(item.kind === 'background') loadPreviewRank(dialog.querySelector('[data-preview-rank]'));
+    // Replace the old approximation with the actual, read-only profile renderer.
+    const preview=dialog.querySelector('.preview-profile-card,.portrait-full-preview');
+    if(window.OlafProfilePreview)window.OlafProfilePreview.mount(preview,item,dialog);
+    else preview.textContent='โหลดระบบตัวอย่างไม่สำเร็จ กรุณารีเฟรช หรือตรวจไฟล์ profile-live-preview.js';
   }
   async function loadPreviewRank(slot) {
     const tiers=[['brone','Brone'],['gold','Gold'],['platinum','Platinum'],['diamonds','Diamonds'],['super','Super'],['supreme','Supreme']];

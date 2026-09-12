@@ -1,0 +1,35 @@
+/* v246: consistent controls and stronger Daylight separation. */
+.profile-live-preview{display:block;width:100%;min-height:420px;border:0;background:transparent;}
+html body .atelier-dialog.is-profile-preview{width:min(1240px,calc(100vw - 24px))!important;padding:18px!important;}
+html body .atelier-dialog.is-profile-preview :is(.preview-profile-card,.portrait-full-preview){background:transparent!important;padding:0!important;border:0!important;border-radius:18px;overflow:hidden;}
+html body .atelier-dialog .preview-heading{top:-18px;background:var(--theme-panel)!important;border-bottom:1px solid var(--theme-edge);margin-bottom:14px;padding:12px 0;}
+html body .atelier-dialog .preview-heading :is(small,button){color:var(--theme-accent)!important;}
+html body .atelier-dialog .preview-heading button{background:var(--theme-control);border-color:var(--theme-edge);}
+html[data-site-theme=light]{--theme-base:#edf2f8;--theme-panel:#fff;--theme-panel-end:#f0f5fc;--theme-control:#e2ebf8;--theme-raised:#d9e6f7;--theme-edge:#bdcfe4;--theme-muted:#405675;--theme-accent:#164d8f;--text:#101d30;}
+html[data-site-theme=light] body{background:#edf2f8!important;color:#101d30!important;}
+html[data-site-theme=light] body :is(.store-topbar,.preview-heading,.store-toolbar,.store-search,.topbar-search-wrap,.site-global-search,.site-global-search-results,.olaf-mobile-search-card,.olaf-mobile-search-shell){background:#fff!important;border-color:#b9cce3!important;color:#142b48!important;box-shadow:0 5px 20px #244b7610;}
+html[data-site-theme=light] body :is(.store-topbar,.store-toolbar,.store-intro,.store-section-heading,.store-categories,.store-empty,.preview-heading,.atelier-dialog,.site-global-search-results,.olaf-mobile-search-shell) :is(p,small,strong,label,a,button,span){color:#203d61!important;}
+html[data-site-theme=light] body :is(.store-search,.site-global-search,.topbar-search-wrap,.olaf-mobile-search-shell) input{background:#f1f5fc!important;color:#101d30!important;border-color:#bccfe5!important;}
+html[data-site-theme=light] body input::placeholder{color:#506784!important;opacity:1;}
+html[data-site-theme=light] body :is(.store-topbar,.store-categories) [aria-pressed=true]{background:#dae7f8!important;color:#103f78!important;border-color:#6489b9!important;}
+html[data-site-theme=light] body :is(.store-market-content,.store-market.avatar-atelier){background:transparent!important;}
+html[data-site-theme=light] body .store-market .store-product.atelier-portrait{background:#dce7f5!important;border:1px solid #b3c8e1!important;box-shadow:0 4px 16px #1c47791a;}
+html[data-site-theme=light] body .store-product::after{background:linear-gradient(transparent,#edf4fbea 65%,#f7faff);}
+html[data-site-theme=light] body .store-market .store-product-caption :is(strong,small){color:#102f56!important;}
+html[data-site-theme=light] body .store-product-caption em{color:#086647!important;}
+html[data-site-theme=light] body .store-product-type{background:#eef5fff2;color:#173d6b;border-color:#b6cce7;}
+html[data-site-theme=light] body :is(.product-card,.game-card,.profile-sidebar-card,.member-stats,.member-games,.pd-section,.store-empty,.atelier-history){border-color:#b9cde5!important;box-shadow:0 5px 20px #31598315;}
+html[data-site-theme=light] body :is(.olaf-steam-kicker,.olaf-steam-section-head p,.section-heading>p,.eyebrow,.home-free-game-info small){color:#365d87!important;}
+/* Cover artwork stays dark; text on it needs light contrast, not dark ink. */
+html[data-site-theme=light] body #profile-overview-root .member-cover .member-identity h2{color:#f4f8ff!important;display:flex;align-items:center;flex-wrap:wrap;gap:8px;}
+html[data-site-theme=light] body #profile-overview-root .member-cover .member-bio textarea{background:transparent!important;color:#f4f8ff!important;-webkit-text-fill-color:#f4f8ff!important;box-shadow:none!important;border-color:transparent!important;}
+html[data-site-theme=light] body #profile-overview-root .member-cover .profile-level-ring{color:#142b48!important;}
+html[data-site-theme=light] body #profile-overview-root .member-cover .member-customize{color:#173d6b!important;}
+html[data-site-theme=light] body #profile-overview-root .profile-level-tip :is(span,small){color:#203d61!important;}
+@media(max-width:760px){
+ html body .topbar.site-topbar-unified .topbar-actions{gap:7px!important;}
+ html body .topbar.site-topbar-unified :is(#open-notifications,#open-favorites){width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;max-width:40px!important;max-height:40px!important;position:relative!important;overflow:visible!important;transform:none!important;}
+ html body .topbar.site-topbar-unified :is(#notification-badge,#favorites-badge){position:absolute!important;top:-5px!important;right:-5px!important;left:auto!important;bottom:auto!important;min-width:20px!important;width:auto!important;height:20px!important;min-height:20px!important;padding:0 4px!important;box-sizing:border-box!important;border:2px solid var(--theme-panel)!important;border-radius:20px!important;background:#de3046!important;color:#fff!important;font:600 9px/16px Arial,sans-serif!important;text-align:center!important;white-space:nowrap!important;transform:none!important;opacity:1!important;display:grid;place-items:center;z-index:2!important;}
+ html body .topbar.site-topbar-unified :is(#notification-badge,#favorites-badge)[hidden]{display:none!important;}
+ html body.home-page .olaf-steam-activity-slide.is-mixed .olaf-steam-activity-card:last-child{grid-column:auto;aspect-ratio:.88;}
+}

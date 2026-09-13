@@ -40,6 +40,17 @@ html[data-site-theme] body.profile-store-page .store-topbar .store-search button
 html[data-site-theme] body.profile-store-page .store-topbar .store-search:focus-within{outline:2px solid #a2a5af;outline-offset:2px;}
 html[data-site-theme] body.profile-store-page .store-topbar .store-balance{background:#191a1e!important;border-color:#34363e!important;box-shadow:none!important;}
 @keyframes shopSkeletonShimmer{from{background-position:-1000px 0}to{background-position:1000px 0}}
+/* Quiet store sections: no rectangular gradient behind headings/filters. */
+html[data-site-theme] body.profile-store-page .store-market .store-toolbar{background:transparent!important;border:0!important;box-shadow:none!important;padding:0;}
+html[data-site-theme] body.profile-store-page .store-market .atelier-history{background:#101114!important;border:1px solid #292b31!important;border-radius:12px;padding:0 18px 14px;color:#a2a5af!important;box-shadow:none!important;}
+html[data-site-theme] body.profile-store-page .store-market .atelier-history:not([open]){padding-bottom:0;}
+html[data-site-theme] body.profile-store-page .store-market .atelier-history summary{padding:16px 0;color:#dedee8;}
+html[data-site-theme] body.profile-store-page .store-market .atelier-history-row{border-color:#292b31;color:#a2a5af;}
+html[data-site-theme] body.profile-store-page .store-market .atelier-history-row strong{color:#e5e7eb;}
+html[data-site-theme] body.profile-store-page .store-market .store-toolbar :is(button,select){background:#141519!important;border:1px solid #303238!important;color:#b8bbc4!important;box-shadow:none!important;}
+html[data-site-theme] body.profile-store-page .store-market .store-toolbar :is(button:hover,button[aria-pressed=true]){background:#2a2c32!important;border-color:#666a75!important;color:#f0f1f5!important;}
+html[data-site-theme] body.profile-store-page .store-market :is(.store-toolbar button,.store-toolbar select,.atelier-history summary):focus-visible{outline:2px solid #a2a5af;outline-offset:3px;}
+html[data-site-theme] body.profile-store-page .store-market .store-toolbar select option{background:#141519;color:#e5e7eb;}
 @keyframes shopMediaShimmer{to{background-position:-240% 0}}
 @keyframes shopMediaReveal{from{opacity:.25;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
 @keyframes shopMediaSpin{to{transform:rotate(360deg)}}

@@ -27,7 +27,7 @@
   for(const [frame,entry] of frames)if(!frame.isConnected){entry.stop?.();frame.removeEventListener('load',entry.load);frames.delete(frame);}
   document.querySelectorAll('iframe.profile-live-preview').forEach(frame=>{
    if(frames.has(frame))return;const entry={};
-   entry.load=()=>{entry.stop?.();try{const doc=frame.contentDocument;if(!doc?.body)return;const css=doc.createElement('link');css.rel='stylesheet';css.href=new URL('profile-store-effects.css?v=20260913-v254',document.baseURI).href;doc.head.append(css);entry.stop=watch(doc,'.member-background,.member-portrait');}catch{/* Preview itself reports cross-origin/load failures. */}};
+   entry.load=()=>{entry.stop?.();try{const doc=frame.contentDocument;if(!doc?.body)return;const css=doc.createElement('link');css.rel='stylesheet';css.href=new URL('profile-store-effects.css?v=20260913-v255',document.baseURI).href;doc.head.append(css);entry.stop=watch(doc,'.member-background,.member-portrait');}catch{/* Preview itself reports cross-origin/load failures. */}};
    frames.set(frame,entry);frame.addEventListener('load',entry.load);
   });
  }

@@ -13,6 +13,14 @@ html[data-site-theme] body :is(.friends-privacy,.friends-surface [role=status],.
 html[data-site-theme] body .member-cover{background:radial-gradient(ellipse at top right,var(--theme-raised),var(--theme-panel-end))!important;}
 html[data-site-theme] body #profile-overview-root .member-cover::after{background:linear-gradient(180deg,transparent 25%,var(--theme-panel-end))!important;}
 /* Keep artwork, rank colors, balance/status badges and selected profile backgrounds intact. */
+/* Footer follows the page base instead of the brighter panel gradient. */
+html[data-site-theme] body footer.site-footer{background:var(--theme-base)!important;border-color:var(--theme-edge)!important;box-shadow:none!important;color:var(--theme-muted);}
+html[data-site-theme] body .site-footer :is(.footer-grid,.footer-bottom){background:transparent!important;border-color:var(--theme-edge)!important;}
+html[data-site-theme] body .site-footer :is(h4,strong,.brand-text){color:var(--text)!important;}
+html[data-site-theme] body .site-footer :is(p,a,small,.footer-bottom){color:var(--theme-muted)!important;}
+html[data-site-theme] body .site-footer a:hover{color:var(--theme-accent)!important;}
+html[data-site-theme] body .site-footer .payment-badge{background:var(--theme-panel-end)!important;border-color:var(--theme-edge)!important;color:var(--text)!important;}
+html[data-site-theme] body .site-footer .footer-bottom::after{color:var(--theme-muted);opacity:.65;}
 html[data-site-theme] body .member-cover .member-ranks{background:transparent!important;}
 html[data-site-theme] body .member-friend-bar{background:var(--theme-card);}
 html[data-site-theme] body .friend-confirm [data-confirm-remove]{background:linear-gradient(120deg,#41252f,#281921)!important;color:#ffd7db;border-color:#b368743d!important;}

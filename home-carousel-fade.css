@@ -1,0 +1,22 @@
+/* Event pages share one position: only opacity changes, never horizontal travel. */
+html body.home-page .olaf-steam-activity-track{display:block;position:relative;transform:none!important;transition:none!important;will-change:auto;}
+html body.home-page .olaf-steam-activity-track .olaf-steam-activity-slide{position:absolute;inset:0;width:100%;height:100%;box-sizing:border-box;opacity:0;visibility:hidden;pointer-events:none;transform:none;transition:opacity 180ms ease,visibility 0s linear 180ms;}
+html body.home-page .olaf-steam-activity-track .olaf-steam-activity-slide.is-active{position:relative;inset:auto;height:clamp(360px,34vw,490px);opacity:1;visibility:visible;pointer-events:auto;transition:opacity 180ms ease,visibility 0s;}
+html body.home-page .olaf-steam-activity-dots{gap:4px;}
+/* Retain a tall tap target around the same 16/28 by 9px markers as highlights. */
+html body.home-page .olaf-steam-activity-dots button{display:grid;place-items:center;width:16px;min-width:16px;height:36px;padding:0;border:0;border-radius:2px;background:transparent!important;box-shadow:none!important;transition:width 180ms ease;}
+html body.home-page .olaf-steam-activity-dots button::before{content:'';display:block;width:16px;height:9px;border-radius:2px;background:rgba(112,137,154,.42);transition:width 180ms ease,background-color 180ms ease;}
+html body.home-page .olaf-steam-activity-dots button.is-active{width:28px;}
+html body.home-page .olaf-steam-activity-dots button.is-active::before{width:28px;background:#67bde9;}
+html body.home-page .olaf-steam-activity-dots button:focus-visible{outline:2px solid var(--theme-accent);outline-offset:2px;}
+@media(max-width:760px){
+ html body.home-page #olaf-steam-storefront .olaf-steam-tags{display:flex;flex-wrap:wrap;gap:6px;overflow:visible;min-width:0;height:auto;}
+ html body.home-page #olaf-steam-storefront .olaf-steam-tags>:is(a,span){flex:0 0 auto;width:auto;max-width:100%;box-sizing:border-box;white-space:normal;word-break:normal;overflow-wrap:break-word;line-height:1.5;padding:4px 9px;border-radius:6px;}
+ html body.home-page .olaf-steam-activity-track .olaf-steam-activity-slide.is-active{height:auto;min-height:0;}
+ html body.home-page .olaf-steam-activity-viewport{height:auto!important;transition:none!important;}
+}
+@media(prefers-reduced-motion:reduce){
+ html body.home-page .olaf-steam-activity-track .olaf-steam-activity-slide,
+ html body.home-page .olaf-steam-activity-dots button,
+ html body.home-page .olaf-steam-activity-dots button::before{transition:none!important;}
+}

@@ -1,0 +1,30 @@
+/* This store owns its black palette; never change the saved site preference. */
+html[data-site-theme] body.profile-store-page{
+ --theme-base:#090a0c;--theme-panel:#121316;--theme-panel-end:#0d0e11;
+ --theme-raised:#25262c;--theme-control:#1d1e23;--theme-accent:#d8dbe4;
+ --theme-edge:#34363e;--theme-muted:#a2a5af;--theme-glow:transparent;
+ --text:#f0f1f5;--text-secondary:#a2a5af;--brand:#8e8aaa;--accent:#c3bedf;
+ --theme-card:linear-gradient(145deg,#15161a,#101115);
+ --theme-button:linear-gradient(120deg,#2b2b33,#202127);
+ background:#090a0c!important;color:var(--text)!important;
+}
+html[data-site-theme] body.profile-store-page :is(.store-topbar,.store-toolbar,.store-search,.preview-heading,.atelier-dialog){background:#121316!important;border-color:#34363e!important;color:#eeeef4!important;box-shadow:none!important;}
+html[data-site-theme] body.profile-store-page :is(.store-market,.store-market-content,.store-intro){background:transparent!important;}
+html[data-site-theme] body.profile-store-page .store-market .store-product.atelier-portrait{background:#17181d!important;border-color:#34363e!important;box-shadow:0 4px 12px #0003!important;}
+html[data-site-theme] body.profile-store-page :is(.store-topbar,.store-toolbar,.store-search,.preview-heading) :is(a,button,input,small,strong,span){color:#dedee8!important;}
+html[data-site-theme] body.profile-store-page .store-product::after{background:linear-gradient(transparent,#09090bbf 65%,#09090bee)!important;}
+html[data-site-theme] body.profile-store-page .store-product-caption :is(strong,small){color:#f0eff5!important;}
+html[data-site-theme] body.profile-store-page .store-product-type{background:#111216d9!important;color:#d8d8e2!important;border-color:#44454d!important;}
+html[data-site-theme] body.profile-store-page :is(.store-topbar,.store-toolbar,.store-categories) button{background:#24252c!important;border-color:#3c3e47!important;}
+html[data-site-theme] body.profile-store-page input{background:#191a1f!important;color:#f0f1f5!important;}
+html[data-site-theme] body.profile-store-page input::placeholder{color:#9c9fa9!important;}
+.store-product[data-shop-media=loading]::before{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(105deg,#18191e 20%,#30323a 45%,#18191e 70%);background-size:240% 100%;animation:shopMediaShimmer 1.5s linear infinite;}
+.store-product[data-shop-media=error]::before{content:'โหลดรูปไม่ได้';position:absolute;inset:25% 0 auto;text-align:center;color:#b7b9c4;font-size:12px;pointer-events:none;}
+img[data-shop-media=loading]{background:linear-gradient(105deg,#18191e,#30323a,#18191e);background-size:240% 100%;animation:shopMediaShimmer 1.5s linear infinite;}
+img[data-shop-media=ready]{animation:shopMediaReveal .35s ease-out;}
+.profile-preview-status:not([hidden]){display:flex;align-items:center;justify-content:center;gap:12px;min-height:160px;background:#111216;color:#c7c8d2;border-radius:14px;}
+.profile-preview-status:not([hidden]):not([data-failed])::before{content:'';width:22px;height:22px;border:2px solid #3a3c46;border-top-color:#dedee8;border-radius:50%;animation:shopMediaSpin .8s linear infinite;}
+@keyframes shopMediaShimmer{to{background-position:-240% 0}}
+@keyframes shopMediaReveal{from{opacity:.25;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shopMediaSpin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){img[data-shop-media],.store-product[data-shop-media]::before,.profile-preview-status::before{animation:none!important;}}

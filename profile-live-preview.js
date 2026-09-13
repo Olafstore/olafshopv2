@@ -28,9 +28,9 @@
      if(!resize){resize=new ResizeObserver(apply);resize.observe(root);}
     };
     observer=new MutationObserver(apply);observer.observe(doc.body,{childList:true,subtree:true});apply();
-   }catch{note.textContent='โหลดตัวอย่างไม่ได้ กรุณาเปิดจากเว็บเดียวกันแล้วลองใหม่';}
+   }catch{note.dataset.failed='true';note.textContent='โหลดตัวอย่างไม่ได้ กรุณาเปิดจากเว็บเดียวกันแล้วลองใหม่';}
   });
-  timer=setTimeout(()=>{if(!disposed&&!note.hidden)note.textContent='ยังโหลดโปรไฟล์ไม่สำเร็จ กรุณาตรวจการเข้าสู่ระบบแล้วเปิดตัวอย่างอีกครั้ง';},30000);
+  timer=setTimeout(()=>{if(!disposed&&!note.hidden){note.dataset.failed='true';note.textContent='ยังโหลดโปรไฟล์ไม่สำเร็จ กรุณาตรวจการเข้าสู่ระบบแล้วเปิดตัวอย่างอีกครั้ง';}},30000);
   frame.src='profile.html?decorationPreview=1#user';
  }};
 })();

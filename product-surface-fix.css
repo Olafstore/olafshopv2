@@ -13,28 +13,30 @@ html[data-site-theme] body.product-detail-page #product-page :is(.pd-info-row,.p
 /* Desktop search: one pill surface, a centered icon, and an unboxed input.
    Keep overflow visible so the suggestion list is not clipped. */
 @media(min-width:761px){
- html[data-site-theme] body.product-detail-page .topbar.site-topbar-unified form.site-global-search{
+ html[data-site-theme] body.product-detail-page .topbar.site-topbar-unified :is(form.site-global-search,#topbar-search-form){
   display:flex!important;align-items:center!important;gap:0!important;
   height:40px!important;padding:0!important;box-sizing:border-box!important;
   background:var(--theme-panel-end)!important;border:1px solid var(--theme-edge)!important;
   border-radius:20px!important;box-shadow:none!important;overflow:visible!important;
  }
- html[data-site-theme] body.product-detail-page .topbar.site-topbar-unified form.site-global-search>button.site-global-search-toggle{
+ html[data-site-theme] body.product-detail-page .topbar.site-topbar-unified :is(form.site-global-search,#topbar-search-form)>:is(button.site-global-search-toggle,#topbar-search-toggle){
   position:relative!important;inset:auto!important;display:grid!important;place-items:center!important;
   flex:0 0 38px!important;width:38px!important;min-width:38px!important;height:38px!important;
   padding:0!important;margin:0!important;border:0!important;border-radius:50%!important;
   background:transparent!important;box-shadow:none!important;transform:none!important;color:var(--theme-accent)!important;
  }
- html[data-site-theme] body.product-detail-page .topbar.site-topbar-unified form.site-global-search>button.site-global-search-toggle>svg{
+ html[data-site-theme] body.product-detail-page .topbar.site-topbar-unified :is(form.site-global-search,#topbar-search-form)>:is(button.site-global-search-toggle,#topbar-search-toggle)>svg{
   position:static!important;display:block!important;width:18px!important;height:18px!important;
   margin:0!important;transform:none!important;
  }
- html[data-site-theme] body.product-detail-page .topbar.site-topbar-unified form.site-global-search>input{
+ html[data-site-theme] body.product-detail-page .topbar.site-topbar-unified :is(form.site-global-search,#topbar-search-form)>input{
   flex:1 1 auto!important;width:0!important;min-width:0!important;height:38px!important;
   padding:0 14px 0 0!important;margin:0!important;border:0!important;border-radius:0!important;
   background:transparent!important;box-shadow:none!important;color:var(--text)!important;
  }
- html[data-site-theme] body.product-detail-page .topbar.site-topbar-unified form.site-global-search:focus-within{
+ html[data-site-theme] body.product-detail-page .topbar.site-topbar-unified :is(form.site-global-search,#topbar-search-form):focus-within{
   border-color:var(--theme-accent)!important;outline:2px solid var(--theme-edge);outline-offset:2px;
  }
+ html[data-site-theme] body.product-detail-page #topbar-search-wrap{background:transparent!important;border:0!important;box-shadow:none!important;width:clamp(180px,18vw,280px)!important;min-width:180px!important;max-width:280px!important;flex:0 1 clamp(180px,18vw,280px)!important;}
+ html[data-site-theme] body.product-detail-page #topbar-search-form{width:100%!important;min-width:0!important;max-width:none!important;}
 }

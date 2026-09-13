@@ -2,7 +2,7 @@
 (() => {
  const user=()=>window.OlafStore?.currentUser?.()?.id;
  const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
- const errorText=e=>String(e?.message).includes('CHAT_FRIENDS_ONLY')?'ส่งข้อความได้เมื่อยืนยันเป็นเพื่อนแล้วเท่านั้น':String(e?.message).includes('CHAT_RATE_LIMIT')?'ส่งข้อความถี่เกินไป กรุณารอสักครู่':'เชื่อมต่อไม่ได้ กรุณาลองใหม่ (ร้านต้องติดตั้งระบบแชต v257)';
+ const errorText=e=>String(e?.message).includes('CHAT_FRIENDS_ONLY')?'ส่งข้อความได้เมื่อยืนยันเป็นเพื่อนแล้วเท่านั้น':String(e?.message).includes('CHAT_RATE_LIMIT')?'ส่งข้อความถี่เกินไป กรุณารอสักครู่':'เชื่อมต่อไม่ได้ กรุณาลองใหม่ (ร้านต้องติดตั้งระบบแชท v257)';
  async function rpc(name,args){const id=user();if(!id)throw Error('AUTH_REQUIRED');const r=await window.olafSupabase.rpc(name,args);if(user()!==id)throw Error('SESSION_CHANGED');if(r.error)throw r.error;return r.data;}
  function mount(win){
   if(win.dataset.socialMounted)return;win.dataset.socialMounted='true';
@@ -78,9 +78,13 @@
    };
    input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();form.requestSubmit();}});load();input.focus();
   }
-  win.addEventListener('click',e=>{const b=e.target.closest('[data-chat-user]');if(b)openChat(b.dataset.chatUser,b.dataset.chatName);});
-  const decorate=()=>{win.querySelectorAll('.friend-person [data-action="remove"]').forEach(remove=>{if(remove.parentElement.querySelector('[data-chat-user]'))return;const b=el('button',null,'แชต');b.type='button';b.dataset.chatUser=remove.dataset.username;b.dataset.chatName=remove.dataset.name||remove.dataset.username;remove.before(b);});};
-  new MutationObserver(decorate).observe(content,{childList:true,subtree:true});decorate();
+  document.addEventListener('click',e=>{const b=e.target.closest('[data-chat-user]');if(!b||b.disabled||user()!==owner||!(win.contains(b)||b.closest('.member-friend-bar')))return;if(!win.open)document.querySelector('.friends-launch')?.click();if(win.open)openChat(b.dataset.chatUser,b.dataset.chatName);});
+  const decorate=()=>{win.querySelectorAll('.friend-person [data-action="remove"]').forEach(remove=>{if(remove.parentElement.querySelector('[data-chat-user]'))return;const b=el('button',null,'แชท');b.type='button';b.dataset.chatUser=remove.dataset.username;b.dataset.chatName=remove.dataset.name||remove.dataset.username;remove.before(b);});};
+  const decorateTabs=()=>{
+   const paths={friends:'<circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M17 5a3 3 0 0 1 0 6m2 4a5 5 0 0 1 3 4"/>',incoming:'<path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/>',outgoing:'<path d="M12 16V4m-5 5 5-5 5 5M4 16v5h16v-5"/>',activity:'<path d="M3 12h4l3-8 4 16 3-8h4"/>'};
+   content.querySelectorAll('[data-tab]').forEach(b=>{if(b.querySelector('svg'))return;const label=b.textContent;b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(paths[b.dataset.tab]||'')+'</svg>';b.append(el('span',null,label));});
+  };
+  new MutationObserver(()=>{decorate();decorateTabs();}).observe(content,{childList:true,subtree:true});decorate();decorateTabs();
   new MutationObserver(()=>{if(win.open){if(user()===owner&&!rows.children.length)suggest();}else{suggestionTicket++;stopChat();}}).observe(win,{attributes:true,attributeFilter:['open']});
   const accountCheck=()=>{if(user()!==owner){suggestionTicket++;rows.replaceChildren();hint.textContent='บัญชีเปลี่ยนแล้ว กรุณารีเฟรชหน้า';stopChat();}else if(valid()&&peer&&!document.hidden){/* The bounded poll resumes below. */}};
   window.addEventListener('focus',accountCheck);document.addEventListener('visibilitychange',()=>{accountCheck();if(document.hidden)clearTimeout(poll);else if(valid())resumeChat?.();});

@@ -45,7 +45,12 @@
   try{
    const data=await rpc('shop_friend_relation',{p_username:target});if(ticket!==barVersion)return;
    bar.innerHTML='<span>'+esc(stateLabel[data.state]||'')+' '+(data.state==='friends'?online(data.online):'')+'</span><div>'+actions(data.state).map(([action,label])=>'<button type="button" data-action="'+action+'">'+(action==='request'?addIcon:'')+esc(label)+'</button>').join('')+'</div><small role="status"></small>';
-   bar.querySelectorAll('button').forEach(button=>button.onclick=async()=>{
+   if(data.state==='friends'){
+    const chatButton=document.createElement('button');chatButton.type='button';chatButton.dataset.chatUser=target;chatButton.dataset.chatName=card.querySelector('h2')?.textContent||target;
+    chatButton.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M21 11.5a8.5 8.5 0 0 1-8.5 8.5H4l-2 2V11.5a9.5 9.5 0 0 1 19 0Z"/><path d="M7 10h10M7 14h6"/></svg><span>แชท</span>';
+    bar.querySelector('[data-action="remove"]')?.before(chatButton);
+   }
+   bar.querySelectorAll('button[data-action]').forEach(button=>button.onclick=async()=>{
     if(barBusy)return;barBusy=true;bar.querySelectorAll('button').forEach(b=>b.disabled=true);
     try{if(await perform(target,button.dataset.action,card.querySelector('h2')?.textContent)){barBusy=false;await profileButton();await refreshPanels();await heartbeat();}}
     catch(error){if(bar.querySelector('[role="status"]'))bar.querySelector('[role="status"]').textContent=errorText(error);}

@@ -21,12 +21,19 @@
    }catch(e){if(valid()&&ticket===suggestionTicket)hint.textContent=errorText(e);}finally{if(ticket===suggestionTicket)random.disabled=false;}
   }
   random.onclick=suggest;
-  function stopChat(){chatTicket++;clearTimeout(poll);chat?.remove();chat=null;peer='';sending=false;loading=false;attempt=null;resumeChat=null;content.hidden=false;}
+  function stopChat(){chatTicket++;clearTimeout(poll);chat?.remove();chat=null;peer='';sending=false;loading=false;attempt=null;resumeChat=null;content.hidden=false;win.classList.remove('is-chatting');}
   function openChat(username,name){
    stopChat();if(!valid())return;peer=username;const ticket=chatTicket;
    chat=el('section','friends-chat');const bar=el('header'),back=el('button',null,'← เพื่อน'),heading=el('strong',null,name),messages=el('div','friends-chat-messages'),status=el('p','friends-social-status'),form=el('form','friends-chat-form'),input=el('textarea'),send=el('button',null,'ส่ง'),older=el('button',null,'โหลดข้อความก่อนหน้า');
-   back.type='button';back.onclick=stopChat;older.type='button';older.hidden=true;input.maxLength=2000;input.rows=2;input.placeholder='พิมพ์ข้อความ…';input.setAttribute('aria-label','ข้อความถึง '+name);send.type='submit';status.setAttribute('role','status');
+   back.type='button';back.onclick=stopChat;older.type='button';older.hidden=true;input.maxLength=2000;input.rows=1;input.placeholder='เขียนข้อความ…';input.setAttribute('aria-label','ข้อความถึง '+name);send.type='submit';status.setAttribute('role','status');
    messages.setAttribute('role','log');messages.setAttribute('aria-label','ข้อความสนทนา');bar.append(back,heading);form.append(input,send);chat.append(bar,older,messages,status,form);content.hidden=true;content.after(chat);
+   win.classList.add('is-chatting');
+   const svg=paths=>'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+paths+'</svg>';
+   back.className='friends-chat-back';back.setAttribute('aria-label','กลับไปรายชื่อเพื่อน');back.title='กลับไปรายชื่อเพื่อน';back.innerHTML=svg('<path d="m14 6-6 6 6 6"/>');
+   const identity=el('div','friends-chat-identity'),portrait=el('span','friends-chat-avatar',Array.from(name||'?').slice(0,2).join('').toUpperCase()),copy=el('div'),subtitle=el('small',null,'ข้อความส่วนตัว');copy.append(heading,subtitle);identity.append(portrait,copy);bar.append(identity);
+   send.className='friends-chat-send';send.setAttribute('aria-label','ส่งข้อความ');send.title='ส่งข้อความ';send.innerHTML=svg('<path d="m5 12 14-8-5 16-3-6-6-2Z"/><path d="m11 14 8-10"/>');
+   const composer=el('div','friends-chat-composer'),help=el('small','friends-chat-help','JPEG / PNG · ไม่เกิน 2 MB');form.before(composer);composer.append(form,help);status.classList.add('friends-chat-status');
+   const resizeInput=()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight||42,112)+'px';};input.addEventListener('input',resizeInput);
    const current=()=>valid()&&chatTicket===ticket;
    const history=new Map(),pictures=new Map();let before=null;
    async function load(past=false){
@@ -36,11 +43,14 @@
      let changed=false;for(const r of list){if(JSON.stringify(history.get(r.id))!==JSON.stringify(r))changed=true;history.set(r.id,r);}
      if(past||before===null){before=list[0]?.id||before;older.hidden=list.length<50;}
      if(!changed&&history.size)return;
-     messages.replaceChildren();for(const r of [...history.values()].sort((a,b)=>BigInt(a.id)<BigInt(b.id)?-1:1)){const bubble=el('article','friends-chat-bubble'+(r.mine?' is-mine':'')),text=el('p',null,r.body),time=el('small',null,new Date(r.createdAt).toLocaleString('th-TH'));bubble.append(text,time);messages.append(bubble);
+     messages.replaceChildren();let previousDate='';for(const r of [...history.values()].sort((a,b)=>BigInt(a.id)<BigInt(b.id)?-1:1)){
+      const date=new Date(r.createdAt),day=date.toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});if(day!==previousDate){messages.append(el('div','friends-chat-date',day));previousDate=day;}
+      const bubble=el('article','friends-chat-bubble'+(r.mine?' is-mine':'')),text=el('p',null,r.body),time=el('small',null,date.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}));time.title=date.toLocaleString('th-TH');bubble.append(text,time);messages.append(bubble);
+      if(r.hasImage){bubble.classList.add('has-image');if(r.body==='📷 รูปภาพ')text.remove();}
       if(r.hasImage){const picture=el('img');picture.alt='รูปภาพจากคู่สนทนา';picture.loading='lazy';bubble.prepend(picture);if(!pictures.has(r.id))pictures.set(r.id,rpc('shop_friend_image_read',{p_id:r.id}));pictures.get(r.id).then(data=>{if(current()&&picture.isConnected&&typeof data==='string'&&/^\/9j\/[A-Za-z0-9+/]*={0,2}$/.test(data))picture.src='data:image/jpeg;base64,'+data;}).catch(()=>{pictures.delete(r.id);if(picture.isConnected)picture.alt='โหลดรูปไม่ได้';});}
      }
      if(past)messages.scrollTop+=messages.scrollHeight-oldHeight;else if(atBottom)messages.scrollTop=messages.scrollHeight;
-     status.textContent=history.size?'ข้อความและรูป JPEG/PNG · ไม่รับการลากไฟล์':'เริ่มบทสนทนาด้วยข้อความ';
+     status.textContent=history.size?'':'เริ่มบทสนทนาด้วยข้อความ';
     }catch(e){if(current())status.textContent=errorText(e);}finally{if(current()){loading=false;poll=setTimeout(()=>load(),5000);}}
    }
    older.onclick=()=>load(true);
@@ -48,6 +58,7 @@
    const rejectFile=e=>{const d=e.dataTransfer||e.clipboardData;if(d&&(d.files?.length||Array.from(d.items||[]).some(i=>i.kind==='file')||Array.from(d.types||[]).includes('Files'))){e.preventDefault();e.stopPropagation();status.textContent='ไม่รับการลากหรือวางไฟล์ กรุณาใช้ปุ่มแนบรูป JPEG/PNG เท่านั้น';}};
    ['dragover','drop','paste'].forEach(type=>chat.addEventListener(type,rejectFile));
    const attach=el('button',null,'แนบรูป'),file=el('input');attach.type='button';file.type='file';file.accept='.jpg,.jpeg,.png,image/jpeg,image/png';file.hidden=true;form.prepend(attach,file);attach.onclick=()=>file.click();
+   attach.className='friends-chat-attach';attach.setAttribute('aria-label','แนบรูป JPEG หรือ PNG');attach.title='แนบรูป JPEG/PNG ไม่เกิน 2 MB';attach.innerHTML=svg('<rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="8" cy="8" r="1"/><path d="m3 16 5-5 4 4 3-3 6 6"/>');
    let uploadAttempt=null;
    file.onchange=async()=>{const image=file.files?.[0];file.value='';if(!image||!current()||sending)return;
     if(!['image/jpeg','image/png'].includes(image.type)||! /\.(jpe?g|png)$/i.test(image.name)||image.size>2*1024*1024){status.textContent='เลือกรูป JPEG/PNG ขนาดไม่เกิน 2 MB เท่านั้น';return;}
@@ -62,7 +73,7 @@
    };
    form.onsubmit=async e=>{e.preventDefault();if(!current()||sending)return;const body=input.value.trim();if(!body||body.length>2000)return;const draft=input.value;sending=true;send.disabled=true;
     if(!attempt||attempt.body!==body)attempt={body,nonce:crypto.randomUUID()};
-    try{await rpc('shop_friend_message_send',{p_username:username,p_body:body,p_nonce:attempt.nonce});if(!current())return;attempt=null;if(input.value===draft)input.value='';await load();}
+    try{await rpc('shop_friend_message_send',{p_username:username,p_body:body,p_nonce:attempt.nonce});if(!current())return;attempt=null;if(input.value===draft){input.value='';resizeInput();}await load();}
     catch(e){if(current())status.textContent=errorText(e);}finally{if(current()){sending=false;send.disabled=false;}}
    };
    input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();form.requestSubmit();}});load();input.focus();

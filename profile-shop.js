@@ -38,12 +38,12 @@
     root.dataset.kind='store';
     root.innerHTML=`<div class="avatar-atelier store-market">
       <header class="store-topbar"><a href="index.html" class="store-mark" aria-label="กลับหน้าร้าน">${shopIcon}</a><nav aria-label="ร้านแต้ม"><button data-shop-tab="shop" aria-pressed="${tab==='shop'}">แนะนำ / ร้านค้า</button><button data-shop-tab="library" aria-pressed="${tab==='library'}">คลังของฉัน</button><a href="profile.html#overview">โปรไฟล์ของฉัน ↗</a></nav>
-      <form class="store-search" data-store-search role="search"><input name="query" type="search" value="${escape(shopQuery)}" placeholder="ค้นหาในร้านค้า" aria-label="ค้นหาสินค้าตกแต่ง"><button type="submit" aria-label="ค้นหา">⌕</button></form>
+      <form class="store-search" data-store-search role="search"><input name="query" type="search" value="${escape(shopQuery)}" placeholder="ค้นหาในร้านค้า" aria-label="ค้นหาสินค้าตกแต่ง"><button type="submit" aria-label="ค้นหา"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></button></form>
       <div class="atelier-wallet store-balance" aria-label="แต้มร้านค้าคงเหลือ"><span>◇</span><strong>${loaded?number(wallet.balance):'—'}</strong><small>แต้ม</small></div></header>
       <div class="store-market-content"><div class="store-intro"><div><span>OLAF · POINT SHOP</span><h1>แต่งโปรไฟล์ให้เป็นคุณ</h1><p>เลือกสไตล์ที่ชอบ ดูตัวอย่างก่อนซื้อ และเก็บไว้ในคลังของคุณ</p></div><button data-shop-action="refresh" ${busy?'disabled':''}>โหลดใหม่</button></div>
       ${tab==='shop'&&!shopQuery&&items.length?`<section class="store-featured" aria-label="ของตกแต่งแนะนำ"><div class="store-section-heading"><h2>แนะนำสำหรับคุณ</h2><div><button data-featured-scroll="-1" aria-label="เลื่อนซ้าย">←</button><button data-featured-scroll="1" aria-label="เลื่อนขวา">→</button></div></div><div class="store-featured-track">${items.slice(0,6).map(p=>storeCard(p,true)).join('')}</div></section>`:''}
       <section><div class="store-toolbar"><h2>${tab==='library'?'คลังสไตล์ของคุณ':'ค้นหาสไตล์ของคุณ'}</h2><nav class="store-categories" aria-label="หมวดสินค้า">${[['all','ทั้งหมด'],['avatar','รูปโปรไฟล์'],['background','พื้นหลัง']].map(([id,label])=>`<button data-shop-kind="${id}" aria-pressed="${kind===id}">${label}</button>`).join('')}</nav><label>เรียงตาม <select data-store-sort><option value="price" ${shopSort==='price'?'selected':''}>ราคาน้อยไปมาก</option><option value="name" ${shopSort==='name'?'selected':''}>ชื่อสินค้า</option><option value="random" ${shopSort==='random'?'selected':''}>สุ่ม</option></select></label><button data-store-random>สุ่ม!</button></div>
-      <div class="atelier-grid store-product-grid">${items.map(p=>storeCard(p)).join('')||`<div class="store-empty">${shopQuery?'ไม่พบสินค้าที่ค้นหา':'ยังไม่มีของตกแต่งในหมวดนี้'}<small>${shopQuery?'ลองค้นหาด้วยชื่ออื่น':'รูปใหม่จะแสดงที่นี่เมื่อร้านอัปโหลดไฟล์ ไม่ต้องแก้หน้าเว็บ'}</small></div>`}</div></section>
+      <div class="atelier-grid store-product-grid" aria-busy="${!loaded&&!noticeError&&!catalog.length}">${!loaded&&!noticeError&&!catalog.length?Array.from({length:8},()=>'<div class="shop-loading-card" aria-hidden="true"><span class="shop-card-skeleton"><span class="shop-skeleton-box shop-skeleton-art"></span><span class="shop-skeleton-box shop-skeleton-title"></span><span class="shop-skeleton-box shop-skeleton-price"></span></span></div>').join(''):items.map(p=>storeCard(p)).join('')||`<div class="store-empty">${noticeError?'โหลดข้อมูลร้านค้าไม่สำเร็จ':shopQuery?'ไม่พบสินค้าที่ค้นหา':'ยังไม่มีของตกแต่งในหมวดนี้'}<small>${noticeError?'กรุณากดโหลดใหม่เพื่อลองอีกครั้ง':shopQuery?'ลองค้นหาด้วยชื่ออื่น':'รูปใหม่จะแสดงที่นี่เมื่อร้านอัปโหลดไฟล์ ไม่ต้องแก้หน้าเว็บ'}</small></div>`}</div></section>
       <p class="atelier-status${noticeError?' is-error':''}" role="status">${escape(notice||(!loaded?'กำลังโหลดข้อมูลร้านค้า…':'เลือกรูปเพื่อดูตัวอย่างก่อนยืนยัน · เติมเงินสำเร็จ 100 บาท = 1,000 แต้ม'))}</p>
       <details class="atelier-history"><summary>ประวัติแต้มร้านค้า</summary>${wallet.ledger.map(row=>`<div class="atelier-history-row"><span>${escape(row.reason)}</span><strong>${number(row.amount)} แต้ม</strong></div>`).join('')||'ยังไม่มีรายการแต้ม'}</details></div></div>`;
     root.querySelector('[data-store-sort]').value = shopSort;
@@ -148,8 +148,8 @@
         await syncIdentity();
       } catch (error) {
         loaded = false;
-        render();
         status(errorText(error), true);
+        render();
       }
     })().finally(() => { refreshPromise = null; });
     return refreshPromise;

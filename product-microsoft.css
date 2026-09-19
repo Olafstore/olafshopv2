@@ -1,0 +1,76 @@
+/* Microsoft software detail pages only. Keep the shop's dark identity. */
+html[data-site-theme] body.product-detail-page.product-theme-windows #product-page {
+  --ms-panel:#101d2b; --ms-edge:#293d50; --ms-muted:#aabccc; --ms-blue:#0078d4;
+}
+html[data-site-theme] body.product-theme-windows #product-page .pd-bg-backdrop {display:none;}
+html[data-site-theme] body.product-theme-windows #product-page .pd-brand-hero-windows {
+  display:block; position:relative; min-height:0; padding:32px; margin-bottom:28px;
+  border:1px solid var(--ms-edge)!important; border-radius:12px;
+  background:linear-gradient(115deg,#14283b,#0d1927)!important; box-shadow:none!important;
+}
+html[data-site-theme] body.product-theme-windows #product-page .pd-brand-hero-windows::before,
+html[data-site-theme] body.product-theme-windows #product-page .pd-brand-hero-windows::after {display:none;}
+.ms-detail-heading {display:flex;align-items:center;gap:12px;}
+.ms-detail-mark {display:grid;grid-template-columns:repeat(2,14px);gap:3px;flex:none;}
+.ms-detail-mark b {width:14px;height:14px;background:#f25022;}
+.ms-detail-mark b:nth-child(2) {background:#7fba00;}
+.ms-detail-mark b:nth-child(3) {background:#00a4ef;}
+.ms-detail-mark b:nth-child(4) {background:#ffb900;}
+html[data-site-theme] body.product-theme-windows #product-page .pd-brand-kicker {
+  color:#e7eff7;font-size:14px;font-weight:500;letter-spacing:.02em;text-transform:none;
+}
+.ms-detail-heading small {display:block;font-size:11px;color:var(--ms-muted);margin-top:3px;}
+html[data-site-theme] body.product-theme-windows #product-page .pd-brand-hero h2 {
+  margin:24px 0 10px;font-size:clamp(28px,3.2vw,42px);line-height:1.2;
+  font-weight:600;letter-spacing:-.025em;color:#f3f7fc;text-shadow:none;
+}
+html[data-site-theme] body.product-theme-windows #product-page .pd-brand-hero p {
+  max-width:none;margin:0;color:var(--ms-muted);font-size:14px;line-height:1.8;
+}
+.ms-detail-steps {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;list-style:none;padding:22px 0 0;margin:26px 0 0;border-top:1px solid var(--ms-edge);}
+.ms-detail-steps li {display:flex;align-items:center;gap:12px;min-width:0;}
+.ms-detail-steps li>span {display:grid;place-items:center;flex:0 0 34px;height:34px;border:1px solid #365c7b;border-radius:6px;color:#72beff;font-size:12px;font-weight:600;}
+.ms-detail-steps strong {display:block;color:#e7eff7;font-size:13px;font-weight:500;}
+.ms-detail-steps small {display:block;color:var(--ms-muted);font-size:11px;margin-top:3px;}
+html[data-site-theme] body.product-detail-page.product-theme-windows #product-page .pd-section {
+  padding:24px!important;margin:20px 0 0;background:var(--ms-panel)!important;
+  border:1px solid var(--ms-edge)!important;border-radius:10px!important;
+}
+html[data-site-theme] body.product-theme-windows #product-page .pd-section-title {font-size:18px;font-weight:500;margin-bottom:20px;}
+html[data-site-theme] body.product-theme-windows #product-page .pd-description {color:#bdcbd9;line-height:1.9;}
+html[data-site-theme] body.product-theme-windows #product-page .pd-sidebar-card {
+  background:var(--ms-panel)!important;border:1px solid var(--ms-edge)!important;border-radius:12px!important;box-shadow:0 12px 32px #0002!important;
+}
+html[data-site-theme] body.product-theme-windows #product-page .pd-sidebar-body {padding:24px;}
+html[data-site-theme] body.product-theme-windows #product-page .pd-sidebar-title {font-size:23px;line-height:1.45;font-weight:600;}
+html[data-site-theme] body.product-theme-windows #product-page :is(.pd-hero-img,.pd-sidebar-cover,.pd-mobile-cover) {background:#0b1522!important;border:1px solid var(--ms-edge);border-radius:10px;overflow:hidden;}
+html[data-site-theme] body.product-theme-windows #product-page :is(.pd-hero-img,.pd-sidebar-cover,.pd-mobile-cover) img {object-fit:contain!important;object-position:center;width:100%;height:100%;}
+html[data-site-theme] body.product-theme-windows #product-page .pd-hero-img {aspect-ratio:16/9;}
+html[data-site-theme] body.product-theme-windows #product-page .pd-price-main {color:#f1f6fc!important;font-size:36px;font-weight:600;}
+html[data-site-theme] body.product-theme-windows #product-page .pd-buy-btn {
+  display:flex;align-items:center;justify-content:center;gap:10px;min-height:48px;
+  background:var(--ms-blue)!important;border:1px solid #168de8!important;border-radius:6px!important;
+  box-shadow:none!important;color:white!important;font-weight:500;transition:background .18s ease,transform .18s ease;
+}
+html[data-site-theme] body.product-theme-windows #product-page .pd-buy-btn:disabled {opacity:.45;cursor:not-allowed;}
+html[data-site-theme] body.product-theme-windows #product-page .pd-buy-btn svg {width:20px;height:20px;flex:none;}
+html[data-site-theme] body.product-theme-windows #product-page :is(.pd-info-card,.pd-sysreq-panel,.pd-feature-item,.pd-package-option) {background:#0d1825!important;border:1px solid var(--ms-edge)!important;box-shadow:none!important;border-radius:8px!important;}
+html[data-site-theme] body.product-theme-windows #product-page .pd-package-option.is-selected {border-color:#4aa8ef!important;background:#102c43!important;}
+html[data-site-theme] body.product-theme-windows #product-page .pd-info-row {gap:20px;align-items:flex-start;border-color:var(--ms-edge);}
+html[data-site-theme] body.product-theme-windows #product-page .pd-info-row>strong {font-weight:500;line-height:1.7;}
+html[data-site-theme] body.product-theme-windows #product-page .pd-feature-text :is(strong,span) {white-space:normal;overflow:visible;text-overflow:clip;}
+html[data-site-theme] body.product-theme-windows #product-page :is(button,a,input):focus-visible {outline:2px solid #72beff;outline-offset:3px;}
+@media(hover:hover) and (pointer:fine) {
+  html[data-site-theme] body.product-theme-windows #product-page .pd-buy-btn:not(:disabled):hover {background:#106ebe!important;transform:translateY(-1px);}
+}
+@media(max-width:760px) {
+  html[data-site-theme] body.product-theme-windows #product-page .pd-brand-hero-windows {padding:22px 18px;margin-bottom:18px;}
+  .ms-detail-steps {grid-template-columns:1fr;gap:16px;margin-top:20px;padding-top:20px;}
+  html[data-site-theme] body.product-detail-page.product-theme-windows #product-page .pd-section {padding:18px!important;}
+  html[data-site-theme] body.product-theme-windows #product-page .pd-sidebar-body {padding:20px;}
+  html[data-site-theme] body.product-theme-windows #product-page .pd-info-row {flex-direction:column;gap:6px;}
+  html[data-site-theme] body.product-theme-windows #product-page .pd-info-row>strong {text-align:left;}
+}
+@media(prefers-reduced-motion:reduce) {
+  html[data-site-theme] body.product-theme-windows #product-page .pd-buy-btn {transition:none;transform:none!important;}
+}

@@ -1657,9 +1657,17 @@ function brandedProductHero(product) {
   if (isWindowsProduct(product)) {
     return `
       <section class="pd-brand-hero pd-brand-hero-windows">
-        <span class="pd-brand-kicker">${String(product.id||'').startsWith('microsoft-office-') ? 'Microsoft Office 2024 Keys' : 'Windows 10 &amp; 11 Keys'}</span>
-        <h2>PRE-ORDER LICENSE</h2>
-        <p>ชำระเงินผ่านระบบเว็บ และรอแอดมินจัดส่งคีย์หลังตรวจสอบสลิป</p>
+        <div class="ms-detail-heading">
+          <span class="ms-detail-mark" aria-hidden="true"><b></b><b></b><b></b><b></b></span>
+          <span class="pd-brand-kicker">Microsoft software <small>จำหน่ายโดย OLAF SHOP</small></span>
+        </div>
+        <h2>${String(product.id || '').startsWith('microsoft-office-') ? 'Microsoft Office' : 'Microsoft Windows'}</h2>
+        <p>เลือกซอฟต์แวร์สำหรับการทำงานของคุณ<br>ตรวจสอบรุ่นและเงื่อนไขสิทธิ์ใช้งานก่อนสั่งซื้อ</p>
+        <ol class="ms-detail-steps" aria-label="ขั้นตอนการสั่งซื้อ">
+          <li><span>01</span><div><strong>เลือกสินค้า</strong><small>ตรวจสอบรุ่นและรายละเอียด</small></div></li>
+          <li><span>02</span><div><strong>ชำระเงินผ่านเว็บ</strong><small>ส่งหลักฐานเพื่อให้แอดมินตรวจสอบ</small></div></li>
+          <li><span>03</span><div><strong>รับคีย์จากแอดมิน</strong><small>หลังตรวจสอบการชำระเงินแล้ว</small></div></li>
+        </ol>
       </section>
     `;
   }
@@ -2094,7 +2102,7 @@ function renderProduct() {
     ${screenshotSrcs.length > 1 ? `
     <div class="pd-gallery-label" style="margin-top: 16px;">
       <i data-lucide="monitor"></i>
-      ภาพตัวอย่างในเกม
+      ${isWindowsProduct(p) ? "ภาพสินค้า" : "ภาพตัวอย่างในเกม"}
     </div>
     <div class="pd-screenshots" id="pd-screenshots">
       ${screenshotThumbs}
@@ -2286,7 +2294,7 @@ function renderProduct() {
             </div>` : ""}
             <div class="pd-info-row">
               <span><i data-lucide="layers" style="display:inline-block;width:14px;height:14px;vertical-align:middle;margin-right:6px;color:var(--accent)"></i>หมวดหมู่</span>
-              <strong>${escapeHtml(getCategoryLabel(p.category))}</strong>
+              <strong>${escapeHtml(isWindowsProduct(p) ? (String(p.id || '').startsWith('microsoft-office-') ? 'Microsoft Office' : 'Microsoft Windows') : getCategoryLabel(p.category))}</strong>
             </div>
             <div class="pd-info-row">
               <span><i data-lucide="package" style="display:inline-block;width:14px;height:14px;vertical-align:middle;margin-right:6px;color:var(--muted)"></i>สถานะสต็อก</span>

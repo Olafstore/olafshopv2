@@ -103,3 +103,15 @@ html[data-site-theme] body.product-theme-windows #product-page :is(button,a,inpu
 @media(prefers-reduced-motion:reduce) {
   html[data-site-theme] body.product-theme-windows #product-page .pd-buy-btn {transition:none;transform:none!important;}
 }
+/* Software descriptions are complete; keep adjoining admin detail headings close. */
+html[data-site-theme] body.product-detail-page.product-theme-windows #product-page .pd-description {
+  display:block!important;-webkit-line-clamp:unset!important;line-clamp:unset!important;
+  max-height:none!important;height:auto!important;overflow:visible!important;text-overflow:clip!important;
+}
+html[data-site-theme] body.product-detail-page.product-theme-windows #product-page .pd-description-section {
+  padding-bottom:12px!important;
+}
+html[data-site-theme] body.product-detail-page.product-theme-windows #product-page .pd-description-section + .pd-admin-detail-section,
+html[data-site-theme] body.product-detail-page.product-theme-windows #product-page .pd-admin-detail-section + .pd-admin-detail-section {
+  margin-top:0!important;padding-top:12px!important;
+}

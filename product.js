@@ -2247,19 +2247,19 @@ function renderProduct() {
         ${gallerySection}
 
         <!-- Description -->
-        <div class="pd-section">
+        <div class="pd-section pd-description-section">
           <h3 class="pd-section-title">
             <span class="pd-section-icon-box"><i data-lucide="file-text"></i></span>
             รายละเอียดสินค้า
           </h3>
-          <div class="pd-description is-clamped" data-admin-product-description>${escapeHtml(adminDescription || "ยังไม่มีรายละเอียดสินค้า").replace(/\n/g, "<br>")}</div>
+          <div class="pd-description${isWindowsProduct(p) ? "" : " is-clamped"}" data-admin-product-description>${escapeHtml(adminDescription || "ยังไม่มีรายละเอียดสินค้า").replace(/\n/g, "<br>")}</div>
         </div>
 
         <!-- Dynamic Detail Sections from Admin -->
         ${p.category !== "steam-key" && Array.isArray(p.detailSections) && p.detailSections.length > 0 ? p.detailSections
           .filter((section) => !isSteamInfoDetailSection(section))
           .map(s => `
-        <div class="pd-section">
+        <div class="pd-section pd-admin-detail-section">
           <h3 class="pd-section-title">
             <span class="pd-section-icon-box"><i data-lucide="info"></i></span>
             ${escapeHtml(localizeSectionTitle(s.title))}

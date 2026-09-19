@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540">
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#271713"/><stop offset="1" stop-color="#091328"/></linearGradient><linearGradient id="accent" x2="1" y2="1"><stop stop-color="#ff9a55"/><stop offset="1" stop-color="#df503c"/></linearGradient></defs>
+<rect width="960" height="540" rx="20" fill="url(#bg)"/><circle cx="795" cy="110" r="180" fill="#f8814510"/>
+<rect x="72" y="86" width="92" height="108" rx="17" fill="url(#accent)"/><path d="M98 119h40m-40 20h40m-40 20h26" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+<text x="72" y="270" font-family="Arial,sans-serif" font-size="70" font-weight="700" fill="#fff">Office 2024</text>
+<text x="76" y="322" font-family="Arial,sans-serif" font-size="29" fill="#edc9bb">Professional Plus</text>
+<path d="M76 367h806" stroke="#ffffff20"/>
+<text x="76" y="418" font-family="Arial,sans-serif" font-size="19" letter-spacing="4" fill="#c6d0dd">LICENSE KEY · OLAF SHOP</text>
+</svg>

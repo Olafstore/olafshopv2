@@ -1657,7 +1657,7 @@ function brandedProductHero(product) {
   if (isWindowsProduct(product)) {
     return `
       <section class="pd-brand-hero pd-brand-hero-windows">
-        <span class="pd-brand-kicker">Windows 10 &amp; 11 Keys</span>
+        <span class="pd-brand-kicker">${String(product.id||'').startsWith('microsoft-office-') ? 'Microsoft Office 2024 Keys' : 'Windows 10 &amp; 11 Keys'}</span>
         <h2>PRE-ORDER LICENSE</h2>
         <p>ชำระเงินผ่านระบบเว็บ และรอแอดมินจัดส่งคีย์หลังตรวจสอบสลิป</p>
       </section>

@@ -384,6 +384,22 @@
     );
   }
 
+  // Office shares the Windows preorder/manual-key delivery category.
+  // Drafts cannot be ordered until the administrator sets price, stock and visibility.
+  [
+    ['microsoft-office-professional-plus-2024','Microsoft Office Professional Plus 2024'],
+    ['microsoft-office-ltsc-professional-plus-2024','Microsoft Office LTSC Professional Plus 2024']
+  ].forEach(([id,name],index)=>products.push({
+    id,name,publisher:'Microsoft',category:'windows',label:'OFFICE KEY',price:0,compareAt:null,stock:0,sold:0,
+    image:'assets/office-2024.svg',heroImage:'assets/office-2024.svg',gallery:['assets/office-2024.svg'],
+    delivery:'ชำระเงินในเว็บและรับคีย์ผ่านแอดมินหลังตรวจสอบสลิป',warranty:'รับประกันคีย์ตามเงื่อนไขร้าน',
+    description:'คีย์สำหรับ '+name+' ชำระเงินผ่านระบบร้านและรอแอดมินจัดส่งคีย์หลังตรวจสอบสลิป กรุณาสอบถามประเภทสิทธิ์และเงื่อนไขการเปิดใช้งานก่อนสั่งซื้อ',
+    tags:['Office 2024','License Key','พรีออเดอร์','แอดมินจัดส่ง'],
+    featureBlocks:[{icon:'credit-card',title:'ชำระเงินในเว็บ',text:'ใช้ระบบออเดอร์และสลิปของร้าน'},{icon:'key-round',title:'แอดมินส่งคีย์',text:'จัดส่งหลังตรวจสอบสลิปเรียบร้อย'}],
+    detailSections:[{title:'การจัดส่ง',body:'จัดส่งคีย์โดยแอดมินหลังตรวจสอบการชำระเงิน แบบเดียวกับสินค้า Windows Keys'},{title:'ก่อนสั่งซื้อ',body:'ตรวจสอบชื่อรุ่น ประเภทสิทธิ์ จำนวนเครื่อง และวิธีเปิดใช้งานกับแอดมินก่อนสั่งซื้อ'}],
+    platformLinks:[],steamRelatedLinks:[],systemRequirements:{minimum:[],recommended:[]},isActive:false,sortOrder:8995+index
+  }));
+
   function getProductById(productId) {
     return products.find((product) => product.id === productId) || null;
   }

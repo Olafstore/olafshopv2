@@ -2,11 +2,14 @@
 html[data-site-theme] body.product-detail-page.product-theme-windows #product-page {
   --ms-panel:#101d2b; --ms-edge:#293d50; --ms-muted:#aabccc; --ms-blue:#0078d4;
 }
-html[data-site-theme] body.product-theme-windows #product-page .pd-bg-backdrop {display:none;}
+html[data-site-theme] body.product-theme-windows #product-page .pd-bg-backdrop {
+  display:block!important;visibility:visible!important;opacity:.2!important;
+  filter:blur(40px) saturate(150%);pointer-events:none;
+}
 html[data-site-theme] body.product-theme-windows #product-page .pd-brand-hero-windows {
   display:block; position:relative; min-height:0; padding:32px; margin-bottom:28px;
-  border:1px solid var(--ms-edge)!important; border-radius:12px;
-  background:linear-gradient(115deg,#14283b,#0d1927)!important; box-shadow:none!important;
+  border:0!important; border-radius:0;
+  background:transparent!important; box-shadow:none!important;
 }
 html[data-site-theme] body.product-theme-windows #product-page .pd-brand-hero-windows::before,
 html[data-site-theme] body.product-theme-windows #product-page .pd-brand-hero-windows::after {display:none;}
@@ -33,8 +36,8 @@ html[data-site-theme] body.product-theme-windows #product-page .pd-brand-hero p 
 .ms-detail-steps strong {display:block;color:#e7eff7;font-size:13px;font-weight:500;}
 .ms-detail-steps small {display:block;color:var(--ms-muted);font-size:11px;margin-top:3px;}
 html[data-site-theme] body.product-detail-page.product-theme-windows #product-page .pd-section {
-  padding:24px!important;margin:20px 0 0;background:var(--ms-panel)!important;
-  border:1px solid var(--ms-edge)!important;border-radius:10px!important;
+  padding:24px!important;margin:20px 0 0;background:transparent!important;
+  border:0!important;border-radius:0!important;box-shadow:none!important;
 }
 html[data-site-theme] body.product-theme-windows #product-page .pd-section-title {font-size:18px;font-weight:500;margin-bottom:20px;}
 html[data-site-theme] body.product-theme-windows #product-page .pd-description {color:#bdcbd9;line-height:1.9;}
@@ -63,6 +66,20 @@ html[data-site-theme] body.product-theme-windows #product-page .pd-buy-btn {
 html[data-site-theme] body.product-theme-windows #product-page .pd-buy-btn:disabled {opacity:.45;cursor:not-allowed;}
 html[data-site-theme] body.product-theme-windows #product-page .pd-buy-btn svg {width:20px;height:20px;flex:none;}
 html[data-site-theme] body.product-theme-windows #product-page :is(.pd-info-card,.pd-sysreq-panel,.pd-feature-item,.pd-package-option) {background:#0d1825!important;border:1px solid var(--ms-edge)!important;box-shadow:none!important;border-radius:8px!important;}
+/* Floating information and recommendations: no nested colored card outlines.
+   Keep actionable package choices, buttons and stock badges visually distinct. */
+html[data-site-theme] body.product-detail-page.product-theme-windows #product-page .pd-info-card {
+  background:transparent!important;border:0!important;border-radius:0!important;
+  box-shadow:none!important;padding:0!important;
+}
+html[data-site-theme] body.product-detail-page.product-theme-windows #product-page .pd-info-row {
+  border-color:rgba(170,188,204,.12);
+}
+html[data-site-theme] body.product-detail-page.product-theme-windows #product-page .pd-related-card {
+  background:rgba(13,24,37,.35)!important;border:0!important;
+  box-shadow:0 8px 22px rgba(0,0,0,.16)!important;
+  -webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+}
 html[data-site-theme] body.product-theme-windows #product-page .pd-package-option.is-selected {border-color:#4aa8ef!important;background:#102c43!important;}
 html[data-site-theme] body.product-theme-windows #product-page .pd-info-row {gap:20px;align-items:flex-start;border-color:var(--ms-edge);}
 html[data-site-theme] body.product-theme-windows #product-page .pd-info-row>strong {font-weight:500;line-height:1.7;}

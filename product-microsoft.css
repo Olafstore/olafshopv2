@@ -45,7 +45,15 @@ html[data-site-theme] body.product-theme-windows #product-page .pd-sidebar-body 
 html[data-site-theme] body.product-theme-windows #product-page .pd-sidebar-title {font-size:23px;line-height:1.45;font-weight:600;}
 html[data-site-theme] body.product-theme-windows #product-page :is(.pd-hero-img,.pd-sidebar-cover,.pd-mobile-cover) {background:#0b1522!important;border:1px solid var(--ms-edge);border-radius:10px;overflow:hidden;}
 html[data-site-theme] body.product-theme-windows #product-page :is(.pd-hero-img,.pd-sidebar-cover,.pd-mobile-cover) img {object-fit:contain!important;object-position:center;width:100%;height:100%;}
-html[data-site-theme] body.product-theme-windows #product-page .pd-hero-img {aspect-ratio:16/9;}
+html[data-site-theme] body.product-theme-windows #product-page :is(.pd-hero-img,.pd-sidebar-cover,.pd-mobile-cover,.pd-thumb) {
+  position:relative;aspect-ratio:16/9!important;height:auto!important;min-height:0!important;
+}
+/* Override the legacy 16:8 image ratio and hover zoom without changing loaders. */
+html[data-site-theme] body.product-theme-windows #product-page :is(.pd-hero-img,.pd-sidebar-cover,.pd-mobile-cover,.pd-thumb) img {
+  position:absolute;inset:0;display:block;width:100%!important;height:100%!important;
+  min-height:0!important;max-height:none!important;aspect-ratio:auto!important;
+  object-fit:contain!important;object-position:center;transform:none!important;padding:0;
+}
 html[data-site-theme] body.product-theme-windows #product-page .pd-price-main {color:#f1f6fc!important;font-size:36px;font-weight:600;}
 html[data-site-theme] body.product-theme-windows #product-page .pd-buy-btn {
   display:flex;align-items:center;justify-content:center;gap:10px;min-height:48px;

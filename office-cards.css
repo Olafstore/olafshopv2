@@ -47,3 +47,14 @@ html body.extras-page #windows-keys .office-license-art>span{bottom:10px;left:10
  html body.extras-page #windows-keys .office-license-card .office-license-art img,
  html body.extras-page #windows-keys .office-license-card .office-license-action{transition:none!important;animation:none!important;transform:none!important;}
 }
+/* 1920 x 1080 composition: the artwork has its own ratio, independent of copy. */
+html body.extras-page #windows-keys .extras-license-grid .office-license-card{
+ grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr;align-content:start;
+}
+html body.extras-page #windows-keys .office-license-card>a.office-license-art{
+ aspect-ratio:16/9;height:auto;min-height:0;align-self:start;border:0;
+ border-bottom:1px solid #526b8c30;background:#0b1522!important;
+}
+html body.extras-page #windows-keys .office-license-card .office-license-art img{
+ aspect-ratio:auto;object-fit:contain;transform:none!important;
+}

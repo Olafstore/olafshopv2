@@ -1043,6 +1043,10 @@ function getDisplayTags(product, limit = 5) {
 }
 
 function getSidebarDisplayTags(product) {
+  if (String(product?.id || '').startsWith('microsoft-office-')) {
+    return (Array.isArray(product.tags) ? product.tags : [])
+      .filter(tag => typeof tag === 'string' && tag.trim()).map(tag => tag.trim());
+  }
   if (String(product?.category || "").toLowerCase() !== "offline") {
     return getDisplayTags(product, 5);
   }

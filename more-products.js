@@ -92,13 +92,14 @@
     const cover=(Array.isArray(product.gallery)?product.gallery.filter(Boolean)[0]:'')||product.image||product.heroImage||'assets/office-2024.svg';
     const href='product.html?id='+encodeURIComponent(product.id);
     const isLtsc=product.id==='microsoft-office-ltsc-professional-plus-2024';
+    const adminTags=(Array.isArray(product.tags)?product.tags:[]).filter(tag=>typeof tag==='string' && tag.trim()).map(tag=>tag.trim());
     return `<article class="olaf-license-card office-license-card ${stock<=0?'is-out-of-stock':''}">
       <a class="office-license-art" href="${href}" aria-label="ดูรายละเอียด ${escapeHtml(product.name)}"><img src="${escapeHtml(cover)}" alt="${escapeHtml(product.name)}" loading="lazy" decoding="async"><span>${isLtsc?'LTSC 2024':'OFFICE 2024'}</span></a>
       <div class="office-license-content">
         <div class="office-license-brand"><svg viewBox="0 0 20 20" aria-hidden="true"><path fill="#f25022" d="M0 0h9v9H0z"/><path fill="#7fba00" d="M11 0h9v9h-9z"/><path fill="#00a4ef" d="M0 11h9v9H0z"/><path fill="#ffb900" d="M11 11h9v9h-9z"/></svg><span>Microsoft</span><small>LICENSE KEY</small></div>
         <h3>${escapeHtml(product.name)}</h3>
         <p class="office-license-description">ชำระเงินผ่านเว็บ · แอดมินจัดส่งคีย์หลังตรวจสอบสลิป</p>
-        <div class="office-license-tags"><span>Professional Plus</span><span>${isLtsc?'LTSC':'2024'}</span><span>แอดมินจัดส่ง</span></div>
+        ${adminTags.length?`<div class="office-license-tags">${adminTags.map(tag=>`<span>${escapeHtml(tag)}</span>`).join('')}</div>`:''}
         <div class="office-license-purchase"><div class="office-license-price"><strong>${formatPrice(price)}</strong>${Number(product.compareAt)>price?`<del>${formatPrice(product.compareAt)}</del>`:''}<small>${stock>0?'เปิดรับพรีออเดอร์':'รอแอดมินอัปเดตสต็อก'}</small></div><a href="${href}" class="office-license-action"><svg viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${stock>0?'<path d="M3 3h2l3 12h10l3-9H6"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/>':'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>'}</svg><span>${stock>0?'สั่งซื้อเลย':'ดูรายละเอียด'}</span></a></div>
       </div>
     </article>`;

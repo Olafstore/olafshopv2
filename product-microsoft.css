@@ -66,11 +66,14 @@ html[data-site-theme] body.product-theme-windows #product-page .pd-buy-btn {
 html[data-site-theme] body.product-theme-windows #product-page .pd-buy-btn:disabled {opacity:.45;cursor:not-allowed;}
 html[data-site-theme] body.product-theme-windows #product-page .pd-buy-btn svg {width:20px;height:20px;flex:none;}
 html[data-site-theme] body.product-theme-windows #product-page :is(.pd-info-card,.pd-sysreq-panel,.pd-feature-item,.pd-package-option) {background:#0d1825!important;border:1px solid var(--ms-edge)!important;box-shadow:none!important;border-radius:8px!important;}
-/* Floating information and recommendations: no nested colored card outlines.
+/* Subtle glass information card; surrounding sections stay floating.
    Keep actionable package choices, buttons and stock badges visually distinct. */
 html[data-site-theme] body.product-detail-page.product-theme-windows #product-page .pd-info-card {
-  background:transparent!important;border:0!important;border-radius:0!important;
-  box-shadow:none!important;padding:0!important;
+  background:linear-gradient(135deg,rgba(156,207,255,.055),rgba(13,24,37,.12))!important;
+  border:1px solid rgba(185,215,244,.18)!important;border-radius:16px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 12px 32px rgba(0,0,0,.1)!important;
+  padding:8px 22px!important;
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
 }
 html[data-site-theme] body.product-detail-page.product-theme-windows #product-page .pd-info-row {
   border-color:rgba(170,188,204,.12);
@@ -89,6 +92,7 @@ html[data-site-theme] body.product-theme-windows #product-page :is(button,a,inpu
   html[data-site-theme] body.product-theme-windows #product-page .pd-buy-btn:not(:disabled):hover {background:#106ebe!important;transform:translateY(-1px);}
 }
 @media(max-width:760px) {
+  html[data-site-theme] body.product-detail-page.product-theme-windows #product-page .pd-info-card {padding:6px 16px!important;border-radius:12px!important;}
   html[data-site-theme] body.product-theme-windows #product-page .pd-brand-hero-windows {padding:22px 18px;margin-bottom:18px;}
   .ms-detail-steps {grid-template-columns:1fr;gap:16px;margin-top:20px;padding-top:20px;}
   html[data-site-theme] body.product-detail-page.product-theme-windows #product-page .pd-section {padding:18px!important;}

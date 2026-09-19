@@ -87,7 +87,25 @@
     `;
   }
 
+  function officeProductCard(product) {
+    const stock=Number(product.stock||0),price=Number(product.price||0);
+    const cover=(Array.isArray(product.gallery)?product.gallery.filter(Boolean)[0]:'')||product.image||product.heroImage||'assets/office-2024.svg';
+    const href='product.html?id='+encodeURIComponent(product.id);
+    const isLtsc=product.id==='microsoft-office-ltsc-professional-plus-2024';
+    return `<article class="olaf-license-card office-license-card ${stock<=0?'is-out-of-stock':''}">
+      <a class="office-license-art" href="${href}" aria-label="ดูรายละเอียด ${escapeHtml(product.name)}"><img src="${escapeHtml(cover)}" alt="${escapeHtml(product.name)}" loading="lazy" decoding="async"><span>${isLtsc?'LTSC 2024':'OFFICE 2024'}</span></a>
+      <div class="office-license-content">
+        <div class="office-license-brand"><svg viewBox="0 0 20 20" aria-hidden="true"><path fill="#f25022" d="M0 0h9v9H0z"/><path fill="#7fba00" d="M11 0h9v9h-9z"/><path fill="#00a4ef" d="M0 11h9v9H0z"/><path fill="#ffb900" d="M11 11h9v9h-9z"/></svg><span>Microsoft</span><small>LICENSE KEY</small></div>
+        <h3>${escapeHtml(product.name)}</h3>
+        <p class="office-license-description">ชำระเงินผ่านเว็บ · แอดมินจัดส่งคีย์หลังตรวจสอบสลิป</p>
+        <div class="office-license-tags"><span>Professional Plus</span><span>${isLtsc?'LTSC':'2024'}</span><span>แอดมินจัดส่ง</span></div>
+        <div class="office-license-purchase"><div class="office-license-price"><strong>${formatPrice(price)}</strong>${Number(product.compareAt)>price?`<del>${formatPrice(product.compareAt)}</del>`:''}<small>${stock>0?'เปิดรับพรีออเดอร์':'รอแอดมินอัปเดตสต็อก'}</small></div><a href="${href}" class="office-license-action">${stock>0?'สั่งซื้อเลย':'ดูรายละเอียด'}<span aria-hidden="true">↗</span></a></div>
+      </div>
+    </article>`;
+  }
+
   function windowsProductCard(product) {
+    if (['microsoft-office-professional-plus-2024','microsoft-office-ltsc-professional-plus-2024'].includes(product.id)) return officeProductCard(product);
     const stock = Number(product.stock || 0);
     const features = (Array.isArray(product.tags) ? product.tags : []).slice(0, 4);
     const gallery = Array.isArray(product.gallery) ? product.gallery.filter(Boolean) : [];

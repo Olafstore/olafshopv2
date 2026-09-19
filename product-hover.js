@@ -48,11 +48,26 @@
     const image=safeImage(card.querySelector('img')?.currentSrc||card.querySelector('img')?.getAttribute('src')||product?.image||'');
     const title=product?.name||card.querySelector('h3,h2,.pd-related-name,.olaf-steam-deal-title,strong')?.textContent||card.querySelector('img')?.alt||'รายละเอียดสินค้า';
     const price=Number.isFinite(Number(product?.price))&&product?.price!=null?'฿'+Number(product.price).toLocaleString('th-TH'):card.querySelector('.price,.pd-related-price,.steam-price-final,.olaf-steam-price-current')?.textContent||'';
-    const tags=Array.isArray(product?.tags)?product.tags.slice(0,4):[...card.querySelectorAll('.tag')].slice(0,4).map(n=>n.textContent);
+    const tags=Array.isArray(product?.tags)?product.tags.slice(0,6):[...card.querySelectorAll('.tag')].slice(0,6).map(n=>n.textContent);
     const stock=product?.stock!=null?(Number(product.stock)>0?'มีสินค้า':'สินค้าหมด'):card.querySelector('.stock-pill')?.textContent||'';
+    const cover=safeImage(product?.image)||image;
+    const current=Number(product?.price),original=Number(product?.compareAt);
+    const discounted=product?.price!=null&&Number.isFinite(current)&&current>=0&&Number.isFinite(original)&&original>current;
+    const discount=discounted?Math.round((original-current)/original*100):0;
+    const rating=plain(product?.rating).split(/\s*\|\s*/);
+    const release=plain(product?.releaseDate||product?.sourceMetadata?.releaseDate||'');
+    const saved=Boolean(product?.id&&window.OlafFavorites?.getIds?.().includes(String(product.id)));
     stopGallery();
     popup.classList.add('is-loading');popup.classList.remove('is-content-ready');popup.setAttribute('aria-busy','true');
-    popup.innerHTML=`<div class="hover-preview-media">${image?`<img src="${esc(image)}" alt="" decoding="async">`:''}</div><div class="hover-preview-body"><small>OLAF SHOP · ${loading?'กำลังโหลดรายละเอียด…':'ตัวอย่างสินค้า'}</small><h3>${esc(plain(title))}</h3><p class="hover-preview-publisher">${esc(product?.publisher||'')}</p><p class="hover-preview-description">${esc(plain(product?.description).slice(0,220))}</p><div class="hover-preview-tags">${tags.map(tag=>`<span>${esc(tag)}</span>`).join('')}</div><footer><strong>${esc(price)}</strong><span>${esc(stock)}</span></footer><p class="hover-preview-hint">คลิกการ์ดเพื่อดูรายละเอียดสินค้า</p></div>`;
+    popup.innerHTML=`<div class="hover-preview-media">${image?`<img src="${esc(image)}" alt="" decoding="async">`:''}</div>
+      <span class="hover-preview-favorite${saved?' is-saved':''}" title="${saved?'บันทึกในรายการโปรดแล้ว':'รายการโปรด'}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.9-6.2-3.3-6.2 3.3L7 14.2 2 9.3l6.9-1Z"/></svg></span>
+      <div class="hover-preview-summary"><div class="hover-preview-cover">${cover?`<img src="${esc(cover)}" alt="" decoding="async">`:''}</div>
+        <div class="hover-preview-price">${discounted?`<span class="hover-preview-discount">-${discount}%</span>`:''}<div>${discounted?`<del>฿${esc(original.toLocaleString('th-TH'))}</del>`:''}<strong>${esc(price)}</strong></div></div></div>
+      <div class="hover-preview-body"><h3>${esc(plain(title))}</h3>
+        <div class="hover-preview-tags">${tags.map(tag=>`<span>${esc(tag)}</span>`).join('')}</div>
+        <div class="hover-preview-reviews"><p class="hover-preview-rating">${esc(rating[0]||product?.publisher||'')}</p>${rating.length>1?`<p class="hover-preview-review-count">${esc(rating.slice(1).join(' · '))}</p>`:''}</div>
+        <div class="hover-preview-meta">${release?`<span>${esc(release)}</span>`:''}<span>${esc(stock)}</span></div></div>`;
+    popup.querySelector('.hover-preview-cover img')?.addEventListener('error',event=>event.target.remove(),{once:true});
     const firstImage=popup.querySelector('img'),media=popup.querySelector('.hover-preview-media'),renderToken=serial;
     let revealed=false;
     const reveal=()=>{if(renderToken!==serial||!media.isConnected)return;if(!loading&&!revealed){revealed=true;popup.classList.remove('is-loading');popup.classList.add('is-content-ready');popup.setAttribute('aria-busy','false');if(product)startGallery(product,image);}position();};

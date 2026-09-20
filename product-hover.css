@@ -10,7 +10,7 @@ html body .product-hover-preview.is-visible{opacity:1;scale:1;}
 .hover-preview-favorite svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.2;}.hover-preview-favorite.is-saved svg{fill:#fff;}
 .product-hover-preview .hover-preview-summary{position:relative;display:flex;justify-content:space-between;align-items:flex-end;gap:8px;flex:0 0 42px;padding:0 7px 0 0;min-width:0;}
 .product-hover-preview .hover-preview-cover{width:49%;aspect-ratio:460/215;flex:none;position:absolute;left:0;bottom:0;background:#152029;box-shadow:2px 3px 9px #0005;overflow:hidden;}
-.hover-preview-cover img{width:100%;height:100%;object-fit:contain;display:block;}
+html body aside.product-hover-preview .hover-preview-cover img{position:absolute;inset:0;width:100%;height:100%;max-width:none;max-height:none;object-fit:cover;object-position:center;padding:0;margin:0;border:0;display:block;}
 .product-hover-preview .hover-preview-price{display:flex;align-items:stretch;justify-content:flex-end;gap:7px;margin-left:51%;width:49%;min-height:38px;min-width:0;}
 .hover-preview-price>div{display:flex;flex-direction:column;justify-content:center;min-width:0;}
 .hover-preview-price del{color:#87959e;font-size:10px;white-space:nowrap;}.hover-preview-price strong{color:#c7ed4c;font-size:15px;font-weight:500;white-space:nowrap;}
@@ -36,7 +36,7 @@ html body aside.product-hover-preview{
 }
 html[data-site-theme] body aside.product-hover-preview{background:linear-gradient(150deg,#202529,#2b343b)!important;border-color:#ffffff18!important;}
 html body aside.product-hover-preview .hover-preview-media{flex:none;aspect-ratio:16/9;height:auto;min-height:0;position:relative;background:#07101b;}
-html body aside.product-hover-preview .hover-preview-media img{object-fit:contain;}
+html body aside.product-hover-preview .hover-preview-media img{object-fit:cover;object-position:center;padding:0;margin:0;border:0;}
 html body aside.product-hover-preview .hover-preview-media{isolation:isolate;background-position:center;background-size:0 0;background-repeat:no-repeat;}
 html body aside.product-hover-preview .hover-preview-media::before{content:'';position:absolute;inset:-12px;background-image:inherit;background-size:cover;background-position:center;filter:blur(18px) brightness(.4);z-index:-1;}
 html body aside.product-hover-preview .hover-preview-summary{flex:0 0 38px;display:flex;align-items:flex-end;padding:0 7px 0 0;background:transparent;}

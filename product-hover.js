@@ -4,7 +4,7 @@
   const desktop=matchMedia('(min-width: 1024px) and (hover: hover) and (pointer: fine)');
   const cards='article.product-card,article.feature-card,article.hero-game-card,article.olaf-steam-spotlight,article.catalog-genre-game,article.olaf-steam-taste-row,article.extras-product-card,article.license-card,.pd-related-card,.olaf-steam-deal-card,.olaf-steam-discovery-row,.olaf-steam-editorial-card,.olaf-steam-activity-card,.member-game-grid > a';
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-  let active=null,anchor=null,timer=0,popup=null,serial=0,closeTimer=0,galleryTimer=0,galleryCleanup=()=>{};
+  let active=null,anchor=null,imageAnchored=false,timer=0,popup=null,serial=0,closeTimer=0,galleryTimer=0,galleryCleanup=()=>{};
   const cache=new Map();
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const safeImage=value=>{if(!value)return '';try{const url=new URL(value,location.href);return ['http:','https:'].includes(url.protocol)||(url.protocol==='file:'&&location.protocol==='file:')?url.href:'';}catch{return '';}};
@@ -54,11 +54,14 @@
     galleryTimer=setTimeout(next,1500);
   }
   function position(){if(!popup||popup.hidden||!anchor)return;const pad=12;
-    popup.style.width=Math.min(innerWidth-pad*2,Math.max(320,Math.min(360,anchor.width*1.08)))+'px';
-    const rect=popup.getBoundingClientRect();
-    const left=anchor.left+(anchor.width-rect.width)/2;
-    const top=Math.max(pad,Math.min(anchor.top-8,innerHeight-rect.height-pad));
-    popup.style.transform=`translate3d(${Math.max(pad,Math.min(left,innerWidth-rect.width-pad))}px,${top}px,0)`;
+    popup.classList.toggle('is-image-anchored',imageAnchored);
+    popup.style.width=Math.round(Math.min(innerWidth-pad*2,imageAnchored?anchor.width:Math.max(320,Math.min(360,anchor.width*1.08))))+'px';
+    popup.style.height=imageAnchored?Math.round(Math.min(innerHeight-pad*2,anchor.height))+'px':'';
+    const rect=popup.getBoundingClientRect(),width=popup.offsetWidth||rect.width,height=popup.offsetHeight||rect.height;
+    const left=imageAnchored?anchor.left:anchor.left+(anchor.width-width)/2;
+    const top=Math.max(pad,Math.min(anchor.top-(imageAnchored?0:8),innerHeight-height-pad));
+    popup.style.left=Math.round(Math.max(pad,Math.min(left,innerWidth-width-pad)))+'px';
+    popup.style.top=Math.round(top)+'px';
   }
   function render(card,product,loading=false){
     if(!popup){popup=document.createElement('aside');popup.className='product-hover-preview';popup.hidden=true;popup.setAttribute('aria-hidden','true');document.body.append(popup);}
@@ -122,7 +125,11 @@
     let url;try{url=new URL(link?.getAttribute('href'),location.href);}catch{return;}
     if(!/\/product\.html$/.test(url.pathname)||url.origin!==location.origin)return;
     const id=url.searchParams.get('id');if(!id)return;
-    hide();active=card;anchor=card.getBoundingClientRect();const token=serial;
+    hide();active=card;
+    const mainImage=card.matches('.olaf-steam-taste-row')?card.querySelector('.olaf-steam-taste-main'):null;
+    const imageRect=mainImage?.getBoundingClientRect();
+    imageAnchored=Boolean(imageRect?.width&&imageRect?.height);
+    anchor=imageAnchored?imageRect:card.getBoundingClientRect();const token=serial;
     timer=setTimeout(()=>show(card,id,token),280);
   });
   document.addEventListener('pointerout',event=>{

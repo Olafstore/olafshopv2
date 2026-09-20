@@ -50,3 +50,16 @@ html body aside.product-hover-preview .hover-preview-favorite{left:auto;right:7p
 html body aside.product-hover-preview .hover-preview-favorite svg{width:25px;height:25px;}
 .hover-preview-empty{display:grid;place-items:center;height:100%;padding:12px;box-sizing:border-box;text-align:center;color:#91a8bf;font-size:12px;}
 html body aside.product-hover-preview .hover-preview-open{position:absolute;inset:0;z-index:5;display:block;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:inherit;}
+/* Settle on integer-pixel left/top, not a permanently scaled GPU text layer. */
+html body aside.product-hover-preview{scale:none;transform:none;will-change:auto;filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;transition:opacity 150ms ease;}
+html body aside.product-hover-preview.is-visible{scale:none;animation:hover-preview-open 160ms ease-out;}
+@keyframes hover-preview-open{from{transform:scale(.985);opacity:0;}to{transform:none;opacity:1;}}
+html body aside.product-hover-preview .hover-preview-price{font-family:'Segoe UI',Tahoma,sans-serif;filter:none!important;text-shadow:none!important;font-variant-numeric:tabular-nums;}
+html body aside.product-hover-preview .hover-preview-price strong{font-size:17px;font-weight:700;line-height:1.15;color:#caff36;}
+html body aside.product-hover-preview .hover-preview-price del{font-size:12px;line-height:1.25;color:#a9b5bf;}
+html body aside.product-hover-preview .hover-preview-discount{font-size:21px;font-weight:700;line-height:1;color:#caff36;text-shadow:none!important;}
+/* Featured discovery rows anchor to the large artwork, not the whole multi-image row. */
+html body aside.product-hover-preview.is-image-anchored .hover-preview-media{flex:1 1 auto;aspect-ratio:auto;min-height:90px;}
+html body aside.product-hover-preview.is-image-anchored .hover-preview-cover{width:clamp(120px,25%,180px);}
+html body aside.product-hover-preview.is-image-anchored .hover-preview-body{padding:8px 12px;gap:4px;}
+@media(prefers-reduced-motion:reduce){html body aside.product-hover-preview.is-visible{animation:none;}}

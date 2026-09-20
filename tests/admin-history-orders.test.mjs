@@ -1,0 +1,34 @@
+import {readFileSync} from 'node:fs';
+import {createRequire} from 'node:module';
+import {pathToFileURL} from 'node:url';
+import test from 'node:test';
+import assert from 'node:assert/strict';
+const require=createRequire(`${process.env.PGLITE_TEST_ROOT || process.cwd()}/package.json`);
+const {Window}=await import(pathToFileURL(require.resolve('happy-dom')).href);
+const flush=()=>new Promise(resolve=>setTimeout(resolve,15));
+test('admin history ignores late responses for previous selected user and pages ten rows',async t=>{
+ const w=new Window();t.after(()=>w.happyDOM.close());
+ const html=readFileSync(new URL('../olaf-control.html',import.meta.url),'utf8');
+ w.document.body.innerHTML=html.match(/<section id="admin-shop-history"[\s\S]*?<\/section>/)[0];
+ const calls=[];let finishOld;
+ w.olafSupabase={rpc:async(name,args)=>{calls.push(args);if(args.p_user_id==='old')return new Promise(resolve=>finishOld=resolve);return {data:Array.from({length:args.p_offset?1:11},(_,i)=>({amount:10,balance_after:100,reason:'New user',created_at:'2026-09-08T00:00:00Z'}))};}};
+ w.eval(readFileSync(new URL('../admin-shop-history.js',import.meta.url),'utf8'));w.document.dispatchEvent(new w.Event('DOMContentLoaded'));
+ const select=id=>w.dispatchEvent(new w.CustomEvent('olaf-admin-user-selected',{detail:{userId:id}}));
+ select('old');select('new');await flush();
+ finishOld({data:[{reason:'Wrong user'}]});await flush();
+ assert(!w.document.body.textContent.includes('Wrong user'));assert.equal(w.document.querySelectorAll('article').length,10);
+ w.document.querySelector('[data-history-more]').click();await flush();assert.equal(calls.at(-1).p_offset,10);assert.equal(w.document.querySelectorAll('article').length,11);
+ select(null);assert.equal(w.document.querySelectorAll('article').length,0);
+});
+test('profile orders display ten per page and retain access to every order',async t=>{
+ const w=new Window();t.after(()=>w.happyDOM.close());w.document.body.innerHTML='<div id="orders-list"></div>';
+ for(const fn of ['formatPrice','formatPointAmount','productNames','displayOrderStatusKey','orderDisplayStatusLabel','paymentVerifiedBadge','orderCountdownMarkup','renderOrderDelivery'])w[fn]=()=>'';
+ w.escape=value=>String(value);w.isPointTopupOrder=()=>false;w.startProfileOrderCountdowns=()=>{};
+ const source=readFileSync(new URL('../profile.html',import.meta.url),'utf8');
+ w.eval(source.slice(source.indexOf('    let profileOrdersPage = 0;'),source.indexOf('    function renderInventoryList(orders)'))+'\nwindow.testRender=renderOrdersList;');
+ w.testRender(Array.from({length:23},(_,i)=>({id:String(i),createdAt:new Date(2026,0,i+1).toISOString(),items:[]})));
+ assert.equal(w.document.querySelectorAll('.profile-order-row').length,10);
+ w.document.querySelector('[data-order-page=next]').click();assert.equal(w.document.querySelectorAll('.profile-order-row').length,10);
+ w.document.querySelector('[data-order-page=next]').click();assert.equal(w.document.querySelectorAll('.profile-order-row').length,3);assert(w.document.querySelector('[data-order-page=next]').disabled);
+ w.document.querySelector('[data-order-page=prev]').click();assert.equal(w.document.querySelectorAll('.profile-order-row').length,10);
+});

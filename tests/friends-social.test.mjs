@@ -1,0 +1,24 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {createRequire} from 'node:module';
+import {pathToFileURL} from 'node:url';
+const require=createRequire(`${process.env.PGLITE_TEST_ROOT||process.cwd()}/package.json`);
+const {Window}=await import(pathToFileURL(require.resolve('happy-dom')).href);
+const source=readFileSync(new URL('../friends-social.js',import.meta.url),'utf8');
+const wait=()=>new Promise(r=>setTimeout(r,20));
+test('chat renders text safely, rejects dropped files, sends only explicit input and clears on close',async t=>{
+ const w=new Window({url:'https://olafshop.com/index.html'});t.after(()=>w.happyDOM.close());w.setTimeout=()=>1;
+ w.OlafStore={currentUser:()=>({id:'alice'})};const calls=[];
+ w.olafSupabase={rpc:async(name,args)=>{calls.push([name,args]);return {data:name==='shop_friend_suggestions'?[{username:'Carol',nickname:'<script>evil</script>'}]:name==='shop_friend_messages_list'?[{id:'1',body:'<img src=x onerror=bad()>',mine:false,createdAt:'2026-09-13T00:00:00Z'}]:{id:'2'}};}};
+ w.document.body.innerHTML='<dialog id="friends-floating-window" open><div data-friends-content><article class="friend-person"><div><button data-action="remove" data-username="Bob" data-name="Bob">ลบ</button></div></article></div></dialog>';
+ w.eval(source);await wait();assert(!w.document.querySelector('script'));assert(w.document.querySelector('.friends-suggestions').textContent.includes('<script>evil</script>'));
+ w.document.querySelector('[data-chat-user]').click();await wait();assert(!w.document.querySelector('.friends-chat-bubble img'));assert(w.document.querySelector('.friends-chat-bubble').textContent.includes('<img src=x'));
+ assert(w.document.querySelector('dialog').classList.contains('is-chatting'));assert.equal(w.document.querySelector('.friends-chat-identity strong').textContent,'Bob');assert(w.document.querySelector('.friends-chat-date'));assert(w.document.querySelector('.friends-chat-composer .friends-chat-form'));assert.equal(w.document.querySelector('.friends-chat-send').getAttribute('aria-label'),'ส่งข้อความ');
+ const input=w.document.querySelector('textarea');input.value='hello';w.document.querySelector('.friends-chat-form').dispatchEvent(new w.Event('submit',{cancelable:true}));await wait();assert.equal(calls.find(c=>c[0]==='shop_friend_message_send')[1].p_body,'hello');
+ const drop=new w.Event('drop',{cancelable:true,bubbles:true});Object.defineProperty(drop,'dataTransfer',{value:{files:[{}],types:['Files']}});input.dispatchEvent(drop);assert(drop.defaultPrevented);
+ const file=w.document.querySelector('input[type=file]');assert(file.accept.includes('.png'));assert(!file.accept.includes('*'));
+ w.document.querySelector('dialog').removeAttribute('open');await wait();assert.equal(w.document.querySelector('.friends-chat'),null);assert(!w.document.querySelector('dialog').classList.contains('is-chatting'));
+ const launch=w.document.createElement('button');launch.className='friends-launch';launch.onclick=()=>w.document.querySelector('dialog').setAttribute('open','');w.document.body.append(launch);
+ const bar=w.document.createElement('div');bar.className='member-friend-bar';bar.innerHTML='<button data-chat-user="Bob" data-chat-name="Bob">แชท</button>';w.document.body.append(bar);bar.querySelector('button').click();await wait();assert.equal(w.document.querySelector('.friends-chat-identity strong').textContent,'Bob');assert(w.document.querySelector('dialog').open);
+});

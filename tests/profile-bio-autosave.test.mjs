@@ -1,0 +1,28 @@
+import {readFileSync} from 'node:fs';
+import {createRequire} from 'node:module';
+import {pathToFileURL} from 'node:url';
+import test from 'node:test';
+import assert from 'node:assert/strict';
+const require=createRequire(`${process.env.PGLITE_TEST_ROOT || process.cwd()}/package.json`);
+const {Window}=await import(pathToFileURL(require.resolve('happy-dom')).href);
+const flush=()=>new Promise(resolve=>setTimeout(resolve,15));
+test('bio defaults to greeting and autosaves on blur; failure keeps draft and retry works',async t=>{
+ const w=new Window();t.after(()=>w.happyDOM.close());
+ w.document.body.innerHTML='<div id="profile-rank-root" hidden></div><div id="profile-overview-root"></div>';
+ w.OlafStore={ready:Promise.resolve(),currentUser:()=>({id:'u'})};
+ w.OlafOrders={fetchMyOrders:async()=>[],fetchPointBalance:async()=>({balance:0})};
+ let fail=false;const saved=[];
+ w.olafSupabase={rpc:async(name,args)=>{if(name==='shop_decoration_state')return {data:{bio:'',balance:0}};saved.push(args.p_bio);return fail?{error:new Error('offline')}:{data:true};}};
+ w.eval(readFileSync(new URL('../profile-overview.js',import.meta.url),'utf8'));
+ w.document.dispatchEvent(new w.Event('DOMContentLoaded'));await flush();
+ assert(w.document.querySelector('.member-cover [data-profile-rank-slot] #profile-rank-root'));
+ assert.equal(w.document.querySelector('#profile-rank-root').hidden,false);
+ assert(w.document.querySelector('.member-showcase > [data-profile-rank-controls-slot]'));
+ assert.equal(w.document.querySelector('.member-cover [data-profile-rank-controls-slot]'),null);
+ const input=w.document.querySelector('textarea');assert.equal(input.placeholder,'สวัสดี');assert.equal(w.document.querySelector('[data-bio-form] button'),null);
+ input.value='Hello';input.dispatchEvent(new w.Event('blur'));await flush();assert.deepEqual(saved,['Hello']);
+ input.dispatchEvent(new w.Event('blur'));await flush();assert.equal(saved.length,1);
+ fail=true;input.value='New draft';input.dispatchEvent(new w.Event('blur'));await flush();
+ assert.equal(input.value,'New draft');assert(w.document.querySelector('[data-bio-status]').textContent.includes('ไม่สำเร็จ'));
+ fail=false;input.dispatchEvent(new w.Event('blur'));await flush();assert.equal(saved.at(-1),'New draft');assert.equal(w.document.querySelector('[data-bio-status]').textContent,'บันทึกแล้ว');
+});

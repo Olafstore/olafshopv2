@@ -2,8 +2,7 @@
   "cleanUrls": false,
   "trailingSlash": false,
   "functions": {
-    "api/admin-supplier-import.js": {"maxDuration": 40},
-    "api/admin-supplier-test.js": {"maxDuration": 25},
+    "api/admin-supplier.js": {"maxDuration": 40},
     "api/friend-image.js": {"maxDuration": 40},
     "api/product-page.js": {"includeFiles": "product.html", "maxDuration": 15},
     "api/sitemap.js": {"maxDuration": 60},
@@ -82,6 +81,8 @@
     }
   ],
   "rewrites": [
+    {"source":"/api/admin-supplier-import","destination":"/api/admin-supplier?action=import"},
+    {"source":"/api/admin-supplier-test","destination":"/api/admin-supplier?action=test"},
     {"source":"/sitemap.xml","destination":"/api/sitemap"},
     {
       "source": "/",

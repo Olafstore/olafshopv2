@@ -1,0 +1,7 @@
+import {createServer} from 'node:http';
+import {readFileSync} from 'node:fs';
+const root=new URL('../',import.meta.url),read=f=>readFileSync(new URL(f,root),'utf8');
+const head=read('index.html').split('<body')[0].replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,'');
+const menu=read('site-navigation.js').match(/toggle.innerHTML = '([^']+)'/)[1];
+const html=head+`<body class="home-page"><header class="topbar site-topbar-unified"><a class="brand">OLAF</a><button id="olaf-mobile-nav-toggle" class="mobile-nav-toggle" aria-label="เปิดเมนู">${menu}</button></header><main style="padding:120px 20px"><h1>OLAF SHOP</h1><article class="product-card" style="padding:24px">ตัวอย่างพื้นผิวการ์ด</article><div class="site-theme-profile-control"></div></main><script src="/site-theme.js"></script><script>document.querySelector('.site-theme-profile-control').innerHTML=OlafTheme.controlMarkup()</script></body></html>`;
+createServer((req,res)=>{const path=new URL(req.url,'http://localhost').pathname;if(path==='/'){res.setHeader('Content-Type','text/html;charset=utf-8');return res.end(html);}const f=path.slice(1);if(!/^[\w-]+\.css$/.test(f)&&f!=='site-theme.js')return res.writeHead(404).end();try{res.setHeader('Content-Type',f.endsWith('.css')?'text/css':'application/javascript');res.end(read(f));}catch{res.writeHead(404).end();}}).listen(8773,'127.0.0.1',()=>console.log('Theme/menu preview http://127.0.0.1:8773'));

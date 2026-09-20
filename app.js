@@ -2522,47 +2522,33 @@ function steamEditorialPopularRandom(products, count, salt) {
 }
 
 function steamEditorialCollections(products) {
-  const available = products.filter((product) => Number(product.stock || 0) > 0);
+  const available = products.filter(p => p.id && Number(p.stock) > 0
+    && p.isActive !== false && p.is_active !== false && p.category !== 'windows'
+    && (p.image || p.heroImage || p.gallery?.length));
   const used = new Set();
-  const pickPopularRandom = (pattern, count, salt, allowFallback = true) => {
-    const matched = available.filter((product) => pattern.test(steamEditorialSearchText(product)));
-    const source = matched.length ? matched : (allowFallback ? available : []);
-    const selected = steamEditorialPopularRandom(
-      source.filter((product) => !used.has(product.id)),
-      count,
-      salt
-    );
-    selected.forEach((product) => used.add(product.id));
-    return selected;
-  };
-
-  const racingPattern = /\b(race|racing|racer|speed|drive|driver|driving|car|cars|vehicle|formula|motorsport|motorcycle|motogp|moto gp|rally|offroad|wrc|nascar|kart|f1|f 1|f2|f 2|forza|assetto|dirt|grid|nfs|need for speed|the crew)\b|แข่ง|รถ|ขับ|ความเร็ว|มอเตอร์สปอร์ต|ฟอร์มูล่า/;
-  const actionPattern = /\b(action|adventure|shooter|fps|fight|fighting|sport|football|controller|souls|rpg)\b|แอ็กชัน|แอ็คชัน|ยิง|ต่อสู้|ผจญภัย|กีฬา/;
-  const fastGames = pickPopularRandom(racingPattern, 2, "racing", false);
-  const actionGames = pickPopularRandom(actionPattern, 4, "action", true);
-
-  return [
-    {
-      title: "เกมแข่งขันความเร็ว",
-      subtitle: "เลือกจากสินค้ายอดนิยมและสต็อกพร้อมส่งภายในร้าน",
-      layout: "feature",
-      products: fastGames
-    },
-    {
-      title: "เกมแอ็กชันและคอนโทรลเลอร์",
-      subtitle: "คัดสรรเกมที่เหมาะกับการเล่นต่อเนื่องและการควบคุมที่สนุก",
-      layout: "tiles",
-      products: actionGames
-    }
-  ].filter((collection) => collection.products.length);
+  const genres = steamEditorialShuffle(catalogDiscoveryGenres.map(g => ({...g, name:g.label})), 'editorial-genres');
+  const collections = [];
+  for (const genre of genres) {
+    const count = collections.length === 0 ? 2 : 4;
+    const matches = available.filter(p => !used.has(catalogDiscoveryKey(p))
+      && catalogDiscoveryTags(p).some(tag => genre.tags.includes(tag)));
+    const unique = new Map(matches.map(p => [catalogDiscoveryKey(p), p]));
+    if (unique.size < count) continue;
+    const selected = steamEditorialShuffle([...unique.values()], `editorial-${genre.id}`).slice(0, count);
+    selected.forEach(p => used.add(catalogDiscoveryKey(p)));
+    collections.push({id:genre.id, title:genre.label, tags:genre.tags,
+      subtitle:'สุ่มจากสินค้าในร้านที่มีแท็กแนวเดียวกัน',
+      layout:collections.length === 0 ? 'feature' : 'tiles', products:selected});
+    if (collections.length === 2) break;
+  }
+  return collections;
 }
 
 function steamEditorialCardMarkup(product, layout = "tiles") {
-  const image = product.heroImage || product.image || "";
-  const discount = getDiscount(product);
+  const image = product.image || product.heroImage || product.gallery?.[0] || "";
   return `
-    <a class="olaf-steam-editorial-card is-${layout}" href="${productLink(product)}">
-      <span class="olaf-steam-editorial-media">
+    <article class="olaf-steam-editorial-card is-${layout}">
+      <a class="olaf-steam-editorial-media" href="${productLink(product)}">
         <img ${fastImg(image, cleanDisplayText(product.name), {
           width: layout === "feature" ? 960 : 560,
           height: layout === "feature" ? 540 : 315,
@@ -2570,21 +2556,13 @@ function steamEditorialCardMarkup(product, layout = "tiles") {
             ? "(max-width: 640px) 84vw, 50vw"
             : "(max-width: 640px) 68vw, 25vw"
         })} />
-      </span>
-      <span class="editorial-purchase-row">
-        <span class="editorial-product-copy">
-          <strong>${escapeHtml(cleanDisplayText(product.name))}</strong>
-          <small>${escapeHtml(getCategoryLabel(product.category))}</small>
-        </span>
-        <span class="olaf-steam-editorial-price">
-          ${discount > 0 ? `<b>-${discount}%</b>` : ""}
-          <span class="editorial-price-stack">
-            ${discount > 0 ? `<del>${formatPrice(product.compareAt)}</del>` : ""}
-            <strong>${formatPrice(product.price)}</strong>
-          </span>
-        </span>
-      </span>
-    </a>
+      </a>
+      <div class="editorial-product-details">
+        <strong class="editorial-product-title"><a href="${productLink(product)}">${escapeHtml(cleanDisplayText(product.name))}</a></strong>
+        <div class="catalog-product-tags">${catalogProductTagsMarkup(product)}</div>
+        ${steamPriceMarkup(product, 'is-compact')}
+      </div>
+    </article>
   `;
 }
 

@@ -1,6 +1,7 @@
 import {requireSupplierAdmin} from '../lib/suppliers/admin-access.js';
 import {readSupplierProducts,SupplierConnectionError} from '../lib/suppliers/499k/client.js';
 import passwordHandler from '../lib/admin/user-password-handler.js';
+import importHandler from '../lib/suppliers/import-handler.js';
 
 export function createReadHandler({env=process.env,fetcher=fetch}={}) {
   return async function handler(req,res) {
@@ -17,13 +18,14 @@ export function createReadHandler({env=process.env,fetcher=fetch}={}) {
     }
   };
 }
-export function createAdminRouter({readHandler=createReadHandler(),userPasswordHandler=passwordHandler}={}) {
+export function createAdminRouter({readHandler=createReadHandler(),userPasswordHandler=passwordHandler,catalogImportHandler=importHandler}={}) {
   return function handler(req,res) {
     if(req.query?.adminRoute==='user-password')return userPasswordHandler(req,res);
     if(req.query?.adminRoute){
       res.setHeader('Cache-Control','no-store');
       return res.status(404).json({success:false,error:{code:'ACTION_NOT_FOUND',message:'Unknown admin route'}});
     }
+    if(req.query?.action==='import')return catalogImportHandler(req,res);
     return readHandler(req,res);
   };
 }

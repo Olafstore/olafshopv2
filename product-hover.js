@@ -55,13 +55,19 @@
   }
   function position(){if(!popup||popup.hidden||!anchor)return;const pad=12;
     popup.classList.toggle('is-image-anchored',imageAnchored);
-    popup.style.width=Math.round(Math.min(innerWidth-pad*2,imageAnchored?anchor.width:Math.max(320,Math.min(360,anchor.width*1.08))))+'px';
-    popup.style.height=imageAnchored?Math.round(Math.min(innerHeight-pad*2,anchor.height))+'px':'';
-    const rect=popup.getBoundingClientRect(),width=popup.offsetWidth||rect.width,height=popup.offsetHeight||rect.height;
-    const left=imageAnchored?anchor.left:anchor.left+(anchor.width-width)/2;
-    const top=Math.max(pad,Math.min(anchor.top-(imageAnchored?0:8),innerHeight-height-pad));
-    popup.style.left=Math.round(Math.max(pad,Math.min(left,innerWidth-width-pad)))+'px';
-    popup.style.top=Math.round(top)+'px';
+    // Grow into the source card, never beyond it or into neighbouring columns.
+    const inset=4;
+    const left=Math.ceil(Math.max(pad,anchor.left+inset));
+    const top=Math.ceil(Math.max(pad,anchor.top+inset));
+    const right=Math.floor(Math.min(innerWidth-pad,anchor.left+anchor.width-inset));
+    const bottom=Math.floor(Math.min(innerHeight-pad,anchor.top+anchor.height-inset));
+    const width=right-left,height=bottom-top;
+    if(width<120||height<140){hide();return;}
+    popup.classList.add('is-card-fitted');
+    popup.classList.toggle('is-compact-card',height<300);
+    popup.classList.toggle('is-short-card',height<190);
+    popup.style.width=width+'px';popup.style.height=height+'px';
+    popup.style.left=left+'px';popup.style.top=top+'px';
   }
   function render(card,product,loading=false){
     if(!popup){popup=document.createElement('aside');popup.className='product-hover-preview';popup.hidden=true;popup.setAttribute('aria-hidden','true');document.body.append(popup);}
@@ -100,6 +106,7 @@
     if(!firstImage||firstImage.complete)reveal();
     else setTimeout(reveal,1200);
     clearTimeout(closeTimer);const opening=popup.hidden||!popup.classList.contains('is-visible');popup.hidden=false;position();
+    if(active!==card)return;
     if(opening){void popup.offsetWidth;popup.classList.add('is-visible');}
   }
   async function show(card,id,token){

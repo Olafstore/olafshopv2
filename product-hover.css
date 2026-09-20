@@ -63,3 +63,24 @@ html body aside.product-hover-preview.is-image-anchored .hover-preview-media{fle
 html body aside.product-hover-preview.is-image-anchored .hover-preview-cover{width:clamp(120px,25%,180px);}
 html body aside.product-hover-preview.is-image-anchored .hover-preview-body{padding:8px 12px;gap:4px;}
 @media(prefers-reduced-motion:reduce){html body aside.product-hover-preview.is-visible{animation:none;}}
+/* All card families share a bounded, raised overlay; no underlying card is hidden. */
+html body aside.product-hover-preview.is-card-fitted{
+ border-radius:10px;box-shadow:0 7px 20px #0007,inset 0 1px 0 #ffffff18;
+ border-color:#a9cffb55!important;overflow:hidden;
+}
+@keyframes hover-preview-open{from{transform:scale(.965);opacity:0;}to{transform:none;opacity:1;}}
+html body aside.product-hover-preview.is-card-fitted .hover-preview-media{flex:1 1 auto;aspect-ratio:auto;min-height:40px;}
+html body aside.product-hover-preview.is-card-fitted .hover-preview-cover{width:clamp(110px,32%,180px);max-width:47%;}
+html body aside.product-hover-preview.is-compact-card .hover-preview-body{padding:5px 8px;gap:3px;}
+html body aside.product-hover-preview.is-compact-card .hover-preview-body h3{font-size:14px;line-height:18px;-webkit-line-clamp:1;}
+html body aside.product-hover-preview.is-compact-card .hover-preview-tags{flex-wrap:nowrap;max-height:15px;gap:3px;}
+html body aside.product-hover-preview.is-compact-card .hover-preview-tags span{font-size:9px;line-height:13px;}
+html body aside.product-hover-preview.is-compact-card .hover-preview-reviews{font-size:10px;line-height:13px;}
+html body aside.product-hover-preview.is-compact-card .hover-preview-meta{font-size:10px;line-height:12px;}
+html body aside.product-hover-preview.is-compact-card .hover-preview-summary{flex-basis:30px;}
+html body aside.product-hover-preview.is-compact-card .hover-preview-price{min-height:30px;}
+html body aside.product-hover-preview.is-compact-card .hover-preview-price strong{font-size:16px;}
+html body aside.product-hover-preview.is-compact-card .hover-preview-price del{font-size:10px;}
+html body aside.product-hover-preview.is-compact-card .hover-preview-discount{font-size:19px;}
+html body aside.product-hover-preview.is-compact-card .hover-preview-cover{width:clamp(90px,28%,135px);}
+html body aside.product-hover-preview.is-short-card .hover-preview-reviews{display:none;}

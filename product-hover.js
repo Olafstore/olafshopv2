@@ -55,13 +55,11 @@
   }
   function position(){if(!popup||popup.hidden||!anchor)return;const pad=12;
     popup.classList.toggle('is-image-anchored',imageAnchored);
-    // Grow into the source card, never beyond it or into neighbouring columns.
-    const inset=4;
-    const left=Math.ceil(Math.max(pad,anchor.left+inset));
-    const top=Math.ceil(Math.max(pad,anchor.top+inset));
-    const right=Math.floor(Math.min(innerWidth-pad,anchor.left+anchor.width-inset));
-    const bottom=Math.floor(Math.min(innerHeight-pad,anchor.top+anchor.height-inset));
-    const width=right-left,height=bottom-top;
+    // Expand the actual layout by 5%, keeping text crisp and the card on screen.
+    const width=Math.min(innerWidth-pad*2,Math.round(anchor.width*1.05));
+    const height=Math.min(innerHeight-pad*2,Math.round(anchor.height*1.05));
+    const left=Math.round(Math.max(pad,Math.min(anchor.left+(anchor.width-width)/2,innerWidth-pad-width)));
+    const top=Math.round(Math.max(pad,Math.min(anchor.top+(anchor.height-height)/2,innerHeight-pad-height)));
     if(width<120||height<140){hide();return;}
     popup.classList.add('is-card-fitted');
     popup.classList.toggle('is-compact-card',height<300);

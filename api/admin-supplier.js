@@ -1,5 +1,5 @@
 import {requireSupplierAdmin} from '../lib/suppliers/admin-access.js';
-import {readSupplierProducts,SupplierConnectionError,supplierConfigStatus,testSandboxPurchase} from '../lib/suppliers/499k/client.js';
+import {readSupplierProducts,SupplierConnectionError,supplierConfigStatus,testSandboxPurchase,supplierErrorDiagnostics} from '../lib/suppliers/499k/client.js';
 import passwordHandler from '../lib/admin/user-password-handler.js';
 import importHandler from '../lib/suppliers/import-handler.js';
 
@@ -15,7 +15,7 @@ export function createReadHandler({env=process.env,fetcher=fetch}={}) {
     }catch(caught){
       const e=caught instanceof SupplierConnectionError?caught:new SupplierConnectionError('SUPPLIER_READ_FAILED',503);
       if(e.retryAfter)res.setHeader('Retry-After',String(e.retryAfter));
-      return res.status(e.status).json({success:false,error:{code:e.providerCode || e.code,message:e.code}});
+      return res.status(e.status).json({success:false,error:{code:e.providerCode || e.code,message:e.code},diagnostics:supplierErrorDiagnostics(e)});
     }
   };
 }
@@ -30,7 +30,7 @@ export function createSandboxPurchaseHandler({env=process.env,fetcher=fetch}={})
     }catch(e){
       const safe=e instanceof SupplierConnectionError?e:new SupplierConnectionError('SANDBOX_TEST_FAILED',503);
       if(safe.retryAfter)res.setHeader('Retry-After',String(safe.retryAfter));
-      return res.status(safe.status).json({success:false,code:safe.providerCode || safe.code});
+      return res.status(safe.status).json({success:false,code:safe.providerCode || safe.code,diagnostics:supplierErrorDiagnostics(safe)});
     }
   };
 }

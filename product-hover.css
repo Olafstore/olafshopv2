@@ -30,3 +30,26 @@ html body .product-hover-preview.is-visible{opacity:1;scale:1;}
 @keyframes hover-content-reveal{from{opacity:0;}to{opacity:1;}}
 @media(prefers-reduced-motion:reduce){html body .product-hover-preview,.hover-gallery-incoming{transition:none;}html body .product-hover-preview *,html body .product-hover-preview *::after{animation:none!important;}}
 @media(max-width:1023px),(hover:none),(pointer:coarse){html body .product-hover-preview{display:none!important;}}
+/* Anchored landscape expansion. The original card keeps its grid space. */
+html body aside.product-hover-preview{
+ display:grid;grid-template-columns:52% minmax(0,1fr);grid-template-rows:minmax(0,1fr) 42px;
+ height:238px;border-radius:10px;pointer-events:auto;transform-origin:center;
+}
+html[data-site-theme] body aside.product-hover-preview{background:linear-gradient(140deg,#122439,#081426)!important;border-color:#99cbff38!important;}
+html body aside.product-hover-preview .hover-preview-media{grid-column:1;grid-row:1;height:auto;min-height:0;position:relative;background:#07101b;}
+html body aside.product-hover-preview .hover-preview-media img{object-fit:contain;}
+html body aside.product-hover-preview .hover-preview-media{isolation:isolate;background-position:center;background-size:0 0;background-repeat:no-repeat;}
+html body aside.product-hover-preview .hover-preview-media::before{content:'';position:absolute;inset:-12px;background-image:inherit;background-size:cover;background-position:center;filter:blur(18px) brightness(.4);z-index:-1;}
+html body aside.product-hover-preview .hover-preview-summary{grid-column:1;grid-row:2;display:flex;align-items:center;padding:0 8px;background:#0a1421;}
+html body aside.product-hover-preview .hover-preview-price{margin:0;width:100%;min-height:32px;gap:8px;justify-content:flex-end;}
+html body aside.product-hover-preview .hover-preview-body{grid-column:2;grid-row:1/3;gap:9px;padding:12px 10px;}
+html body aside.product-hover-preview .hover-preview-body h3{font-size:15px;line-height:1.35;-webkit-line-clamp:3;}
+html body aside.product-hover-preview .hover-preview-reviews{font-size:11px;line-height:1.5;overflow-wrap:anywhere;}
+html body aside.product-hover-preview .hover-preview-tags{max-height:52px;gap:3px;}
+html body aside.product-hover-preview .hover-preview-meta{font-size:10px;flex-wrap:wrap;gap:2px;}
+html body aside.product-hover-preview .hover-preview-favorite{left:7px;right:auto;width:26px;height:26px;pointer-events:none;}
+html body aside.product-hover-preview .hover-preview-favorite svg{width:21px;height:21px;}
+.hover-preview-empty{display:grid;place-items:center;height:100%;padding:12px;box-sizing:border-box;text-align:center;color:#91a8bf;font-size:12px;}
+html body aside.product-hover-preview .hover-preview-open{position:absolute;inset:0;z-index:5;display:block;background:transparent!important;border:0!important;box-shadow:none!important;border-radius:inherit;}
+html body .has-mini-preview{opacity:0!important;background:transparent!important;border-color:transparent!important;box-shadow:none!important;}
+html body .has-mini-preview>*{opacity:0!important;}

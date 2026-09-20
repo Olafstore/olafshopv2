@@ -24,7 +24,7 @@
   const plain=value=>cleanText(value).replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
   const galleryImages=product=>[...new Set((Array.isArray(product?.gallery)?product.gallery:[]).map(safeImage).filter(Boolean))];
   function stopGallery(){clearTimeout(galleryTimer);galleryCleanup();galleryCleanup=()=>{};}
-  function hide(){serial++;clearTimeout(timer);stopGallery();active?.classList.remove('has-mini-preview');active=null;anchor=null;clearTimeout(closeTimer);
+  function hide(){serial++;clearTimeout(timer);stopGallery();active=null;anchor=null;clearTimeout(closeTimer);
     if(popup){popup.classList.remove('is-visible');if(reduced.matches)popup.hidden=true;else closeTimer=setTimeout(()=>{if(!active)popup.hidden=true;},150);}
   }
   function startGallery(product,cover){
@@ -54,7 +54,7 @@
     galleryTimer=setTimeout(next,1500);
   }
   function position(){if(!popup||popup.hidden||!anchor)return;const pad=12;
-    popup.style.width=Math.min(innerWidth-pad*2,Math.max(340,Math.min(480,anchor.width*1.1)))+'px';
+    popup.style.width=Math.min(innerWidth-pad*2,Math.max(320,Math.min(360,anchor.width*1.08)))+'px';
     const rect=popup.getBoundingClientRect();
     const left=anchor.left+(anchor.width-rect.width)/2;
     const top=Math.max(pad,Math.min(anchor.top-8,innerHeight-rect.height-pad));
@@ -63,6 +63,7 @@
   function render(card,product,loading=false){
     if(!popup){popup=document.createElement('aside');popup.className='product-hover-preview';popup.hidden=true;popup.setAttribute('aria-hidden','true');document.body.append(popup);}
     const image=galleryImages(product)[0]||'';
+    const cover=safeImage(product?.image)||image;
     const title=product?.name||card.querySelector('h3,h2,.pd-related-name,.olaf-steam-deal-title,strong')?.textContent||card.querySelector('img')?.alt||'รายละเอียดสินค้า';
     const price=Number.isFinite(Number(product?.price))&&product?.price!=null?'฿'+Number(product.price).toLocaleString('th-TH'):card.querySelector('.price,.pd-related-price,.steam-price-final,.olaf-steam-price-current')?.textContent||'';
     const tags=Array.isArray(product?.tags)?product.tags.slice(0,6):[...card.querySelectorAll('.tag')].slice(0,6).map(n=>n.textContent);
@@ -80,12 +81,14 @@
       <div class="hover-preview-media">${image?`<img src="${esc(image)}" alt="" decoding="async">`:`<span class="hover-preview-empty">${loading?'กำลังโหลดภาพ…':'ยังไม่มีภาพแกลเลอรี'}</span>`}</div>
       <span class="hover-preview-favorite${saved?' is-saved':''}" title="${saved?'บันทึกในรายการโปรดแล้ว':'รายการโปรด'}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.9-6.2-3.3-6.2 3.3L7 14.2 2 9.3l6.9-1Z"/></svg></span>
       <div class="hover-preview-summary">
+        ${cover?`<div class="hover-preview-cover"><img src="${esc(cover)}" alt="" decoding="async"></div>`:''}
         <div class="hover-preview-price">${discounted?`<span class="hover-preview-discount">-${discount}%</span>`:''}<div>${discounted?`<del>฿${esc(original.toLocaleString('th-TH'))}</del>`:''}<strong>${esc(price)}</strong></div></div></div>
       <div class="hover-preview-body"><h3>${esc(plain(title))}</h3>
         <div class="hover-preview-tags">${tags.map(tag=>`<span>${esc(plain(tag))}</span>`).join('')}</div>
         <div class="hover-preview-reviews"><p class="hover-preview-rating">${esc(rating[0]||plain(product?.publisher)||'')}</p>${rating.length>1?`<p class="hover-preview-review-count">${esc(rating.slice(1).join(' · '))}</p>`:''}</div>
         <div class="hover-preview-meta">${release?`<span>${esc(release)}</span>`:''}<span>${esc(stock)}</span></div></div>`;
-    const firstImage=popup.querySelector('img'),media=popup.querySelector('.hover-preview-media'),renderToken=serial;
+    const media=popup.querySelector('.hover-preview-media'),firstImage=media.querySelector('img'),renderToken=serial;
+    popup.querySelector('.hover-preview-cover img')?.addEventListener('error',event=>event.target.parentElement.remove(),{once:true});
     if(image)media.style.backgroundImage=`url(${JSON.stringify(image)})`;
     let revealed=false;
     const reveal=()=>{if(renderToken!==serial||!media.isConnected)return;if(!loading&&!revealed){revealed=true;popup.classList.remove('is-loading');popup.classList.add('is-content-ready');popup.setAttribute('aria-busy','false');if(product)startGallery(product,image);}position();};
@@ -94,7 +97,7 @@
     if(!firstImage||firstImage.complete)reveal();
     else setTimeout(reveal,1200);
     clearTimeout(closeTimer);const opening=popup.hidden||!popup.classList.contains('is-visible');popup.hidden=false;position();
-    if(opening){void popup.offsetWidth;popup.classList.add('is-visible');}card.classList.add('has-mini-preview');
+    if(opening){void popup.offsetWidth;popup.classList.add('is-visible');}
   }
   async function show(card,id,token){
     if(active!==card||token!==serial||!desktop.matches||!card.isConnected)return;

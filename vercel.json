@@ -81,6 +81,7 @@
     }
   ],
   "rewrites": [
+    {"source":"/api/admin-user-password","destination":"/api/admin-supplier?adminRoute=user-password"},
     {"source":"/api/admin-supplier-import","destination":"/api/admin-supplier?action=import"},
     {"source":"/api/admin-supplier-test","destination":"/api/admin-supplier?action=test"},
     {"source":"/sitemap.xml","destination":"/api/sitemap"},

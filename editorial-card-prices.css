@@ -1,0 +1,32 @@
+/* Collection cards only: product identity fills the previously empty price rail. */
+html body.home-page .olaf-steam-editorial-card .editorial-purchase-row{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ padding:12px;min-width:0;background:rgba(9,20,37,.8);border-top:1px solid #8ab9f21c;
+}
+html body.home-page .editorial-purchase-row .editorial-product-copy{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1;}
+html body.home-page .editorial-purchase-row .editorial-product-copy>strong{
+ display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+ color:#e7f0fb;font-size:14px;line-height:1.35;font-weight:600;
+}
+html body.home-page .editorial-purchase-row .editorial-product-copy>small{font-size:10px;line-height:1.3;color:#99adc6;}
+html body.home-page .editorial-purchase-row .olaf-steam-editorial-price{
+ display:flex;flex:none;align-items:center;gap:8px;min-height:0!important;
+ margin:0!important;padding:0!important;border:0!important;background:transparent!important;
+ font-family:'Segoe UI',Tahoma,sans-serif;font-variant-numeric:tabular-nums;
+ filter:none;text-shadow:none;white-space:nowrap;
+}
+html body.home-page .editorial-purchase-row .olaf-steam-editorial-price>b{
+ align-self:center;display:block;margin:0!important;padding:5px 7px!important;border-radius:6px!important;
+ color:#98d0ff!important;background:#258ce522!important;border:1px solid #69b3f638!important;
+ font-size:12px!important;line-height:1.2;font-weight:700;
+}
+html body.home-page .editorial-purchase-row .editorial-price-stack{display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
+html body.home-page .editorial-purchase-row .editorial-price-stack>strong{font-size:20px!important;line-height:1.15;font-weight:700;color:#71b5ff;}
+html body.home-page .editorial-purchase-row .editorial-price-stack>del{font-size:11px;line-height:1.2;color:#91a2b9;}
+html body.home-page .olaf-steam-editorial-card .olaf-steam-editorial-media{border:0;border-radius:0;box-shadow:none;}
+@media(max-width:640px){
+ html body.home-page .olaf-steam-editorial-card .editorial-purchase-row{padding:10px;gap:8px;flex-wrap:wrap;}
+ html body.home-page .editorial-purchase-row .editorial-product-copy{flex:1 1 100%;}
+ html body.home-page .editorial-purchase-row .olaf-steam-editorial-price{margin-left:auto!important;}
+ html body.home-page .editorial-purchase-row .editorial-price-stack>strong{font-size:18px!important;}
+}

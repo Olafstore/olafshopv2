@@ -2570,15 +2570,19 @@ function steamEditorialCardMarkup(product, layout = "tiles") {
             ? "(max-width: 640px) 84vw, 50vw"
             : "(max-width: 640px) 68vw, 25vw"
         })} />
-        <span class="olaf-steam-editorial-overlay">
+      </span>
+      <span class="editorial-purchase-row">
+        <span class="editorial-product-copy">
           <strong>${escapeHtml(cleanDisplayText(product.name))}</strong>
           <small>${escapeHtml(getCategoryLabel(product.category))}</small>
         </span>
-      </span>
-      <span class="olaf-steam-editorial-price">
-        ${discount > 0 ? `<b>-${discount}%</b>` : ""}
-        ${discount > 0 ? `<del>${formatPrice(product.compareAt)}</del>` : ""}
-        <strong>${formatPrice(product.price)}</strong>
+        <span class="olaf-steam-editorial-price">
+          ${discount > 0 ? `<b>-${discount}%</b>` : ""}
+          <span class="editorial-price-stack">
+            ${discount > 0 ? `<del>${formatPrice(product.compareAt)}</del>` : ""}
+            <strong>${formatPrice(product.price)}</strong>
+          </span>
+        </span>
       </span>
     </a>
   `;

@@ -6,7 +6,7 @@ let currentProduct = null;
 window.addEventListener('olaf:supplier-catalog',event=>{
   if(!currentProduct?.supplierProduct)return;
   const fresh=event.detail.find(p=>p.id===currentProduct.id);
-  if(fresh){currentProduct={...currentProduct,...fresh};updatePurchaseDom();}
+  if(fresh){currentProduct={...currentProduct,price:fresh.price,compareAt:fresh.compareAt,stock:fresh.stock,rawPublic:{...currentProduct.rawPublic,price:fresh.price,compareAt:fresh.compareAt,available:fresh.rawPublic.available,stock:fresh.stock}};updatePurchaseDom();}
 });
 
 function showProductTagResults(tag) {
@@ -582,7 +582,7 @@ async function fetchSupabaseProductPayload() {
   const onlineProductPromise = window.OlafProducts?.fetchProductById
     ? withTimeout(
         window.OlafProducts.fetchProductById(productId).then((product) => ({ available: true, product })),
-        2200,
+        productId?.startsWith('supplier-') ? 8000 : 2200,
         { available: false, product: null }
       ).catch((error) => {
         console.warn("Supabase product detail unavailable; using catalog product", error);
@@ -2330,6 +2330,7 @@ function renderProduct() {
           <div class="pd-sidebar-cover">
             <img ${fastImg(sidebarCoverImg, displayProductName, { priority: true, fallbacks: productImageFallbacks(p, sidebarCoverImg) })} />
           </div>
+          ${p.supplierProduct && (p.shortDescription || p.description) ? `<p class="pd-steam-cover-description pd-steam-summary-desktop">${escapeHtml(p.shortDescription || p.description.slice(0,1200)).replace(/\n/g,'<br>')}</p>` : ''}
 
           <div class="pd-sidebar-body">
 
@@ -2341,6 +2342,7 @@ function renderProduct() {
             <div class="pd-mobile-cover" aria-label="ภาพปกสินค้า">
               <img ${fastImg(sidebarCoverImg, displayProductName, { priority: true, fallbacks: productImageFallbacks(p, sidebarCoverImg) })} />
             </div>
+            ${p.supplierProduct && (p.shortDescription || p.description) ? `<p class="pd-steam-cover-description pd-steam-summary-mobile">${escapeHtml(p.shortDescription || p.description.slice(0,1200)).replace(/\n/g,'<br>')}</p>` : ''}
 
             <!-- Title & publisher -->
             <h1 class="pd-sidebar-title">${escapeHtml(displayProductName)}</h1>

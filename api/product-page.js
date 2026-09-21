@@ -19,7 +19,7 @@ export default async function handler(req,res){
  try{let product;
  if(id.startsWith('supplier-')){
    const key=id.slice(9);if(!uuid(key))return res.status(404).end('ไม่พบสินค้า');
-   const [row]=await createShopDb().select('supplier_products',{select:'id,name,description,image,stock,selling_price,full_price,denuvo,steam',id:`eq.${key}`,supplier:'eq.499k',product_type:'eq.offline',platform:'eq.steam',status:'eq.active',is_visible:'eq.true',selling_price:'gt.0',limit:'1'});
+   const [row]=await createShopDb().select('supplier_products',{select:'id,supplier_product_id,name,description,image,stock,selling_price,full_price,denuvo,steam',id:`eq.${key}`,supplier:'eq.499k',product_type:'eq.offline',platform:'eq.steam',status:'eq.active',is_visible:'eq.true',selling_price:'gt.0',limit:'1'});
    if(row)product={...publicSupplierProduct(row),id,category:'offline'};
  }else [product]=await getProducts(id);
  if(!product){res.setHeader('X-Robots-Tag','noindex');return res.status(404).end('ไม่พบสินค้า');}

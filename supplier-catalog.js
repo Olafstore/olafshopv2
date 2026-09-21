@@ -6,9 +6,9 @@
         id:prefix+p.id,supplierProductId:p.id,supplierProduct:true,name:p.name,category:'offline',label:'Steam Offline',
         price:p.price,compareAt:p.compareAt,stock:p.available?p.stock:0,sold:0,rating:'',publisher:'Steam',
         image:p.image,heroImage:p.screenshots?.[0]||p.image,gallery:p.screenshots||[],tags:p.genres||[],
-        description:p.description,delivery:'รับบัญชีในออเดอร์หลังตรวจชำระเงิน',warranty:'บัญชีเล่นออฟไลน์ ไม่ใช่ CD Key',
+        description:p.description,shortDescription:p.shortDescription||'',steamAppId:p.steamAppId,steamMetadataStatus:p.steamMetadataStatus,delivery:'รับบัญชีในออเดอร์หลังตรวจชำระเงิน',warranty:'บัญชีเล่นออฟไลน์ ไม่ใช่ CD Key',
         detailSections:[{title:'เงื่อนไขบัญชี Steam Offline',body:'ใช้เล่นออฟไลน์เท่านั้น ห้ามเปลี่ยนข้อมูลบัญชี ไม่ใช่บัญชีส่วนตัวหรือ CD Key'+(p.denuvo?' · มี Denuvo อาจต้องรอคิวเปิดใช้งาน':'')}],
-        systemRequirements:{minimum:p.requirements?[p.requirements]:[],recommended:[]},featureBlocks:[],platformLinks:[],steamRelatedLinks:[],badgeOverrides:[],
+        systemRequirements:{minimum:p.requirements?p.requirements.split('\n').filter(Boolean):[],recommended:p.recommendedRequirements?p.recommendedRequirements.split('\n').filter(Boolean):[]},featureBlocks:[],platformLinks:p.steamUrl?[{label:'Steam',url:p.steamUrl}]:[],steamRelatedLinks:[],badgeOverrides:[],
         isActive:true,sortOrder:0,checkoutEnabled:checkoutEnabled,denuvo:p.denuvo,rawPublic:p
       });
   async function catalog(force=false){

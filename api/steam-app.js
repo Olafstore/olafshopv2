@@ -1,3 +1,4 @@
+import {getSteamMetadata} from '../lib/steam-metadata.js';
 function firstImageFromHtml(value = "") {
   const match = String(value || "").match(/<img[^>]+src=["']([^"']+)["']/i);
   return match ? match[1].replace(/&amp;/g, "&") : "";
@@ -17,6 +18,11 @@ export default async function handler(request, response) {
   const appId = String(request.query?.appid || "").trim();
   if (!/^\d{1,12}$/.test(appId)) {
     return response.status(400).json({ error: "INVALID_APP_ID" });
+  }
+  if(request.query?.image==='header'){
+    try{const data=await getSteamMetadata(appId);if(!data.headerImage)throw new Error('MISSING_IMAGE');
+      response.setHeader('Cache-Control','public, max-age=3600, s-maxage=21600');response.setHeader('Location',data.headerImage);return response.status(302).end();
+    }catch{return response.status(404).end();}
   }
 
   try {

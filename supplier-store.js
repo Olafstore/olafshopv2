@@ -27,7 +27,7 @@
     if(body!==undefined)headers['Content-Type']='application/json';
     const res=await fetch(`/api/admin-supplier?action=shop-${action}`,{method:body===undefined?'GET':'POST',headers,cache:'no-store',...(body!==undefined?{body:JSON.stringify(body)}:{})});
     const result=await res.json();if(version!==epoch)throw new Error('SESSION_CHANGED');
-    if(!res.ok||!result.success)throw Object.assign(new Error(),{code:result.code});return result.data;
+    if(!res.ok||!result.success)throw Object.assign(new Error(),{code:result.code,diagnostics:result.diagnostics});return result.data;
   }
   async function apiOrder(id){const s=await session();const r=await fetch('/api/admin-supplier?action=shop-order&orderId='+encodeURIComponent(id),{headers:{Authorization:'Bearer '+s.access_token},cache:'no-store'});const j=await r.json();if(!j.success)throw Object.assign(new Error(),{code:j.code});return j.data;}
   function img(url,alt,cls){const n=el('img',undefined,cls);n.src=url;n.alt=alt;n.loading='lazy';n.referrerPolicy='no-referrer';return n;}
@@ -42,7 +42,7 @@
     if(!grid.children.length)grid.append(el('p','ยังไม่มีสินค้าที่ตรงกับการค้นหา หรือร้านยังไม่เปิดเผยรายการสินค้า'));
   }
   async function showProduct(p){
-    try {await session();const q=await api('quote',{productId:p.id});p={...p,price:q.price,available:q.available};checkoutEnabled=true;}catch(e){if(e.code==='AUTH_REQUIRED'){location.href='login.html?return='+encodeURIComponent(location.pathname+location.search);return;}notice(errors[e.code]||'ยังตรวจราคาล่าสุดไม่ได้ ['+(e.code||'NETWORK')+']');return;}
+    try {await session();const q=await api('quote',{productId:p.id});p={...p,price:q.price,available:q.available};checkoutEnabled=true;}catch(e){if(e.code==='AUTH_REQUIRED'){location.href='login.html?return='+encodeURIComponent(location.pathname+location.search);return;}const d=e.diagnostics;notice((errors[e.code]||'ยังตรวจราคาล่าสุดไม่ได้ ['+(e.code||'NETWORK')+']')+(d?' · HTTP '+d.upstreamStatus+' / '+d.responseFormat+' / '+(d.reason||'unknown'):''));return;}
     const box=$('supplier-detail-content');box.replaceChildren();if(p.image)box.append(img(p.image,p.name,'supplier-detail-image'));
     const title=el('h2',p.name);title.id='supplier-detail-title';box.append(title,el('p',p.genres.join(' · '),'supplier-tags'),price(p));
     box.append(el('p','บัญชี Steam สำหรับเล่นออฟไลน์ ไม่ใช่ CD Key ห้ามเปลี่ยนข้อมูลบัญชี และโปรดทำตามคู่มือที่ร้านแจ้ง'));

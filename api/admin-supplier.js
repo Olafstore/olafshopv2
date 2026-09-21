@@ -2,6 +2,7 @@ import {requireSupplierAdmin} from '../lib/suppliers/admin-access.js';
 import {readSupplierProducts,SupplierConnectionError,supplierConfigStatus,testSandboxPurchase,supplierErrorDiagnostics} from '../lib/suppliers/499k/client.js';
 import passwordHandler from '../lib/admin/user-password-handler.js';
 import importHandler from '../lib/suppliers/import-handler.js';
+import {createShopHandler} from '../lib/suppliers/shop-handler.js';
 
 export function createReadHandler({env=process.env,fetcher=fetch}={}) {
   return async function handler(req,res) {
@@ -34,13 +35,14 @@ export function createSandboxPurchaseHandler({env=process.env,fetcher=fetch}={})
     }
   };
 }
-export function createAdminRouter({readHandler=createReadHandler(),userPasswordHandler=passwordHandler,catalogImportHandler=importHandler,sandboxPurchaseHandler=createSandboxPurchaseHandler()}={}) {
+export function createAdminRouter({readHandler=createReadHandler(),userPasswordHandler=passwordHandler,catalogImportHandler=importHandler,sandboxPurchaseHandler=createSandboxPurchaseHandler(),shopHandler=createShopHandler()}={}) {
   return function handler(req,res) {
     if(req.query?.adminRoute==='user-password')return userPasswordHandler(req,res);
     if(req.query?.adminRoute){
       res.setHeader('Cache-Control','no-store');
       return res.status(404).json({success:false,error:{code:'ACTION_NOT_FOUND',message:'Unknown admin route'}});
     }
+    if(typeof req.query?.action==='string' && req.query.action.startsWith('shop-'))return shopHandler(req,res);
     if(req.query?.action==='import')return catalogImportHandler(req,res);
     if(req.query?.action==='sandbox-purchase')return sandboxPurchaseHandler(req,res);
     return readHandler(req,res);

@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import jsQR from "jsqr";
 import sharp from "sharp";
 import { slipVerify, trueMoneySlipVerify } from "promptparse/validate";
+import {fulfillSupplierAfterPayment} from '../lib/suppliers/shop-service.js';
 
 const RDCW_ENDPOINT = "https://suba.rdcw.co.th/v2/inquiry";
 const PAYMENT_SLIP_BUCKET = "payment-slips";
@@ -756,10 +757,12 @@ export default async function handler(request, response) {
     order = await fetchOrder(orderId, user.id, config);
     if (order.payment_status === "verified") {
       const shopPointsEarned = await callRpc("shop_reward_verified_topup", { p_order_id: order.id }, config);
+      const supplierFulfillment = await fulfillSupplierAfterPayment(order,user.id);
       return responseJson(response, 200, {
         success: true,
         alreadyVerified: true,
         shopPointsEarned,
+        supplierFulfillment,
         order: publicOrderResult({ order })
       });
     }
@@ -810,10 +813,12 @@ export default async function handler(request, response) {
     }, config);
     if (begin?.alreadyVerified) {
       const shopPointsEarned = await callRpc("shop_reward_verified_topup", { p_order_id: order.id }, config);
+      const supplierFulfillment = await fulfillSupplierAfterPayment(begin.order || order,user.id);
       return responseJson(response, 200, {
         success: true,
         alreadyVerified: true,
         shopPointsEarned,
+        supplierFulfillment,
         order: publicOrderResult(begin)
       });
     }
@@ -897,8 +902,10 @@ export default async function handler(request, response) {
       p_provider_payload: normalized.raw
     }, config);
 
+    const supplierFulfillment = await fulfillSupplierAfterPayment(fulfilled?.order || order,user.id);
     return responseJson(response, 200, {
       success: true,
+      supplierFulfillment,
       alreadyVerified: fulfilled?.alreadyVerified === true,
       pointCreditAmount: Number(fulfilled?.pointCreditAmount || 0),
       pointCredited: Number(fulfilled?.pointCreditAmount || 0) > 0,

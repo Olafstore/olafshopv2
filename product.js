@@ -3,6 +3,11 @@ const params = new URLSearchParams(location.search);
 const productId = params.get("id");
 let globalPayload = null;
 let currentProduct = null;
+window.addEventListener('olaf:supplier-catalog',event=>{
+  if(!currentProduct?.supplierProduct)return;
+  const fresh=event.detail.find(p=>p.id===currentProduct.id);
+  if(fresh){currentProduct={...currentProduct,...fresh};updatePurchaseDom();}
+});
 
 function showProductTagResults(tag) {
   let dialog = document.getElementById('product-tag-results');
@@ -103,7 +108,8 @@ const formatPrice = (v) =>
 
 const formatPointAmount = (v) =>
   new Intl.NumberFormat("th-TH", {
-    maximumFractionDigits: 0
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
   }).format(Math.floor(Number(v) || 0));
 
 function escapeHtml(value = "") {
@@ -2485,6 +2491,7 @@ function renderProduct() {
   });
 
   $("#btn-buy")?.addEventListener("click", () => {
+    if(currentProduct?.supplierProduct){window.OlafSupplierUI?.checkout(currentProduct.rawPublic);return;}
     const user = window.OlafStore.currentUser();
     if (!user) {
       showToast("กรุณาเข้าสู่ระบบก่อนสั่งซื้อ", "info");
@@ -2690,6 +2697,7 @@ function setCheckoutOrderDialogOpen(dialog, open = true, { immediate = false } =
 
 function openOrderForm() {
   const p = currentProduct;
+  if(p?.supplierProduct){window.OlafSupplierUI?.checkout(p.rawPublic);return;}
   const purchase = getPurchaseOption(p);
   const subtotal = purchase.price * detailQuantity;
   const fee = 0;

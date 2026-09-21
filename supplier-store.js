@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const $=id=>document.getElementById(id);
+  const adminPage=location.pathname.endsWith('/supplier-store.html');
   const el=(tag,text,cls)=>{const node=document.createElement(tag);if(text!==undefined)node.textContent=text;if(cls)node.className=cls;return node;};
   const money=n=>new Intl.NumberFormat('th-TH',{style:'currency',currency:'THB',minimumFractionDigits:2}).format(Number(n)||0);
   const button=(text,handler)=>{const b=el('button',text);b.type='button';b.addEventListener('click',()=>run(b,handler));return b;};
@@ -17,7 +18,8 @@
   let products=[],checkoutEnabled=false,currentOrder=null,epoch=0,guardTimer=null,guardVersion=0;
   const notice=message=>{$('supplier-notice').textContent=message;};
   function clearSecrets(){guardVersion++;clearInterval(guardTimer);guardTimer=null;document.querySelectorAll('[data-supplier-secret]').forEach(n=>n.remove());document.querySelectorAll('[data-guard-start]').forEach(n=>{delete n.dataset.locked;n.disabled=false;});}
-  async function run(control,task){control.disabled=true;try{await task();}catch(e){notice(errors[e.code]||'ทำรายการไม่สำเร็จ กรุณาโหลดสถานะใหม่ก่อนลองซ้ำ');}finally{if(control.isConnected)control.disabled=control.dataset.locked==='true';}}
+  Object.assign(errors,{SUPPLIER_MIGRATION_REQUIRED:'ยังไม่ได้ติดตั้ง SQL ชุดหน้าร้านหลัก กรุณาแจ้งแอดมิน',SUPPLIER_PERMISSION_REQUIRED:'สิทธิ์ฐานข้อมูลไม่พร้อม กรุณาแจ้งแอดมิน',SUPPLIER_SCHEMA_MISMATCH:'โครงสร้างฐานข้อมูลออเดอร์ไม่ตรง กรุณาแจ้งแอดมิน',SUPPLIER_DATABASE_UNAVAILABLE:'ฐานข้อมูลไม่พร้อม กรุณาลองใหม่',SERVER_CONFIG_REQUIRED:'Server Environment ยังไม่ครบ กรุณาแจ้งแอดมิน',MIN_TOPUP_REQUIRED:'ร้านยังไม่ผ่านเงื่อนไขยอดเติมของผู้ให้บริการ',SUPPLIER_PRICE_CHANGED:'ราคาเปลี่ยนแล้ว กรุณาปิดและเปิดสั่งซื้อใหม่เพื่อยืนยันราคาใหม่'});
+  async function run(control,task){control.disabled=true;try{await task();}catch(e){notice((errors[e.code]||'ทำรายการไม่สำเร็จ กรุณาโหลดสถานะใหม่ก่อนลองซ้ำ')+(e.code?' ['+e.code+']':''));}finally{if(control.isConnected)control.disabled=control.dataset.locked==='true';}}
   async function session(){const result=await window.olafSupabase.auth.getSession();if(result.error||!result.data?.session)throw Object.assign(new Error(),{code:'AUTH_REQUIRED'});return result.data.session;}
   async function api(action,body){
     const version=epoch;const headers={Accept:'application/json'};
@@ -27,6 +29,7 @@
     const result=await res.json();if(version!==epoch)throw new Error('SESSION_CHANGED');
     if(!res.ok||!result.success)throw Object.assign(new Error(),{code:result.code});return result.data;
   }
+  async function apiOrder(id){const s=await session();const r=await fetch('/api/admin-supplier?action=shop-order&orderId='+encodeURIComponent(id),{headers:{Authorization:'Bearer '+s.access_token},cache:'no-store'});const j=await r.json();if(!j.success)throw Object.assign(new Error(),{code:j.code});return j.data;}
   function img(url,alt,cls){const n=el('img',undefined,cls);n.src=url;n.alt=alt;n.loading='lazy';n.referrerPolicy='no-referrer';return n;}
   function price(p){const box=el('div');if(p.compareAt)box.append(el('del',money(p.compareAt),'supplier-compare'));box.append(el('strong',money(p.price),'supplier-price'));return box;}
   function renderCatalog(){
@@ -38,7 +41,8 @@
     }
     if(!grid.children.length)grid.append(el('p','ยังไม่มีสินค้าที่ตรงกับการค้นหา หรือร้านยังไม่เปิดเผยรายการสินค้า'));
   }
-  function showProduct(p){
+  async function showProduct(p){
+    try {await session();const q=await api('quote',{productId:p.id});p={...p,price:q.price,available:q.available};checkoutEnabled=true;}catch(e){if(e.code==='AUTH_REQUIRED'){location.href='login.html?return='+encodeURIComponent(location.pathname+location.search);return;}notice(errors[e.code]||'ยังตรวจราคาล่าสุดไม่ได้ ['+(e.code||'NETWORK')+']');return;}
     const box=$('supplier-detail-content');box.replaceChildren();if(p.image)box.append(img(p.image,p.name,'supplier-detail-image'));
     const title=el('h2',p.name);title.id='supplier-detail-title';box.append(title,el('p',p.genres.join(' · '),'supplier-tags'),price(p));
     box.append(el('p','บัญชี Steam สำหรับเล่นออฟไลน์ ไม่ใช่ CD Key ห้ามเปลี่ยนข้อมูลบัญชี และโปรดทำตามคู่มือที่ร้านแจ้ง'));
@@ -51,11 +55,12 @@
     const select=el('select');select.setAttribute('aria-label','ช่องทางชำระเงิน');for(const [value,label] of [['promptpay','PromptPay'],['wallet','TrueMoney Wallet']]){const o=el('option',label);o.value=value;select.append(o);}
     const buy=button('สั่งซื้อ 1 บัญชี',async()=>{
       if(!check.checked)return;
-      try{await session();}catch{location.href='login.html?return='+encodeURIComponent('supplier-store.html');return;}
+      try{await session();}catch{location.href='login.html?return='+encodeURIComponent(location.pathname+location.search);return;}
       const s=await session();const key=`supplier-request:${s.user.id}:${p.id}:${select.value}`;
       let requestId=sessionStorage.getItem(key);if(!requestId){requestId=crypto.randomUUID();sessionStorage.setItem(key,requestId);}
-      const order=await api('checkout',{productId:p.id,requestId,paymentMethod:select.value});
+      const order=await api('checkout',{productId:p.id,requestId,paymentMethod:select.value,expectedPrice:p.price});
       sessionStorage.removeItem(key);$('supplier-detail').close();notice('สร้างออเดอร์แล้ว ชำระยอดตามที่แสดงให้ครบถึงสตางค์');
+      if(!adminPage){location.href=`profile.html?order=${encodeURIComponent(order.id)}#orders`;return;}
       history.replaceState(null,'',`supplier-store.html?order=${encodeURIComponent(order.id)}#supplier-order`);await renderOrder(order);await loadOrders();
     });
     buy.disabled=true;check.addEventListener('change',()=>{buy.disabled=!check.checked||!checkoutEnabled||!p.available;});
@@ -65,7 +70,7 @@
   const labels={awaiting_payment:'รอชำระเงิน',waiting_admin:'กำลังตรวจชำระเงิน',confirmed:'ชำระแล้ว รอส่งมอบ',delivered:'ส่งมอบแล้ว',cancelled:'ยกเลิกแล้ว',expired:'หมดอายุ'};
   async function loadOrders(){
     const box=$('supplier-orders');let rows;
-    try{rows=await api('orders');}catch(e){box.replaceChildren(el('p',errors[e.code]||'ยังโหลดออเดอร์ไม่ได้'));if(e.code==='AUTH_REQUIRED'){const a=el('a','เข้าสู่ระบบ');a.href='login.html?return=supplier-store.html';box.append(a);}return;}
+    try{rows=await api('orders');}catch(e){box.replaceChildren(el('p',errors[e.code]||'ยังโหลดออเดอร์ไม่ได้'));if(e.code==='AUTH_REQUIRED'){const a=el('a','เข้าสู่ระบบ');a.href='login.html?return='+encodeURIComponent(location.pathname+location.search+'#orders');box.append(a);}return;}
     box.replaceChildren();for(const o of rows){const row=el('article',undefined,'supplier-order-row'),text=el('div');text.append(el('strong',o.name),el('small',`${o.orderNumber} · ${money(o.price)} · ${labels[o.status]||o.status}`));
       row.append(text,button('เปิดออเดอร์',()=>renderOrder(o)));box.append(row);}
     if(!rows.length)box.append(el('p','ยังไม่มีออเดอร์สินค้าอัตโนมัติ'));
@@ -139,19 +144,37 @@
       if(Date.now()>=validUntil-1000 && left>4&&!busy){busy=true;try{const next=await api('guard',{orderId:o.id});if(version!==guardVersion||document.hidden)return;code.textContent=next.code;validUntil=Date.now()+next.valid_for_sec*1000;windowUntil=Date.now()+next.window.expires_in_sec*1000;}catch(e){clearInterval(guardTimer);code.textContent='—';status.textContent=errors[e.code]||'ยังไม่ทราบผล กรุณารอ 65 วินาทีก่อนเปิดรอบใหม่';delete start.dataset.locked;start.disabled=false;}finally{busy=false;}}
     },1000);
   }
+  function mount(){
+    if(adminPage)return;
+    const root=el('section',undefined,'supplier-widget');root.id='supplier-customer-tools';
+    root.innerHTML='<p id="supplier-notice" role="status"></p><section id="supplier-orders-section"><h3>บัญชีอัตโนมัติและ Steam Guard</h3><button id="supplier-refresh" type="button">โหลดออเดอร์</button><div id="supplier-orders"></div><section id="supplier-order" hidden></section></section><dialog id="supplier-detail" class="supplier-widget" aria-labelledby="supplier-detail-title"><button class="supplier-close" type="button" aria-label="ปิด">×</button><div id="supplier-detail-content"></div></dialog>';
+    (document.querySelector('#panel-orders .profile-panel-body')||document.querySelector('#panel-orders')||document.body).append(root);
+    if(!location.pathname.endsWith('/profile.html')){root.classList.add('supplier-product-tools');$('supplier-orders-section').hidden=true;}
+  }
   async function init(){
-    $('supplier-search').addEventListener('input',renderCatalog);$('supplier-refresh').addEventListener('click',e=>run(e.currentTarget,loadOrders));
+    if(window.OlafProfileRoute?.visiting)return;
+    mount();
+    if(adminPage){
+      try{await api('readiness');document.querySelector('main').hidden=false;}
+      catch(e){document.querySelector('main').hidden=true;const msg=el('p',['AUTH_REQUIRED','ADMIN_REQUIRED'].includes(e.code)?'หน้านี้สำหรับแอดมินเท่านั้น กรุณาเข้าสู่ระบบบัญชีแอดมิน':'ตรวจความพร้อมไม่สำเร็จ ['+(e.code||'NETWORK')+'] กรุณาตรวจ SQL และ Environment');const a=el('a','เข้าสู่ระบบ');a.href='login.html?return=supplier-store.html';msg.append(a);document.body.append(msg);return;}
+    }
+    window.OlafSupplierUI={checkout:showProduct,openOrder:async id=>{location.hash='orders';await renderOrder(await apiOrder(id));}};
+    document.addEventListener('click',e=>{const control=e.target.closest('[data-supplier-order]');if(control){location.hash='orders';run(control,async()=>{await renderOrder(await apiOrder(control.dataset.supplierOrder));});}});
+
+    $('supplier-search')?.addEventListener('input',renderCatalog);$('supplier-refresh').addEventListener('click',e=>run(e.currentTarget,loadOrders));
     document.querySelector('.supplier-close').addEventListener('click',()=>$('supplier-detail').close());
     document.addEventListener('visibilitychange',()=>{if(document.hidden)clearSecrets();});window.addEventListener('pagehide',clearSecrets);
-    window.olafSupabase?.auth.onAuthStateChange((event)=>{if(['SIGNED_OUT','SIGNED_IN'].includes(event)){epoch++;clearSecrets();currentOrder=null;$('supplier-order').hidden=true;$('supplier-order').replaceChildren();$('supplier-orders').replaceChildren();$('supplier-admin').hidden=true;$('supplier-admin').replaceChildren();}});
-    try{const data=await api('catalog');products=data.products;checkoutEnabled=data.checkoutEnabled;renderCatalog();notice(checkoutEnabled?'เลือกเกมเพื่ออ่านรายละเอียดและสั่งซื้อ': 'กำลังเตรียมระบบขายอัตโนมัติ ยังไม่รับคำสั่งซื้อจริง');}catch{notice('ยังโหลดสินค้าอัตโนมัติไม่ได้ กรุณาลองใหม่ภายหลัง');}
-    await loadOrders();
+    window.olafSupabase?.auth.onAuthStateChange((event)=>{if(['SIGNED_OUT','SIGNED_IN'].includes(event)){epoch++;clearSecrets();currentOrder=null;$('supplier-order').hidden=true;$('supplier-order').replaceChildren();$('supplier-orders').replaceChildren();if($('supplier-admin')){$('supplier-admin').hidden=true;$('supplier-admin').replaceChildren();}if(adminPage&&event==='SIGNED_OUT')document.querySelector('main').hidden=true;}});
+    if(adminPage){try{const data=await api('catalog');products=data.products;checkoutEnabled=data.checkoutEnabled;renderCatalog();notice(checkoutEnabled?'สินค้าแสดงในหมวดเกมออฟไลน์หน้าร้านหลักแล้ว':'ยังไม่พร้อมรับคำสั่งซื้อ กรุณาตรวจ Environment / SQL');}catch{notice('ยังโหลดสินค้าไม่ได้');}}
+    if(adminPage||location.pathname.endsWith('/profile.html'))await loadOrders();
+    if(!adminPage)return;
     try{
       const state=await api('readiness'),admin=$('supplier-admin');admin.hidden=false;admin.replaceChildren(el('h2','สำหรับแอดมิน: ความพร้อมระบบ 499K'));
       admin.append(el('p',`ฐานข้อมูล: ${state.database.revision} · สินค้าเผยแพร่: ${state.database.visibleProducts} · ออเดอร์ต้องตรวจ: ${state.database.ordersNeedingReview}`));
       admin.append(el('p',`Live Key: ${state.liveKeyReady?'พร้อม':'ไม่พร้อม'} · คีย์เข้ารหัส: ${state.deliveryKeyReady?'พร้อม':'ไม่พร้อม'} · ซื้อจริง: ${state.purchaseEnabled?'เปิด':'ปิด'}`));
-      const publish=button('เผยแพร่ Steam Offline (กำไรขั้นต้น 25%)',async()=>{
-        if(!confirm('ยืนยันเผยแพร่สินค้า 499K Steam Offline และตั้งราคากำไรขั้นต้น 25%? ลูกค้าจะเริ่มสั่งซื้อได้ ไม่เปลี่ยนสินค้าเดิม'))return;
+      admin.append(el('p',`สูตรราคา: ต้นทุน × 1.50 · ซิงก์ล่าสุด: ${state.database.lastPriceSync?new Date(state.database.lastPriceSync).toLocaleString('th-TH'):'ยังไม่มีผลซิงก์'}`));
+      const publish=button('เผยแพร่ Steam Offline (กำไร 50% ของต้นทุน)',async()=>{
+        if(!confirm('ยืนยันเผยแพร่สินค้า 499K Steam Offline และตั้งราคากำไร 50% ของต้นทุน? ลูกค้าจะเริ่มสั่งซื้อได้ ไม่เปลี่ยนสินค้าเดิม'))return;
         const result=await api('publish',{confirmation:'PUBLISH_499K_OFFLINE'});notice(`เผยแพร่ ${result.published} รายการแล้ว`);
         const data=await api('catalog');products=data.products;checkoutEnabled=data.checkoutEnabled;renderCatalog();
       });publish.disabled=!(state.deliveryKeyReady&&state.liveKeyReady&&state.purchaseEnabled);admin.append(publish);

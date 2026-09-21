@@ -1,5 +1,7 @@
 import {readFileSync} from 'node:fs';
 import {getProducts,metadata,escape} from '../lib/seo.js';
+import {createShopDb,uuid} from '../lib/suppliers/shop-db.js';
+import {publicSupplierProduct} from '../lib/suppliers/shop-service.js';
 const template=readFileSync(new URL('../product.html',import.meta.url),'utf8');
 export function renderProduct(product){
  const m=metadata(product);
@@ -14,7 +16,13 @@ export default async function handler(req,res){
  res.setHeader('Content-Type','text/html; charset=utf-8');
  const id=new URL(req.url,'https://olafshop.com').searchParams.get('id');
  if(!id||id.length>180||/[\x00-\x1f\x7f/\\]/.test(id)){res.setHeader('X-Robots-Tag','noindex');return res.status(404).end('ไม่พบสินค้า');}
- try{const [product]=await getProducts(id);if(!product){res.setHeader('X-Robots-Tag','noindex');return res.status(404).end('ไม่พบสินค้า');}
+ try{let product;
+ if(id.startsWith('supplier-')){
+   const key=id.slice(9);if(!uuid(key))return res.status(404).end('ไม่พบสินค้า');
+   const [row]=await createShopDb().select('supplier_products',{select:'id,name,description,image,stock,selling_price,full_price,denuvo,steam',id:`eq.${key}`,supplier:'eq.499k',product_type:'eq.offline',platform:'eq.steam',status:'eq.active',is_visible:'eq.true',selling_price:'gt.0',limit:'1'});
+   if(row)product={...publicSupplierProduct(row),id,category:'offline'};
+ }else [product]=await getProducts(id);
+ if(!product){res.setHeader('X-Robots-Tag','noindex');return res.status(404).end('ไม่พบสินค้า');}
  res.setHeader('Cache-Control','public, max-age=0, s-maxage=300');return res.status(200).end(req.method==='HEAD'?'':renderProduct(product));
  }catch{res.setHeader('Cache-Control','no-store');res.setHeader('Retry-After','60');return res.status(503).end('โหลดสินค้าไม่สำเร็จ กรุณาลองใหม่');}
 }

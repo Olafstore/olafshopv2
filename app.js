@@ -310,7 +310,8 @@ const formatPrice = (value) =>
   new Intl.NumberFormat("th-TH", {
     style: "currency",
     currency: "THB",
-    maximumFractionDigits: 0
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
   }).format(value);
 
 const formatPointAmount = (value) =>
@@ -3556,6 +3557,7 @@ function renderProductDetail(product) {
 
 function addToCart(productId, quantity = 1) {
   const product = productById(productId);
+  if(product?.supplierProduct){location.href='product.html?id='+encodeURIComponent(product.id);return;}
   if (!product || product.stock <= 0) return;
 
   const current = state.cart.get(productId) ?? 0;
@@ -4246,6 +4248,12 @@ function resetTagOnReload() {
   url.searchParams.delete('category');
   window.history.replaceState(null, '', url.href);
 }
+
+window.addEventListener('olaf:supplier-catalog',event=>{
+  if(!Array.isArray(state.products))return;
+  state.products=[...state.products.filter(p=>!p.supplierProduct),...event.detail];
+  renderCategories();renderProducts();
+});
 resetTagOnReload();
 
 function applySearchFromUrl() {

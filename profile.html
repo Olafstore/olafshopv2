@@ -18,6 +18,7 @@
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" defer></script>
   <script src="slip-qr-scanner.js?v=20260621-slip-verify-v2" defer></script>
   <script src="supabase-client.js?v=20260909-updates-v224" defer></script>
+  <script src="supplier-catalog.js?v=2" defer></script>
   <script src="order-action-popup.js?v=20260621-order-animation" defer></script>
   <script src="platform-store.js?v=20260619-profile-update-fix" defer></script>
   <link rel="stylesheet" href="friends.css?v=20260910-mobile-launch-v242" />
@@ -2877,6 +2878,8 @@
     <link rel="stylesheet" href="friends-premium.css?v=20260913-v258" />
   <script src="friends-social.js?v=20260913-v259" defer></script>
   <link rel="stylesheet" href="friends-layout.css?v=20260913-v259" />
+  <link rel="stylesheet" href="supplier-widgets.css?v=2">
+  <script src="supplier-store.js?v=2" defer></script>
 </head>
 
 <body class="profile-page">
@@ -2960,7 +2963,7 @@
           <h1 id="profile-display-name">กำลังโหลด...</h1>
           <p id="profile-meta">กำลังโหลด...</p>
           <div class="profile-hero-actions">
-            <a class="secondary-button" href="supplier-store.html#orders">บัญชีอัตโนมัติ / Steam Guard</a>
+            <a class="secondary-button" href="#orders">บัญชีอัตโนมัติ / Steam Guard</a>
             <button class="primary-button" type="button" id="logout-btn-hidden" style="min-height:36px; font-size:0.82rem">
               <i data-lucide="log-out"></i>
               ออกจากระบบ
@@ -3307,7 +3310,7 @@
     }
 
     function formatPrice(v) {
-      return new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', maximumFractionDigits: 0 }).format(Number(v) || 0);
+      return new Intl.NumberFormat('th-TH', { style: 'currency', currency: 'THB', minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(Number(v) || 0);
     }
 
     function formatPointAmount(v) {
@@ -3819,9 +3822,9 @@
                 ${orderCountdownMarkup(o)}
               </div>
               <div class="profile-order-cell profile-order-action" data-label="จัดการ">
-                <button class="profile-order-open" type="button" data-open-order="${escape(o.id)}">
+                <button class="profile-order-open supplier-order-button" type="button" ${String(o.orderNumber||'').startsWith('S499-') ? 'data-supplier-order' : 'data-open-order'}="${escape(o.id)}">
                   <i data-lucide="arrow-up-right" style="width:15px;height:15px"></i>
-                  ${isPointTopupOrder(o) ? 'ดูรายการ' : 'เปิดในคลัง'}
+                  ${String(o.orderNumber||'').startsWith('S499-') ? 'รับบัญชี / Steam Guard' : isPointTopupOrder(o) ? 'ดูรายการ' : 'เปิดในคลัง'}
                 </button>
               </div>
               ${String(o.paymentVerificationNote || '') === 'PAYMENT_AMOUNT_INSUFFICIENT' || String(o.paymentVerificationNote || '') === 'PAYMENT_AMOUNT_INSUFFICIENT_POINTS_CREDITED' ? `

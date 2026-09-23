@@ -676,7 +676,7 @@ async function fetchSupabaseProductPayload() {
     updatedAt: new Date().toISOString(),
     store: jsonPayload?.store ?? {},
     categories: deriveCategories(products, jsonPayload?.categories),
-    products
+    products:products.map(p=>window.OlafAgeGate?.protect(p)||p)
   };
 }
 
@@ -1718,6 +1718,7 @@ function steamAppIdForProduct(product = {}) {
 }
 
 function productImageFallbacks(product = {}, primary = "") {
+  if(product.ageLocked)return [];
   const appId = steamAppIdForProduct(product);
   return [...new Set([
     product.image,
@@ -2048,6 +2049,7 @@ function renderProduct() {
   }
 
   currentProduct = globalPayload.products.find((p) => p.id === productId);
+  currentProduct=window.OlafAgeGate?.protect(currentProduct)||currentProduct;
 
   if (!currentProduct) {
     container.innerHTML = `<div class="empty-state"><i data-lucide="package-x"></i><h3>ไม่พบสินค้า</h3><a href="index.html" class="primary-button" style="margin-top: 16px;">กลับหน้าแรก</a></div>`;

@@ -19,6 +19,7 @@
   const notice=message=>{$('supplier-notice').textContent=message;};
   function clearSecrets(){guardVersion++;clearInterval(guardTimer);guardTimer=null;document.querySelectorAll('[data-supplier-secret]').forEach(n=>n.remove());document.querySelectorAll('[data-guard-start]').forEach(n=>{delete n.dataset.locked;n.disabled=false;});}
   Object.assign(errors,{SUPPLIER_MIGRATION_REQUIRED:'ยังไม่ได้ติดตั้ง SQL ชุดหน้าร้านหลัก กรุณาแจ้งแอดมิน',SUPPLIER_PERMISSION_REQUIRED:'สิทธิ์ฐานข้อมูลไม่พร้อม กรุณาแจ้งแอดมิน',SUPPLIER_SCHEMA_MISMATCH:'โครงสร้างฐานข้อมูลออเดอร์ไม่ตรง กรุณาแจ้งแอดมิน',SUPPLIER_DATABASE_UNAVAILABLE:'ฐานข้อมูลไม่พร้อม กรุณาลองใหม่',SERVER_CONFIG_REQUIRED:'Server Environment ยังไม่ครบ กรุณาแจ้งแอดมิน',MIN_TOPUP_REQUIRED:'ร้านยังไม่ผ่านเงื่อนไขยอดเติมของผู้ให้บริการ',SUPPLIER_PRICE_CHANGED:'ราคาเปลี่ยนแล้ว กรุณาปิดและเปิดสั่งซื้อใหม่เพื่อยืนยันราคาใหม่'});
+  errors.SUPPLIER_UPSTREAM_BLOCKED='499K ปฏิเสธการเชื่อมต่อจากเซิร์ฟเวอร์ร้าน กรุณาติดต่อร้าน ยังไม่มีการสั่งซื้อหรือตัดเงิน';
   async function run(control,task){control.disabled=true;try{await task();}catch(e){notice((errors[e.code]||'ทำรายการไม่สำเร็จ กรุณาโหลดสถานะใหม่ก่อนลองซ้ำ')+(e.code?' ['+e.code+']':''));}finally{if(control.isConnected)control.disabled=control.dataset.locked==='true';}}
   async function session(){const result=await window.olafSupabase.auth.getSession();if(result.error||!result.data?.session)throw Object.assign(new Error(),{code:'AUTH_REQUIRED'});return result.data.session;}
   async function api(action,body){
@@ -173,6 +174,7 @@
       admin.append(el('p',`ฐานข้อมูล: ${state.database.revision} · สินค้าเผยแพร่: ${state.database.visibleProducts} · ออเดอร์ต้องตรวจ: ${state.database.ordersNeedingReview}`));
       admin.append(el('p',`Live Key: ${state.liveKeyReady?'พร้อม':'ไม่พร้อม'} · คีย์เข้ารหัส: ${state.deliveryKeyReady?'พร้อม':'ไม่พร้อม'} · ซื้อจริง: ${state.purchaseEnabled?'เปิด':'ปิด'}`));
       admin.append(el('p',`สูตรราคา: ต้นทุน × 1.50 · ซิงก์ล่าสุด: ${state.database.lastPriceSync?new Date(state.database.lastPriceSync).toLocaleString('th-TH'):'ยังไม่มีผลซิงก์'}`));
+      admin.append(button('ตรวจการเชื่อมต่อ / Jurassic (ไม่สั่งซื้อ)',async()=>{try{const data=await api('diagnose');notice(JSON.stringify(data,null,2));}catch(e){notice('ตรวจไม่ได้ ['+(e.code||'NETWORK')+']');}}));
       const publish=button('เผยแพร่ Steam Offline (กำไร 50% ของต้นทุน)',async()=>{
         if(!confirm('ยืนยันเผยแพร่สินค้า 499K Steam Offline และตั้งราคากำไร 50% ของต้นทุน? ลูกค้าจะเริ่มสั่งซื้อได้ ไม่เปลี่ยนสินค้าเดิม'))return;
         const result=await api('publish',{confirmation:'PUBLISH_499K_OFFLINE'});notice(`เผยแพร่ ${result.published} รายการแล้ว`);

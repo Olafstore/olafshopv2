@@ -1,10 +1,12 @@
 import {readFileSync} from 'node:fs';
-import {getProducts,metadata,escape} from '../lib/seo.js';
+import {getProducts,metadata,escape,fallbackImage} from '../lib/seo.js';
 import {createShopDb,uuid} from '../lib/suppliers/shop-db.js';
 import {publicSupplierProduct} from '../lib/suppliers/shop-service.js';
 const template=readFileSync(new URL('../product.html',import.meta.url),'utf8');
 export function renderProduct(product){
- const m=metadata(product);
+ // SSR/preloads cannot know session age consent: never emit unchecked supplier artwork.
+ const restricted=String(product.id).startsWith('supplier-') || ['offline','steam-key'].includes(product.category) || /https:\/\/[^/]*steamstatic\.com\//.test(product.image_url||product.image||'') || product.ageRestricted===true || Number(product.requiredAge||product.required_age)>=18 || /18\s*\+|🔞|sexual content|nudity|adult only/i.test([product.name,...(product.tags||[])].join(' '));
+ const m=metadata(restricted?{...product,image:fallbackImage,image_url:fallbackImage,heroImage:fallbackImage,hero_image_url:fallbackImage}:product);
  const skeleton=template.match(/<main id="product-page">([\s\S]*?)<\/main>/)?.[1]||'';
  // Keep a real readable server summary when scripting is disabled or fails.
  // The normal product renderer replaces the entire main when data is ready.

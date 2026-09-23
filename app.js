@@ -1437,7 +1437,7 @@ function applyPayload(payload) {
     visibleProducts,
     Array.isArray(payload.categories) ? payload.categories : fallbackPayload.categories
   );
-  state.products = visibleProducts.map((product) => ({
+  state.products = visibleProducts.map(product=>window.OlafAgeGate?.protect(product)||product).map((product) => ({
     ...product,
     name: cleanDisplayText(product.name),
     publisher: cleanDisplayText(product.publisher),
@@ -2812,7 +2812,7 @@ function steamEditorialFeatureMarkup(product) {
               })} />
             </a>
           `).join("")}
-          ${Array.from({length:4-gallery.length}, () => '<span class="catalog-shot-empty">ยังไม่มีภาพตัวอย่างเพิ่มเติม</span>').join('')}
+          ${Array.from({length:4-gallery.length}, () => `<span class="catalog-shot-empty">${product.ageLocked?'ยืนยันอายุเพื่อแสดงภาพ':'ยังไม่มีภาพตัวอย่างเพิ่มเติม'}</span>`).join('')}
         </div>
       </div>
       <div class="catalog-mobile-tags catalog-product-tags">${catalogProductTagsMarkup(product)}</div>
@@ -4253,6 +4253,15 @@ window.addEventListener('olaf:supplier-catalog',event=>{
   if(!Array.isArray(state.products))return;
   state.products=[...state.products.filter(p=>!p.supplierProduct),...event.detail];
   renderCategories();renderProducts();
+});
+window.addEventListener('olaf:supplier-media',event=>{
+  const product=event.detail;if(!product?.id||!Array.isArray(state.products))return;
+  const old=state.products.find(p=>p.id===product.id);if(old)Object.assign(old,product);
+  // Replace only this feature, keeping discovery order, scroll and other cards intact.
+  document.querySelectorAll('[data-discovery-product]').forEach(card=>{
+    if(card.dataset.discoveryProduct===product.id)card.outerHTML=steamEditorialFeatureMarkup(product);
+  });
+  hydrateImages();
 });
 resetTagOnReload();
 

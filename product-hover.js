@@ -68,6 +68,8 @@
     popup.style.left=left+'px';popup.style.top=top+'px';
   }
   function render(card,product,loading=false){
+    product=window.OlafAgeGate?.protect(product)||product;
+    if(product?.ageLocked || (!product&&card.querySelector('img[src*="#olaf-age-"]'))){hide();return;}
     if(!popup){popup=document.createElement('aside');popup.className='product-hover-preview';popup.hidden=true;popup.setAttribute('aria-hidden','true');document.body.append(popup);}
     const image=galleryImages(product)[0]||'';
     const cover=safeImage(product?.image)||image;

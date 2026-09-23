@@ -24,6 +24,10 @@ export default async function handler(request, response) {
       response.setHeader('Cache-Control','public, max-age=3600, s-maxage=21600');response.setHeader('Location',data.headerImage);return response.status(302).end();
     }catch{return response.status(404).end();}
   }
+  if(request.query?.view==='media'){
+    try{const data=await getSteamMetadata(appId);response.setHeader('Cache-Control','public, max-age=3600, s-maxage=21600');return response.status(200).json(data);}
+    catch{return response.status(502).json({error:'STEAM_UNAVAILABLE'});}
+  }
 
   try {
     const steamResponse = await fetch(

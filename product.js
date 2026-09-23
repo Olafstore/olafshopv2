@@ -720,7 +720,8 @@ async function fetchStorePayload(quiet = false) {
   return null;
 }
 
-function getStockState(stock) {
+function getStockState(stock,product=currentProduct) {
+  if(product?.supplierProduct)return {label:stock>0?'พร้อมจำหน่าย':'สินค้าหมด',className:stock>0?'in-stock':'out-stock'};
   if (stock > 10) return { label: "มีสินค้า", className: "in-stock" };
   if (stock > 0) return { label: `เหลือ ${stock} ชิ้น`, className: "low-stock" };
   return { label: "สินค้าหมด", className: "out-stock" };
@@ -1943,7 +1944,7 @@ function pickRelatedProducts(product, sourceProducts = globalPayload?.products |
 
 function renderRelatedProductCards(products = []) {
   return products.map((rp) => {
-    const rpStock = getStockState(rp.stock);
+    const rpStock = getStockState(rp.stock,rp);
     const rpDiscount = getDiscount(rp);
     const imageSource = rp.image || rp.heroImage || window.OlafImages?.fallbackImage || "";
     return `

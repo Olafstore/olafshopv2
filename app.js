@@ -129,7 +129,7 @@ const state = {
   steamPreviewOrder: [],
   heroCatalogLoading: true,
   homeCategory: "",
-  selectedCategory: "all",
+  selectedCategory: "offline",
   selectedTag: "",
   query: "",
   stockOnly: false,
@@ -418,10 +418,7 @@ function t(key) {
 }
 
 function getCatalogItemsPerPage() {
-  const grid = document.querySelector("#product-grid");
-  const tracks = grid ? window.getComputedStyle(grid).gridTemplateColumns : "";
-  const columns = tracks && tracks !== "none" ? tracks.trim().split(/\s+/).length : 4;
-  return Math.max(1, columns) * 6;
+  return 24;
 }
 
 function bindCatalogRowLimit() {
@@ -647,6 +644,10 @@ function getDiscount(product) {
 }
 
 function getStockState(stock) {
+  if(stock&&typeof stock==='object'){
+    if(stock.supplierProduct)return {className:Number(stock.stock)>0?'in-stock':'out-stock',label:Number(stock.stock)>0?'พร้อมจำหน่าย':'สินค้าหมด'};
+    stock=stock.stock;
+  }
   if (stock <= 0) return { className: "out-stock", label: "สินค้าหมด" };
   if (stock <= 5) return { className: "low-stock", label: `เหลือ ${stock} ชิ้น` };
   return { className: "in-stock", label: `พร้อมส่ง ${stock} ชิ้น` };
@@ -2211,7 +2212,7 @@ function steamSpotlightMarkup(product, products) {
   const cover = images[0] || product.image || product.heroImage || "";
   const thumbs = images.length > 1 ? images.slice(1, 5) : images.slice(0, 1);
   const tags = getDisplayTags(product, 5);
-  const stock = getStockState(product.stock);
+  const stock = getStockState(product);
   const index = products.findIndex((item) => item.id === product.id);
   const neighbor = (step) => {
     const item = products[(index + step + products.length) % products.length];
@@ -2289,7 +2290,7 @@ function renderSteamSpotlightStage() {
 
 function steamDealCardMarkup(product) {
   const image = product.image || product.heroImage || "";
-  const stock = getStockState(product.stock);
+  const stock = getStockState(product);
   return `
     <a class="olaf-steam-deal-card" href="${productLink(product)}">
       <span class="olaf-steam-deal-media">
@@ -2348,7 +2349,7 @@ function renderSteamDiscoveryContent() {
   content.innerHTML = `
     <div class="olaf-steam-discovery-list">
       ${products.map((product) => {
-        const stock = getStockState(product.stock);
+  const stock = getStockState(product);
         const tags = getDisplayTags(product, 3);
         const image = product.image || product.heroImage || "";
         return `
@@ -2778,7 +2779,7 @@ function catalogDiscoveryShelfMarkup(shelf) {
 function steamEditorialFeatureMarkup(product) {
   const mainImage = product.image || product.heroImage || productOwnedImages(product, 1)[0] || "";
   const gallery = productOwnedImages(product, 8).filter(image => image !== mainImage).slice(0, 4);
-  const stock = getStockState(product.stock);
+  const stock = getStockState(product);
   return `
     <article class="olaf-steam-taste-row" data-discovery-product="${escapeHtml(product.id)}">
       <header class="olaf-steam-taste-head">
@@ -3063,7 +3064,7 @@ function renderCategoryLayerShowcase() {
 
   const cards = products.slice(1).map((product) => {
     const discount = getDiscount(product);
-    const stock = getStockState(product.stock);
+  const stock = getStockState(product);
     const cardMeta = product._categoryLayerSupplement
       ? `แนะนำจากร้าน · ${stock.label}`
       : stock.label;
@@ -3083,7 +3084,7 @@ function renderCategoryLayerShowcase() {
   }).join("");
 
   const leadDiscount = getDiscount(lead);
-  const leadStock = getStockState(lead.stock);
+    const leadStock = getStockState(lead);
   section.hidden = false;
   section.innerHTML = `
     <div class="category-layer-heading">
@@ -3172,10 +3173,9 @@ function renderProducts() {
 
   const totalPages = Math.ceil(products.length / itemsPerPage) || 1;
   state.currentPage = Math.min(Math.max(1, state.currentPage), totalPages);
-  const startIndex = (state.currentPage - 1) * itemsPerPage;
-  const paginatedProducts = products.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedProducts = products.slice(0, state.currentPage * itemsPerPage);
 
-  $(selectors.featuredGrid).innerHTML = state.currentPage === 1
+  $(selectors.featuredGrid).innerHTML = products.length > 0
     ? featured.map((product, index) => renderFeatureCard(product, index)).join("")
     : "";
   $(selectors.productGrid).innerHTML = paginatedProducts
@@ -3192,26 +3192,10 @@ function renderProducts() {
 function renderPagination(totalPages) {
   const container = $(selectors.paginationControls);
   if (!container) return;
+  container.innerHTML=state.currentPage<totalPages
+    ? `<div class="pagination"><button class="pagination-btn" type="button" data-catalog-more>โหลดสินค้าเพิ่มอีก 24 รายการ</button></div>` : '';
+  return;
 
-  if (totalPages <= 1) {
-    container.innerHTML = "";
-    return;
-  }
-
-  let html = `<div class="pagination">`;
-
-  if (state.currentPage > 1) {
-    html += `<button class="pagination-btn" type="button" data-page="${state.currentPage - 1}"><i data-lucide="chevron-left"></i> ย้อนกลับ</button>`;
-  }
-
-  html += `<span class="pagination-info">หน้า ${state.currentPage} จาก ${totalPages}</span>`;
-
-  if (state.currentPage < totalPages) {
-    html += `<button class="pagination-btn" type="button" data-page="${state.currentPage + 1}">ถัดไป <i data-lucide="chevron-right"></i></button>`;
-  }
-
-  html += `</div>`;
-  container.innerHTML = html;
 }
 
 
@@ -3322,6 +3306,7 @@ function renderMemberDashboard() {
 function showToast(message, type = "success", duration = 3500) {
   const container = document.querySelector("#toast-container");
   if (!container) return;
+
   const toast = document.createElement("div");
   const iconMap = {
     success: "check-circle",
@@ -3450,7 +3435,7 @@ function closeUserPopover() {
 }
 
 function renderFeatureCard(product, index = 0) {
-  const stock = getStockState(product.stock);
+  const stock = getStockState(product);
   return `
     <article class="feature-card">
       <img ${fastImg(product.image || product.heroImage, product.name, catalogImageOptions(index, true))} />
@@ -3467,7 +3452,7 @@ function renderFeatureCard(product, index = 0) {
 }
 
 function renderProductCard(product, index = 0) {
-  const stock = getStockState(product.stock);
+  const stock = getStockState(product);
   const discount = getDiscount(product);
   const publisher = String(product.publisher || "").trim();
   const tags = catalogProductTagsMarkup(product);
@@ -3514,7 +3499,7 @@ function openProduct(productId) {
 }
 
 function renderProductDetail(product) {
-  const stock = getStockState(product.stock);
+  const stock = getStockState(product);
   const discount = getDiscount(product);
   const tags = getDisplayTags(product, 5).map((tag) => `<a class="tag" href="index.html?tag=${encodeURIComponent(tag)}#catalog">${escapeHtml(tag)}</a>`).join("");
   const canAdd = product.stock > 0;
@@ -3854,6 +3839,7 @@ function bindEvents() {
     const copyOrder = event.target.closest("[data-copy-order]");
     const authFromReview = event.target.closest("[data-open-auth-from-review]");
     const logoutButton = event.target.closest("[data-logout]");
+    if(event.target.closest('[data-catalog-more]')){state.currentPage++;renderProducts();return;}
     const pageButton = event.target.closest("[data-page]");
     const homeCategoryButton = event.target.closest("[data-home-category]");
     const homeCategoryViewButton = event.target.closest("[data-home-category-view]");

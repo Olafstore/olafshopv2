@@ -72,6 +72,17 @@
 
   function imgAttrs(src, alt = "", options = {}) {
     let url = String(src || "").trim();
+    // Prefer large artwork belonging to this exact Steam app, with a bounded fallback chain.
+    try{
+      const u=new URL(url,window.location.href);
+      const match=/(^|\.)steamstatic\.com$/.test(u.hostname)?u.pathname.match(/^(.*\/apps\/\d+\/)header(?:_292x136)?\.jpg$/):null;
+      const proxy=u.origin===window.location.origin&&u.pathname==='/api/steam-app'&&u.searchParams.get('image')==='header'&&/^\d{1,9}$/.test(u.searchParams.get('appid')||'');
+      if(match||proxy){
+        const folder=match?u.origin+match[1]:`https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${u.searchParams.get('appid')}/`;
+        const original=url;url=folder+'library_hero.jpg';
+        options={...options,fallbacks:[folder+'header.jpg',original,...(options.fallbacks||[])]};
+      }
+    }catch{}
     const artwork = document.body?.matches(".home-page, .extras-page") ? windowsArtwork.get(url) : null;
     if (artwork) {
       const original = url;

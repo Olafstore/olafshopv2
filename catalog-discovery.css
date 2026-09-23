@@ -190,3 +190,12 @@ body.home-page .olaf-steam-tags a,body.home-page .olaf-preview-tags a { display:
 @media(min-width:641px) and (max-width:1180px) and (orientation:portrait) {
   body.home-page .hero-deal { width:min(100%,520px); max-width:520px; justify-self:end; margin-left:auto; margin-right:0; }
 }
+/* Keep a single banner from stretching into a full-height preview. */
+body.home-page .olaf-steam-discovery-preview img,
+body.home-page .olaf-steam-preview img {
+  object-fit: contain;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  max-height: 320px;
+  background: #07121c;
+}

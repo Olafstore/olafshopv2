@@ -26,9 +26,9 @@
     if(!force&&Date.now()<expires)return snapshot;
     if(pending)return pending;
     pending=(async()=>{
-      const r=await fetch('/api/admin-supplier?action=shop-catalog',{cache:'no-store'});const j=await r.json();
+      const r=await fetch('/api/admin-supplier?action=shop-catalog',{credentials:'omit'});const j=await r.json();
       if(!r.ok||!j.success||!Array.isArray(j.data?.products))throw new Error('SUPPLIER_CATALOG_UNAVAILABLE');
-      snapshot=j.data.products.map(p=>mapProduct({...p,...metadata.get(p.id),price:p.price,stock:p.stock,available:p.available,compareAt:p.compareAt},j.data.checkoutEnabled));expires=Date.now()+55000;return snapshot;
+      snapshot=j.data.products.map(p=>mapProduct({...p,...metadata.get(p.id),price:p.price,stock:p.stock,available:p.available,compareAt:p.compareAt},j.data.checkoutEnabled));expires=Date.now()+60000;return snapshot;
     })();try{return await pending;}finally{pending=null;}
   }
   const active=base.fetchActiveProducts,byId=base.fetchProductById,packages=base.fetchActiveProductPackages,related=base.fetchRelatedProducts;
@@ -62,7 +62,8 @@
     const scan=()=>document.querySelectorAll('img').forEach(img=>{if(img.dataset.supplierMediaObserved)return;img.dataset.supplierMediaObserved='true';observer.observe(img);});
     scan();new MutationObserver(scan).observe(document.body,{childList:true,subtree:true});
   });
-  setInterval(async()=>{if(document.hidden)return;try{const products=await catalog(true);window.dispatchEvent(new CustomEvent('olaf:supplier-catalog',{detail:products}));}catch{/* Never replace a working legacy catalog on supplier failure. */}},60000);
+  // No per-tab background polling of the full catalog. Explicit page loads/data
+  // requests refresh it; checkout still obtains a fresh server-side price quote.
   const orders=window.OlafOrders;
   if(orders?.fetchMyOrders){const original=orders.fetchMyOrders;orders.fetchMyOrders=async function(...args){
     const rows=await original.apply(orders,args);if(!rows.some(o=>String(o.orderNumber).startsWith('S499-')))return rows;

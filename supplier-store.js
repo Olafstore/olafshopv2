@@ -174,7 +174,7 @@
       admin.append(el('p',`ฐานข้อมูล: ${state.database.revision} · สินค้าเผยแพร่: ${state.database.visibleProducts} · ออเดอร์ต้องตรวจ: ${state.database.ordersNeedingReview}`));
       admin.append(el('p',`Live Key: ${state.liveKeyReady?'พร้อม':'ไม่พร้อม'} · คีย์เข้ารหัส: ${state.deliveryKeyReady?'พร้อม':'ไม่พร้อม'} · ซื้อจริง: ${state.purchaseEnabled?'เปิด':'ปิด'}`));
       admin.append(el('p',`สูตรราคา: ต้นทุน × 1.50 · ซิงก์ล่าสุด: ${state.database.lastPriceSync?new Date(state.database.lastPriceSync).toLocaleString('th-TH'):'ยังไม่มีผลซิงก์'}`));
-      admin.append(button('ตรวจการเชื่อมต่อ / Jurassic (ไม่สั่งซื้อ)',async()=>{try{const data=await api('diagnose');notice(JSON.stringify(data,null,2));}catch(e){notice('ตรวจไม่ได้ ['+(e.code||'NETWORK')+']');}}));
+      admin.append(button('ตรวจบัญชี / แคตตาล็อก / สินค้า (ไม่สั่งซื้อ)',async()=>{try{const data=await api('diagnose');notice(JSON.stringify(data,null,2));}catch(e){notice('ตรวจไม่ได้ ['+(e.code||'NETWORK')+']');}}));
       const publish=button('เผยแพร่ Steam Offline (กำไร 50% ของต้นทุน)',async()=>{
         if(!confirm('ยืนยันเผยแพร่สินค้า 499K Steam Offline และตั้งราคากำไร 50% ของต้นทุน? ลูกค้าจะเริ่มสั่งซื้อได้ ไม่เปลี่ยนสินค้าเดิม'))return;
         const result=await api('publish',{confirmation:'PUBLISH_499K_OFFLINE'});notice(`เผยแพร่ ${result.published} รายการแล้ว`);

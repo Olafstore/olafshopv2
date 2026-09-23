@@ -1,5 +1,7 @@
 // Display consent only, not identity/age verification. No birthday or personal data stored.
 (() => {
+  // Temporarily disabled by the shop owner. Keep rating metadata intact.
+  const enabled=window.OLAF_AGE_GATE_ENABLED===true;
   const key='olaf-adult-images-v1';
   let confirmed=false;try{confirmed=sessionStorage.getItem(key)==='yes';}catch{}
   const records=new Map(),observers=new Set();let counter=0;
@@ -12,6 +14,7 @@
     return null;
   }
   function protect(p){
+    if(!enabled)return p;
     if(!p||confirmed||(!explicit(p)&&!((p.supplierProduct||steamId(p)||['offline','steam-key'].includes(p.category))&&p.ageStatus!=='checked')))return p;
     let token=tokens.get(p.id);if(!token){token=String(++counter);tokens.set(p.id,token);}
     records.set(token,{id:p.id,unknown:!explicit(p)});
@@ -22,6 +25,7 @@
       featureBlocks:[],steamRelatedLinks:[],rawPublic:p.rawPublic?{...p.rawPublic,image:placeholder,screenshots:[placeholder]}:p.rawPublic};
   }
   function hydrate(){
+    if(!enabled)return;
     if(confirmed)return;
     for(const entry of observers){if(!entry.img.isConnected){entry.observer.disconnect();observers.delete(entry);}}
     for(const img of document.querySelectorAll('img[src*="#olaf-age-"]')){

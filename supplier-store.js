@@ -159,7 +159,17 @@
       try{await api('readiness');document.querySelector('main').hidden=false;}
       catch(e){document.querySelector('main').hidden=true;const msg=el('p',['AUTH_REQUIRED','ADMIN_REQUIRED'].includes(e.code)?'หน้านี้สำหรับแอดมินเท่านั้น กรุณาเข้าสู่ระบบบัญชีแอดมิน':'ตรวจความพร้อมไม่สำเร็จ ['+(e.code||'NETWORK')+'] กรุณาตรวจ SQL และ Environment');const a=el('a','เข้าสู่ระบบ');a.href='login.html?return=supplier-store.html';msg.append(a);document.body.append(msg);return;}
     }
-    window.OlafSupplierUI={checkout:showProduct,openOrder:async id=>{location.hash='orders';await renderOrder(await apiOrder(id));}};
+    window.OlafSupplierUI={checkout:showProduct,
+      quote:productId=>api('quote',{productId}),
+      createCheckout:async(p,paymentMethod)=>{
+        const userSession=await session();
+        const key=`olaf-supplier-native:${userSession.user.id}:${p.id}:${paymentMethod}:${p.price}`;
+        let requestId=sessionStorage.getItem(key);if(!requestId){requestId=crypto.randomUUID();sessionStorage.setItem(key,requestId);}
+        const order=await api('checkout',{productId:p.id,requestId,paymentMethod,expectedPrice:p.price});
+        // Clear only after a confirmed response; transport failures retain the ref.
+        sessionStorage.removeItem(key);
+        return order;
+      },openOrder:async id=>{location.hash='orders';await renderOrder(await apiOrder(id));}};
     document.addEventListener('click',e=>{const control=e.target.closest('[data-supplier-order]');if(control){location.hash='orders';run(control,async()=>{await renderOrder(await apiOrder(control.dataset.supplierOrder));});}});
 
     $('supplier-search')?.addEventListener('input',renderCatalog);$('supplier-refresh').addEventListener('click',e=>run(e.currentTarget,loadOrders));

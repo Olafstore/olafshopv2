@@ -1268,6 +1268,10 @@ function getLocalizedPlatformLabel(link = {}) {
 }
 
 function productPlatformLinks(product = {}) {
+  if(product.supplierProduct)return [
+    {label:'ติดต่อร้าน',url:'https://www.facebook.com/byOlafshop',icon:'store',lockLabel:true},
+    {label:'คู่มือ',url:STEAM_OFFLINE_GUIDE_URL,icon:'book-open-check',lockLabel:true}
+  ];
   if (String(product.category || "").toLowerCase() === "steam-account") {
     const links = Array.isArray(product.platformLinks) ? product.platformLinks : [];
     // Only replace guide links for full-email Steam accounts. Keep store and
@@ -2232,7 +2236,7 @@ function renderProduct() {
   const discountBadge = renderDiscountBadge(purchase.price, purchase.compareAt);
 
   const compareEl = renderPriceCompare(purchase.compareAt, purchase.price);
-  const adminDescription = getAdminProductDescription(p);
+  const adminDescription = p.supplierProduct ? (p.shortDescription || p.description || '') : getAdminProductDescription(p);
   const extrasReturnHash = isRockstarProduct(p)
     ? "#rockstar-products"
     : isWindowsProduct(p)
@@ -2332,7 +2336,6 @@ function renderProduct() {
           <div class="pd-sidebar-cover">
             <img ${fastImg(sidebarCoverImg, displayProductName, { priority: true, fallbacks: productImageFallbacks(p, sidebarCoverImg) })} />
           </div>
-          ${p.supplierProduct && (p.shortDescription || p.description) ? `<p class="pd-steam-cover-description pd-steam-summary-desktop">${escapeHtml(p.shortDescription || p.description.slice(0,1200)).replace(/\n/g,'<br>')}</p>` : ''}
 
           <div class="pd-sidebar-body">
 
@@ -2344,7 +2347,6 @@ function renderProduct() {
             <div class="pd-mobile-cover" aria-label="ภาพปกสินค้า">
               <img ${fastImg(sidebarCoverImg, displayProductName, { priority: true, fallbacks: productImageFallbacks(p, sidebarCoverImg) })} />
             </div>
-            ${p.supplierProduct && (p.shortDescription || p.description) ? `<p class="pd-steam-cover-description pd-steam-summary-mobile">${escapeHtml(p.shortDescription || p.description.slice(0,1200)).replace(/\n/g,'<br>')}</p>` : ''}
 
             <!-- Title & publisher -->
             <h1 class="pd-sidebar-title">${escapeHtml(displayProductName)}</h1>
@@ -2494,14 +2496,22 @@ function renderProduct() {
     });
   });
 
-  $("#btn-buy")?.addEventListener("click", () => {
-    if(currentProduct?.supplierProduct){window.OlafSupplierUI?.checkout(currentProduct.rawPublic);return;}
+  $("#btn-buy")?.addEventListener("click", async () => {
     const user = window.OlafStore.currentUser();
     if (!user) {
       showToast("กรุณาเข้าสู่ระบบก่อนสั่งซื้อ", "info");
       setTimeout(() => {
         window.location.href = "login.html?return=" + encodeURIComponent(window.location.href);
       }, 1500);
+      return;
+    }
+    if(currentProduct?.supplierProduct){
+      try{
+        const quote=await window.OlafSupplierUI.quote(currentProduct.rawPublic.id);
+        if(!quote.available)throw new Error('SUPPLIER_OUT_OF_STOCK');
+        currentProduct.price=quote.price;currentProduct.rawPublic.price=quote.price;detailQuantity=1;
+        openOrderConfirmDialog(quote.price,quote.price);
+      }catch(error){showToast('ยังสั่งซื้อไม่ได้ ['+(error.code||error.message||'NETWORK')+']','error');}
       return;
     }
     const purchase = getPurchaseOption(currentProduct);
@@ -2547,6 +2557,7 @@ function resetCheckoutCoupon(baseTotal = 0) {
 }
 
 async function applyCheckoutDiscountCode() {
+  if(currentProduct?.supplierProduct)return;
   const input = $("#checkout-discount-code");
   const button = $("[data-apply-discount-code]");
   const code = String(input?.value || "").trim();
@@ -2644,6 +2655,7 @@ function renderCheckoutPoints() {
 }
 
 async function hydrateCheckoutPoints() {
+  if(currentProduct?.supplierProduct)return;
   if (!window.OlafOrders?.fetchPointBalance) {
     renderCheckoutPoints();
     return;
@@ -2701,7 +2713,7 @@ function setCheckoutOrderDialogOpen(dialog, open = true, { immediate = false } =
 
 function openOrderForm() {
   const p = currentProduct;
-  if(p?.supplierProduct){window.OlafSupplierUI?.checkout(p.rawPublic);return;}
+  if(p?.supplierProduct)detailQuantity=1;
   const purchase = getPurchaseOption(p);
   const subtotal = purchase.price * detailQuantity;
   const fee = 0;
@@ -2750,6 +2762,9 @@ function openOrderForm() {
   resetCheckoutCoupon(total);
   renderCheckoutPoints();
   hydrateCheckoutPoints();
+  for(const selector of ['[data-checkout-points-card]','[data-checkout-coupon-card]']){
+    const card=form.querySelector(selector);if(card&&p.supplierProduct)card.hidden=true;
+  }
 
   let pendingCoupon = "";
   try {
@@ -2772,7 +2787,7 @@ function openOrderForm() {
     couponButton.dataset.couponBound = "true";
   }
 
-  if (pendingCoupon) {
+  if (pendingCoupon && !p.supplierProduct) {
     const couponInput = form.querySelector("#checkout-discount-code");
     if (couponInput) {
       couponInput.value = pendingCoupon;
@@ -2932,7 +2947,9 @@ async function submitOrder(formData) {
 
   try {
     if (!window.OlafOrders?.createOrder) throw new Error("Supabase order client is not ready");
-    const savedOrder = await window.OlafOrders.createOrder({
+    const savedOrder = p.supplierProduct
+      ? await window.OlafSupplierUI.createCheckout(p.rawPublic,normalizePaymentMethod(formData.get('paymentMethod')))
+      : await window.OlafOrders.createOrder({
       productId: p.id,
       quantity: detailQuantity,
       paymentMethod: normalizePaymentMethod(formData.get("paymentMethod")),
@@ -2943,7 +2960,9 @@ async function submitOrder(formData) {
       couponSubtotal: checkoutPointState.subtotal || 0
     });
 
-    await refreshCurrentProduct();
+    // Once an order exists, a failed catalog refresh must not hide its payment UI.
+    if(p.supplierProduct)await refreshCurrentProduct().catch(()=>null);
+    else await refreshCurrentProduct();
     setTextContent("[data-checkout-order-number]", formatOrderReference(savedOrder));
     const orderNumberWrap = $("[data-checkout-order-container]");
     if (orderNumberWrap) orderNumberWrap.hidden = false;

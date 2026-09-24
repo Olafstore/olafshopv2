@@ -16,7 +16,7 @@
     SUPPLIER_RATE_LIMITED:'มีคำขอมาก กรุณารอหนึ่งนาทีแล้วลองใหม่',ORDER_NOT_FOUND:'ไม่พบออเดอร์ของคุณ',
     SUPPLIER_SERVICE_UNAVAILABLE:'ระบบยังไม่พร้อม กรุณาติดต่อร้านหรือลองใหม่ภายหลัง'};
   let products=[],checkoutEnabled=false,currentOrder=null,epoch=0,guardTimer=null,guardVersion=0;
-  const notice=message=>{$('supplier-notice').textContent=message;};
+  const notice=message=>{const box=document.querySelector('dialog.supplier-vault[open] [data-supplier-dialog-status]')||$('supplier-notice');if(box)box.textContent=message;};
   function clearSecrets(){guardVersion++;clearInterval(guardTimer);guardTimer=null;document.querySelectorAll('[data-supplier-secret]').forEach(n=>n.remove());document.querySelectorAll('[data-guard-start]').forEach(n=>{delete n.dataset.locked;n.disabled=false;});}
   Object.assign(errors,{SUPPLIER_MIGRATION_REQUIRED:'ยังไม่ได้ติดตั้ง SQL ชุดหน้าร้านหลัก กรุณาแจ้งแอดมิน',SUPPLIER_PERMISSION_REQUIRED:'สิทธิ์ฐานข้อมูลไม่พร้อม กรุณาแจ้งแอดมิน',SUPPLIER_SCHEMA_MISMATCH:'โครงสร้างฐานข้อมูลออเดอร์ไม่ตรง กรุณาแจ้งแอดมิน',SUPPLIER_DATABASE_UNAVAILABLE:'ฐานข้อมูลไม่พร้อม กรุณาลองใหม่',SERVER_CONFIG_REQUIRED:'Server Environment ยังไม่ครบ กรุณาแจ้งแอดมิน',MIN_TOPUP_REQUIRED:'ร้านยังไม่ผ่านเงื่อนไขยอดเติมของผู้ให้บริการ',SUPPLIER_PRICE_CHANGED:'ราคาเปลี่ยนแล้ว กรุณาปิดและเปิดสั่งซื้อใหม่เพื่อยืนยันราคาใหม่'});
   errors.SUPPLIER_UPSTREAM_BLOCKED='499K ปฏิเสธการเชื่อมต่อจากเซิร์ฟเวอร์ร้าน กรุณาติดต่อร้าน ยังไม่มีการสั่งซื้อหรือตัดเงิน';
@@ -88,6 +88,11 @@
   async function loadOrders(){
     const box=$('supplier-orders');let rows;
     try{rows=await api('orders');}catch(e){box.replaceChildren(el('p',errors[e.code]||'ยังโหลดออเดอร์ไม่ได้'));if(e.code==='AUTH_REQUIRED'){const a=el('a','เข้าสู่ระบบ');a.href='login.html?return='+encodeURIComponent(location.pathname+location.search+'#orders');box.append(a);}return;}
+    if(location.pathname.endsWith('/profile.html')){
+      document.dispatchEvent(new CustomEvent('olaf:supplier-inventory',{detail:rows}));
+      const id=new URLSearchParams(location.search).get('order');
+      if(id&&!currentOrder&&location.hash!=='#inventory'){const o=rows.find(o=>o.id===id);if(o)await renderOrder(o);}return;
+    }
     box.replaceChildren();for(const o of rows){const row=el('article',undefined,'supplier-order-row'),text=el('div');text.append(el('strong',o.name),el('small',`${o.orderNumber} · ${money(o.price)} · ${labels[o.status]||o.status}`));
       row.append(text,button('เปิดออเดอร์',()=>renderOrder(o)));box.append(row);}
     if(!rows.length)box.append(el('p','ยังไม่มีออเดอร์สินค้าอัตโนมัติ'));
@@ -108,6 +113,12 @@
     }catch{box.append(el('p','โหลดช่องทางชำระเงินไม่สำเร็จ กรุณาติดต่อร้านก่อนโอน'));}
   }
   async function renderOrder(o){
+    if(location.pathname.endsWith('/profile.html')){
+      clearSecrets();currentOrder=o;
+      const event=new CustomEvent('olaf:supplier-order-open',{detail:o,cancelable:true});document.dispatchEvent(event);
+      if(event.defaultPrevented)return;
+    }
+    if($('supplier-orders-section'))$('supplier-orders-section').hidden=false;
     clearSecrets();currentOrder=o;const panel=$('supplier-order');panel.hidden=false;panel.replaceChildren(el('h2',o.name),el('p',o.orderNumber),el('strong',`${labels[o.status]||o.status} · ${money(o.total)}`));
     const actions=el('div',undefined,'supplier-actions');actions.append(button('โหลดสถานะใหม่',()=>refreshOrder(o.id)));panel.append(actions);
     if(o.status==='awaiting_payment'){
@@ -125,32 +136,67 @@
       actions.append(button('ยกเลิกออเดอร์',async()=>{if(confirm('ยกเลิกได้เฉพาะออเดอร์ที่ยังไม่โอนเงิน ยืนยันหรือไม่?')){await window.OlafOrders.cancelMyOrder(o.id);await refreshOrder(o.id);await loadOrders();}}));
     }
     if(o.status==='waiting_admin' && o.hasSlip)actions.append(button('ตรวจสลิปที่แนบไว้อีกครั้ง',async()=>{try{await window.OlafOrders.verifyPaymentSlip({orderId:o.id});}catch{notice('ยังตรวจไม่ผ่านหรืออยู่ระหว่างตรวจ กรุณาติดต่อร้าน ห้ามโอนซ้ำ');}await refreshOrder(o.id);}));
-    if(o.paymentStatus==='verified' && !o.canReceive){
-      panel.append(el('p',o.needsSupport?'ร้านต้องตรวจสอบการส่งมอบ กรุณาติดต่อพร้อมเลขออเดอร์ ห้ามชำระเงินซ้ำ':'ชำระเงินสำเร็จ กำลังรอส่งบัญชี'));
-      if(o.state!=='blocked')actions.append(button('ตรวจการส่งมอบ / รับบัญชี',async()=>{await api('fulfill',{orderId:o.id});await refreshOrder(o.id);}));
-    }
-    if(o.canReceive){
-      actions.append(button('เปิดดูบัญชี',async()=>{
-        const version=guardVersion,account=await api('delivery',{orderId:o.id});if(version!==guardVersion||currentOrder?.id!==o.id||document.hidden)return;
-        document.querySelectorAll('[data-supplier-account]').forEach(n=>n.remove());
-        const box=el('div',undefined,'supplier-secret');box.dataset.supplierSecret='';box.dataset.supplierAccount='';
-        for(const [field,title] of [['username','ชื่อบัญชี'],['password','รหัสผ่าน']]){const label=el('label',title),input=el('input');input.value=account[field];input.readOnly=true;input.type=field==='password'?'password':'text';input.autocomplete='off';label.append(input);box.append(label,button(`คัดลอก${title}`,()=>navigator.clipboard.writeText(input.value)));}
-        box.append(button('ซ่อนบัญชี',()=>box.remove()));panel.append(box);
-      }));
-      const reason=el('input');reason.type='text';reason.maxLength=500;reason.placeholder='เหตุผลขอ Steam Guard (อย่างน้อย 5 ตัวอักษร)';reason.setAttribute('aria-label','เหตุผลขอ Steam Guard');panel.append(reason);
-      const start=button('เปิดรอบ Steam Guard',async()=>{
-        if([...reason.value.trim()].length<5){notice('กรุณาระบุเหตุผลอย่างน้อย 5 ตัวอักษร');return;}
-        if(!confirm('เปิดรอบ Steam Guard 60 วินาที? ใช้ได้ทั้งหมด 3 รอบต่อออเดอร์'))return;
-        const version=guardVersion;const result=await api('guard',{orderId:o.id,reason:reason.value.trim()});
-        if(version!==guardVersion||document.hidden)return;showGuard(o,result,start);
-      });start.dataset.guardStart='';panel.append(start,el('p','รหัสจะแสดงเฉพาะขณะเปิดหน้านี้ เมื่อสลับแท็บจะซ่อนข้อมูล การเปิดรอบใหม่ต้องกดยืนยัน'));
+    if(o.paymentStatus==='verified'){
+      panel.append(el('p',o.canReceive?'จัดส่งสินค้าแล้ว เปิดดูบัญชีและ Steam Guard ได้ที่คลังสินค้า':'ชำระเงินแล้ว ติดตามการจัดส่งได้ที่คลังสินค้า'));
+      const link=el('a','ไปที่คลังสินค้า','supplier-inventory-link');link.href='profile.html#inventory';panel.append(link);
     }
     panel.scrollIntoView({block:'start',behavior:'smooth'});
   }
-  function showGuard(o,result,start){
+  function vaultDialog(title){
+    const dialog=el('dialog',undefined,'supplier-widget supplier-vault');
+    const heading=el('h2',title);heading.id='supplier-vault-title';dialog.setAttribute('aria-labelledby',heading.id);
+    const close=el('button','×','supplier-vault-close');close.type='button';close.setAttribute('aria-label','ปิดหน้าต่าง');close.addEventListener('click',()=>dialog.close());
+    const status=el('p');status.dataset.supplierDialogStatus='';status.setAttribute('role','status');
+    dialog.append(close,heading,status);dialog.addEventListener('close',()=>{if(dialog.isConnected){clearSecrets();dialog.remove();}});
+    document.body.append(dialog);dialog.showModal();return dialog;
+  }
+  function closeVaults(){document.querySelectorAll('dialog.supplier-vault').forEach(d=>{if(d.open)d.close();d.remove();});clearSecrets();}
+  async function openInventory(orderId){
+    closeVaults();const version=guardVersion;
+    const dialog=vaultDialog('ข้อมูลสินค้า');dialog.append(el('p','กำลังโหลดข้อมูล…','supplier-vault-loading'));
+    let o;
+    try{o=await apiOrder(orderId);}catch(e){dialog.querySelector('.supplier-vault-loading')?.remove();notice(errors[e.code]||'ยังโหลดข้อมูลไม่ได้ กรุณาลองใหม่');return;}
+    if(version!==guardVersion||!dialog.open||document.hidden)return;
+    currentOrder=o;dialog.querySelector('.supplier-vault-loading')?.remove();
+    dialog.querySelector('h2').textContent=o.name;dialog.append(el('p',o.orderNumber,'supplier-vault-order'));
+    if(o.paymentStatus!=='verified'){dialog.append(el('p','สินค้านี้ยังไม่ผ่านการชำระเงิน กรุณาตรวจออเดอร์ของฉัน'));return;}
+    if(!o.canReceive){
+      dialog.append(el('p',o.needsSupport?'ร้านต้องตรวจสอบการส่งมอบ กรุณาติดต่อพร้อมเลขออเดอร์ ห้ามชำระซ้ำ':'ชำระเงินแล้ว กำลังเตรียมจัดส่ง'));
+      if(o.state!=='blocked')dialog.append(button('ตรวจการจัดส่ง',async()=>{await api('fulfill',{orderId:o.id});if(version!==guardVersion)return;await loadOrders();await openInventory(o.id);}));
+      return;
+    }
+    dialog.append(el('p','บัญชี Steam Offline · เก็บข้อมูลนี้เป็นความลับ','supplier-vault-order'));
+    try{
+      const account=await api('delivery',{orderId:o.id});
+      if(version!==guardVersion||!dialog.open||document.hidden)return;
+      const box=el('div',undefined,'supplier-vault-account');box.dataset.supplierSecret='';box.dataset.supplierAccount='';
+      for(const [field,title] of [['username','ชื่อบัญชี'],['password','รหัสผ่าน']]){
+        const label=el('label',title),row=el('div',undefined,'supplier-vault-field'),input=el('input');input.value=account[field]||'';input.readOnly=true;input.type=field==='password'?'password':'text';input.autocomplete='off';input.setAttribute('aria-label',title);row.append(input);
+        if(field==='password'){
+          const eye=el('button',undefined,'supplier-vault-eye');eye.type='button';eye.setAttribute('aria-label','แสดงรหัสผ่าน');eye.setAttribute('aria-pressed','false');
+          eye.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>';
+          eye.addEventListener('click',()=>{const reveal=input.type==='password';input.type=reveal?'text':'password';eye.setAttribute('aria-label',reveal?'ซ่อนรหัสผ่าน':'แสดงรหัสผ่าน');eye.setAttribute('aria-pressed',String(reveal));});row.append(eye);
+        }
+        row.append(button('คัดลอก',()=>navigator.clipboard.writeText(input.value)));label.append(row);box.append(label);
+      }
+      dialog.append(box,button('รับรหัส Steam Guard',()=>openGuard(o)));
+    }catch(e){if(version===guardVersion)notice(errors[e.code]||'ยังเปิดข้อมูลไม่ได้ กรุณาลองใหม่');}
+  }
+  function openGuard(o){
+    closeVaults();currentOrder=o;const dialog=vaultDialog('รับรหัส Steam Guard');
+    dialog.append(el('p',o.name,'supplier-vault-order'),el('p','ระบุเหตุผลเพื่อเปิดรอบรับรหัส 60 วินาที ใช้ได้สูงสุด 3 รอบต่อออเดอร์'));
+    const reason=el('textarea');reason.maxLength=500;reason.placeholder='เช่น เข้าสู่ระบบ Steam บนคอมพิวเตอร์';reason.setAttribute('aria-label','เหตุผลขอ Steam Guard');dialog.append(reason);
+    const start=button('ยืนยันรับรหัส Steam Guard',async()=>{
+      if([...reason.value.trim()].length<5){notice('กรุณาระบุเหตุผลอย่างน้อย 5 ตัวอักษร');return;}
+      const version=guardVersion,result=await api('guard',{orderId:o.id,reason:reason.value.trim()});
+      if(version!==guardVersion||!dialog.open||document.hidden)return;showGuard(o,result,start,dialog);
+    });start.dataset.guardStart='';dialog.append(start,button('กลับไปข้อมูลสินค้า',()=>openInventory(o.id)));
+    dialog.append(el('p','เมื่อปิดหน้าต่างหรือสลับแท็บ ข้อมูลจะถูกซ่อนเพื่อความปลอดภัย','supplier-vault-order'));
+  }
+  function showGuard(o,result,start,target){
     document.querySelectorAll('[data-supplier-guard]').forEach(n=>n.remove());clearInterval(guardTimer);
     const box=el('div',undefined,'supplier-secret'),code=el('strong',result.code,'supplier-guard-code'),status=el('span');
-    box.dataset.supplierSecret='';box.dataset.supplierGuard='';box.append(code,status);$('supplier-order').append(box);
+    box.dataset.supplierSecret='';box.dataset.supplierGuard='';box.append(code,status,button('คัดลอกรหัส',()=>{if(Date.now()<validUntil)return navigator.clipboard.writeText(code.textContent);notice('รหัสหมดอายุแล้ว');}));target.append(box);
     let validUntil=Date.now()+result.valid_for_sec*1000,windowUntil=Date.now()+result.window.expires_in_sec*1000,busy=false;
     const version=guardVersion;start.disabled=true;start.dataset.locked='true';
     guardTimer=setInterval(async()=>{
@@ -164,7 +210,7 @@
   function mount(){
     if(adminPage)return;
     const root=el('section',undefined,'supplier-widget');root.id='supplier-customer-tools';
-    root.innerHTML='<p id="supplier-notice" role="status"></p><section id="supplier-orders-section"><h3>บัญชีอัตโนมัติและ Steam Guard</h3><button id="supplier-refresh" type="button">โหลดออเดอร์</button><div id="supplier-orders"></div><section id="supplier-order" hidden></section></section><dialog id="supplier-detail" class="supplier-widget" aria-labelledby="supplier-detail-title"><button class="supplier-close" type="button" aria-label="ปิด">×</button><div id="supplier-detail-content"></div></dialog>';
+    root.innerHTML='<p id="supplier-notice" role="status"></p><section id="supplier-orders-section" hidden><button id="supplier-refresh" type="button" hidden>โหลดออเดอร์</button><div id="supplier-orders" hidden></div><section id="supplier-order" hidden></section></section><dialog id="supplier-detail" class="supplier-widget" aria-labelledby="supplier-detail-title"><button class="supplier-close" type="button" aria-label="ปิด">×</button><div id="supplier-detail-content"></div></dialog>';
     (document.querySelector('#panel-orders .profile-panel-body')||document.querySelector('#panel-orders')||document.body).append(root);
     if(!location.pathname.endsWith('/profile.html')){root.classList.add('supplier-product-tools');$('supplier-orders-section').hidden=true;}
   }
@@ -175,7 +221,7 @@
       try{await api('readiness');document.querySelector('main').hidden=false;}
       catch(e){document.querySelector('main').hidden=true;const msg=el('p',['AUTH_REQUIRED','ADMIN_REQUIRED'].includes(e.code)?'หน้านี้สำหรับแอดมินเท่านั้น กรุณาเข้าสู่ระบบบัญชีแอดมิน':'ตรวจความพร้อมไม่สำเร็จ ['+(e.code||'NETWORK')+'] กรุณาตรวจ SQL และ Environment');const a=el('a','เข้าสู่ระบบ');a.href='login.html?return=supplier-store.html';msg.append(a);document.body.append(msg);return;}
     }
-    window.OlafSupplierUI={checkout:showProduct,
+    window.OlafSupplierUI={checkout:showProduct,openInventory,refreshInventory:loadOrders,
       quote:quoteProduct,
       createCheckout:async(p,paymentMethod,pointsToUse=0)=>{
         const userSession=await session();
@@ -190,8 +236,9 @@
 
     $('supplier-search')?.addEventListener('input',renderCatalog);$('supplier-refresh').addEventListener('click',e=>run(e.currentTarget,loadOrders));
     document.querySelector('.supplier-close').addEventListener('click',()=>$('supplier-detail').close());
-    document.addEventListener('visibilitychange',()=>{if(document.hidden)clearSecrets();});window.addEventListener('pagehide',clearSecrets);
-    window.olafSupabase?.auth.onAuthStateChange((event)=>{if(['SIGNED_OUT','SIGNED_IN'].includes(event)){epoch++;clearSecrets();currentOrder=null;$('supplier-order').hidden=true;$('supplier-order').replaceChildren();$('supplier-orders').replaceChildren();if($('supplier-admin')){$('supplier-admin').hidden=true;$('supplier-admin').replaceChildren();}if(adminPage&&event==='SIGNED_OUT')document.querySelector('main').hidden=true;}});
+    document.addEventListener('visibilitychange',()=>{if(document.hidden)closeVaults();});window.addEventListener('pagehide',closeVaults);
+    window.addEventListener('hashchange',()=>{closeVaults();if(location.hash==='#inventory')loadOrders();});
+    window.olafSupabase?.auth.onAuthStateChange((event)=>{if(['SIGNED_OUT','SIGNED_IN'].includes(event)){epoch++;closeVaults();document.dispatchEvent(new CustomEvent('olaf:supplier-inventory',{detail:[]}));currentOrder=null;$('supplier-order').hidden=true;$('supplier-order').replaceChildren();$('supplier-orders').replaceChildren();if($('supplier-admin')){$('supplier-admin').hidden=true;$('supplier-admin').replaceChildren();}if(adminPage&&event==='SIGNED_OUT')document.querySelector('main').hidden=true;}});
     if(adminPage){try{const data=await api('catalog');products=data.products;checkoutEnabled=data.checkoutEnabled;renderCatalog();notice(checkoutEnabled?'สินค้าแสดงในหมวดเกมออฟไลน์หน้าร้านหลักแล้ว':'ยังไม่พร้อมรับคำสั่งซื้อ กรุณาตรวจ Environment / SQL');}catch{notice('ยังโหลดสินค้าไม่ได้');}}
     if(adminPage||location.pathname.endsWith('/profile.html'))await loadOrders();
     if(!adminPage)return;

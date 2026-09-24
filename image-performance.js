@@ -79,8 +79,8 @@
       const proxy=u.origin===window.location.origin&&u.pathname==='/api/steam-app'&&u.searchParams.get('image')==='header'&&/^\d{1,9}$/.test(u.searchParams.get('appid')||'');
       if(match||proxy){
         const folder=match?u.origin+match[1]:`https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${u.searchParams.get('appid')}/`;
-        const original=url;url=folder+'library_hero.jpg';
-        options={...options,fallbacks:[folder+'header.jpg',original,...(options.fallbacks||[])]};
+        const original=url;url=match?folder+'header.jpg':url;
+        options={...options,fallbacks:[original,folder+'header.jpg',...(options.fallbacks||[])].filter(v=>v!==url)};
       }
     }catch{}
     const artwork = document.body?.matches(".home-page, .extras-page") ? windowsArtwork.get(url) : null;
@@ -147,7 +147,7 @@
               target.loading = "eager";
             });
           },
-          { rootMargin: "720px 0px", threshold: 0.01 }
+          { rootMargin: "320px 0px", threshold: 0.01 }
         );
       }
       nearViewportObserver.observe(img);

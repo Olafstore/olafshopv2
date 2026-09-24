@@ -24,7 +24,7 @@
   <script src="platform-store.js?v=20260619-profile-update-fix" defer></script>
   <link rel="stylesheet" href="friends.css?v=20260910-mobile-launch-v242" />
   <script src="friends.js?v=20260913-v259" defer></script>
-  <script src="image-performance.js?v=20260924-qr-v10" defer></script>
+  <script src="image-performance.js?v=20260924-cover-v13" defer></script>
 <script src="delivery-payload.js?v=20260716-qr-alignment-v111" defer></script>
     <script src="site-navigation.js?v=20260912-menu-v248" defer></script>
   <script src="notifications.js?v=20260909-updates-v224" defer></script>
@@ -2879,8 +2879,8 @@
     <link rel="stylesheet" href="friends-premium.css?v=20260913-v258" />
   <script src="friends-social.js?v=20260913-v259" defer></script>
   <link rel="stylesheet" href="friends-layout.css?v=20260913-v259" />
-  <link rel="stylesheet" href="supplier-widgets.css?v=20260924-loading-v10">
-  <script src="supplier-store.js?v=20260924-points-v11" defer></script>
+  <link rel="stylesheet" href="supplier-widgets.css?v=20260924-inventory-v12">
+  <script src="supplier-store.js?v=20260924-inventory-v12" defer></script>
 </head>
 
 <body class="profile-page">
@@ -3879,11 +3879,31 @@
       }
     }
 
+    let supplierInventoryOrders=[];
+    document.addEventListener('olaf:supplier-order-open',event=>{
+      event.preventDefault();const o=event.detail;if(!o)return;
+      const legacy=profileState.orders.find(row=>row.id===o.id)||{};
+      const row={...legacy,orderId:o.id,orderNumber:o.orderNumber,productId:'',productName:o.name,productImageUrl:o.image,quantity:1,
+        createdAt:o.createdAt,status:o.status,statusLabel:orderStatusLabel(o.status),total:o.total,paymentMethod:o.paymentMethod,paymentStatus:o.paymentStatus,
+        category:'offline',platform:'Steam',typeLabel:'Steam Offline',hasDetail:false,deliveryPayload:{accounts:[]},
+        deliveryText:o.paymentStatus==='verified'?'ดูข้อมูลบัญชีและรับ Steam Guard ได้ที่คลังสินค้า':'ชำระเงินและแนบสลิปเพื่อรับสินค้า'};
+      toggleInventoryModal(true,row);
+      document.getElementById('inventory-modal-summary').textContent='สถานะและข้อมูลการชำระเงิน';
+      const footnote=document.getElementById('inventory-modal-footnote');footnote.textContent='ข้อมูลบัญชีและ Steam Guard อยู่ในคลังสินค้าเท่านั้น';
+      if(o.paymentStatus==='verified'){
+        const link=document.createElement('a');link.className='primary-button';link.textContent='ไปที่คลังสินค้า';link.href='#inventory';
+        link.addEventListener('click',()=>toggleInventoryModal(false));footnote.append(document.createElement('br'),link);
+      }
+    });
+    document.addEventListener('olaf:supplier-inventory',event=>{
+      supplierInventoryOrders=Array.isArray(event.detail)?event.detail:[];
+      collectInventoryRows(profileState.orders||[],profileState.products||[]);renderInventoryList();
+    });
     function collectInventoryRows(orders, products = []) {
       const productMap = new Map((products || []).map(product => [String(product.id || '').trim(), product]));
       const rows = (orders || [])
         .filter(order => {
-          if (isPointTopupOrder(order)) return false;
+          if (isPointTopupOrder(order)||String(order.orderNumber||'').startsWith('S499-')) return false;
           if (['cancelled', 'expired'].includes(order.status)) return false;
           const expiresAt = unpaidOrderExpiresAt(order);
           return !expiresAt || expiresAt.getTime() > Date.now();
@@ -3954,6 +3974,13 @@
         })
         .sort((left, right) => new Date(right.createdAt || 0) - new Date(left.createdAt || 0));
 
+      for(const o of supplierInventoryOrders.filter(o=>o.paymentStatus==='verified'&&['confirmed','delivered'].includes(o.status))){
+        rows.push({key:'supplier-'+o.id,supplierOrderId:o.id,orderId:o.id,orderNumber:o.orderNumber,productId:'',productName:o.name,productImageUrl:o.image,
+          quantity:1,createdAt:o.createdAt,status:o.status,statusLabel:orderStatusLabel(o.status),total:o.total,paymentMethod:o.paymentMethod,paymentStatus:o.paymentStatus,
+          category:'offline',platform:'Steam',typeLabel:'Steam Offline',hasDetail:o.canReceive,primaryCopy:'',deliveryText:'',deliveryPayload:{accounts:[]},
+          preview:o.canReceive?'พร้อมรับบัญชีและ Steam Guard':o.needsSupport?'กรุณาติดต่อร้านเพื่อตรวจการจัดส่ง':'ชำระเงินแล้ว กำลังเตรียมจัดส่ง'});
+      }
+      rows.sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
       profileState.inventoryRows = rows;
       profileState.inventoryLookup = new Map(rows.map(row => [row.key, row]));
       return rows;
@@ -3991,7 +4018,7 @@
               <div class="inventory-card-order">#${escape(row.orderNumber)}</div>
               <button class="inventory-detail-button" type="button" data-inventory-detail="${escape(row.key)}">
                 <i data-lucide="${row.hasDetail ? 'key-round' : 'clipboard-check'}" style="width:15px;height:15px"></i>
-                ${row.hasDetail ? 'ดูข้อมูลสินค้า' : 'จัดการออเดอร์'}
+                ${row.hasDetail ? 'ดูข้อมูลสินค้า' : row.supplierOrderId ? 'ตรวจการจัดส่ง' : 'จัดการออเดอร์'}
               </button>
             </div>
           </div>
@@ -4245,6 +4272,7 @@
 
     async function openInventoryModalWithOrder(row) {
       if (!row) return;
+      if(row.supplierOrderId){toggleInventoryModal(false);await window.OlafSupplierUI?.openInventory(row.supplierOrderId);return;}
       if (row.paymentSlipPath && !row.paymentSlipUrl && window.OlafOrders?.fetchOrderById) {
         try {
           const freshOrder = await window.OlafOrders.fetchOrderById(row.orderId);
@@ -4792,6 +4820,7 @@
           profileState.products = products;
           profileState.lastOrdersRefreshAt = Date.now();
           renderOrdersList(orders);
+          await window.OlafSupplierUI?.refreshInventory();
           collectInventoryRows(orders, products);
           renderInventoryList();
 

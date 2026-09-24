@@ -13,3 +13,20 @@
 .supplier-loading-ring{display:block;width:48px;height:48px;border-radius:50%;border:4px solid #294058;border-top-color:#71caff;margin:8px auto;animation:supplier-checkout-spin .85s linear infinite}
 @keyframes supplier-checkout-spin{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.supplier-loading-ring{animation:none;border-color:#71caff}}
+.supplier-widget.supplier-vault{box-sizing:border-box;width:min(560px,calc(100vw - 28px));max-height:88vh;overflow:auto;padding:30px;border:1px solid #334c72;border-radius:24px;background:linear-gradient(145deg,#102139,#090f22);color:#e8f2ff;box-shadow:0 28px 100px #0009;font-family:inherit}
+.supplier-vault::backdrop{background:#030719ba;backdrop-filter:blur(9px)}
+.supplier-vault h2{margin:0 38px 10px 0;font-size:24px;line-height:1.4;overflow-wrap:anywhere}
+.supplier-vault p{line-height:1.7}.supplier-vault-order{color:#9bb2cf;font-size:13px}
+.supplier-vault [data-supplier-dialog-status]:empty{display:none}
+.supplier-vault [data-supplier-dialog-status]{color:#ffd49e}
+.supplier-vault button{min-height:42px;border:1px solid #37557c;background:#193355;color:#deedff;border-radius:12px;padding:10px 16px;cursor:pointer;font:inherit}
+.supplier-vault>button:not(.supplier-vault-close){width:100%;margin-top:12px;background:linear-gradient(100deg,#2563eb,#6254df);font-weight:700}
+.supplier-vault button:disabled{opacity:.5;cursor:wait}.supplier-vault button:focus-visible{outline:2px solid #8acaff;outline-offset:3px}
+.supplier-vault .supplier-vault-close{position:absolute;right:16px;top:16px;padding:4px 14px;font-size:24px}
+.supplier-vault-account{display:grid;gap:18px;margin:24px 0}.supplier-vault-account label{display:grid;gap:8px;color:#b6cce7;font-size:14px}
+.supplier-vault-field{display:flex;gap:8px;align-items:center}.supplier-vault-field input{min-width:0;flex:1}
+.supplier-vault input,.supplier-vault textarea{box-sizing:border-box;border:1px solid #2b4264;border-radius:12px;background:#070f21;color:#eef6ff;padding:13px;font:inherit}
+.supplier-vault textarea{width:100%;min-height:94px;resize:vertical}.supplier-vault .supplier-vault-eye{display:grid;place-items:center;padding:10px}
+.supplier-vault .supplier-secret{margin-top:22px;border:1px solid #3f638a;border-radius:18px;padding:22px;background:#07152c;text-align:center;display:grid;gap:16px}
+.supplier-vault .supplier-guard-code{font-size:38px;letter-spacing:.16em;color:#86dcff;font-family:monospace;text-shadow:0 0 24px #38bdf855}
+@media(max-width:480px){.supplier-widget.supplier-vault{padding:24px 18px}.supplier-vault-field{gap:5px}.supplier-vault-field button{padding:10px}.supplier-vault h2{font-size:20px}}

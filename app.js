@@ -1,3 +1,4 @@
+const isFullCatalogPage=location.pathname.endsWith('/products.html');
 const fallbackPayload = {
   store: {
     name: "OLAF SHOP",
@@ -129,7 +130,7 @@ const state = {
   steamPreviewOrder: [],
   heroCatalogLoading: true,
   homeCategory: "",
-  selectedCategory: "offline",
+  selectedCategory: isFullCatalogPage ? "all" : "offline",
   selectedTag: "",
   query: "",
   stockOnly: false,
@@ -356,7 +357,7 @@ function fastImg(src, alt = "", options = {}) {
 
 function catalogImageOptions(index = 0, featured = false) {
   const fastLane = window.innerWidth <= 640 ? 2 : window.innerWidth <= 1180 ? 4 : 8;
-  const eager = featured ? index === 0 : index < fastLane;
+  const eager = isFullCatalogPage && (featured ? index === 0 : index < fastLane);
   return {
     loading: eager ? "eager" : "lazy",
     fetchPriority: eager ? "high" : "auto",
@@ -1007,6 +1008,7 @@ function formatPurchaseClock(value) {
 }
 
 function renderRecentPurchases() {
+  if(isFullCatalogPage)return;
   const list = $(selectors.recentPurchasesList);
   const status = $(selectors.recentPurchasesStatus);
   if (!list) return;
@@ -1339,6 +1341,7 @@ function bindPromoVideoPlayer() {
 }
 
 function renderPromoVideos() {
+  if(isFullCatalogPage)return;
   const playlist = $(selectors.promoVideoPlaylist);
   const player = $(selectors.promoVideoPlayer);
   const videos = promoVideos();
@@ -1617,6 +1620,7 @@ function closeActivityPopup({ hideFor24Hours = false } = {}) {
 }
 
 function renderActivityPopup() {
+  if(isFullCatalogPage)return;
   const activity = state.store?.activityPopup ?? {};
   const key = activityPopupKey(activity);
   const existing = document.querySelector("[data-activity-popup]");
@@ -1827,7 +1831,7 @@ function renderSteamShowcaseWidget() {
             <div class="olaf-preview-tags">
               ${tags.map((tag) => `<a href="index.html?tag=${encodeURIComponent(tag)}#catalog">${escapeHtml(tag)}</a>`).join("")}
             </div>
-            <div class="olaf-preview-images">
+            <div class="olaf-preview-images" data-image-count="${images.length}">
               ${images.map((image) => `<img ${fastImg(image, `${productName} preview`)} />`).join("")}
             </div>
           </aside>
@@ -2033,6 +2037,7 @@ function renderWidgetList(zone, widgets) {
 }
 
 function renderWidgets() {
+  if(isFullCatalogPage)return;
   if (state.heroCatalogLoading) { renderHomeLoading(); return; }
   const zone = document.querySelector("#widget-zone");
   const steamZone = document.querySelector("#steam-preview-zone");
@@ -2068,6 +2073,7 @@ function heroLoadingMarkup() {
 }
 
 function renderHeroDeal() {
+  if(isFullCatalogPage)return;
   const deals = heroCarouselProducts();
   const heroDeal = $(selectors.heroDeal);
   if (!heroDeal) return;
@@ -2379,6 +2385,7 @@ function renderSteamDiscoveryContent() {
 
 function scheduleSteamStorefrontRotation() {
   window.clearInterval(steamStorefrontTimer);
+  if(isFullCatalogPage)return;
   if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
   if (steamSpotlightProducts().length < 2) return;
   steamStorefrontTimer = window.setInterval(() => {
@@ -2908,6 +2915,7 @@ function mountCatalogDiscoveryFeed(products, reset=false) {
 }
 
 function renderSteamStorefront() {
+  if(isFullCatalogPage)return;
   if (state.heroCatalogLoading) { renderHomeLoading(); return; }
   const section = document.querySelector("#olaf-steam-storefront");
   const catalogPreview = document.querySelector("#catalog-game-preview");
@@ -2968,7 +2976,8 @@ function renderSteamStorefront() {
 }
 
 function renderCategories() {
-  $(selectors.categoryTabs).innerHTML = state.categories
+  const displayCategories=isFullCatalogPage?[{id:'offline',label:'ไอดีออฟไลน์'},{id:'steam-key',label:'คีย์เกม'},{id:'steam-account',label:'ไอดียกเมล'},{id:'all',label:'สินค้าทั้งหมด'}]:state.categories;
+  $(selectors.categoryTabs).innerHTML = displayCategories
     .map(
       (category) => `
         <button
@@ -3032,6 +3041,7 @@ function categoryLayerProducts(categoryId) {
 }
 
 function renderCategoryLayerShowcase() {
+  if(isFullCatalogPage)return;
   if (state.heroCatalogLoading) return;
   const section = $(selectors.categoryLayerShowcase);
   if (!section) return;
@@ -3134,7 +3144,7 @@ function renderShowcaseCategoryState() {
 }
 
 function selectCatalogCategory(categoryId, options = {}) {
-  if (!state.categories.some((category) => category.id === categoryId)) return;
+  if (!state.categories.some((category) => category.id === categoryId)&&!(isFullCatalogPage&&['offline','steam-key','steam-account','all'].includes(categoryId))) return;
   state.selectedCategory = categoryId;
   state.currentPage = 1;
   renderCategories();
@@ -3173,9 +3183,9 @@ function renderProducts() {
 
   const totalPages = Math.ceil(products.length / itemsPerPage) || 1;
   state.currentPage = Math.min(Math.max(1, state.currentPage), totalPages);
-  const paginatedProducts = products.slice(0, state.currentPage * itemsPerPage);
+  const paginatedProducts = products.slice(0, (isFullCatalogPage?state.currentPage:1) * itemsPerPage);
 
-  $(selectors.featuredGrid).innerHTML = products.length > 0
+  $(selectors.featuredGrid).innerHTML = !isFullCatalogPage&&products.length > 0
     ? featured.map((product, index) => renderFeatureCard(product, index)).join("")
     : "";
   $(selectors.productGrid).innerHTML = paginatedProducts
@@ -3192,8 +3202,9 @@ function renderProducts() {
 function renderPagination(totalPages) {
   const container = $(selectors.paginationControls);
   if (!container) return;
-  container.innerHTML=state.currentPage<totalPages
-    ? `<div class="pagination"><button class="pagination-btn" type="button" data-catalog-more>โหลดสินค้าเพิ่มอีก 24 รายการ</button></div>` : '';
+  container.innerHTML=isFullCatalogPage
+    ? (state.currentPage<totalPages?`<div class="pagination"><button class="pagination-btn" type="button" data-catalog-more>แสดงเพิ่มอีก 24 รายการ</button></div>`:'')
+    : '<div class="pagination"><a class="primary-button catalog-all-link" href="products.html">ดูสินค้าทั้งหมด <span aria-hidden="true">→</span></a></div>';
   return;
 
 }
@@ -3456,11 +3467,13 @@ function renderProductCard(product, index = 0) {
   const discount = getDiscount(product);
   const publisher = String(product.publisher || "").trim();
   const tags = catalogProductTagsMarkup(product);
+  const steamId=String(product.steamAppId||window.OlafAgeGate?.steamId(product)||'');
+  const artwork=!product.ageLocked&&/^\d+$/.test(steamId)?`https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${steamId}/header.jpg`:(product.image||product.heroImage);
 
   return `
     <article class="product-card ${product.stock <= 0 ? "is-out-of-stock" : ""}">
       <div class="product-image">
-        <img ${fastImg(product.image || product.heroImage, product.name, catalogImageOptions(index))} />
+        <img ${fastImg(artwork, product.name, {...catalogImageOptions(index),fallbacks:[product.image,product.heroImage].filter(Boolean)})} />
         ${discount ? `<span class="discount-pill">-${discount}%</span>` : ""}
         ${favoriteToggleMarkup(product, "product-favorite-toggle")}
       </div>

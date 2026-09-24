@@ -2,7 +2,9 @@
 body.home-page .olaf-steam-preview .olaf-preview-images{display:grid!important;grid-template-columns:minmax(0,1fr);align-content:start;flex:0 0 auto;gap:10px}
 body.home-page .olaf-steam-preview .olaf-preview-images[data-image-count="1"]{grid-template-columns:minmax(0,1fr)}
 body.home-page .olaf-steam-preview .olaf-preview-images img{width:100%!important;height:125px!important;object-fit:cover!important;object-position:center;max-height:none;flex:none;min-width:0;border-radius:12px}
-body.home-page .olaf-steam-preview .olaf-preview-images[data-image-count="1"] img{height:auto!important;aspect-ratio:460/215}
+body.home-page .olaf-steam-preview .olaf-preview-images[data-image-count="1"] img{height:125px!important}
+.olaf-preview-placeholder{height:125px;display:grid;place-items:center;border:1px dashed #294464;border-radius:12px;background:linear-gradient(120deg,#102139,#081429);color:#829bb9;font-size:12px}
+body.home-page .olaf-steam-preview{border:1px solid #294363;border-radius:18px;background:linear-gradient(145deg,#0c1b32,#050b1c);box-shadow:0 12px 35px #0003;padding:16px}
 body.home-page .olaf-steam-preview{height:auto!important;bottom:auto;min-height:0}
 body.home-page .olaf-steam-discovery-preview .olaf-steam-preview-images{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 body.home-page .olaf-steam-discovery-preview .olaf-steam-preview-images img{width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;max-height:none}

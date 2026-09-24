@@ -1811,7 +1811,7 @@ function renderSteamShowcaseWidget() {
       const publisher = cleanDisplayText(product.publisher);
       const rating = cleanDisplayText(product.rating) || "แนะนำ";
       return `
-        <div class="olaf-steam-row">
+        <div class="olaf-steam-row" data-preview-product="${escapeHtml(String(product.id))}">
           <a class="olaf-steam-item" href="${productLink(product)}">
             <img ${fastImg(product.image || product.heroImage, productName, { className: "olaf-steam-thumb" })} />
             <div class="olaf-steam-info">
@@ -1833,6 +1833,7 @@ function renderSteamShowcaseWidget() {
             </div>
             <div class="olaf-preview-images" data-image-count="${images.length}">
               ${images.map((image) => `<img ${fastImg(image, `${productName} preview`)} />`).join("")}
+              ${Array.from({length:Math.max(0,4-images.length)},()=>'<div class="olaf-preview-placeholder">กำลังเตรียมภาพตัวอย่าง</div>').join('')}
             </div>
           </aside>
         </div>
@@ -4259,6 +4260,13 @@ window.addEventListener('olaf:supplier-media',event=>{
   // Replace only this feature, keeping discovery order, scroll and other cards intact.
   document.querySelectorAll('[data-discovery-product]').forEach(card=>{
     if(card.dataset.discoveryProduct===product.id)card.outerHTML=steamEditorialFeatureMarkup(product);
+  });
+  document.querySelectorAll('[data-preview-product]').forEach(row=>{
+    if(row.dataset.previewProduct!==String(product.id))return;
+    const box=row.querySelector('.olaf-preview-images');if(!box)return;
+    const images=productPreviewImages(product);box.dataset.imageCount=String(images.length);
+    box.innerHTML=images.map(image=>`<img ${fastImg(image,`${product.name} preview`)} />`).join('')+
+      Array.from({length:Math.max(0,4-images.length)},()=>'<div class="olaf-preview-placeholder">ยังไม่มีภาพตัวอย่างเพิ่มเติม</div>').join('');
   });
   hydrateImages();
 });

@@ -10,7 +10,7 @@
     // Detail/hover must retain the original full-product fetch, not the compact Index row.
     const p=(cached&&legacyRows.get(id))||await byId.call(base,id);if(!p)return p;
     const appId=window.OlafAgeGate?.steamId(p);
-    if(appId&&!legacyAges.has(id)){try{const r=await fetch('/api/steam-app?view=media&appid='+encodeURIComponent(appId));if(r.ok){const s=await r.json();if(String(s.appId)===appId)legacyAges.set(id,{ageStatus:s.ageStatus,ageRestricted:s.ageRestricted,requiredAge:s.requiredAge});}}catch{}}
+    if(appId&&!legacyAges.has(id)){try{const r=await fetch('/api/steam-app?view=media&appid='+encodeURIComponent(appId));if(r.ok){const s=await r.json();if(String(s.appId)===String(appId))legacyAges.set(id,{ageStatus:s.ageStatus,ageRestricted:s.ageRestricted,requiredAge:s.requiredAge,...(s.screenshots?.length?{gallery:s.screenshots}:{}),...(s.headerImage?{image:s.headerImage}:{})});}}catch{}}
     return mapLegacy(p);
   }
   const mapProduct=(p,checkoutEnabled=true)=>protect({
@@ -56,7 +56,7 @@
   if(document.addEventListener&&typeof IntersectionObserver!=='undefined')document.addEventListener('DOMContentLoaded',()=>{
     const observer=new IntersectionObserver(entries=>{for(const entry of entries){if(!entry.isIntersecting)continue;observer.unobserve(entry.target);
       const el=entry.target,source=el.getAttribute('src');
-      const id=window.OlafAgeGate?.productIdForSource(source)||el.closest('[data-discovery-product]')?.dataset.discoveryProduct||snapshot.find(p=>p.image===source)?.id;
+      const id=window.OlafAgeGate?.productIdForSource(source)||el.closest('[data-preview-product]')?.dataset.previewProduct||el.closest('[data-discovery-product]')?.dataset.discoveryProduct||snapshot.find(p=>p.image===source)?.id;
       if(!id||queued.has(id))continue;queued.add(id);queue.push(id);drain();
     }},{rootMargin:'150px'});
     const scan=()=>document.querySelectorAll('img').forEach(img=>{if(img.dataset.supplierMediaObserved)return;img.dataset.supplierMediaObserved='true';observer.observe(img);});

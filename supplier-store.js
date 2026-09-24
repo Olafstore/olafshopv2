@@ -147,7 +147,10 @@
     const heading=el('h2',title);heading.id='supplier-vault-title';dialog.setAttribute('aria-labelledby',heading.id);
     const close=el('button','×','supplier-vault-close');close.type='button';close.setAttribute('aria-label','ปิดหน้าต่าง');close.addEventListener('click',()=>dialog.close());
     const status=el('p');status.dataset.supplierDialogStatus='';status.setAttribute('role','status');
-    dialog.append(close,heading,status);dialog.addEventListener('close',()=>{if(dialog.isConnected){clearSecrets();dialog.remove();}});
+    const header=el('div',undefined,'supplier-vault-header');
+    const icon=el('span',undefined,'supplier-steam-emblem');icon.setAttribute('aria-hidden','true');
+    icon.innerHTML='<svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="30" fill="#071c42" stroke="#50bfff"/><path d="m3 38 19 8 9-4 13-16-5-9-17 21-8-3Z" fill="white"/><circle cx="44" cy="23" r="12" fill="#071c42" stroke="white" stroke-width="4"/><circle cx="44" cy="23" r="7" stroke="white" stroke-width="2"/><circle cx="23" cy="44" r="8" fill="#071c42" stroke="white" stroke-width="3"/><path d="m5 37 20 8" stroke="white" stroke-width="5" stroke-linecap="round"/></svg>';
+    header.append(icon,heading);dialog.append(close,header,status);dialog.addEventListener('close',()=>{if(dialog.isConnected){clearSecrets();dialog.remove();}});
     document.body.append(dialog);dialog.showModal();return dialog;
   }
   function closeVaults(){document.querySelectorAll('dialog.supplier-vault').forEach(d=>{if(d.open)d.close();d.remove();});clearSecrets();}

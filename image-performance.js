@@ -80,7 +80,8 @@
       if(match||proxy){
         const folder=match?u.origin+match[1]:`https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${u.searchParams.get('appid')}/`;
         const original=url;url=match?folder+'header.jpg':url;
-        options={...options,fallbacks:[original,folder+'header.jpg',...(options.fallbacks||[])].filter(v=>v!==url)};
+        const appId=u.searchParams.get('appid')||u.pathname.match(/\/apps\/(\d+)\//)?.[1];
+        options={...options,fallbacks:[original,folder+'header.jpg',...(options.fallbacks||[]),...(appId?[`https://cdn.akamai.steamstatic.com/steam/apps/${appId}/header.jpg`,`/api/steam-app?appid=${appId}&image=header`]:[])].filter(v=>v!==url)};
       }
     }catch{}
     const artwork = document.body?.matches(".home-page, .extras-page") ? windowsArtwork.get(url) : null;

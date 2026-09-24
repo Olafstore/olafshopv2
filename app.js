@@ -3472,7 +3472,7 @@ function renderProductCard(product, index = 0) {
   const publisher = String(product.publisher || "").trim();
   const tags = catalogProductTagsMarkup(product);
   const steamId=String(product.steamAppId||window.OlafAgeGate?.steamId(product)||'');
-  const artwork=!product.ageLocked&&/^\d+$/.test(steamId)?`https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${steamId}/header.jpg`:(product.image||product.heroImage);
+  const artwork=!product.ageLocked&&/^\d+$/.test(steamId)?`https://cdn.akamai.steamstatic.com/steam/apps/${steamId}/header.jpg`:(product.image||product.heroImage);
   if(isFullCatalogPage){const category=({'offline':'ไอดีออฟไลน์','steam-key':'CD-Key','steam-account':'ไอดียกเมล','windows':'ซอฟต์แวร์'})[product.category]||getCategoryLabel(product.category);
     return `<article class="product-card catalog-shop-card" data-category-type="${escapeHtml(product.category)}"><a class="product-image" href="${productLink(product)}"><img ${fastImg(artwork,product.name,{...catalogImageOptions(index),fallbacks:[product.image,product.heroImage].filter(Boolean)})}/><span class="catalog-kind">${escapeHtml(category)}</span></a><div class="product-body"><h3><a href="${productLink(product)}">${escapeHtml(product.name)}</a></h3><p class="catalog-platform">${escapeHtml(category)} · ${escapeHtml(product.platform||'PC (Steam)')}</p><span class="catalog-availability ${product.stock>0?'':'is-empty'}">● ${product.stock>0?'พร้อมจำหน่าย':'สินค้าหมด'}</span><div class="catalog-buy-row"><strong>${formatPrice(product.price)}</strong><a class="catalog-buy" href="${productLink(product)}" aria-label="ดูสินค้า ${escapeHtml(product.name)}"><i data-lucide="shopping-cart"></i></a></div></div></article>`;
   }
@@ -4263,6 +4263,14 @@ window.addEventListener('olaf:supplier-catalog',event=>{
 window.addEventListener('olaf:supplier-media',event=>{
   const product=event.detail;if(!product?.id||!Array.isArray(state.products))return;
   const old=state.products.find(p=>p.id===product.id);if(old)Object.assign(old,product);
+  // Late metadata must update ordinary cards too, not only the editorial preview.
+  document.querySelectorAll('#product-grid .product-card').forEach(card=>{
+    const link=card.querySelector('a[href*="product.html?id="]');
+    if(!link||new URL(link.href,location.href).searchParams.get('id')!==String(product.id))return;
+    const previous=card.querySelector('.product-image img');if(!previous||!product.image)return;
+    const template=document.createElement('template');template.innerHTML=`<img ${fastImg(product.image,product.name,{fallbacks:[product.heroImage,...(product.gallery||[])].filter(Boolean).slice(0,3)})}/>`;
+    previous.replaceWith(template.content.firstElementChild);
+  });
   // Replace only this feature, keeping discovery order, scroll and other cards intact.
   document.querySelectorAll('[data-discovery-product]').forEach(card=>{
     if(card.dataset.discoveryProduct===product.id)card.outerHTML=steamEditorialFeatureMarkup(product);

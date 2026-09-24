@@ -2662,7 +2662,6 @@ function renderCheckoutPoints() {
 }
 
 async function hydrateCheckoutPoints() {
-  if(currentProduct?.supplierProduct)return;
   if (!window.OlafOrders?.fetchPointBalance) {
     renderCheckoutPoints();
     return;
@@ -2769,7 +2768,7 @@ function openOrderForm() {
   resetCheckoutCoupon(total);
   renderCheckoutPoints();
   hydrateCheckoutPoints();
-  for(const selector of ['[data-checkout-points-card]','[data-checkout-coupon-card]']){
+  for(const selector of ['[data-checkout-coupon-card]']){
     const card=form.querySelector(selector);if(card&&p.supplierProduct)card.hidden=true;
   }
 
@@ -2931,10 +2930,11 @@ function openOrderConfirmDialog(subtotal, total) {
 function openSupplierQuoteLoading(){
   const dialog=document.createElement('dialog');dialog.className='supplier-checkout-loading';
   dialog.setAttribute('aria-label','กำลังตรวจราคาสินค้า');
-  dialog.innerHTML='<div role="status" aria-live="polite"><span class="supplier-loading-ring" aria-hidden="true"></span><h2>กำลังเตรียมคำสั่งซื้อ</h2><p>ตรวจราคาและสต็อกล่าสุดจาก 499K</p><small>ยังไม่มีการสั่งซื้อหรือตัดเงิน กรุณารอสักครู่</small></div>';
+  dialog.innerHTML='<div role="status" aria-live="polite"><span class="supplier-loading-ring" aria-hidden="true"></span><h2>กำลังเตรียมคำสั่งซื้อ</h2><p>กรุณารอสักครู่</p><small>ยังไม่มีการสั่งซื้อหรือตัดเงิน</small></div>';
   dialog.addEventListener('cancel',event=>event.preventDefault());document.body.append(dialog);dialog.showModal();syncProductOverlayState();return dialog;
 }
 function supplierCheckoutError(error){
+  if(error?.code==='POINT_BALANCE_INSUFFICIENT')return 'Point ไม่เพียงพอ กรุณาตรวจยอดแล้วลองใหม่';
   if(error?.code==='SUPPLIER_OUT_OF_STOCK')return 'สินค้าหมดชั่วคราว กรุณาเลือกสินค้าอื่น';
   if(['SUPPLIER_RATE_LIMITED','RATE_LIMITED','SUPPLIER_DATABASE_RATE_LIMITED'].includes(error?.code))return `คำขอถี่เกินไป กรุณารอ ${Math.max(1,Number(error.retryAfter)||60)} วินาที แล้วลองใหม่ ไม่ต้องกดซ้ำ`;
   if(error?.code==='SUPPLIER_PRICE_CHANGED')return 'ราคาเปลี่ยน กรุณาปิดฟอร์มแล้วกดซื้อใหม่เพื่อตรวจราคา';
@@ -2968,7 +2968,7 @@ async function submitOrder(formData) {
   try {
     if (!window.OlafOrders?.createOrder) throw new Error("Supabase order client is not ready");
     const savedOrder = p.supplierProduct
-      ? await window.OlafSupplierUI.createCheckout(p.rawPublic,normalizePaymentMethod(formData.get('paymentMethod')))
+      ? await window.OlafSupplierUI.createCheckout(p.rawPublic,normalizePaymentMethod(formData.get('paymentMethod')),checkoutPointState.pointsToUse || 0)
       : await window.OlafOrders.createOrder({
       productId: p.id,
       quantity: detailQuantity,
@@ -2992,7 +2992,7 @@ async function submitOrder(formData) {
       showToast(
         savedOrder?.status === "delivered"
           ? "ใช้ Point สั่งซื้อสำเร็จ และจัดส่งสินค้า Offline แล้ว"
-          : "ใช้ Point สั่งซื้อสำเร็จ รอแอดมินจัดส่งสินค้า",
+          : "ชำระด้วย Point สำเร็จ กำลังดำเนินการจัดส่ง ตรวจสถานะได้ที่ออเดอร์ของฉัน",
         "payment",
         5500
       );
@@ -3032,7 +3032,9 @@ function createPromptPayUrl(amount) {
     .trim()
     .replace(/[^\d]/g, "");
   if (!promptPayId) return "";
-  const value = Math.max(1, Number(amount || 0)).toFixed(2);
+  const numericAmount=Number(amount);
+  if(!Number.isFinite(numericAmount)||numericAmount<=0)return '';
+  const value = numericAmount.toFixed(2);
   return `https://promptpay.io/${encodeURIComponent(promptPayId)}/${value}.png`;
 }
 
@@ -3233,7 +3235,7 @@ function showDirectOrderProcessingPopup() {
   const note = $("[data-qr-note]");
   if (loading) {
     setQrLoadingVisible(true);
-    if(currentProduct?.supplierProduct)loading.innerHTML='<span class="supplier-loading-ring" aria-hidden="true"></span><strong>กำลังสร้างออเดอร์และเตรียม QR</strong><span>กรุณารอ ไม่ต้องกดสั่งซื้อซ้ำ</span>';
+    if(currentProduct?.supplierProduct)loading.innerHTML='<strong>กำลังดำเนินการสั่งซื้อ</strong><span>กรุณารอ ไม่ต้องกดสั่งซื้อซ้ำ</span>';
     else loading.textContent = "กำลังสร้างคำสั่งซื้อและเตรียม QR สำหรับชำระเงิน...";
   }
   if (image) {

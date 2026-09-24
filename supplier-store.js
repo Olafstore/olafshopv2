@@ -177,11 +177,11 @@
     }
     window.OlafSupplierUI={checkout:showProduct,
       quote:quoteProduct,
-      createCheckout:async(p,paymentMethod)=>{
+      createCheckout:async(p,paymentMethod,pointsToUse=0)=>{
         const userSession=await session();
-        const key=`olaf-supplier-native:${userSession.user.id}:${p.id}:${paymentMethod}:${p.price}`;
+        const key=`olaf-supplier-native:${userSession.user.id}:${p.id}:${paymentMethod}:${p.price}:${pointsToUse}`;
         let requestId=sessionStorage.getItem(key);if(!requestId){requestId=crypto.randomUUID();sessionStorage.setItem(key,requestId);}
-        const order=await api('checkout',{productId:p.id,requestId,paymentMethod,expectedPrice:p.price});
+        const order=await api('checkout',{productId:p.id,requestId,paymentMethod,expectedPrice:p.price,pointsToUse});
         // Clear only after a confirmed response; transport failures retain the ref.
         sessionStorage.removeItem(key);
         return order;

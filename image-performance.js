@@ -124,6 +124,7 @@
   }
 
   function hydrateImage(img) {
+    if(img?.matches?.('[data-qr-image], .supplier-qr'))return;
     if (!img || img.dataset.fastHydrated === "true") return;
     img.dataset.fastHydrated = "true";
     img.decoding = "async";
@@ -246,6 +247,8 @@
   );
 
   function recoverImage(target) {
+      // Payment QR must never turn into a decorative "successful" fallback image.
+      if(target?.matches?.('[data-qr-image], .supplier-qr'))return;
       if (target?.tagName !== "IMG" || target.dataset.fallbackApplied === "true") return;
       if (target.dataset.retryPending === 'true') return;
       // Retry the original src once before giving up on a transient mobile error.

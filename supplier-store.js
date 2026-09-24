@@ -22,13 +22,29 @@
   errors.SUPPLIER_UPSTREAM_BLOCKED='499K ปฏิเสธการเชื่อมต่อจากเซิร์ฟเวอร์ร้าน กรุณาติดต่อร้าน ยังไม่มีการสั่งซื้อหรือตัดเงิน';
   async function run(control,task){control.disabled=true;try{await task();}catch(e){notice((errors[e.code]||'ทำรายการไม่สำเร็จ กรุณาโหลดสถานะใหม่ก่อนลองซ้ำ')+(e.code?' ['+e.code+']':''));}finally{if(control.isConnected)control.disabled=control.dataset.locked==='true';}}
   async function session(){const result=await window.olafSupabase.auth.getSession();if(result.error||!result.data?.session)throw Object.assign(new Error(),{code:'AUTH_REQUIRED'});return result.data.session;}
+  const checkoutCooldowns=new Map(),pendingQuotes=new Map();
+  async function quoteProduct(productId){
+    const s=await session(),key=`${epoch}:${s.user.id}:${productId}`;
+    if(pendingQuotes.has(key))return pendingQuotes.get(key);
+    const pending=api('quote',{productId}).finally(()=>pendingQuotes.delete(key));
+    pendingQuotes.set(key,pending);return pending;
+  }
   async function api(action,body){
     const version=epoch;const headers={Accept:'application/json'};
-    if(action!=='catalog')headers.Authorization=`Bearer ${(await session()).access_token}`;
+    let owner='';
+    if(action!=='catalog'){const s=await session();owner=s.user.id;headers.Authorization=`Bearer ${s.access_token}`;}
+    const checkoutAction=action==='quote'||action==='checkout';
+    const cooldownKey=`${version}:${owner}`;
+    const remaining=Math.ceil(((checkoutCooldowns.get(cooldownKey)||0)-Date.now())/1000);
+    if(checkoutAction&&remaining>0)throw Object.assign(new Error(),{code:'SUPPLIER_RATE_LIMITED',retryAfter:remaining});
     if(body!==undefined)headers['Content-Type']='application/json';
-    const res=await fetch(`/api/admin-supplier?action=shop-${action}`,{method:body===undefined?'GET':'POST',headers,cache:'no-store',...(body!==undefined?{body:JSON.stringify(body)}:{})});
+    const res=await fetch(`/api/admin-supplier?action=shop-${action}`,{method:body===undefined?'GET':'POST',headers,cache:'no-store',signal:AbortSignal.timeout(30000),...(body!==undefined?{body:JSON.stringify(body)}:{})});
     const result=await res.json();if(version!==epoch)throw new Error('SESSION_CHANGED');
-    if(!res.ok||!result.success)throw Object.assign(new Error(),{code:result.code,diagnostics:result.diagnostics});return result.data;
+    if(!res.ok||!result.success){
+      const retryAfter=Math.min(3600,Math.max(1,Number(res.headers.get('Retry-After'))||60));
+      if(checkoutAction&&(res.status===429||['SUPPLIER_RATE_LIMITED','RATE_LIMITED','SUPPLIER_DATABASE_RATE_LIMITED'].includes(result.code)))checkoutCooldowns.set(cooldownKey,Date.now()+retryAfter*1000);
+      throw Object.assign(new Error(),{code:result.code,diagnostics:result.diagnostics,retryAfter});
+    }return result.data;
   }
   async function apiOrder(id){const s=await session();const r=await fetch('/api/admin-supplier?action=shop-order&orderId='+encodeURIComponent(id),{headers:{Authorization:'Bearer '+s.access_token},cache:'no-store'});const j=await r.json();if(!j.success)throw Object.assign(new Error(),{code:j.code});return j.data;}
   function img(url,alt,cls){const n=el('img',undefined,cls);n.src=url;n.alt=alt;n.loading='lazy';n.referrerPolicy='no-referrer';return n;}
@@ -160,7 +176,7 @@
       catch(e){document.querySelector('main').hidden=true;const msg=el('p',['AUTH_REQUIRED','ADMIN_REQUIRED'].includes(e.code)?'หน้านี้สำหรับแอดมินเท่านั้น กรุณาเข้าสู่ระบบบัญชีแอดมิน':'ตรวจความพร้อมไม่สำเร็จ ['+(e.code||'NETWORK')+'] กรุณาตรวจ SQL และ Environment');const a=el('a','เข้าสู่ระบบ');a.href='login.html?return=supplier-store.html';msg.append(a);document.body.append(msg);return;}
     }
     window.OlafSupplierUI={checkout:showProduct,
-      quote:productId=>api('quote',{productId}),
+      quote:quoteProduct,
       createCheckout:async(p,paymentMethod)=>{
         const userSession=await session();
         const key=`olaf-supplier-native:${userSession.user.id}:${p.id}:${paymentMethod}:${p.price}`;

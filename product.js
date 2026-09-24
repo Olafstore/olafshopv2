@@ -2497,7 +2497,7 @@ function renderProduct() {
     });
   });
 
-  $("#btn-buy")?.addEventListener("click", async () => {
+  $("#btn-buy")?.addEventListener("click", async (event) => {
     const user = window.OlafStore.currentUser();
     if (!user) {
       showToast("กรุณาเข้าสู่ระบบก่อนสั่งซื้อ", "info");
@@ -2507,12 +2507,18 @@ function renderProduct() {
       return;
     }
     if(currentProduct?.supplierProduct){
+      const button=event.currentTarget;
+      if(button.dataset.quoteBusy==='true')return;
+      button.dataset.quoteBusy='true';button.disabled=true;
+      const loading=openSupplierQuoteLoading();
       try{
         const quote=await window.OlafSupplierUI.quote(currentProduct.rawPublic.id);
-        if(!quote.available)throw new Error('SUPPLIER_OUT_OF_STOCK');
+        if(!quote.available)throw Object.assign(new Error('SUPPLIER_OUT_OF_STOCK'),{code:'SUPPLIER_OUT_OF_STOCK'});
         currentProduct.price=quote.price;currentProduct.rawPublic.price=quote.price;detailQuantity=1;
+        loading.close();loading.remove();
         openOrderConfirmDialog(quote.price,quote.price);
-      }catch(error){showToast('ยังสั่งซื้อไม่ได้ ['+(error.code||error.message||'NETWORK')+']','error');}
+      }catch(error){showToast(supplierCheckoutError(error),'error',6000);}
+      finally{if(loading.open)loading.close();loading.remove();delete button.dataset.quoteBusy;button.disabled=false;syncProductOverlayState();}
       return;
     }
     const purchase = getPurchaseOption(currentProduct);
@@ -2922,7 +2928,20 @@ function openOrderConfirmDialog(subtotal, total) {
   setOrderConfirmDialogOpen(dialog, true);
 }
 
+function openSupplierQuoteLoading(){
+  const dialog=document.createElement('dialog');dialog.className='supplier-checkout-loading';
+  dialog.setAttribute('aria-label','กำลังตรวจราคาสินค้า');
+  dialog.innerHTML='<div role="status" aria-live="polite"><span class="supplier-loading-ring" aria-hidden="true"></span><h2>กำลังเตรียมคำสั่งซื้อ</h2><p>ตรวจราคาและสต็อกล่าสุดจาก 499K</p><small>ยังไม่มีการสั่งซื้อหรือตัดเงิน กรุณารอสักครู่</small></div>';
+  dialog.addEventListener('cancel',event=>event.preventDefault());document.body.append(dialog);dialog.showModal();syncProductOverlayState();return dialog;
+}
+function supplierCheckoutError(error){
+  if(error?.code==='SUPPLIER_OUT_OF_STOCK')return 'สินค้าหมดชั่วคราว กรุณาเลือกสินค้าอื่น';
+  if(['SUPPLIER_RATE_LIMITED','RATE_LIMITED','SUPPLIER_DATABASE_RATE_LIMITED'].includes(error?.code))return `คำขอถี่เกินไป กรุณารอ ${Math.max(1,Number(error.retryAfter)||60)} วินาที แล้วลองใหม่ ไม่ต้องกดซ้ำ`;
+  if(error?.code==='SUPPLIER_PRICE_CHANGED')return 'ราคาเปลี่ยน กรุณาปิดฟอร์มแล้วกดซื้อใหม่เพื่อตรวจราคา';
+  return 'ยังดำเนินการไม่ได้ กรุณาเช็กออเดอร์ของฉันก่อนลองใหม่ ['+(error?.code||'NETWORK')+']';
+}
 function orderErrorMessage(error) {
+  if(currentProduct?.supplierProduct)return supplierCheckoutError(error);
   const message = String(error?.message || "");
   if (message.includes("INSUFFICIENT_STOCK")) return "สินค้านี้มีจำนวนไม่เพียงพอ กรุณาเลือกจำนวนใหม่";
   if (message.includes("PACKAGE_NOT_FOUND")) return "ไม่พบแพ็คเกจที่เลือก กรุณารีเฟรชหน้าเว็บแล้วลองใหม่";
@@ -3123,6 +3142,7 @@ const productQrDialogCloseTimers = new WeakMap();
 
 function setProductQrDialogOpen(dialog, open = true, { immediate = false } = {}) {
   if (!dialog) return;
+  if(!open)clearTimeout(paymentQrLoadTimer);
   const pendingTimer = productQrDialogCloseTimers.get(dialog);
   if (pendingTimer) {
     window.clearTimeout(pendingTimer);
@@ -3194,6 +3214,8 @@ function setMobilePaymentStage(dialog, stage) {
 }
 
 function showDirectOrderProcessingPopup() {
+  clearTimeout(paymentQrLoadTimer);
+  currentQrOrder=null;
   const orderDialog = $("#order-dialog");
   const dialog = $("#qr-dialog");
   if (!dialog) return;
@@ -3211,7 +3233,8 @@ function showDirectOrderProcessingPopup() {
   const note = $("[data-qr-note]");
   if (loading) {
     setQrLoadingVisible(true);
-    loading.textContent = "กำลังสร้างคำสั่งซื้อและเตรียม QR สำหรับชำระเงิน...";
+    if(currentProduct?.supplierProduct)loading.innerHTML='<span class="supplier-loading-ring" aria-hidden="true"></span><strong>กำลังสร้างออเดอร์และเตรียม QR</strong><span>กรุณารอ ไม่ต้องกดสั่งซื้อซ้ำ</span>';
+    else loading.textContent = "กำลังสร้างคำสั่งซื้อและเตรียม QR สำหรับชำระเงิน...";
   }
   if (image) {
     setQrImageVisible(false);
@@ -3231,7 +3254,9 @@ function showDirectOrderProcessingPopup() {
   createIconSet();
 }
 
+let paymentQrLoadTimer=null;
 function showPaymentResult(order) {
+  clearTimeout(paymentQrLoadTimer);
   const method = normalizePaymentMethod(order.paymentMethod);
   const methodLabel = { promptpay: "QR พร้อมเพย์", wallet: "TrueMoney Wallet" }[method] || "QR พร้อมเพย์";
   const methodIcon = method === "wallet" ? "wallet" : "qr-code";
@@ -3302,6 +3327,12 @@ function showPaymentResult(order) {
   const image = $("[data-qr-image]");
   const unavailable = $("[data-qr-unavailable]");
   setQrLoadingVisible(Boolean(qrUrl));
+  if(loading)loading.textContent='กำลังโหลด QR สำหรับออเดอร์นี้…';
+  if(unavailable){
+    unavailable.textContent='โหลดรูป QR ไม่สำเร็จ ยังไม่ได้แปลว่าออเดอร์ล้มเหลว กรุณาลองโหลด QR เดิมอีกครั้ง ห้ามสร้างออเดอร์หรือโอนซ้ำ';
+    const retry=document.createElement('button');retry.type='button';retry.className='secondary-button';retry.textContent='โหลด QR ออเดอร์เดิมอีกครั้ง';
+    retry.addEventListener('click',()=>showPaymentResult(order));unavailable.append(retry);
+  }
   if (unavailable) unavailable.hidden = true;
   if (image) {
     setQrImageVisible(false);
@@ -3311,14 +3342,18 @@ function showPaymentResult(order) {
     if (qrUrl) {
       let qrIndex = 1;
       image.onload = () => {
+        clearTimeout(paymentQrLoadTimer);
         setQrLoadingVisible(false);
         setQrImageVisible(true);
       };
       image.onerror = () => {
+        clearTimeout(paymentQrLoadTimer);
+        if(currentQrOrder?.id!==order.id)return;
         const nextQr = qrUrls[qrIndex];
         qrIndex += 1;
         if (nextQr) {
           image.src = nextQr;
+          paymentQrLoadTimer=setTimeout(()=>image.onerror?.(),12000);
           return;
         }
         setQrLoadingVisible(false);
@@ -3329,7 +3364,9 @@ function showPaymentResult(order) {
       image.decoding = "async";
       image.fetchPriority = "high";
       image.src = qrUrl;
+      paymentQrLoadTimer=setTimeout(()=>image.onerror?.(),12000);
       if (image.complete && image.naturalWidth > 0) {
+        clearTimeout(paymentQrLoadTimer);
         setQrLoadingVisible(false);
         setQrImageVisible(true);
       }

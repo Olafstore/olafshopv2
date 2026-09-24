@@ -56,7 +56,9 @@
   if(document.addEventListener&&typeof IntersectionObserver!=='undefined')document.addEventListener('DOMContentLoaded',()=>{
     const observer=new IntersectionObserver(entries=>{for(const entry of entries){if(!entry.isIntersecting)continue;observer.unobserve(entry.target);
       const el=entry.target,source=el.getAttribute('src');
-      const id=window.OlafAgeGate?.productIdForSource(source)||el.closest('[data-preview-product]')?.dataset.previewProduct||el.closest('[data-discovery-product]')?.dataset.discoveryProduct||snapshot.find(p=>p.image===source)?.id;
+      const href=el.closest('.product-card')?.querySelector('a[href*="product.html?id="]')?.getAttribute('href');
+      const cardId=href?new URL(href,location.href).searchParams.get('id'):null;
+      const id=window.OlafAgeGate?.productIdForSource(source)||el.closest('[data-preview-product]')?.dataset.previewProduct||el.closest('[data-discovery-product]')?.dataset.discoveryProduct||cardId||snapshot.find(p=>p.image===source)?.id;
       if(!id||queued.has(id))continue;queued.add(id);queue.push(id);drain();
     }},{rootMargin:'150px'});
     const scan=()=>document.querySelectorAll('img').forEach(img=>{if(img.dataset.supplierMediaObserved)return;img.dataset.supplierMediaObserved='true';observer.observe(img);});

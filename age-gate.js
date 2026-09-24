@@ -10,6 +10,7 @@
   function steamId(p){
     const direct=p.steamAppId||p.steam_app_id||p.sourceMetadata?.steamAppId||p.sourceMetadata?.steam_app_id;
     if(/^\d{1,9}$/.test(String(direct||'')))return String(direct);
+    for(const value of [p.steamUrl,p.steam_url,...(p.platformLinks||[]).map(link=>link.url)]){try{const u=new URL(value);if(u.protocol==='https:'&&u.hostname==='store.steampowered.com'){const id=u.pathname.match(/^\/app\/(\d{1,9})(?:\/|$)/)?.[1];if(id)return id;}}catch{}}
     for(const value of [p.image,p.heroImage,...(p.gallery||[])]){try{const u=new URL(value);if(/(^|\.)steamstatic\.com$/.test(u.hostname)){const id=u.pathname.match(/\/apps\/(\d{1,9})\//)?.[1];if(id)return id;}}catch{}}
     return null;
   }

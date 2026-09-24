@@ -784,6 +784,8 @@ function filteredProducts() {
     if (state.priceFilter === "under50") matchesPrice = product.price < 50;
     else if (state.priceFilter === "50to100") matchesPrice = product.price >= 50 && product.price <= 100;
     else if (state.priceFilter === "over100") matchesPrice = product.price > 100;
+    else if (state.priceFilter === "100to300") matchesPrice = product.price > 100 && product.price <= 300;
+    else if (state.priceFilter === "over300") matchesPrice = product.price > 300;
 
     const searchable = normalizeCatalogSearch([
       product.name,
@@ -2977,7 +2979,7 @@ function renderSteamStorefront() {
 }
 
 function renderCategories() {
-  const displayCategories=isFullCatalogPage?[{id:'offline',label:'ไอดีออฟไลน์'},{id:'steam-key',label:'คีย์เกม'},{id:'steam-account',label:'ไอดียกเมล'},{id:'all',label:'สินค้าทั้งหมด'}]:state.categories;
+  const displayCategories=isFullCatalogPage?[{id:'all',label:'ทั้งหมด',icon:'layout-grid',en:'ALL PRODUCTS'},{id:'offline',label:'ไอดีออฟไลน์',icon:'gamepad-2',en:'OFFLINE ACCOUNT'},{id:'steam-account',label:'ไอดียกเมล',icon:'users',en:'FULL ACCESS'},{id:'steam-key',label:'CD-Key',icon:'key-round',en:'GAME KEY'},{id:'windows',label:'ซอฟต์แวร์',icon:'panels-top-left',en:'WINDOWS / SOFTWARE'}]:state.categories;
   $(selectors.categoryTabs).innerHTML = displayCategories
     .map(
       (category) => `
@@ -2988,7 +2990,7 @@ function renderCategories() {
           aria-selected="${state.selectedCategory === category.id}"
           data-category="${escapeHtml(category.id)}"
         >
-          ${escapeHtml(category.label)}
+          ${isFullCatalogPage?`<img class="catalog-category-art" ${fastImg(state.products.find(p=>(category.id==='all'||p.category===category.id)&&p.image)?.image||'', '', {loading:'lazy'})}/><i data-lucide="${category.icon}"></i><span>${escapeHtml(category.label)}<small>${category.en}</small></span><b>${state.products.filter(p=>category.id==='all'||p.category===category.id).length}</b>`:escapeHtml(category.label)}
         </button>
       `
     )
@@ -3145,7 +3147,7 @@ function renderShowcaseCategoryState() {
 }
 
 function selectCatalogCategory(categoryId, options = {}) {
-  if (!state.categories.some((category) => category.id === categoryId)&&!(isFullCatalogPage&&['offline','steam-key','steam-account','all'].includes(categoryId))) return;
+  if (!state.categories.some((category) => category.id === categoryId)&&!(isFullCatalogPage&&['offline','steam-key','steam-account','windows','all'].includes(categoryId))) return;
   state.selectedCategory = categoryId;
   state.currentPage = 1;
   renderCategories();
@@ -3179,6 +3181,7 @@ function featuredRandomProducts(products) {
 function renderProducts() {
   if (state.heroCatalogLoading) { renderHomeLoading(); return; }
   const products = filteredProducts();
+  if(isFullCatalogPage){const count=document.getElementById('catalog-result-count');if(count)count.textContent=`${products.length.toLocaleString('th-TH')} รายการ`;}
   const itemsPerPage = getCatalogItemsPerPage();
   const featured = featuredRandomProducts(products);
 
@@ -3470,6 +3473,9 @@ function renderProductCard(product, index = 0) {
   const tags = catalogProductTagsMarkup(product);
   const steamId=String(product.steamAppId||window.OlafAgeGate?.steamId(product)||'');
   const artwork=!product.ageLocked&&/^\d+$/.test(steamId)?`https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${steamId}/header.jpg`:(product.image||product.heroImage);
+  if(isFullCatalogPage){const category=({'offline':'ไอดีออฟไลน์','steam-key':'CD-Key','steam-account':'ไอดียกเมล','windows':'ซอฟต์แวร์'})[product.category]||getCategoryLabel(product.category);
+    return `<article class="product-card catalog-shop-card" data-category-type="${escapeHtml(product.category)}"><a class="product-image" href="${productLink(product)}"><img ${fastImg(artwork,product.name,{...catalogImageOptions(index),fallbacks:[product.image,product.heroImage].filter(Boolean)})}/><span class="catalog-kind">${escapeHtml(category)}</span></a><div class="product-body"><h3><a href="${productLink(product)}">${escapeHtml(product.name)}</a></h3><p class="catalog-platform">${escapeHtml(category)} · ${escapeHtml(product.platform||'PC (Steam)')}</p><span class="catalog-availability ${product.stock>0?'':'is-empty'}">● ${product.stock>0?'พร้อมจำหน่าย':'สินค้าหมด'}</span><div class="catalog-buy-row"><strong>${formatPrice(product.price)}</strong><a class="catalog-buy" href="${productLink(product)}" aria-label="ดูสินค้า ${escapeHtml(product.name)}"><i data-lucide="shopping-cart"></i></a></div></div></article>`;
+  }
 
   return `
     <article class="product-card ${product.stock <= 0 ? "is-out-of-stock" : ""}">

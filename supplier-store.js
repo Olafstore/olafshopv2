@@ -142,6 +142,10 @@
     }
     panel.scrollIntoView({block:'start',behavior:'smooth'});
   }
+  function vaultIcon(kind){
+    const paths={key:'M15 7a5 5 0 1 1-3 9l-7 6-3-3 6-7a5 5 0 0 1 7-5Z M16 10h.01',shield:'M12 2 3 6v6c0 5 9 10 9 10s9-5 9-10V6Z M12 7v10 M7 12h10',user:'M16 6a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z M4 22v-3a8 8 0 0 1 16 0v3Z',lock:'M6 10h12v12H6Z M8 10V6a4 4 0 0 1 8 0v4',copy:'M9 8h12v14H9Z M5 17H2V2h13v3'};
+    const span=el('span',undefined,'supplier-topic-icon');span.setAttribute('aria-hidden','true');span.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="'+paths[kind]+'"/></svg>';return span;
+  }
   function vaultDialog(title){
     const dialog=el('dialog',undefined,'supplier-widget supplier-vault');
     const heading=el('h2',title);heading.id='supplier-vault-title';dialog.setAttribute('aria-labelledby',heading.id);
@@ -151,6 +155,7 @@
     const icon=el('span',undefined,'supplier-steam-emblem');icon.setAttribute('aria-hidden','true');
     icon.innerHTML='<svg viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="30" fill="#071c42" stroke="#50bfff"/><path d="m3 38 19 8 9-4 13-16-5-9-17 21-8-3Z" fill="white"/><circle cx="44" cy="23" r="12" fill="#071c42" stroke="white" stroke-width="4"/><circle cx="44" cy="23" r="7" stroke="white" stroke-width="2"/><circle cx="23" cy="44" r="8" fill="#071c42" stroke="white" stroke-width="3"/><path d="m5 37 20 8" stroke="white" stroke-width="5" stroke-linecap="round"/></svg>';
     header.append(icon,heading);dialog.append(close,header,status);dialog.addEventListener('close',()=>{if(dialog.isConnected){clearSecrets();dialog.remove();}});
+    const official=el('img');official.src='https://community.fastly.steamstatic.com/public/shared/images/header/logo_steam.svg';official.alt='Steam';official.addEventListener('load',()=>{icon.replaceChildren(official);icon.classList.add('is-official');},{once:true});
     document.body.append(dialog);dialog.showModal();return dialog;
   }
   function closeVaults(){document.querySelectorAll('dialog.supplier-vault').forEach(d=>{if(d.open)d.close();d.remove();});clearSecrets();}
@@ -184,16 +189,20 @@
         }
         row.append(button('คัดลอก',()=>navigator.clipboard.writeText(input.value)));label.append(row);box.append(label);
       }
+      box.querySelector('h3').prepend(vaultIcon('key'));
+      box.querySelectorAll('label').forEach((label,index)=>label.prepend(vaultIcon(index?'lock':'user')));
+      box.querySelectorAll('.supplier-vault-field button:not(.supplier-vault-eye)').forEach(b=>b.prepend(vaultIcon('copy')));
       dialog.append(box);openGuard(o,dialog);
       const footer=el('div',undefined,'supplier-vault-footer');footer.append(el('span','จัดส่งอัตโนมัติ · รับสินค้าหลังชำระเงิน'),button('ปิด',()=>dialog.close()));dialog.append(footer);
     }catch(e){if(version===guardVersion)notice(errors[e.code]||'ยังเปิดข้อมูลไม่ได้ กรุณาลองใหม่');}
   }
   function openGuard(o,dialog){
     const section=el('section',undefined,'supplier-vault-guard');section.append(el('h3','Steam Guard'),el('p','รับรหัสเพื่อเข้าสู่ระบบ · สูงสุด 3 รอบต่อออเดอร์ตามข้อกำหนดผู้ให้บริการ'));
+    section.querySelector('h3').prepend(vaultIcon('shield'));
     const start=button('รับรหัส Steam Guard',async()=>{
       const version=guardVersion,result=await api('guard',{orderId:o.id,reason:'ลูกค้าขอ Steam Guard เพื่อเข้าสู่ระบบบัญชีที่ซื้อ'});
       if(version!==guardVersion||!dialog.open||document.hidden)return;showGuard(o,result,start,section);
-    });start.dataset.guardStart='';section.append(start);
+    });start.prepend(vaultIcon('shield'));start.dataset.guardStart='';section.append(start);
     section.append(el('p','รอบละ 60 วินาที · เก็บรหัสเป็นความลับ เมื่อปิดหน้าต่างหรือสลับแท็บข้อมูลจะถูกซ่อน','supplier-vault-order'));dialog.append(section);
   }
   function showGuard(o,result,start,target){

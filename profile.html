@@ -2879,8 +2879,8 @@
     <link rel="stylesheet" href="friends-premium.css?v=20260913-v258" />
   <script src="friends-social.js?v=20260913-v259" defer></script>
   <link rel="stylesheet" href="friends-layout.css?v=20260913-v259" />
-  <link rel="stylesheet" href="supplier-widgets.css?v=20260924-inventory-v12">
-  <script src="supplier-store.js?v=20260924-inventory-v12" defer></script>
+  <link rel="stylesheet" href="supplier-widgets.css?v=20260925-v14">
+  <script src="supplier-store.js?v=20260925-v14" defer></script>
 </head>
 
 <body class="profile-page">
@@ -3882,6 +3882,7 @@
     let supplierInventoryOrders=[];
     document.addEventListener('olaf:supplier-order-open',event=>{
       event.preventDefault();const o=event.detail;if(!o)return;
+      if(o.canReceive&&o.paymentStatus==='verified'){toggleInventoryModal(false);window.OlafSupplierUI?.openInventory(o.id);return;}
       const legacy=profileState.orders.find(row=>row.id===o.id)||{};
       const row={...legacy,orderId:o.id,orderNumber:o.orderNumber,productId:'',productName:o.name,productImageUrl:o.image,quantity:1,
         createdAt:o.createdAt,status:o.status,statusLabel:orderStatusLabel(o.status),total:o.total,paymentMethod:o.paymentMethod,paymentStatus:o.paymentStatus,

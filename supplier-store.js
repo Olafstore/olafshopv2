@@ -153,12 +153,14 @@
   function closeVaults(){document.querySelectorAll('dialog.supplier-vault').forEach(d=>{if(d.open)d.close();d.remove();});clearSecrets();}
   async function openInventory(orderId){
     closeVaults();const version=guardVersion;
-    const dialog=vaultDialog('ข้อมูลสินค้า');dialog.append(el('p','กำลังโหลดข้อมูล…','supplier-vault-loading'));
+    const dialog=vaultDialog('รับข้อมูลสินค้า Steam');dialog.append(el('p','รับไอดี รหัสผ่าน และ Steam Guard ในหน้าต่างเดียว','supplier-vault-subtitle'),el('p','กำลังโหลดข้อมูล…','supplier-vault-loading'));
     let o;
     try{o=await apiOrder(orderId);}catch(e){dialog.querySelector('.supplier-vault-loading')?.remove();notice(errors[e.code]||'ยังโหลดข้อมูลไม่ได้ กรุณาลองใหม่');return;}
     if(version!==guardVersion||!dialog.open||document.hidden)return;
     currentOrder=o;dialog.querySelector('.supplier-vault-loading')?.remove();
-    dialog.querySelector('h2').textContent=o.name;dialog.append(el('p',o.orderNumber,'supplier-vault-order'));
+    const summary=el('section',undefined,'supplier-vault-product');
+    if(o.image){const cover=el('img');cover.src=o.image;cover.alt=o.name;cover.addEventListener('error',()=>cover.remove(),{once:true});summary.append(cover);}
+    const info=el('div');info.append(el('h3',o.name),el('p','หมวดหมู่: Steam Offline'),el('p',o.canReceive?'● พร้อมรับสินค้า':'กำลังตรวจสอบการจัดส่ง','supplier-vault-state'),el('small',o.orderNumber));summary.append(info);dialog.append(summary);
     if(o.paymentStatus!=='verified'){dialog.append(el('p','สินค้านี้ยังไม่ผ่านการชำระเงิน กรุณาตรวจออเดอร์ของฉัน'));return;}
     if(!o.canReceive){
       dialog.append(el('p',o.needsSupport?'ร้านต้องตรวจสอบการส่งมอบ กรุณาติดต่อพร้อมเลขออเดอร์ ห้ามชำระซ้ำ':'ชำระเงินแล้ว กำลังเตรียมจัดส่ง'));
@@ -169,7 +171,7 @@
     try{
       const account=await api('delivery',{orderId:o.id});
       if(version!==guardVersion||!dialog.open||document.hidden)return;
-      const box=el('div',undefined,'supplier-vault-account');box.dataset.supplierSecret='';box.dataset.supplierAccount='';
+      const box=el('div',undefined,'supplier-vault-account');box.dataset.supplierSecret='';box.dataset.supplierAccount='';box.append(el('h3','ข้อมูลบัญชีผู้ใช้'));
       for(const [field,title] of [['username','ชื่อบัญชี'],['password','รหัสผ่าน']]){
         const label=el('label',title),row=el('div',undefined,'supplier-vault-field'),input=el('input');input.value=account[field]||'';input.readOnly=true;input.type=field==='password'?'password':'text';input.autocomplete='off';input.setAttribute('aria-label',title);row.append(input);
         if(field==='password'){
@@ -179,19 +181,17 @@
         }
         row.append(button('คัดลอก',()=>navigator.clipboard.writeText(input.value)));label.append(row);box.append(label);
       }
-      dialog.append(box,button('รับรหัส Steam Guard',()=>openGuard(o)));
+      dialog.append(box);openGuard(o,dialog);
+      const footer=el('div',undefined,'supplier-vault-footer');footer.append(el('span','จัดส่งอัตโนมัติ · รับสินค้าหลังชำระเงิน'),button('ปิด',()=>dialog.close()));dialog.append(footer);
     }catch(e){if(version===guardVersion)notice(errors[e.code]||'ยังเปิดข้อมูลไม่ได้ กรุณาลองใหม่');}
   }
-  function openGuard(o){
-    closeVaults();currentOrder=o;const dialog=vaultDialog('รับรหัส Steam Guard');
-    dialog.append(el('p',o.name,'supplier-vault-order'),el('p','ระบุเหตุผลเพื่อเปิดรอบรับรหัส 60 วินาที ใช้ได้สูงสุด 3 รอบต่อออเดอร์'));
-    const reason=el('textarea');reason.maxLength=500;reason.placeholder='เช่น เข้าสู่ระบบ Steam บนคอมพิวเตอร์';reason.setAttribute('aria-label','เหตุผลขอ Steam Guard');dialog.append(reason);
-    const start=button('ยืนยันรับรหัส Steam Guard',async()=>{
-      if([...reason.value.trim()].length<5){notice('กรุณาระบุเหตุผลอย่างน้อย 5 ตัวอักษร');return;}
-      const version=guardVersion,result=await api('guard',{orderId:o.id,reason:reason.value.trim()});
-      if(version!==guardVersion||!dialog.open||document.hidden)return;showGuard(o,result,start,dialog);
-    });start.dataset.guardStart='';dialog.append(start,button('กลับไปข้อมูลสินค้า',()=>openInventory(o.id)));
-    dialog.append(el('p','เมื่อปิดหน้าต่างหรือสลับแท็บ ข้อมูลจะถูกซ่อนเพื่อความปลอดภัย','supplier-vault-order'));
+  function openGuard(o,dialog){
+    const section=el('section',undefined,'supplier-vault-guard');section.append(el('h3','Steam Guard'),el('p','รับรหัสเพื่อเข้าสู่ระบบ · สูงสุด 3 รอบต่อออเดอร์ตามข้อกำหนดผู้ให้บริการ'));
+    const start=button('รับรหัส Steam Guard',async()=>{
+      const version=guardVersion,result=await api('guard',{orderId:o.id,reason:'ลูกค้าขอ Steam Guard เพื่อเข้าสู่ระบบบัญชีที่ซื้อ'});
+      if(version!==guardVersion||!dialog.open||document.hidden)return;showGuard(o,result,start,section);
+    });start.dataset.guardStart='';section.append(start);
+    section.append(el('p','รอบละ 60 วินาที · เก็บรหัสเป็นความลับ เมื่อปิดหน้าต่างหรือสลับแท็บข้อมูลจะถูกซ่อน','supplier-vault-order'));dialog.append(section);
   }
   function showGuard(o,result,start,target){
     document.querySelectorAll('[data-supplier-guard]').forEach(n=>n.remove());clearInterval(guardTimer);

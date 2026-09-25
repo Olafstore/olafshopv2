@@ -777,7 +777,7 @@ function filteredProducts() {
   const queryTerms = query.split(" ").filter(Boolean);
   let result = state.products.filter((product) => {
     const matchesCategory =
-      state.selectedCategory === "all" || product.category === state.selectedCategory;
+      state.selectedCategory === "all" || product.category === state.selectedCategory || (isFullCatalogPage&&state.selectedCategory==='windows'&&isExtraCatalogCategory(product.category));
     const matchesStock = !state.stockOnly || product.stock > 0;
 
     let matchesPrice = true;
@@ -1437,8 +1437,9 @@ function applyPayload(payload) {
   // Keep this shuffled order for the whole page lifetime. A refresh produces a
   // fresh, fair selection without reshuffling while the shopper is browsing.
   state.extraCategoryProducts = shuffleHomeExtraProducts(extraProducts.map(normalizeHomeExtraProduct));
-  const visibleProducts = allProducts
-    .filter((product) => !isExtraCatalogCategory(product.category));
+  const visibleProducts = isFullCatalogPage
+    ? [...new Map([...allProducts,...extraProducts].map(p=>[String(p.id),p])).values()]
+    : allProducts.filter((product) => !isExtraCatalogCategory(product.category));
   state.categories = deriveCategories(
     visibleProducts,
     Array.isArray(payload.categories) ? payload.categories : fallbackPayload.categories
@@ -2990,7 +2991,7 @@ function renderCategories() {
           aria-selected="${state.selectedCategory === category.id}"
           data-category="${escapeHtml(category.id)}"
         >
-          ${isFullCatalogPage?`<img class="catalog-category-art" ${fastImg(state.products.find(p=>(category.id==='all'||p.category===category.id)&&p.image)?.image||'', '', {loading:'lazy'})}/><i data-lucide="${category.icon}"></i><span>${escapeHtml(category.label)}<small>${category.en}</small></span><b>${state.products.filter(p=>category.id==='all'||p.category===category.id).length}</b>`:escapeHtml(category.label)}
+          ${isFullCatalogPage?`<img class="catalog-category-art" ${fastImg(state.products.find(p=>(category.id==='all'||p.category===category.id)&&p.image)?.image||'', '', {loading:'lazy'})}/><i data-lucide="${category.icon}"></i><span>${escapeHtml(category.label)}<small>${category.en}</small></span><b>${state.products.filter(p=>category.id==='all'||p.category===category.id||(category.id==='windows'&&isExtraCatalogCategory(p.category))).length}</b>`:escapeHtml(category.label)}
         </button>
       `
     )
@@ -3192,9 +3193,11 @@ function renderProducts() {
   $(selectors.featuredGrid).innerHTML = !isFullCatalogPage&&products.length > 0
     ? featured.map((product, index) => renderFeatureCard(product, index)).join("")
     : "";
-  $(selectors.productGrid).innerHTML = paginatedProducts
-    .map((product, index) => renderProductCard(product, index))
-    .join("");
+  const grid=$(selectors.productGrid),keys=paginatedProducts.map(p=>`${p.id}:${p.price}:${p.stock}:${p.name}`),previous=grid._catalogKeys||[];
+  const append=isFullCatalogPage&&previous.length>0&&keys.length>=previous.length&&previous.every((key,index)=>key===keys[index])&&typeof grid.insertAdjacentHTML==='function';
+  if(append){grid.insertAdjacentHTML('beforeend',paginatedProducts.slice(previous.length).map((p,i)=>renderProductCard(p,previous.length+i)).join(''));}
+  else grid.innerHTML=paginatedProducts.map((p,i)=>renderProductCard(p,i)).join('');
+  grid._catalogKeys=keys;
   const emptyState = $(selectors.emptyState);
   if (emptyState) emptyState.hidden = products.length > 0;
 
@@ -3472,7 +3475,7 @@ function renderProductCard(product, index = 0) {
   const publisher = String(product.publisher || "").trim();
   const tags = catalogProductTagsMarkup(product);
   const steamId=String(product.steamAppId||window.OlafAgeGate?.steamId(product)||'');
-  const artwork=!product.ageLocked&&/^\d+$/.test(steamId)?`https://cdn.akamai.steamstatic.com/steam/apps/${steamId}/header.jpg`:(product.image||product.heroImage);
+  const artwork=product.image||product.heroImage||(!product.ageLocked&&/^\d+$/.test(steamId)?`https://cdn.akamai.steamstatic.com/steam/apps/${steamId}/header.jpg`:'');
   if(isFullCatalogPage){const category=({'offline':'ไอดีออฟไลน์','steam-key':'CD-Key','steam-account':'ไอดียกเมล','windows':'ซอฟต์แวร์'})[product.category]||getCategoryLabel(product.category);
     return `<article class="product-card catalog-shop-card" data-category-type="${escapeHtml(product.category)}"><a class="product-image" href="${productLink(product)}"><img ${fastImg(artwork,product.name,{...catalogImageOptions(index),fallbacks:[product.image,product.heroImage].filter(Boolean)})}/><span class="catalog-kind">${escapeHtml(category)}</span></a><div class="product-body"><h3><a href="${productLink(product)}">${escapeHtml(product.name)}</a></h3><p class="catalog-platform">${escapeHtml(category)} · ${escapeHtml(product.platform||'PC (Steam)')}</p><span class="catalog-availability ${product.stock>0?'':'is-empty'}">● ${product.stock>0?'พร้อมจำหน่าย':'สินค้าหมด'}</span><div class="catalog-buy-row"><strong>${formatPrice(product.price)}</strong><a class="catalog-buy" href="${productLink(product)}" aria-label="ดูสินค้า ${escapeHtml(product.name)}"><i data-lucide="shopping-cart"></i></a></div></div></article>`;
   }
@@ -4268,6 +4271,7 @@ window.addEventListener('olaf:supplier-media',event=>{
     const link=card.querySelector('a[href*="product.html?id="]');
     if(!link||new URL(link.href,location.href).searchParams.get('id')!==String(product.id))return;
     const previous=card.querySelector('.product-image img');if(!previous||!product.image)return;
+    if(previous.complete&&previous.naturalWidth>0&&!previous.src.startsWith('data:'))return;
     const template=document.createElement('template');template.innerHTML=`<img ${fastImg(product.image,product.name,{fallbacks:[product.heroImage,...(product.gallery||[])].filter(Boolean).slice(0,3)})}/>`;
     previous.replaceWith(template.content.firstElementChild);
   });

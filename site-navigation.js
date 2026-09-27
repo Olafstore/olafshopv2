@@ -195,19 +195,14 @@
       mark.classList.add("has-admin-logo");
     });
 
-    let favicon = document.querySelector("#dynamic-favicon");
-    if (!favicon) {
-      favicon = document.createElement("link");
-      favicon.id = "dynamic-favicon";
-      favicon.rel = "icon";
-      document.head.appendChild(favicon);
-    }
     window.OlafApplyFavicon(url);
   }
 
   let faviconRequest = 0;
   let faviconSource = '';
   window.OlafApplyFavicon = function(url) {
+    // A stable, crawlable favicon in the HTML takes precedence over runtime data URLs.
+    if (document.querySelector('link[data-static-favicon]')) return;
     if (!url) return;
     if (url === faviconSource && document.getElementById('dynamic-favicon')) return;
     faviconSource = url;

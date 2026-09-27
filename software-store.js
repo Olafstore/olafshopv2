@@ -1,0 +1,30 @@
+document.addEventListener('DOMContentLoaded',async()=>{
+ const main=document.querySelector('[data-software-store]');if(!main)return;
+ document.body.classList.add('software-store-page');
+ const {categories,safeImage,classify,icon}=window.OlafSoftwareStore;
+ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const money=n=>'฿'+Number(n||0).toLocaleString('th-TH');
+ let config={},products=[],selected='all';
+ const img=(url,alt,cls='')=>`<img class="${cls}" src="${esc(safeImage(url)||'assets/placeholder.svg')}" alt="${esc(alt)}" loading="lazy" decoding="async">`;
+ main.innerHTML=`<div class="software-root"><section class="sw-hero"><div class="sw-hero-copy"><p class="sw-eyebrow">◦ DIGITAL SOFTWARE STORE</p><h1>โปรแกรมและซอฟต์แวร์<br><span>พร้อมสำหรับงานของคุณ</span></h1><p class="sw-intro">Windows · Microsoft Office · Adobe · CapCut และอื่น ๆ อีกมากมาย</p><div class="sw-benefits">${[['lightning-charge','ชำระเงินในเว็บ','สะดวกทุกขั้นตอน'],['shield-check','ตรวจสอบรายละเอียด','ก่อนสั่งซื้อสินค้า'],['headset','ทีมงานดูแล','สอบถามวิธีใช้งาน'],['credit-card','ระบบชำระเงิน','ผ่านช่องทางของร้าน']].map(([i,t,d])=>`<div>${img(icon(i),'')}<span><b>${t}</b><small>${d}</small></span></div>`).join('')}</div><div class="sw-hero-actions"><a href="#software-products" class="sw-primary">เลือกซื้อสินค้า <span>→</span></a><a href="products.html" class="sw-secondary">ดูสินค้าทั้งหมด →</a></div></div><div class="sw-hero-art" aria-hidden="true">${img('assets/windows/windows-11-pro-960.webp','','sw-main-art')}<div class="sw-floating sw-floating-office">${img(categories[1].image,'')}</div><div class="sw-floating sw-floating-windows">${img(categories[0].image,'')}</div><div class="sw-floating sw-floating-adobe">${img(categories[2].image,'')}</div><span class="sw-art-caption">Software for<br>a better tomorrow</span></div></section><nav class="sw-categories" aria-label="หมวดหมู่ซอฟต์แวร์"></nav><section class="sw-products" id="software-products"><div class="sw-section-heading"><div><p class="sw-eyebrow">SOFTWARE COLLECTION</p><h2>สินค้าแนะนำ</h2><p id="sw-category-caption">เลือกโปรแกรมที่เหมาะกับการใช้งานของคุณ</p></div><button type="button" class="sw-show-all">ดูสินค้าทั้งหมด →</button></div><div class="sw-grid" aria-live="polite"><p class="sw-empty">กำลังโหลดสินค้า…</p></div></section><section class="sw-promos" aria-label="โปรโมชันซอฟต์แวร์"></section></div>`;
+ const categoryImage=c=>safeImage(config.categories?.[c.id])||c.image;
+ function render(){
+  main.querySelector('.sw-categories').innerHTML=categories.map(c=>`<button type="button" data-sw-category="${c.id}" aria-pressed="${selected===c.id}">${img(categoryImage(c),c.name)}<span><b>${c.name}</b><small>ดูทั้งหมด <em>›</em></small></span></button>`).join('');
+  const list=products.filter(p=>selected==='all'||classify(p)===selected).sort((a,b)=>Number(Number(b.stock)>0)-Number(Number(a.stock)>0)||Number(b.sold||0)-Number(a.sold||0));
+  main.querySelector('.sw-products h2').textContent=selected==='all'?'สินค้าแนะนำ':categories.find(c=>c.id===selected).name;
+  main.querySelector('#sw-category-caption').textContent=`${list.length} รายการ · ดูรายละเอียดและเงื่อนไขก่อนสั่งซื้อ`;
+  main.querySelector('.sw-grid').innerHTML=list.length?list.map(p=>{const href='product.html?id='+encodeURIComponent(p.id);const cover=safeImage(config.products?.[p.id])||safeImage(p.image)||safeImage(p.gallery?.[0])||categoryImage(categories.find(c=>c.id===classify(p)));return `<article class="sw-card"><a class="sw-cover" href="${href}">${img(cover,p.name)}${p.label?`<span>${esc(p.label)}</span>`:''}</a><div class="sw-card-content"><a class="sw-product-name" href="${href}" title="${esc(p.name)}">${esc(p.name)}</a><p>${esc(p.publisher||categories.find(c=>c.id===classify(p)).name)}</p><small>${Number(p.stock)>0?'พร้อมจำหน่าย':'สินค้าหมดชั่วคราว'}</small><div class="sw-buy-row"><strong>${money(p.price)}</strong><a href="${href}" aria-label="ดูรายละเอียด ${esc(p.name)}">${img(icon('cart3'),'')} ${Number(p.stock)>0?'ซื้อเลย':'ดูสินค้า'}</a></div></div></article>`}).join(''):'<p class="sw-empty">ยังไม่มีสินค้าในหมวดนี้ <button type="button" class="sw-show-all">ดูสินค้าหมวดอื่น</button></p>';
+  main.querySelector('.sw-promos').innerHTML=[['adobe','Adobe Creative Cloud','เลือกโปรแกรมสำหรับงานสร้างสรรค์'],['capcut','CapCut Pro','สร้างวิดีโอและคอนเทนต์ในสไตล์ของคุณ']].map(([id,title,desc])=>`<button type="button" class="sw-promo sw-promo-${id}" data-sw-category="${id}">${config.promos?.[id]?img(config.promos[id],'','sw-promo-bg'):''}<div><h3>${title}</h3><p>${desc}</p><span>ดูรายละเอียด →</span></div>${img(categoryImage(categories.find(c=>c.id===id)),title,'sw-promo-icon')}</button>`).join('');
+ }
+ main.addEventListener('click',e=>{const button=e.target.closest('[data-sw-category],.sw-show-all');if(!button)return;selected=button.dataset.swCategory||'all';render();main.querySelector('#software-products').scrollIntoView({behavior:'smooth',block:'start'})});
+ main.addEventListener('error',e=>{if(e.target.tagName==='IMG'&&!e.target.dataset.fallback){e.target.dataset.fallback='1';e.target.src='assets/placeholder.svg'}},true);
+ const results=await Promise.allSettled([window.OlafProducts?.fetchActiveProducts?.()||[],window.OlafStoreSettings?.fetchStoreSettings?.()||{}]);
+ config=results[1].status==='fulfilled'?(results[1].value?.softwareStore||{}):{};
+ const online=results[0].status==='fulfilled'?results[0].value:[];
+ products=window.OlafExtraProducts?.mergeProducts?.(online)||[];
+ const ids=new Set(products.map(p=>p.id));
+ online.filter(p=>p.isActive!==false&&/^(software|office|adobe|capcut|antivirus)$/.test(p.category||'')).forEach(p=>{if(!ids.has(p.id)){products.push(p);ids.add(p.id)}});
+ if(safeImage(config.hero)){main.querySelector('.sw-main-art').src=config.hero;main.querySelector('.sw-hero-art').classList.add('has-custom-art')}
+ render();
+ if(results[0].status==='rejected')main.querySelector('#sw-category-caption').textContent+=' · กำลังแสดงข้อมูลสำรอง กรุณาตรวจสอบราคาที่หน้าสินค้า';
+});

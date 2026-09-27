@@ -5519,6 +5519,10 @@ async function saveHeroBackground() {
   finally { button.disabled=false; input.disabled=false; }
 }
 
+window.addEventListener('olaf-software-settings-saved',event=>{
+  state.payload.store.softwareStore=event.detail;
+});
+
 function renderDataPreview() {
   $("#data-updated").textContent = state.payload.updatedAt
     ? new Date(state.payload.updatedAt).toLocaleString("th-TH")

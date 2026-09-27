@@ -157,6 +157,7 @@
   }
 
   async function loadExtraProducts() {
+    if(document.querySelector('[data-software-store]')) return;
     const onlineProducts = window.OlafProducts?.fetchActiveProducts
       ? await window.OlafProducts.fetchActiveProducts({ forceRefresh: true }).catch((error) => {
           console.warn("Extra products from Supabase unavailable", error);

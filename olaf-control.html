@@ -18,7 +18,10 @@
 <script src="delivery-payload.js?v=20260716-qr-alignment-v111" defer></script>
     <script src="admin-shop-history.js?v=20260908-v215" defer></script>
     <link rel="stylesheet" href="admin-shop-history.css?v=20260908-v215" />
-    <script src="admin.js?v=20260908-v215" defer></script>
+    <script src="admin.js?v=20260927-software-v31" defer></script>
+    <script src="software-store-data.js?v=20260927-v31" defer></script>
+    <script src="extra-products.js?v=20260919-office-v260" defer></script>
+    <script src="software-store-admin.js?v=20260927-v31" defer></script>
   <script src="site-theme.js?v=20260912-original-v249"></script>
   <link rel="stylesheet" href="site-theme-surfaces.css?v=20260919-v268" />
   <link rel="stylesheet" href="site-theme-picker.css?v=20260910-three-themes-v243" />
@@ -1378,6 +1381,14 @@
                   <img id="hero-background-preview" alt="ตัวอย่างพื้นหลังหน้าแรก" style="display:block;width:100%;max-height:220px;object-fit:cover;border-radius:10px;margin:12px 0" hidden />
                   <button id="save-hero-background" class="primary-button" type="button">บันทึกพื้นหลังหน้าแรก</button>
                   <p id="hero-background-status" role="status"></p>
+                </fieldset>
+                <fieldset id="software-store-admin" style="min-width:0;border:1px solid var(--border);border-radius:12px;padding:14px">
+                  <legend>รูปหน้าร้านซอฟต์แวร์ (more-products.html)</legend>
+                  <p>แก้รูปหมวดหมู่ รูปสินค้า แบนเนอร์หลัก และแบนเนอร์โปรโมชัน รองรับ URL หรืออัปโหลด PNG / JPEG / WebP ไม่เกิน 8 MB ต่อรูป</p>
+                  <button type="button" class="secondary-button" data-software-load>โหลดรูปที่ตั้งไว้</button>
+                  <div data-software-fields style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:14px 0"></div>
+                  <button type="button" class="primary-button" data-software-save>บันทึกรูปหน้าร้านซอฟต์แวร์</button>
+                  <p data-software-status role="status"></p>
                 </fieldset>
                 <div class="form-actions">
                   <button class="primary-button" type="submit">

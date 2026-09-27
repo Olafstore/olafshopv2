@@ -1,0 +1,31 @@
+/* Reference layout: 1672px wide; artwork source canvas: 1916 x 821. */
+body.software-store-page main.extras-main[data-software-store]{padding:0 5% 32px}
+.software-root>.sw-hero-banner{margin:0 -5.555556% 14px;min-height:0;height:clamp(260px,19.32vw,370px);padding:20px 9.8%}
+.sw-banner-image{object-position:center}
+.software-root .sw-hero-actions{gap:16px}
+.software-root .sw-primary,.software-root .sw-secondary{min-width:184px;height:42px;min-height:42px;font-size:14px;padding:8px 20px;border-radius:12px}
+.software-root .sw-categories{gap:14px;margin:0 15px 22px}
+.software-root .sw-categories button{height:74px;min-height:74px;padding:10px 20px;gap:20px;border-radius:9px}
+.software-root .sw-categories img{width:54px;height:54px}
+.software-root .sw-categories b{font-size:13px;line-height:1.35}
+.software-root .sw-section-heading{min-height:42px;margin-bottom:10px}
+.software-root .sw-section-heading h2{font-size:24px;line-height:1.2}
+.software-root .sw-section-heading p{font-size:13px}
+.software-root .sw-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+.software-root .sw-card{height:139px;padding:7px;gap:15px;border-radius:9px}
+.software-root .sw-cover{flex-basis:43%;min-height:0;height:123px}
+.software-root .sw-cover>img{height:123px}
+.software-root .sw-card-content{padding:12px 0 0}
+.software-root .sw-product-name{font-size:14px}
+.software-root .sw-card-content>p{margin:4px 0;font-size:12px}
+.software-root .sw-buy-row{padding-top:5px}
+.software-root .sw-buy-row strong{font-size:19px}
+.software-root .sw-buy-row a{padding:6px;font-size:11px}
+.software-root .sw-promos{gap:15px;margin-top:14px}
+.software-root .sw-promo{min-height:146px;padding:16px 30px;border-radius:9px}
+.software-root .sw-promo h3{font-size:25px;line-height:1.2}
+.software-root .sw-promo p{font-size:15px}
+@media(min-width:1800px){.software-root .sw-card{height:158px}.software-root .sw-cover,.software-root .sw-cover>img{height:142px}}
+@media(max-width:1400px){.software-root .sw-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.software-root .sw-categories button{padding:10px;gap:10px}.software-root .sw-categories img{width:42px;height:42px}}
+@media(max-width:850px){body.software-store-page main.extras-main[data-software-store]{padding:0 16px 24px}.software-root>.sw-hero-banner{margin:0 -16px 14px;padding:20px 24px;height:280px}.software-root .sw-categories{margin:0 0 18px;grid-template-columns:repeat(3,minmax(0,1fr))}.software-root .sw-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.software-root .sw-promo{padding:16px}.software-root .sw-promo h3{font-size:21px}}
+@media(max-width:540px){.software-root>.sw-hero-banner{height:240px;padding:16px}.software-root .sw-hero-actions{gap:10px;width:100%}.software-root .sw-primary,.software-root .sw-secondary{min-width:0;flex:1;font-size:12px;padding:8px}.software-root .sw-categories{gap:8px}.software-root .sw-categories button{height:100px;gap:5px}.software-root .sw-grid{grid-template-columns:1fr}.software-root .sw-card{height:139px}.software-root .sw-cover{flex-basis:35%}.software-root .sw-promos{grid-template-columns:1fr}.software-root .sw-promo{min-height:146px}}

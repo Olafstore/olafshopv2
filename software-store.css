@@ -1,4 +1,13 @@
 .sw-categories img[src*="bootstrap-icons"],.sw-promo-icon[src*="bootstrap-icons"]{filter:invert(80%) sepia(55%) saturate(1800%) hue-rotate(165deg)}
+body.extras-page.software-store-page{background-size:cover;background-position:center;background-attachment:fixed}
+body.software-store-page main.extras-main[data-software-store]{max-width:none}
+.software-root>.sw-hero-banner{display:flex;align-items:flex-end;min-height:clamp(230px,24vw,440px);padding:28px 4vw;isolation:isolate}
+.sw-banner-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-1}
+.sw-hero-banner .sw-hero-actions{position:relative;z-index:1}
+.software-root .sw-button-icon{width:18px;height:18px;object-fit:contain;filter:invert(1);flex-shrink:0}
+.software-root .sw-primary,.software-root .sw-secondary,.software-root .sw-show-all,.software-root .sw-promo span{display:inline-flex;align-items:center;gap:9px}
+.software-root .sw-promo-bg{opacity:1;z-index:0}
+.has-custom-promo>div{width:fit-content;max-width:100%;padding:10px 14px;border-radius:10px;background:#031122b8}
 body.software-store-page{background:radial-gradient(ellipse at 65% 0,#09264a,transparent 55%),#030d18;color:#eef5ff}
 body.software-store-page main.extras-main{max-width:1680px;width:100%;padding:0 32px 48px;margin:auto}
 .software-root{font-family:Kanit,sans-serif}.sw-hero{display:grid;grid-template-columns:1.1fr 1fr;align-items:center;min-height:355px;position:relative;padding:32px 48px;margin:0 -32px 18px;background:radial-gradient(ellipse at 75% 60%,#076ac14d,transparent 55%),linear-gradient(115deg,#031122,#071c32 70%,#020c19);overflow:hidden;border-bottom:1px solid #264b6b}

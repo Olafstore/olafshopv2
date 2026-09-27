@@ -131,6 +131,11 @@ const emptyPayload = {
     { id: "offline", label: "Steam Offline" },
     { id: "bundle", label: "แพ็กเกม" },
     { id: "windows", label: "คีย์ Windows" },
+    { id: "office", label: "Microsoft Office" },
+    { id: "adobe", label: "Adobe" },
+    { id: "capcut", label: "CapCut" },
+    { id: "antivirus", label: "Antivirus" },
+    { id: "software", label: "ซอฟต์แวร์อื่น ๆ" },
     { id: "minecraft-account", label: "Minecraft — Microsoft ID" },
     { id: "minecraft-key", label: "Minecraft — Key" },
     { id: "rockstar", label: "Rockstar / FiveM" }

@@ -15,19 +15,20 @@ document.addEventListener('DOMContentLoaded',()=>{
  }
  mount.querySelector('[data-software-load]').addEventListener('click',async e=>{
   e.target.disabled=true;status.textContent='กำลังโหลดรูปจากร้าน…';
-  try{const [settings,online]=await Promise.all([window.OlafStoreSettings.fetchStoreSettings({forceRefresh:true}),window.OlafProducts.fetchActiveProducts({forceRefresh:true}).catch(()=>[])]);config=structuredClone(settings.softwareStore||{});fields.replaceChildren();
+  try{const settings=await window.OlafStoreSettings.fetchStoreSettings({forceRefresh:true});config=structuredClone(settings.softwareStore||{});fields.replaceChildren();
    const heading=document.createElement('h3');heading.textContent='รูปหมวดหมู่ — เลือกรูปใหม่หรือวาง URL แล้วกดบันทึก';heading.style.gridColumn='1 / -1';fields.append(heading);
-   categories.forEach(c=>fields.append(field('หมวดหมู่ '+c.name,'categories',c.id,config.categories?.[c.id]||'',c.image)));
-   const otherHeading=document.createElement('h3');otherHeading.textContent='แบนเนอร์และรูปสินค้า';otherHeading.style.gridColumn='1 / -1';fields.append(otherHeading,field('แบนเนอร์หลัก','hero','',config.hero));
+   categories.forEach(c=>{
+    const row=field('หมวดหมู่ '+c.name,'categories',c.id,config.categories?.[c.id]||'',c.image);
+    const name=document.createElement('input');name.type='text';name.maxLength=80;name.value=config.categoryNames?.[c.id]||c.name;name.dataset.softwareGroup='categoryNames';name.dataset.softwareKey=c.id;name.setAttribute('aria-label','ชื่อหมวดหมู่ '+c.name);row.insertBefore(name,row.children[1]);fields.append(row);
+   });
+   const otherHeading=document.createElement('h3');otherHeading.textContent='พื้นหลังทั้งหมดและแบนเนอร์โปรโมชัน';otherHeading.style.gridColumn='1 / -1';fields.append(otherHeading,field('แบนเนอร์หลักเต็มความกว้าง','hero','',config.hero),field('พื้นหลังหน้าร้านทั้งหมด','pageBackground','',config.pageBackground));
    ['adobe','capcut'].forEach(id=>fields.append(field('แบนเนอร์โปรโมชัน '+id,'promos',id,config.promos?.[id]||'')));
-   const items=window.OlafExtraProducts.mergeProducts(online);const ids=new Set(items.map(p=>p.id));online.filter(p=>/^(software|office|adobe|capcut|antivirus)$/.test(p.category||'')).forEach(p=>{if(!ids.has(p.id))items.push(p)});
-   items.forEach(p=>fields.append(field('สินค้า: '+p.name,'products',p.id,config.products?.[p.id]||'')));
-   loaded=true;status.textContent='เว้นว่างเพื่อใช้รูปเดิมของสินค้า/หมวดหมู่ รูปสินค้าเดิมแก้ได้ในเมนูจัดการสินค้าเช่นกัน';
+   loaded=true;status.textContent='รูปสินค้าใช้รูปจากเมนูจัดการสินค้าโดยตรง เปลี่ยนชื่อและรูปหมวดหมู่ได้ทุกช่อง แล้วกดบันทึก';
   }catch(error){status.textContent='โหลดไม่สำเร็จ: '+(error.message||'กรุณาลองใหม่')}finally{e.target.disabled=false}
  });
  mount.querySelector('[data-software-save]').addEventListener('click',async e=>{
   if(!loaded){status.textContent='กรุณากดโหลดรูปที่ตั้งไว้ก่อน';return}
-  const next=structuredClone(config);for(const input of fields.querySelectorAll('[data-software-group]')){const value=input.value.trim();if(value&&!safeImage(value)){status.textContent='URL รูปไม่ถูกต้อง: '+input.getAttribute('aria-label');input.focus();return}const group=input.dataset.softwareGroup;if(group==='hero')next.hero=value;else{next[group]||={};next[group][input.dataset.softwareKey]=value}}
+  const next=structuredClone(config);for(const input of fields.querySelectorAll('[data-software-group]')){const value=input.value.trim(),group=input.dataset.softwareGroup;if(group!=='categoryNames'&&value&&!safeImage(value)){status.textContent='URL รูปไม่ถูกต้อง: '+input.getAttribute('aria-label');input.focus();return}if(group==='hero'||group==='pageBackground')next[group]=value;else{next[group]||={};next[group][input.dataset.softwareKey]=value}}
   e.target.disabled=true;try{status.textContent='กำลังบันทึกรูป…';const current=await window.OlafStoreSettings.fetchStoreSettings({forceRefresh:true});await window.OlafStoreSettings.saveStoreSettings({...current,softwareStore:next});const verified=await window.OlafStoreSettings.fetchStoreSettings({forceRefresh:true});const matches=Object.entries(next).every(([key,value])=>typeof value==='object'?Object.entries(value).every(([id,url])=>verified.softwareStore?.[key]?.[id]===url):verified.softwareStore?.[key]===value);if(!matches)throw new Error('ยังยืนยันข้อมูลที่บันทึกไม่ได้');config=next;window.dispatchEvent(new CustomEvent('olaf-software-settings-saved',{detail:next}));status.textContent='บันทึกแล้ว รีเฟรชหน้าร้านซอฟต์แวร์เพื่อดูรูปใหม่'}catch(error){status.textContent='บันทึกไม่สำเร็จ: '+(error.message||'กรุณาลองใหม่')}finally{e.target.disabled=false}
  });
  // Load once when the settings section is actually opened, after the admin gate.

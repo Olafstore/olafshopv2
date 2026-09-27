@@ -108,6 +108,7 @@
     { href: "index.html", label: "หน้าหลัก", icon: "house", match: ["index.html", ""] },
     { href: "index.html#catalog", label: "สินค้า", icon: "shopping-bag", matchHash: "#catalog" },
     { href: "more-products.html", label: "หมวดหมู่", icon: "layout-grid", match: ["more-products.html"] },
+    { href: "https://olaf-shop.gitbook.io/manual-olaf-shop", label: "คู่มือ", icon: "book-open", external: true },
     { href: "products.html", label: "ดูสินค้าทั้งหมด", icon: "shopping-bag", match: ["products.html"] },
     { href: "point-topup.html", label: "เติมเงิน", icon: "coins", match: ["point-topup.html"] },
     { href: "free-random.html", label: "สุ่มเกม", icon: "dices", match: ["free-random.html"] },

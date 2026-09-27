@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
   }).join(''):'<p class="sw-empty">ยังไม่มีสินค้าในหมวดนี้ <button type="button" class="sw-show-all">ดูสินค้าหมวดอื่น</button></p>';
   main.querySelector('.sw-promos').innerHTML=[['adobe','Adobe Creative Cloud','เลือกโปรแกรมสำหรับงานสร้างสรรค์'],['capcut','CapCut Pro','สร้างวิดีโอและคอนเทนต์ในสไตล์ของคุณ']].map(([id,title,desc])=>{
    const background=safeImage(config.promos?.[id]);
-   return '<button type="button" class="sw-promo sw-promo-'+id+(background?' has-custom-promo':'')+'" data-sw-category="'+id+'">'+(background?img(background,'','sw-promo-bg'):'')+'<div><h3>'+esc(config.categoryNames?.[id]||title)+'</h3><p>'+desc+'</p><span>'+buttonIcon('arrow-right-circle')+'ดูรายละเอียด</span></div>'+(background?'':img(categoryImage(categories.find(c=>c.id===id)),title,'sw-promo-icon'))+'</button>';
+   return '<button type="button" aria-label="ดูรายละเอียด '+esc(categoryName(categories.find(c=>c.id===id)))+'" class="sw-promo sw-promo-'+id+(background?' has-custom-promo':'')+'" data-sw-category="'+id+'">'+(background?img(background,'','sw-promo-bg'):'')+'<div><span>'+buttonIcon('arrow-right-circle')+'ดูรายละเอียด</span></div>'+(background?'':img(categoryImage(categories.find(c=>c.id===id)),title,'sw-promo-icon'))+'</button>';
   }).join('');
  }
  main.addEventListener('click',e=>{const button=e.target.closest('[data-sw-category],.sw-show-all');if(!button)return;selected=button.dataset.swCategory||'all';render();main.querySelector('#software-products').scrollIntoView({behavior:'smooth',block:'start'})});

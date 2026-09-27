@@ -13,9 +13,22 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css?v=20260908-badges-v223" />
-  <link rel="stylesheet" href="manual.css?v=20260927-v28" />
+  <link rel="stylesheet" href="manual.css?v=20260927-v29" />
+  <script src="https://cdn.jsdelivr.net/npm/lucide@latest/dist/umd/lucide.min.js" defer></script>
+  <script src="site-navigation.js?v=20260927-manual-v25" defer></script>
 </head>
-<body>
+<body class="manual-page">
+  <header class="topbar">
+    <a class="brand" href="index.html" aria-label="OLAF SHOP"><span class="brand-mark"><img src="/favicon-96.png" width="40" height="40" alt="" /></span><span><strong>OLAF SHOP</strong><small>Steam Game Store</small></span></a>
+    <nav class="main-nav" aria-label="เมนูหลัก">
+      <a href="index.html">หน้าหลัก</a>
+      <a href="index.html#catalog">สินค้า</a>
+      <a href="more-products.html">หมวดหมู่</a>
+      <a href="products.html">ดูสินค้าทั้งหมด</a>
+      <a href="manual.html" class="is-active" aria-current="page">คู่มือ</a>
+      <a href="point-topup.html">เติมเงิน</a>
+    </nav>
+  </header>
   <iframe id="manual-frame" title="คู่มือ OLAF SHOP ฉบับเต็ม" src="https://olaf-shop.gitbook.io/manual-olaf-shop/" loading="eager" referrerpolicy="strict-origin-when-cross-origin" sandbox="allow-scripts allow-same-origin allow-forms allow-downloads allow-popups allow-popups-to-escape-sandbox" allow="fullscreen"></iframe>
 </body>
 </html>

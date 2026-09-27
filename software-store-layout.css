@@ -1,4 +1,13 @@
 /* Compact banner: 1916 x 370 source image recommended. */
+/* Compact controls and image-first cards, matching the supplied reference. */
+.software-root .sw-promo{border:0;box-shadow:none}
+.software-root .sw-promo>div{border:0;box-shadow:none;border-radius:0}
+.software-root .sw-cover>img{object-fit:cover;object-position:center}
+.software-root .sw-cover>span{background:linear-gradient(135deg,#ff456e,#f5194d);font-size:10px;padding:4px 7px;box-shadow:0 2px 8px #ff23543d}
+.software-root .sw-heading-copy{position:relative;padding-left:38px}
+.software-root .sw-heading-flame{position:absolute;left:0;top:0;width:30px;height:34px;object-fit:contain;filter:hue-rotate(175deg) saturate(1.7) drop-shadow(0 0 5px #009cff55)}
+.software-root .sw-buy-row a,.software-root .sw-promo span,.software-root .sw-show-all{gap:5px;padding:5px 8px}
+.software-root .sw-buy-row .sw-button-icon,.software-root .sw-promo .sw-button-icon,.software-root .sw-show-all .sw-button-icon{width:15px;height:15px;margin:0}
 body.software-store-page main.extras-main[data-software-store]{padding:0 5% 32px}
 .software-root>.sw-hero-banner{margin:0 -5.555556% 14px;min-height:0;height:clamp(260px,19.32vw,370px);aspect-ratio:auto;padding:0}
 .software-root>.sw-hero-banner .sw-banner-image{object-position:center;object-fit:contain;filter:none;opacity:1}

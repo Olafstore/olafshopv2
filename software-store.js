@@ -10,6 +10,9 @@ document.addEventListener('DOMContentLoaded',async()=>{
  const categoryImage=c=>safeImage(config.categories?.[c.id])||c.image;
  main.innerHTML='<div class="software-root"><section class="sw-hero sw-hero-banner" aria-label="แบนเนอร์ซอฟต์แวร์"><div class="sw-hero-actions"><a href="#software-products" class="sw-primary">'+buttonIcon('bag-check')+'เลือกซื้อสินค้า</a><a href="products.html" class="sw-secondary">'+buttonIcon('grid')+'ดูสินค้าทั้งหมด</a></div></section><nav class="sw-categories" aria-label="หมวดหมู่ซอฟต์แวร์"></nav><section class="sw-products" id="software-products"><div class="sw-section-heading"><div><h2>สินค้าแนะนำ</h2><p id="sw-category-caption"></p></div><button type="button" class="sw-show-all">'+buttonIcon('grid')+'ดูสินค้าทั้งหมด</button></div><div class="sw-grid" aria-live="polite"><p class="sw-empty">กำลังโหลดสินค้า…</p></div></section><section class="sw-promos" aria-label="โปรโมชันซอฟต์แวร์"></section></div>';
  function render(){
+  const heading=main.querySelector('.sw-section-heading>div');
+  heading.classList.add('sw-heading-copy');
+  if(!heading.querySelector('.sw-heading-flame'))heading.insertAdjacentHTML('afterbegin',img('assets/software-heading-fire.png','','sw-heading-flame'));
   main.querySelector('.sw-categories').innerHTML=categories.map(c=>'<button type="button" data-sw-category="'+c.id+'" aria-pressed="'+(selected===c.id)+'">'+img(categoryImage(c),categoryName(c))+'<span><b>'+esc(categoryName(c))+'</b><small>ดูทั้งหมด <em>›</em></small></span></button>').join('');
   const list=products.filter(p=>selected==='all'||classify(p)===selected).sort((a,b)=>Number(Number(b.stock)>0)-Number(Number(a.stock)>0)||Number(b.sold||0)-Number(a.sold||0));
   main.querySelector('.sw-products h2').textContent=selected==='all'?'สินค้าแนะนำ':categoryName(categories.find(c=>c.id===selected));
@@ -18,7 +21,8 @@ document.addEventListener('DOMContentLoaded',async()=>{
    const href='product.html?id='+encodeURIComponent(p.id),category=categories.find(c=>c.id===classify(p));
    // The product editor owns product images; ignore legacy storefront overrides.
    const cover=safeImage(p.image)||safeImage(p.gallery?.[0])||categoryImage(category);
-   return '<article class="sw-card"><a class="sw-cover" href="'+href+'">'+img(cover,p.name)+(p.label?'<span>'+esc(p.label)+'</span>':'')+'</a><div class="sw-card-content"><a class="sw-product-name" href="'+href+'" title="'+esc(p.name)+'">'+esc(p.name)+'</a><p>'+esc(p.publisher||categoryName(category))+'</p><small>'+(Number(p.stock)>0?'พร้อมจำหน่าย':'สินค้าหมดชั่วคราว')+'</small><div class="sw-buy-row"><strong>฿'+Number(p.price||0).toLocaleString('th-TH')+'</strong><a href="'+href+'" aria-label="ดูรายละเอียด '+esc(p.name)+'">'+buttonIcon('cart3')+(Number(p.stock)>0?'ซื้อเลย':'ดูสินค้า')+'</a></div></div></article>';
+   const badge=/^(ยอดนิยม|ขายดี|รองรับ AI|ใหม่|ลดราคา)$/i.test(String(p.label||'').trim())?String(p.label).trim():'';
+   return '<article class="sw-card"><a class="sw-cover" href="'+href+'">'+img(cover,p.name)+(badge?'<span>'+esc(badge)+'</span>':'')+'</a><div class="sw-card-content"><a class="sw-product-name" href="'+href+'" title="'+esc(p.name)+'">'+esc(p.name)+'</a><p>'+esc(p.publisher||categoryName(category))+'</p><small>'+(Number(p.stock)>0?'พร้อมจำหน่าย':'สินค้าหมดชั่วคราว')+'</small><div class="sw-buy-row"><strong>฿'+Number(p.price||0).toLocaleString('th-TH')+'</strong><a href="'+href+'" aria-label="ดูรายละเอียด '+esc(p.name)+'">'+buttonIcon('cart3')+(Number(p.stock)>0?'ซื้อเลย':'ดูสินค้า')+'</a></div></div></article>';
   }).join(''):'<p class="sw-empty">ยังไม่มีสินค้าในหมวดนี้ <button type="button" class="sw-show-all">ดูสินค้าหมวดอื่น</button></p>';
   main.querySelector('.sw-promos').innerHTML=[['adobe','Adobe Creative Cloud','เลือกโปรแกรมสำหรับงานสร้างสรรค์'],['capcut','CapCut Pro','สร้างวิดีโอและคอนเทนต์ในสไตล์ของคุณ']].map(([id,title,desc])=>{
    const background=safeImage(config.promos?.[id]);

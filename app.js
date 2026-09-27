@@ -1488,11 +1488,13 @@ function setApiStatus(message) {
 
 function applyHomeHeroBackground(url) {
   const container = document.querySelector('.hero-media');
+  const catalogHeading = document.querySelector('body.catalog-page #catalog > .section-heading');
   const source = String(url || '').trim();
   if (!container) return;
   if (container.dataset.requestedHero === source) return;
   container.dataset.requestedHero = source;
   container.replaceChildren();
+  catalogHeading?.style.removeProperty('--catalog-hero-image');
   if (!source) return;
   const replacement = new Image();
   replacement.alt = '';
@@ -1500,6 +1502,9 @@ function applyHomeHeroBackground(url) {
   replacement.fetchPriority = 'high';
   replacement.onload = () => {
     if (container.isConnected && container.dataset.requestedHero === source) container.replaceChildren(replacement);
+    if (catalogHeading?.isConnected && container.dataset.requestedHero === source) {
+      catalogHeading.style.setProperty('--catalog-hero-image', `url("${source.replace(/["\\\n\r]/g, '')}")`);
+    }
   };
   replacement.onerror = () => console.warn('โหลดพื้นหลังจากการตั้งค่าร้านไม่สำเร็จ');
   replacement.src = source;

@@ -1,0 +1,34 @@
+/* Final catalog polish. Keep these overrides after earlier catalog styles. */
+body.catalog-page #catalog>.section-heading{
+  background-image:linear-gradient(90deg,#061225f2 8%,#061225bb 58%,#0612257d),var(--catalog-hero-image,linear-gradient(120deg,#102942,#061225));
+  background-position:center,center 42%;background-size:cover;
+}
+body.catalog-page #product-grid .catalog-shop-card,
+body.catalog-page #product-grid .catalog-shop-card:hover{
+  background-color:#091a2b;background-image:linear-gradient(155deg,#10253a,#091a2b 70%)!important;
+  border-color:#284661;box-shadow:0 8px 25px #0003;
+}
+body.catalog-page #product-grid .catalog-shop-card:hover{border-color:#3999ec;box-shadow:0 12px 28px #0005,0 0 0 1px #2d8ce466}
+body.catalog-page #product-grid .catalog-kind{
+  top:10px;bottom:auto;left:10px;z-index:2;border:1px solid #ffffff40;
+  box-shadow:0 3px 12px #0009;backdrop-filter:blur(8px);
+}
+body.catalog-page .catalog-results-bar{position:relative;overflow:visible;z-index:5}
+body.catalog-page .catalog-sort{display:flex;align-items:center;gap:10px;color:#abc4de;font-size:13px;position:relative;white-space:nowrap}
+body.catalog-page .catalog-sort-trigger{display:flex;align-items:center;justify-content:space-between;gap:18px;min-width:166px;padding:10px 13px;border:1px solid #315c7f;border-radius:11px;background:linear-gradient(135deg,#163452,#0d2135);color:#e9f4ff;font:inherit;font-weight:600;cursor:pointer;box-shadow:inset 0 1px #ffffff12}
+body.catalog-page .catalog-sort-trigger:hover,body.catalog-page .catalog-sort-trigger[aria-expanded=true]{border-color:#4d9af5;background:linear-gradient(135deg,#1d4770,#102b49)}
+body.catalog-page .catalog-sort-trigger:focus-visible,body.catalog-page .catalog-sort-menu button:focus-visible{outline:2px solid #78c8ff;outline-offset:2px}
+body.catalog-page .catalog-sort-trigger span{font-size:19px;line-height:12px;color:#8fcaff}
+body.catalog-page .catalog-sort-menu{position:absolute;top:calc(100% + 8px);right:0;width:198px;z-index:20;padding:6px;border:1px solid #356284;border-radius:13px;background:#0b1d31;box-shadow:0 16px 36px #0009,inset 0 1px #ffffff10}
+body.catalog-page .catalog-sort-menu[hidden]{display:none}
+body.catalog-page .catalog-sort-menu button{display:block;width:100%;padding:10px 12px;border:0;border-radius:8px;background:transparent;color:#c4d9eb;text-align:left;font:inherit;cursor:pointer}
+body.catalog-page .catalog-sort-menu button:hover,body.catalog-page .catalog-sort-menu button[aria-current=true]{background:#17416b;color:#fff}
+body.catalog-page .side-panel>h3{align-items:center;color:#e6f4ff}
+body.catalog-page .side-panel>h3 .catalog-web-icon{width:21px;height:21px;filter:invert(68%) sepia(88%) saturate(1524%) hue-rotate(179deg) brightness(106%)}
+body.catalog-page .side-panel .search-box{position:relative;display:flex;align-items:center;min-height:45px;padding:0 12px;overflow:hidden;border-color:#365776;background:linear-gradient(135deg,#102a41,#081a2b);box-shadow:inset 0 1px 5px #0005}
+body.catalog-page .side-panel .search-box:focus-within{border-color:#4caaff;box-shadow:0 0 0 3px #2797ef22}
+body.catalog-page .side-panel .search-box .catalog-web-icon,
+body.catalog-page .side-panel .search-box svg{position:static;flex:none;width:18px;height:18px;margin:0 9px 0 0;object-fit:contain;filter:invert(68%) sepia(31%) saturate(790%) hue-rotate(169deg)}
+body.catalog-page .side-panel .search-box input{flex:1;width:100%;min-width:0;height:43px;padding:0;border:0;background:transparent;color:#edf6ff;font-size:13px}
+body.catalog-page .side-panel .search-box input::placeholder{color:#8ca9c4;opacity:1}
+@media(max-width:540px){body.catalog-page .catalog-sort{margin-left:auto}body.catalog-page .catalog-sort-trigger{min-width:142px}body.catalog-page .catalog-results-bar{gap:9px}}

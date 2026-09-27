@@ -31,5 +31,20 @@
   if(JSON.stringify(config).length>2000000)throw new Error('รูปทั้งหมดรวมกันใหญ่เกินไป กรุณาใช้ URL รูปบางรายการ');
   return config;
  }
- window.OlafSoftwareImages={optimize,compact};
+ async function compactSettings(settings){
+  const memo=new Map();
+  async function visit(object){
+   for(const [key,value] of Object.entries(object)){
+    // Payment QR artwork must never undergo lossy recompression.
+    if(/payment|qr|slip/i.test(key))continue;
+    if(typeof value==='string'&&/^data:image\/(png|jpeg|webp);base64,/i.test(value)&&value.length>330000){
+     if(!memo.has(value))memo.set(value,await optimize(value));
+     object[key]=memo.get(value);
+    }else if(value&&typeof value==='object')await visit(value);
+   }
+  }
+  await visit(settings);
+  return settings;
+ }
+ window.OlafSoftwareImages={optimize,compact,compactSettings};
 })();

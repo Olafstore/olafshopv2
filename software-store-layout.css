@@ -8,7 +8,7 @@ body.software-store-page .software-root>.sw-hero-banner .sw-banner-image{positio
 .software-root .sw-cover>img{object-fit:cover;object-position:center}
 .software-root .sw-cover>span{background:linear-gradient(135deg,#ff456e,#f5194d);font-size:10px;padding:4px 7px;box-shadow:0 2px 8px #ff23543d}
 .software-root .sw-heading-copy{position:relative;padding-left:38px}
-.software-root .sw-heading-flame{position:absolute;left:0;top:0;width:30px;height:34px;object-fit:contain;filter:hue-rotate(175deg) saturate(1.7) drop-shadow(0 0 5px #009cff55)}
+.software-root .sw-heading-flame{position:absolute;left:0;top:0;width:30px;height:34px;object-fit:contain;filter:drop-shadow(0 0 5px #ff8c3055)}
 .software-root .sw-buy-row a,.software-root .sw-promo span,.software-root .sw-show-all{gap:5px;padding:5px 8px}
 .software-root .sw-buy-row .sw-button-icon,.software-root .sw-promo .sw-button-icon,.software-root .sw-show-all .sw-button-icon{width:15px;height:15px;margin:0}
 body.software-store-page main.extras-main[data-software-store]{padding:0 5% 32px}
@@ -45,4 +45,11 @@ body.software-store-page main.extras-main[data-software-store]{padding:0 5% 32px
 @media(max-width:850px){.software-root>.sw-hero-banner{height:auto;padding:0;aspect-ratio:1916 / 821;margin-bottom:76px}.software-root>.sw-hero-banner .sw-hero-actions{top:100%;left:16px;right:16px;padding-top:12px;justify-content:center}.software-root .sw-hero-actions a{flex:1;max-width:240px}}
 .software-root .sw-promo>div{position:absolute;left:0;right:0;bottom:12px;max-width:none;width:auto;padding:0;background:none;text-align:center}
 .software-root .sw-promo span{background:#041222e8;box-shadow:0 2px 10px #0005}
+.software-root .sw-promo-adobe>div{left:37%;right:auto;bottom:9%;width:auto}
+.software-root .sw-promo-capcut>div{left:6%;right:auto;bottom:8%;width:auto}
+.software-root .sw-promo{aspect-ratio:5.7 / 1;min-height:0}
+.software-root .sw-card,.software-root .sw-categories button,.software-root .sw-promo,.software-root a,.software-root .sw-show-all{transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease,filter .2s ease}
+@media(hover:hover){.software-root .sw-card:hover,.software-root .sw-categories button:hover{transform:translateY(-3px);border-color:#299eff;box-shadow:0 7px 22px #008cff26}.software-root .sw-buy-row a:hover,.software-root .sw-hero-actions a:hover,.software-root .sw-show-all:hover{transform:translateY(-2px);filter:brightness(1.15)}.software-root .sw-promo:hover span{transform:translateY(-2px);box-shadow:0 0 16px #149dff55}}
+.software-root .sw-promo span{transition:transform .2s ease,box-shadow .2s ease}
+@media(prefers-reduced-motion:reduce){.software-root *{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 @media(max-width:850px){.software-root>.sw-hero-banner{height:auto;aspect-ratio:1916 / 370;min-height:0}.software-root>.sw-hero-banner .sw-hero-actions{bottom:auto}}

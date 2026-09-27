@@ -4,8 +4,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  const originalSave=window.OlafStoreSettings.saveStoreSettings.bind(window.OlafStoreSettings);
  window.OlafStoreSettings.saveStoreSettings=async settings=>{
   if(settings.softwareStore)await window.OlafSoftwareImages.compact(settings.softwareStore);
-  const bytes=new Blob([JSON.stringify(settings)]).size;
-  if(bytes>3*1024*1024)throw new Error('การตั้งค่าร้านมีรูปขนาดใหญ่รวมเกิน 3 MB กรุณาเปลี่ยนรูปส่วนอื่นเป็น URL ก่อนบันทึก');
+  await window.OlafSoftwareImages.compactSettings(settings);
   return originalSave(settings);
  };
  let config={},loaded=false;

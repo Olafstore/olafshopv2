@@ -1,0 +1,48 @@
+dialog.supplier-widget.supplier-vault{box-sizing:border-box;width:min(606px,calc(100vw - 16px));max-height:calc(100dvh - 12px);padding:20px;border:1px solid #57b9fc;border-radius:18px;background:radial-gradient(ellipse at 53% -20%,#174c9b8c,transparent 50%),radial-gradient(ellipse at 105% 30%,#15439855,transparent 55%),linear-gradient(150deg,#071c3b,#06132b 70%,#07182e);box-shadow:inset 0 0 0 1px #81d6ff33,0 0 24px #168bf455,0 26px 90px #000c;color:#eef7ff;overflow:auto}
+dialog.supplier-vault::backdrop{background:#020611d9;backdrop-filter:blur(10px)}
+.supplier-vault .supplier-vault-header{display:grid;grid-template-columns:64px minmax(0,1fr);gap:16px;align-items:center;min-height:68px;margin-bottom:0;padding-right:40px}
+.supplier-vault .supplier-steam-emblem{display:grid;place-items:center;width:62px;height:62px;border:1px solid #107fea;border-radius:50%;background:radial-gradient(circle at 50% 30%,#113e91,#001740 75%);box-shadow:0 0 0 5px #147dfa1d,0 0 26px #0f8fff8c}
+.supplier-vault .supplier-steam-emblem img{width:44px;height:44px;filter:invert(1)}
+.supplier-vault .supplier-vault-header h2{font-size:28px;font-weight:800;letter-spacing:-.02em;text-shadow:0 0 20px #50b5ff99;line-height:1.18}
+.supplier-vault .supplier-vault-header h2 span{color:#20a9ff}
+.supplier-vault .supplier-vault-header h2::first-line{color:#f4f9ff}
+.supplier-vault .supplier-vault-close{position:absolute;top:15px;right:16px;display:grid;place-items:center;width:36px;height:36px;min-height:36px!important;padding:0!important;border:0!important;border-radius:50%!important;background:#142a52a8!important;color:#a9c7f7!important;font-size:28px;line-height:1}
+.supplier-vault .supplier-vault-close:hover{background:#234677!important;color:#fff!important}
+.supplier-vault .supplier-vault-close .supplier-topic-icon{width:16px;height:16px;margin:0}.supplier-vault .supplier-vault-close .supplier-topic-icon img{filter:invert(78%) sepia(14%) saturate(1047%) hue-rotate(175deg)}
+.supplier-vault .supplier-vault-subtitle{margin:-6px 0 16px 80px;color:#a4bde4;font-size:14px;line-height:1.4}
+.supplier-vault [data-supplier-dialog-status]:not(:empty){margin:8px 0;padding:8px 12px;border:1px solid #bb794a;border-radius:9px;background:#51301d66}
+.supplier-vault .supplier-vault-product{display:grid;grid-template-columns:1fr 1fr;min-height:160px;margin:10px 0;border:1px solid #3180c6;border-radius:12px;background:linear-gradient(120deg,#07182c,#081631);box-shadow:0 0 18px #0e8efe2b;overflow:hidden}
+.supplier-vault .supplier-vault-product>img{display:block;width:100%;height:160px;object-fit:cover;border-right:1px solid #378ad8}
+.supplier-vault .supplier-vault-product>div{display:flex;flex-direction:column;justify-content:center;gap:12px;padding:16px 18px}
+.supplier-vault .supplier-vault-product:not(:has(>img))>div{grid-column:1/-1}
+.supplier-vault .supplier-vault-product p{margin:0;color:#a8c3e8;font-size:14px;line-height:1.4;overflow-wrap:anywhere}
+.supplier-vault .supplier-vault-product-name{color:#eff5ff!important;font-weight:700}
+.supplier-vault .supplier-vault-state{align-self:flex-start;padding:7px 12px;border:1px solid #006e63;border-radius:10px;background:#0049378c;color:#6cf5bd!important;font-weight:700}
+.supplier-vault .supplier-vault-account,.supplier-vault .supplier-vault-guard{position:relative;margin:10px 0;padding:15px 16px;border:1px solid #2369aa;border-radius:12px;background:linear-gradient(145deg,#071832ef,#051227ec);box-shadow:inset 0 1px #ffffff10,0 0 15px #0e8cff23}
+.supplier-vault .supplier-vault-account{display:grid;gap:9px}
+.supplier-vault .supplier-vault-account h3,.supplier-vault .supplier-vault-guard h3{display:flex;align-items:center;margin:0;color:#e8f5ff;font-size:17px}
+.supplier-vault .supplier-vault-account-hint{position:absolute;top:19px;right:16px;color:#849fc7;font-size:10px}
+.supplier-vault .supplier-topic-icon{display:inline-grid;place-items:center;width:19px;height:19px;margin-right:8px;flex:none}
+.supplier-vault .supplier-topic-icon img{display:block;width:100%;height:100%;filter:invert(82%) sepia(24%) saturate(1049%) hue-rotate(179deg) brightness(108%)}
+.supplier-vault .supplier-vault-account label{display:grid;grid-template-columns:19px 102px minmax(0,1fr);align-items:center;gap:8px;color:#b8d0f0;font-size:13px}
+.supplier-vault .supplier-vault-account label>.supplier-topic-icon{margin:0}
+.supplier-vault .supplier-vault-account label>.supplier-vault-field{grid-column:3;grid-row:1}
+.supplier-vault .supplier-vault-field{display:flex;align-items:center;gap:7px;min-width:0}
+.supplier-vault .supplier-vault-field input{flex:1;min-width:0;height:38px;padding:8px 12px;border:1px solid #315987;border-radius:9px;background:linear-gradient(120deg,#122541,#0e1e37);color:#eaf4ff;font-size:13px}
+.supplier-vault .supplier-vault-field button{display:flex;align-items:center;justify-content:center;gap:4px;min-width:92px;min-height:38px;padding:6px 10px;border:1px solid #4bb2fb;border-radius:9px;background:linear-gradient(120deg,#194b84,#12335d);box-shadow:0 0 8px #088cf852;color:#eaf6ff;font-size:12px;font-weight:700}
+.supplier-vault .supplier-vault-field .supplier-vault-eye{min-width:38px;width:38px;padding:6px}
+.supplier-vault .supplier-vault-field .supplier-topic-icon{width:16px;height:16px;margin:0}
+.supplier-vault .supplier-vault-guard{border-color:#1689ed;box-shadow:inset 0 1px #ffffff17,0 0 18px #008efa56}
+.supplier-vault .supplier-vault-guard>p:not(.supplier-vault-guard-note){position:absolute;top:14px;left:174px;right:12px;margin:0;color:#88a5cc;font-size:11px;line-height:1.6}
+.supplier-vault .supplier-vault-guard [data-guard-start]{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:48px;margin:14px 0 6px;border:2px solid #56d8ff;border-radius:9px;background:linear-gradient(90deg,#079efc,#0560e5);color:#fff;font-size:17px;font-weight:800;box-shadow:inset 0 1px #ffffff4d,0 0 12px #06a5ffb3,0 0 24px #087afa75}
+.supplier-vault .supplier-vault-guard [data-guard-start]:hover{filter:brightness(1.13)}
+.supplier-vault .supplier-vault-guard [data-guard-start] .supplier-topic-icon:first-child{width:23px;height:23px}
+.supplier-vault .supplier-vault-guard [data-guard-start] .supplier-topic-icon:last-child{position:absolute;right:27px;width:19px;height:19px}
+.supplier-vault .supplier-vault-guard [data-guard-start] .supplier-topic-icon img{filter:invert(1)}
+.supplier-vault .supplier-vault-guard-note{display:flex;align-items:center;gap:8px;margin:0!important;padding:9px;border:1px solid #185291;border-radius:8px;background:#061936;color:#94b0d4!important;font-size:11px!important;line-height:1.55!important}
+.supplier-vault .supplier-vault-guard-note .supplier-topic-icon{width:24px;height:24px;margin:0;flex:none}
+.supplier-vault .supplier-vault-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px}
+.supplier-vault .supplier-vault-footer span{display:flex;align-items:center;color:#97b4d8;font-size:11px}
+.supplier-vault .supplier-vault-footer button{min-width:150px;min-height:40px;border:1px solid #5a82c9;background:linear-gradient(110deg,#234572,#162a50);font-weight:700}
+.supplier-vault .supplier-secret{margin-top:12px!important;padding:12px!important}
+@media(max-width:560px){dialog.supplier-widget.supplier-vault{padding:14px}.supplier-vault .supplier-vault-header{grid-template-columns:46px 1fr;gap:10px;min-height:54px}.supplier-vault .supplier-steam-emblem{width:44px;height:44px}.supplier-vault .supplier-steam-emblem img{width:31px;height:31px}.supplier-vault .supplier-vault-header h2{font-size:20px}.supplier-vault .supplier-vault-subtitle{margin:0 32px 12px 56px;font-size:12px}.supplier-vault .supplier-vault-product{grid-template-columns:1fr 1fr;min-height:116px}.supplier-vault .supplier-vault-product>img{height:116px}.supplier-vault .supplier-vault-product>div{padding:10px;gap:6px}.supplier-vault .supplier-vault-product p{font-size:11px}.supplier-vault .supplier-vault-account label{grid-template-columns:16px 73px minmax(0,1fr);gap:5px;font-size:11px}.supplier-vault .supplier-vault-account-hint{display:none}.supplier-vault .supplier-vault-field button{min-width:36px;font-size:0}.supplier-vault .supplier-vault-field button .supplier-topic-icon{width:17px;height:17px}.supplier-vault .supplier-vault-guard>p:not(.supplier-vault-guard-note){position:static;margin:5px 0}.supplier-vault .supplier-vault-footer button{min-width:90px}}

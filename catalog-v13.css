@@ -24,7 +24,9 @@ body.home-page #product-grid .tags{margin:0;min-height:0;max-height:48px;overflo
 body.home-page #product-grid .price-row{margin-top:auto;padding-top:3px;min-height:0}
 body.home-page #product-grid .card-actions{margin-top:0}
 body.home-page #product-grid .card-actions a{min-height:42px;padding:10px}
-.catalog-all-link{display:inline-flex;align-items:center;gap:20px;padding:14px 30px;border-radius:14px;text-decoration:none}
+.catalog-all-link{display:inline-flex;align-items:center;justify-content:center;gap:22px;min-height:52px;padding:14px 28px;border:1px solid #749cff66;border-radius:16px;text-decoration:none;color:#fff;background:linear-gradient(115deg,#268cf5,#6560f2);font-weight:700;box-shadow:0 8px 24px #235deb40,inset 0 1px #ffffff24;transition:transform .18s,box-shadow .18s}
+.catalog-all-link:hover{transform:translateY(-2px);box-shadow:0 12px 30px #235deb60}.catalog-all-link>span{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#ffffff18}.catalog-all-link:focus-visible{outline:3px solid #9bddff;outline-offset:4px}
+@media(prefers-reduced-motion:reduce){.catalog-all-link{transition:none}.catalog-all-link:hover{transform:none}}
 /* Full catalog retains the shared header, account controls, cart and footer. */
 body.catalog-page main>section:not(#catalog):not(#contact){display:none!important}
 body.catalog-page #steam-preview-zone,body.catalog-page #featured-grid{display:none!important}

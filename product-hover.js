@@ -1,6 +1,6 @@
 (() => {
   // Profile has its own collection editor; never show shopping hover windows there.
-  if (/\/profile\.html$/i.test(location.pathname)) return;
+  if (/\/(?:profile|more-products|products)\.html$/i.test(location.pathname)) return;
   const desktop=matchMedia('(min-width: 1024px) and (hover: hover) and (pointer: fine)');
   const cards='article.product-card,article.feature-card,article.hero-game-card,article.olaf-steam-spotlight,article.catalog-genre-game,article.olaf-steam-taste-row,article.extras-product-card,article.license-card,.pd-related-card,.olaf-steam-deal-card,.olaf-steam-discovery-row,.olaf-steam-editorial-card,.olaf-steam-activity-card,.member-game-grid > a';
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
@@ -124,7 +124,7 @@
     if(popup?.contains(event.target))return;
     // The featured spotlight already contains its details. Exclude its links
     // before the generic article/link fallback can turn them into previews.
-    if(event.target.closest?.('.olaf-steam-spotlight, #product-grid, #featured-grid, .hero-game-carousel')){hide();return;}
+    if(event.target.closest?.('.olaf-steam-spotlight, #product-grid, #featured-grid, .hero-game-carousel, .extras-category-hub, .extras-product-card, .license-card, .olaf-license-card')){hide();return;}
     let card=event.target.closest?.(cards+',article.olaf-license-card');
     if(!card){const article=event.target.closest?.('article');const links=article?[...article.querySelectorAll('a[href*="product.html?"]')]:[];if(links.length&&new Set(links.map(link=>link.getAttribute('href'))).size===1)card=article;}
     card ||= event.target.closest?.('a[href*="product.html?"]');if(!card||card===active)return;

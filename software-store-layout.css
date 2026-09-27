@@ -1,4 +1,7 @@
 /* Compact banner: 1916 x 370 source image recommended. */
+/* v38: the hero follows the uploaded image's intrinsic ratio. */
+body.software-store-page .software-root>.sw-hero-banner{height:auto;min-height:0;aspect-ratio:auto;display:block}
+body.software-store-page .software-root>.sw-hero-banner .sw-banner-image{position:relative;display:block;inset:auto;width:100%;height:auto;object-fit:contain}
 /* Compact controls and image-first cards, matching the supplied reference. */
 .software-root .sw-promo{border:0;box-shadow:none}
 .software-root .sw-promo>div{border:0;box-shadow:none;border-radius:0}

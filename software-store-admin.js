@@ -1,8 +1,24 @@
 document.addEventListener('DOMContentLoaded',()=>{
  const mount=document.getElementById('software-store-admin');if(!mount)return;
  const {categories,safeImage}=window.OlafSoftwareStore;
+ const originalSave=window.OlafStoreSettings.saveStoreSettings.bind(window.OlafStoreSettings);
+ window.OlafStoreSettings.saveStoreSettings=async settings=>{
+  if(settings.softwareStore)await window.OlafSoftwareImages.compact(settings.softwareStore);
+  const bytes=new Blob([JSON.stringify(settings)]).size;
+  if(bytes>3*1024*1024)throw new Error('การตั้งค่าร้านมีรูปขนาดใหญ่รวมเกิน 3 MB กรุณาเปลี่ยนรูปส่วนอื่นเป็น URL ก่อนบันทึก');
+  return originalSave(settings);
+ };
  let config={},loaded=false;
  const status=mount.querySelector('[data-software-status]'),fields=mount.querySelector('[data-software-fields]');
+ function bindOptimizedUpload(upload,input,image){
+  upload.addEventListener('change',async event=>{
+   event.stopImmediatePropagation();const file=upload.files[0];if(!file)return;
+   const save=mount.querySelector('[data-software-save]');upload.disabled=true;save.disabled=true;
+   try{status.textContent='กำลังเตรียมรูปคมชัดสำหรับเว็บ…';input.value=await window.OlafSoftwareImages.optimize(file);image.src=input.value;status.textContent='เตรียมรูปแล้ว '+Math.round(input.value.length*.75/1024)+' KB — รักษาสัดส่วนเดิม กดบันทึกเพื่อเผยแพร่'}
+   catch(error){status.textContent='เตรียมรูปไม่สำเร็จ: '+error.message}
+   finally{upload.disabled=false;save.disabled=false}
+  },true);
+ }
  function field(label,group,key,value,fallback=''){
   const row=document.createElement('div');row.style.cssText='display:grid;gap:8px;padding:12px;border:1px solid var(--border);border-radius:10px';
   const title=document.createElement('strong');title.textContent=label;
@@ -15,12 +31,12 @@ document.addEventListener('DOMContentLoaded',()=>{
   if(group==='hero'||group==='pageBackground'||group==='promos'){
    const originalUpload=upload.cloneNode(true);upload.replaceWith(originalUpload);
    originalUpload.addEventListener('change',async()=>{const file=originalUpload.files[0];if(!file)return;if(file.size>8*1024*1024){status.textContent='รูปต้องไม่เกิน 8 MB';return}originalUpload.disabled=true;try{const value=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file)});if(!safeImage(value))throw new Error();const check=new Image();check.src=value;await check.decode();input.value=value;image.src=value;status.textContent='เลือกรูปต้นฉบับแล้ว ('+check.width+' × '+check.height+' px) กดบันทึกเพื่อเผยแพร่'}catch{status.textContent='เปิดรูปไม่ได้ กรุณาใช้ PNG, JPEG หรือ WebP'}finally{originalUpload.disabled=false}});
-   row.append(title,image,input,originalUpload);
-   const hint=document.createElement('small');hint.textContent=group==='hero'?'แนะนำ 1916 × 370 px หรือ 3832 × 740 px สำหรับจอความละเอียดสูง — แสดงเต็มภาพ ไม่ยืดหรือครอบตัด ภาพสัดส่วนอื่นจะมีพื้นที่ว่างด้านข้าง':group==='promos'?'แนะนำ 960 × 170 px หรือ 1920 × 340 px — เว้นกลางด้านล่างสำหรับปุ่มดูรายละเอียด':'พื้นหลังหน้าแนะนำ 1920 × 1080 px — เก็บไฟล์ต้นฉบับ ไม่บีบอัดซ้ำ';row.append(hint);
+   bindOptimizedUpload(originalUpload,input,image);row.append(title,image,input,originalUpload);
+   const hint=document.createElement('small');hint.textContent='รองรับทุกสัดส่วน PNG / JPEG / WebP ไม่เกิน 30 MB — ปรับเป็น WebP ด้านยาวไม่เกิน 2560 px รักษาสัดส่วน ไม่ยืด ไม่ครอบ แนะนำรูปต้นฉบับกว้าง 1920–2560 px';row.append(hint);
    if(group==='hero'){const reset=document.createElement('button');reset.type='button';reset.textContent='ใช้รูปต้นฉบับ 1916 × 821 ที่แนบมา';reset.addEventListener('click',()=>{input.value='assets/software-hero-1916x821.png';image.src=input.value;status.textContent='เลือกรูปต้นฉบับแล้ว กดบันทึกเพื่อเผยแพร่'});row.append(reset)}
    return row;
   }
-  row.append(title,image,input,upload);return row;
+  bindOptimizedUpload(upload,input,image);row.append(title,image,input,upload);return row;
  }
  mount.querySelector('[data-software-load]').addEventListener('click',async e=>{
   e.target.disabled=true;status.textContent='กำลังโหลดรูปจากร้าน…';

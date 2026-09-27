@@ -1,7 +1,8 @@
 /* Reference layout: 1672px wide; artwork source canvas: 1916 x 821. */
 body.software-store-page main.extras-main[data-software-store]{padding:0 5% 32px}
-.software-root>.sw-hero-banner{margin:0 -5.555556% 14px;min-height:0;height:clamp(260px,19.32vw,370px);padding:20px 9.8%}
-.sw-banner-image{object-position:center}
+.software-root>.sw-hero-banner{margin:0 -5.555556% 14px;min-height:0;height:auto;aspect-ratio:1916 / 821;padding:0}
+.software-root>.sw-hero-banner .sw-banner-image{object-position:center;object-fit:contain;filter:none;opacity:1}
+.software-root>.sw-hero-banner .sw-hero-actions{position:absolute;left:9%;top:71%;width:auto}
 .software-root .sw-hero-actions{gap:16px}
 .software-root .sw-primary,.software-root .sw-secondary{min-width:184px;height:42px;min-height:42px;font-size:14px;padding:8px 20px;border-radius:12px}
 .software-root .sw-categories{gap:14px;margin:0 15px 22px}
@@ -29,3 +30,4 @@ body.software-store-page main.extras-main[data-software-store]{padding:0 5% 32px
 @media(max-width:1400px){.software-root .sw-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.software-root .sw-categories button{padding:10px;gap:10px}.software-root .sw-categories img{width:42px;height:42px}}
 @media(max-width:850px){body.software-store-page main.extras-main[data-software-store]{padding:0 16px 24px}.software-root>.sw-hero-banner{margin:0 -16px 14px;padding:20px 24px;height:280px}.software-root .sw-categories{margin:0 0 18px;grid-template-columns:repeat(3,minmax(0,1fr))}.software-root .sw-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.software-root .sw-promo{padding:16px}.software-root .sw-promo h3{font-size:21px}}
 @media(max-width:540px){.software-root>.sw-hero-banner{height:240px;padding:16px}.software-root .sw-hero-actions{gap:10px;width:100%}.software-root .sw-primary,.software-root .sw-secondary{min-width:0;flex:1;font-size:12px;padding:8px}.software-root .sw-categories{gap:8px}.software-root .sw-categories button{height:100px;gap:5px}.software-root .sw-grid{grid-template-columns:1fr}.software-root .sw-card{height:139px}.software-root .sw-cover{flex-basis:35%}.software-root .sw-promos{grid-template-columns:1fr}.software-root .sw-promo{min-height:146px}}
+@media(max-width:850px){.software-root>.sw-hero-banner{height:auto;padding:0;aspect-ratio:1916 / 821;margin-bottom:76px}.software-root>.sw-hero-banner .sw-hero-actions{top:100%;left:16px;right:16px;padding-top:12px;justify-content:center}.software-root .sw-hero-actions a{flex:1;max-width:240px}}

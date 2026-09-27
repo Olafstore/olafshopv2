@@ -27,13 +27,13 @@ document.addEventListener('DOMContentLoaded',async()=>{
  }
  main.addEventListener('click',e=>{const button=e.target.closest('[data-sw-category],.sw-show-all');if(!button)return;selected=button.dataset.swCategory||'all';render();main.querySelector('#software-products').scrollIntoView({behavior:'smooth',block:'start'})});
  main.addEventListener('error',e=>{if(e.target.tagName==='IMG'&&!e.target.dataset.fallback){e.target.dataset.fallback='1';e.target.src='assets/placeholder.svg'}},true);
- const results=await Promise.allSettled([window.OlafProducts?.fetchActiveProducts?.()||[],window.OlafStoreSettings?.fetchStoreSettings?.()||{}]);
+ const results=await Promise.allSettled([window.OlafProducts?.fetchActiveProducts?.()||[],window.OlafStoreSettings?.fetchStoreSettings?.({forceRefresh:true})||{}]);
  config=results[1].status==='fulfilled'?(results[1].value?.softwareStore||{}):{};
  const online=results[0].status==='fulfilled'?(results[0].value||[]):[];
  products=window.OlafExtraProducts?.mergeProducts?.(online)||[];
  const ids=new Set(products.map(p=>p.id));
  online.filter(p=>p.isActive!==false&&/^(software|office|adobe|capcut|antivirus)$/.test(p.category||'')).forEach(p=>{if(!ids.has(p.id)){products.push(p);ids.add(p.id)}});
- const hero=safeImage(config.hero)||'assets/windows/windows-11-pro-960.webp';{const image=document.createElement('img');image.src=hero;image.alt='';image.className='sw-banner-image';image.fetchPriority='high';main.querySelector('.sw-hero').prepend(image)}
+ const hero=safeImage(config.hero)||'assets/software-hero-1916x821.png';{const image=document.createElement('img');image.src=hero;image.alt='';image.className='sw-banner-image';image.fetchPriority='high';main.querySelector('.sw-hero').prepend(image)}
  const pageBackground=safeImage(config.pageBackground);if(pageBackground)document.body.style.backgroundImage='linear-gradient(#030d1866,#030d1866),url('+JSON.stringify(pageBackground)+')';
  render();
  if(results[0].status==='rejected')main.querySelector('#sw-category-caption').textContent+=' · กำลังแสดงข้อมูลสำรอง กรุณาตรวจสอบราคาที่หน้าสินค้า';

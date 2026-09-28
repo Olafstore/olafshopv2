@@ -1,4 +1,10 @@
 window.OlafSoftwareDetail={
+ decorateBuy(container){
+  const button=container.querySelector('#btn-buy'),price=container.querySelector('[data-purchase-price]');
+  if(!button||button.disabled||!price)return;
+  button.querySelector('.sd-buy-price')?.remove();
+  const value=document.createElement('span');value.className='sd-buy-price';value.textContent=price.textContent;button.append(value);
+ },
  applies:p=>Boolean(window.OlafExtraProducts?.isExtraCategory?.(p?.category))||/^(software|office|adobe|capcut|antivirus)$/.test(p?.category||''),
  enhance(container,p,store={}){
   if(!this.applies(p)){container.classList.remove('software-detail');return}
@@ -37,19 +43,27 @@ window.OlafSoftwareDetail={
   const warranty=aside.querySelector('.sd-warranty'),relatedCard=aside.querySelector('.pd-related-section');if(warranty&&relatedCard)aside.insertBefore(warranty,relatedCard);
   summary.querySelectorAll('.sd-payments>strong').forEach(node=>node.remove());
   const config=p.sourceMetadata?.softwareDetail||{};
+  const rating=document.createElement('div');rating.className='sd-rating';
+  const score=Number(config.ratingScore),count=Number(config.reviewCount);
+  const rated=score>0&&score<=5&&count>0;
+  const stars=document.createElement('span');stars.className='sd-rating-stars';stars.textContent=rated?'★★★★★':'☆☆☆☆☆';stars.setAttribute('aria-hidden','true');
+  const ratingText=document.createElement('span');ratingText.textContent=rated?`${score.toFixed(1)} (${count.toLocaleString('th-TH')} รีวิว)`:'ยังไม่มีคะแนนรีวิว';
+  rating.append(stars,ratingText);
+  if(Number(config.soldCount)>0){const sold=document.createElement('span');sold.className='sd-rating-sold';sold.textContent=`ขายแล้ว ${Number(config.soldCount).toLocaleString('th-TH')}`;rating.append(sold)}
+  summary.querySelector('.sd-product-header')?.after(rating);
   const paymentRow=summary.querySelector('.sd-payments');
   if(paymentRow){
    const panel=document.createElement('section');panel.className='sd-payment-panel';
    const title=document.createElement('strong');title.textContent=config.paymentTitle||'ช่องทางการชำระเงิน';
    const note=document.createElement('p');note.textContent=config.paymentNote||'ชำระผ่านช่องทางที่ร้านกำหนด';panel.append(title,note);
-   [...paymentRow.children].forEach(node=>{const item=document.createElement('div');item.className='sd-payment-method';const name=document.createElement('strong');name.textContent=node.alt||node.textContent;item.append(node,name);paymentRow.append(item)});
+   [...paymentRow.children].forEach(node=>{const item=document.createElement('div');item.className='sd-payment-method';const copy=document.createElement('div');const name=document.createElement('strong');const label=node.alt||node.textContent;name.textContent=/promptpay/i.test(label)?'พร้อมเพย์':/true|wallet/i.test(label)?'ทรูมันนี่ วอลเล็ต':label;const note=document.createElement('small');note.textContent=/promptpay/i.test(label)?(config.promptPayNote||'สแกน QR Code ชำระเงิน'):(config.walletNote||'ชำระผ่านช่องทางของร้าน');copy.append(name,note);item.append(node,copy);paymentRow.append(item)});
    panel.append(paymentRow);summary.querySelector('.sd-purchase-actions')?.after(panel);
   }
   const highlights=description.querySelector('.sd-highlights');
   if(highlights&&!config.highlightsTitle)highlights.querySelector('h3').textContent='สิ่งที่คุณจะได้รับ';
   // Keep additional product information accessible below the primary composition.
-  const more=document.createElement('details');more.className='sd-additional';
-  const moreTitle=document.createElement('summary');moreTitle.textContent='ข้อมูลสินค้าและการรับประกัน';more.append(moreTitle,aside);details.append(more);
+  const more=document.createElement('section');more.className='sd-additional';more.setAttribute('aria-label','ข้อมูลสินค้าและการรับประกัน');more.append(aside);details.append(more);
   layout.replaceChildren(primary);
+  this.decorateBuy(container);
  }
 };

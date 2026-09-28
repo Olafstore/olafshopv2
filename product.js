@@ -869,6 +869,7 @@ function updatePurchaseDom() {
   if (buyBtn) {
     buyBtn.disabled = !canBuy;
     buyBtn.innerHTML = `<i data-lucide="${purchaseButtonIcon(currentProduct)}"></i>${purchaseButtonCopy(currentProduct, canBuy)}`;
+    if(document.querySelector('#product-page.software-detail'))window.OlafSoftwareDetail?.decorateBuy(document.querySelector('#product-page'));
   }
 
   document.querySelectorAll("[data-package-option]").forEach((card) => {

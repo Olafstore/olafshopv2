@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   return originalSave(settings);
  };
  let config={},loaded=false;
+ window.addEventListener('olaf-software-settings-saved',event=>{config.featuredIds=event.detail.featuredIds??null});
  const status=mount.querySelector('[data-software-status]'),fields=mount.querySelector('[data-software-fields]');
  function bindOptimizedUpload(upload,input,image){
   upload.addEventListener('change',async event=>{
@@ -56,7 +57,7 @@ document.addEventListener('DOMContentLoaded',()=>{
  mount.querySelector('[data-software-save]').addEventListener('click',async e=>{
   if(!loaded){status.textContent='กรุณากดโหลดรูปที่ตั้งไว้ก่อน';return}
   const next=structuredClone(config);for(const input of fields.querySelectorAll('[data-software-group]')){const value=input.value.trim(),group=input.dataset.softwareGroup;if(group!=='categoryNames'&&value&&!safeImage(value)){status.textContent='URL รูปไม่ถูกต้อง: '+input.getAttribute('aria-label');input.focus();return}if(group==='hero'||group==='pageBackground')next[group]=value;else{next[group]||={};next[group][input.dataset.softwareKey]=value}}
-  e.target.disabled=true;try{status.textContent='กำลังบันทึกรูป…';const current=await window.OlafStoreSettings.fetchStoreSettings({forceRefresh:true});await window.OlafStoreSettings.saveStoreSettings({...current,softwareStore:next});const verified=await window.OlafStoreSettings.fetchStoreSettings({forceRefresh:true});const matches=Object.entries(next).every(([key,value])=>typeof value==='object'?Object.entries(value).every(([id,url])=>verified.softwareStore?.[key]?.[id]===url):verified.softwareStore?.[key]===value);if(!matches)throw new Error('ยังยืนยันข้อมูลที่บันทึกไม่ได้');config=next;window.dispatchEvent(new CustomEvent('olaf-software-settings-saved',{detail:next}));status.textContent='บันทึกแล้ว รีเฟรชหน้าร้านซอฟต์แวร์เพื่อดูรูปใหม่'}catch(error){status.textContent='บันทึกไม่สำเร็จ: '+(error.message||'กรุณาลองใหม่')}finally{e.target.disabled=false}
+  e.target.disabled=true;try{status.textContent='กำลังบันทึกรูป…';const current=await window.OlafStoreSettings.fetchStoreSettings({forceRefresh:true});await window.OlafStoreSettings.saveStoreSettings({...current,softwareStore:next});const verified=await window.OlafStoreSettings.fetchStoreSettings({forceRefresh:true});const matches=Object.entries(next).every(([key,value])=>value&&typeof value==='object'?Object.entries(value).every(([id,url])=>verified.softwareStore?.[key]?.[id]===url):verified.softwareStore?.[key]===value);if(!matches)throw new Error('ยังยืนยันข้อมูลที่บันทึกไม่ได้');config=next;window.dispatchEvent(new CustomEvent('olaf-software-settings-saved',{detail:next}));status.textContent='บันทึกแล้ว รีเฟรชหน้าร้านซอฟต์แวร์เพื่อดูรูปใหม่'}catch(error){status.textContent='บันทึกไม่สำเร็จ: '+(error.message||'กรุณาลองใหม่')}finally{e.target.disabled=false}
  });
  // Load once when the settings section is actually opened, after the admin gate.
  const observer=new IntersectionObserver(entries=>{if(entries.some(entry=>entry.isIntersecting)&&!loaded){const button=mount.querySelector('[data-software-load]');if(!button.disabled)button.click();observer.disconnect()}},{threshold:0});

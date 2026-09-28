@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
   if(!heading.querySelector('.sw-heading-flame'))heading.insertAdjacentHTML('afterbegin',img('assets/software-heading-fire.png','','sw-heading-flame'));
   main.querySelector('.sw-categories').innerHTML=categories.map(c=>'<button type="button" data-sw-category="'+c.id+'" aria-pressed="'+(selected===c.id)+'">'+img(categoryImage(c),categoryName(c))+'<span><b>'+esc(categoryName(c))+'</b><small>ดูทั้งหมด <em>›</em></small></span></button>').join('');
   const sorted=[...products].sort((a,b)=>Number(Number(b.stock)>0)-Number(Number(a.stock)>0)||Number(b.sold||0)-Number(a.sold||0));
-  const list=sorted.slice(0,5);
+  const list=Array.isArray(config.featuredIds)?[...new Set(config.featuredIds)].slice(0,5).map(id=>products.find(p=>p.id===id)).filter(Boolean):sorted.slice(0,5);
   main.querySelector('.sw-products h2').textContent='สินค้าแนะนำ';
   main.querySelector('#sw-category-caption').textContent='เลือกซอฟต์แวร์สำหรับคุณ · ดูรายละเอียดก่อนสั่งซื้อ';
   const card=p=>{

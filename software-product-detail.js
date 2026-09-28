@@ -61,9 +61,8 @@ window.OlafSoftwareDetail={
   }
   const highlights=description.querySelector('.sd-highlights');
   if(highlights&&!config.highlightsTitle)highlights.querySelector('h3').textContent='สิ่งที่คุณจะได้รับ';
-  // Keep additional product information accessible below the primary composition.
-  const more=document.createElement('section');more.className='sd-additional';more.setAttribute('aria-label','ข้อมูลสินค้าและการรับประกัน');more.append(aside);details.append(more);
-  layout.replaceChildren(primary);
+  aside.setAttribute('aria-label','ข้อมูลสินค้า การรับประกัน และสินค้าแนะนำ');
+  layout.replaceChildren(primary,aside);
   this.decorateBuy(container);
  }
 };

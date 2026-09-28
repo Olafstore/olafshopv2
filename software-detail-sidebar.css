@@ -1,0 +1,22 @@
+/* Right-hand information column, with a unified midnight-blue card palette. */
+html body.product-detail-page #product-page.software-detail{max-width:1480px}
+html body.product-detail-page #product-page.software-detail .pd-layout{grid-template-columns:minmax(0,1fr) 280px!important;gap:22px;align-items:start}
+html body.product-detail-page #product-page.software-detail .sd-primary{gap:20px;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr)}
+html body.product-detail-page #product-page.software-detail .sd-aside{grid-column:2;grid-row:1;display:grid;grid-template-columns:1fr;gap:14px;align-items:start}
+html body.product-detail-page #product-page.software-detail .sd-aside>.pd-section{grid-column:1;grid-row:auto;height:auto;margin:0!important;padding:18px!important;align-self:start}
+html body.product-detail-page #product-page.software-detail .sd-aside>.pd-section,
+html body.product-detail-page #product-page.software-detail .sd-details .pd-section,
+html body.product-detail-page #product-page.software-detail .sd-payment-panel{background:linear-gradient(145deg,#101c38,#0a1228)!important;border:1px solid #253759!important;border-radius:12px!important;box-shadow:0 8px 24px #02081930!important}
+html body.product-detail-page #product-page.software-detail .sd-benefit-grid>div,
+html body.product-detail-page #product-page.software-detail .sd-payment-method,
+html body.product-detail-page #product-page.software-detail .pd-related-card{background:linear-gradient(140deg,#142442,#0c172e)!important;border:1px solid #294365!important;border-radius:9px}
+html body.product-detail-page #product-page.software-detail .pd-package-option{background:linear-gradient(120deg,#101e3a,#0b152b);border-color:#294365}
+html body.product-detail-page #product-page.software-detail .pd-package-option.is-selected{border-color:#279fff;background:linear-gradient(120deg,#102e50,#101c38);box-shadow:0 0 16px #168aff14}
+html body.product-detail-page #product-page.software-detail .sd-aside h3{display:flex;align-items:center;gap:5px;margin:0 0 12px;font-size:17px;color:#e6efff}
+html body.product-detail-page #product-page.software-detail .pd-info-row{padding:11px 0!important;border-color:#263a58}
+html body.product-detail-page #product-page.software-detail .sd-payment-method{gap:8px;padding:10px}
+html body.product-detail-page #product-page.software-detail .sd-payment-method img{width:58px;height:32px}
+html body.product-detail-page #product-page.software-detail .sd-payments{gap:8px}
+html body.product-detail-page #product-page.software-detail .sd-payment-method strong{font-size:11px}
+@media(max-width:1150px){html body.product-detail-page #product-page.software-detail .pd-layout{grid-template-columns:1fr!important}html body.product-detail-page #product-page.software-detail .sd-aside{grid-column:1;grid-row:auto;grid-template-columns:repeat(2,minmax(0,1fr))}html body.product-detail-page #product-page.software-detail .sd-aside>.pd-section{grid-column:auto}html body.product-detail-page #product-page.software-detail .sd-aside>.pd-related-section{grid-column:1/-1}}
+@media(max-width:700px){html body.product-detail-page #product-page.software-detail .sd-primary,html body.product-detail-page #product-page.software-detail .sd-aside{grid-template-columns:1fr}html body.product-detail-page #product-page.software-detail .sd-aside>.pd-section{grid-column:1}}

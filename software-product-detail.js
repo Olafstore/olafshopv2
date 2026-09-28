@@ -72,7 +72,7 @@ window.OlafSoftwareDetail={
    const title=document.createElement('strong');title.textContent=config.paymentTitle||'ช่องทางการชำระเงิน';
    const note=document.createElement('p');note.textContent=config.paymentNote||'ชำระผ่านช่องทางที่ร้านกำหนด';panel.append(title,note);
    [...paymentRow.children].forEach(node=>{const item=document.createElement('div');item.className='sd-payment-method';const copy=document.createElement('div');const name=document.createElement('strong');const label=node.alt||node.textContent;name.textContent=/promptpay/i.test(label)?'พร้อมเพย์':/true|wallet/i.test(label)?'ทรูมันนี่ วอลเล็ต':label;const note=document.createElement('small');note.textContent=/promptpay/i.test(label)?(config.promptPayNote||'สแกน QR Code ชำระเงิน'):(config.walletNote||'ชำระผ่านช่องทางของร้าน');copy.append(name,note);item.append(node,copy);paymentRow.append(item)});
-   panel.append(paymentRow);summary.querySelector('.sd-purchase-actions')?.after(panel);
+   panel.append(paymentRow);(summary.querySelector('.pd-platform-links')||summary.querySelector('.sd-purchase-actions'))?.after(panel);
   }
   const highlights=description.querySelector('.sd-highlights');
   if(highlights&&!config.highlightsTitle)highlights.querySelector('h3').textContent='สิ่งที่คุณจะได้รับ';

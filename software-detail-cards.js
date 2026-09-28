@@ -15,7 +15,17 @@ window.OlafSoftwareDetailCards=(container,p,store={})=>{
  ['.pd-badges','.pd-sidebar-title','.sd-subtitle','.pd-sidebar-publisher'].forEach(selector=>{const node=summary.querySelector(selector);if(node)heading.append(node)});
  header.append(brand,heading);summary.prepend(header);
  summary.querySelectorAll('.pd-genre-tags,.pd-separator,.pd-features-row,.pd-sidebar-cover,.pd-mobile-cover').forEach(node=>node.remove());
- if(c.benefits){const row=el('div',null,'sd-benefit-grid');lines(c.benefits).forEach(line=>{const [title,...body]=line.split('|');const box=el('div');box.append(el('strong',title),el('small',body.join('|')));row.append(box)});summary.querySelector('.pd-package-section')?.before(row);if(!row.isConnected)summary.querySelector('h1')?.after(row)}
+ // Keep the three service facts consistent, including products without optional metadata.
+ const legacyBenefits=lines(c.benefits).map(line=>line.split('|').map(value=>value.trim()));
+ const serviceFacts=[
+  [c.deliveryTitle||legacyBenefits[0]?.[0]||'การจัดส่ง',c.deliveryText||legacyBenefits[0]?.slice(1).join('|')||p.delivery||'ตรวจสอบวิธีรับสินค้าในรายละเอียดคำสั่งซื้อ'],
+  [c.warrantyBenefitTitle||legacyBenefits[1]?.[0]||'การรับประกัน',c.warrantyBenefitText||legacyBenefits[1]?.slice(1).join('|')||p.warranty||'เป็นไปตามเงื่อนไขที่ร้านระบุ'],
+  [c.brandTitle||legacyBenefits[2]?.[0]||'แบรนด์',c.brandText||legacyBenefits[2]?.slice(1).join('|')||p.publisher||categoryName]
+ ];
+ const services=el('div',null,'sd-benefit-grid');
+ serviceFacts.forEach(([title,value])=>{const box=el('div');box.append(el('strong',title),el('small',value));services.append(box)});
+ header.after(services);
+ summary.querySelector('.pd-sidebar-publisher')?.remove();
  const info=aside.querySelector('.pd-info-card');
  if(info&&c.infoRows){info.replaceChildren();lines(c.infoRows).forEach(line=>{const [key,...value]=line.split('|');const row=el('div',null,'pd-info-row');row.append(el('span',key),el('strong',value.join('|')));info.append(row)})}
  if(c.infoTitle&&info)info.closest('.pd-section').querySelector('h3').textContent=c.infoTitle;
@@ -37,14 +47,12 @@ window.OlafSoftwareDetailCards=(container,p,store={})=>{
  if(c.buyLabel){const button=summary.querySelector('#btn-buy');if(button&&!button.disabled){[...button.childNodes].filter(n=>n.nodeType===3).forEach(n=>n.remove());button.append(document.createTextNode(' '+c.buyLabel))}}
  if(c.backLabel)container.querySelector('.pd-breadcrumb').textContent=c.backLabel;
  const packageTitle=summary.querySelector('.pd-package-head strong');if(packageTitle)packageTitle.textContent=c.packageTitle||'เลือกประเภทสินค้า';
- const priceLabel=summary.querySelector('.pd-price-label');if(priceLabel)priceLabel.textContent=c.priceLabel||'ราคาสินค้า';
+ const priceLabel=summary.querySelector('.pd-price-label');if(priceLabel){if(c.priceLabel)priceLabel.textContent=c.priceLabel;else priceLabel.remove()}
  if(c.descriptionTitle){const title=description.querySelector('h3');if(title)title.textContent=c.descriptionTitle}
  if(!aside.querySelector('.sd-warranty')){const warranty=card(c.warrantyTitle||'การรับประกัน',[c.warrantyEmpty||'กรุณาสอบถามเงื่อนไขกับร้านก่อนสั่งซื้อ']);warranty.classList.add('sd-warranty');aside.append(warranty)}
  const actions=el('div',null,'sd-purchase-actions');
  const buy=summary.querySelector('#btn-buy');if(buy){buy.before(actions);actions.append(buy)}
  const favorite=summary.querySelector('[data-product-favorite]');if(favorite)actions.append(favorite);
- if(!c.benefits){const row=el('div',null,'sd-benefit-grid');[['การจัดส่ง',p.delivery],['การรับประกัน',p.warranty],['แบรนด์',p.publisher]].filter(([,value])=>value).forEach(([title,value])=>{const box=el('div');box.append(el('strong',title),el('small',value));row.append(box)});if(row.children.length)header.after(row)}
  summary.querySelectorAll('.sd-benefit-grid>div').forEach((box,i)=>{const icon=el('img',null,'sd-service-icon');icon.src='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/'+['lightning-charge-fill','shield-check','display','headset'][i%4]+'.svg';icon.alt='';box.prepend(icon)});
- if(!summary.querySelector('.pd-package-section')){const box=el('section',null,'sd-single-option');box.append(el('strong',c.packageTitle||'ประเภทสินค้า'),el('div',p.name,'sd-single-option-name'));const price=summary.querySelector('.pd-price-row');if(price)price.before(box)}
  if(!summary.querySelector('.sd-payments')&&store.payment){const methods=[];if(store.payment.promptPayId||store.promptPayId)methods.push('PromptPay');if(store.payment.bankName)methods.push(store.payment.bankName);if(store.payment.walletName)methods.push(store.payment.walletName);if(methods.length){const row=el('div',null,'sd-payments');row.append(el('strong',c.paymentTitle||'ช่องทางชำระเงิน'));methods.forEach(method=>row.append(el('span',method)));summary.append(row)}}
 };

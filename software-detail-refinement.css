@@ -1,0 +1,28 @@
+/* Isolate the new software surface from the legacy theme's card rules. */
+html body.product-detail-page #product-page.software-detail .pd-layout{display:grid!important;grid-template-columns:minmax(0,1fr) 280px!important;gap:24px;align-items:start;grid-template-rows:auto}
+.sd-primary{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.08fr);gap:24px;min-width:0;align-items:start}
+html body.product-detail-page #product-page.software-detail .sd-aside{grid-column:2;grid-row:1;min-width:0;display:grid;gap:16px}
+html body.product-detail-page #product-page.software-detail .sd-details{grid-column:1/-1;grid-row:auto;margin-top:0;min-width:0}
+html body.product-detail-page #product-page.software-detail .sd-aside .pd-section{padding:18px!important;margin:0!important;border:1px solid #20384c!important;border-radius:12px!important;background:linear-gradient(145deg,#0a1927,#06101b)!important;box-shadow:0 8px 24px #0002!important;min-width:0}
+html body.product-detail-page #product-page.software-detail .pd-info-card{padding:0!important;margin:0!important;border:0!important;background:none!important;box-shadow:none!important}
+html body.product-detail-page #product-page.software-detail .pd-info-row{display:grid!important;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)!important;gap:10px!important;padding:12px 0!important;align-items:start;font-size:12px}
+html body.product-detail-page #product-page.software-detail .pd-info-row>*{min-width:0;white-space:normal!important;overflow-wrap:anywhere;line-height:1.6}
+html body.product-detail-page #product-page.software-detail .pd-info-row>strong{text-align:right}
+html body.product-detail-page #product-page.software-detail .stock-pill{max-width:100%;white-space:normal;line-height:1.4}
+html body.product-detail-page #product-page.software-detail .pd-related-card{display:grid!important;grid-template-columns:72px minmax(0,1fr)!important;gap:12px!important;padding:10px!important;background:#0b1c2c!important;border:1px solid #223c53!important;border-radius:10px!important;min-width:0!important;width:100%!important;box-shadow:none!important;transition:border-color .2s,transform .2s}
+html body.product-detail-page #product-page.software-detail .pd-related-card:hover{border-color:#39a7eb!important;transform:translateY(-2px)}
+html body.product-detail-page #product-page.software-detail .pd-related-img{width:72px!important;height:72px!important;aspect-ratio:1;border-radius:7px;overflow:hidden}
+html body.product-detail-page #product-page.software-detail .pd-related-img img{width:100%!important;height:100%!important;object-fit:cover!important}
+html body.product-detail-page #product-page.software-detail .pd-related-body{min-width:0;padding:0!important}
+html body.product-detail-page #product-page.software-detail .pd-related-name{font-size:12px;line-height:1.5;white-space:normal;overflow-wrap:anywhere;margin:0 0 4px}
+html body.product-detail-page #product-page.software-detail .pd-related-publisher{font-size:10px;margin:0 0 6px}
+html body.product-detail-page #product-page.software-detail .pd-related-footer{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.software-detail .sd-thumbnail-rail{align-self:start;height:auto;background:none;border:0;overflow:visible}
+.software-detail .sd-thumbnail-rail>button{display:none}
+html body.product-detail-page #product-page.software-detail .sd-thumbnail-rail .pd-screenshots{display:flex;flex-direction:column;flex:0 1 auto;height:auto;max-height:none;overflow:visible;scrollbar-width:none;background:none;padding:3px;gap:10px}
+html body.product-detail-page #product-page.software-detail .sd-thumbnail-rail .pd-thumb{width:100%;min-width:0;height:auto;aspect-ratio:1;flex:none;border-radius:9px}
+.software-detail .sd-warranty p{overflow-wrap:anywhere;line-height:1.8}
+.software-detail .sd-tabs{margin-top:0}
+@media(max-width:1100px){html body.product-detail-page #product-page.software-detail .pd-layout{grid-template-columns:1fr!important}html body.product-detail-page #product-page.software-detail .sd-aside{grid-column:1;grid-row:auto;grid-template-columns:repeat(2,minmax(0,1fr))}.software-detail .sd-aside>.pd-related-section{grid-column:1/-1}}
+@media(max-width:700px){.sd-primary{grid-template-columns:1fr;gap:18px}html body.product-detail-page #product-page.software-detail .sd-aside{grid-template-columns:1fr}html body.product-detail-page #product-page.software-detail .sd-thumbnail-rail .pd-screenshots{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));width:100%;gap:7px}.software-detail .sd-thumbnail-rail{width:100%}html body.product-detail-page #product-page.software-detail .sd-details{order:0}.software-detail .sd-tabs{flex-wrap:wrap;gap:5px;overflow:visible}.software-detail .sd-tabs button{flex:1 0 40%;font-size:12px;padding:10px 5px;text-align:center}}
+@media(prefers-reduced-motion:reduce){.software-detail .pd-related-card{transition:none!important}}

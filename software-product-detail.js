@@ -33,5 +33,8 @@ window.OlafSoftwareDetail={
   left.remove();layout.replaceChildren(gallery,summary,aside,details);
   container.querySelector('.pd-breadcrumb').href='more-products.html';
   window.OlafSoftwareDetailCards?.(container,p,store);
+  const primary=document.createElement('div');primary.className='sd-primary';primary.append(gallery,summary,details);layout.replaceChildren(primary,aside);
+  const warranty=aside.querySelector('.sd-warranty'),relatedCard=aside.querySelector('.pd-related-section');if(warranty&&relatedCard)aside.insertBefore(warranty,relatedCard);
+  summary.querySelectorAll('.sd-payments>strong').forEach(node=>node.remove());
  }
 };

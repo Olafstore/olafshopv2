@@ -43,6 +43,19 @@ window.OlafSoftwareDetail={
   const warranty=aside.querySelector('.sd-warranty'),relatedCard=aside.querySelector('.pd-related-section');if(warranty&&relatedCard)aside.insertBefore(warranty,relatedCard);
   summary.querySelectorAll('.sd-payments>strong').forEach(node=>node.remove());
   const config=p.sourceMetadata?.softwareDetail||{};
+  const priceRow=summary.querySelector('.pd-price-row');
+  summary.querySelectorAll('[data-purchase-compare],[data-purchase-discount]').forEach(node=>node.classList.add('sd-price-legacy'));
+  if(priceRow){
+   if(summary.querySelector('.pd-package-section'))priceRow.classList.add('sd-price-source');
+   else{
+    priceRow.classList.add('sd-price-choice');
+    const dot=document.createElement('span');dot.className='sd-choice-dot';dot.setAttribute('aria-hidden','true');
+    const copy=document.createElement('div');copy.className='sd-choice-copy';
+    const title=document.createElement('strong');title.textContent=config.offerTitle||p.name;
+    const note=document.createElement('small');note.textContent=config.offerDescription||config.subtitle||p.publisher||'';
+    copy.append(title,note);priceRow.prepend(dot,copy);
+   }
+  }
   const rating=document.createElement('div');rating.className='sd-rating';
   const score=Number(config.ratingScore),count=Number(config.reviewCount);
   const rated=score>0&&score<=5&&count>0;

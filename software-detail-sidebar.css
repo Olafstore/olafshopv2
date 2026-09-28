@@ -1,4 +1,16 @@
 /* Right-hand information column, with a unified midnight-blue card palette. */
+html body.product-detail-page #product-page.software-detail .sd-price-legacy,html body.product-detail-page #product-page.software-detail .sd-price-source{display:none!important}
+html body.product-detail-page #product-page.software-detail .sd-price-choice{display:grid;grid-template-columns:24px minmax(0,1fr) auto;align-items:center;gap:12px;padding:13px 15px;margin:14px 0;border:1px solid #159eff;border-radius:9px;background:linear-gradient(120deg,#0b2037,#0b1627);min-height:62px}
+.sd-choice-dot{width:20px;height:20px;border-radius:50%;background:#078cff;box-shadow:0 0 0 4px #123564;display:grid;place-items:center}
+.sd-choice-dot:after{content:'';width:7px;height:7px;border-radius:50%;background:white}
+.sd-choice-copy{display:grid;gap:4px;min-width:0}.sd-choice-copy strong{font-size:13px;line-height:1.5}.sd-choice-copy small{font-size:11px;color:#acc2d9;line-height:1.5;overflow-wrap:anywhere}
+html body.product-detail-page #product-page.software-detail .sd-price-choice .pd-price-main{font-size:18px;white-space:nowrap}
+html body.product-detail-page #product-page.software-detail .pd-package-option{min-height:62px;padding:12px 15px;gap:12px}
+html body.product-detail-page #product-page.software-detail .pd-package-copy strong{font-size:13px}
+html body.product-detail-page #product-page.software-detail .pd-package-meta b{font-size:18px;color:#f3f7ff}
+html body.product-detail-page #product-page.software-detail .pd-package-option.is-selected .pd-package-radio{background:#078cff;border:0;box-shadow:0 0 0 4px #123564;width:20px;height:20px;display:grid;place-items:center}
+html body.product-detail-page #product-page.software-detail .pd-package-option.is-selected .pd-package-radio>*{display:none}
+html body.product-detail-page #product-page.software-detail .pd-package-option.is-selected .pd-package-radio:after{content:'';width:7px;height:7px;border-radius:50%;background:white}
 html body.product-detail-page #product-page.software-detail{max-width:1480px}
 html body.product-detail-page #product-page.software-detail .pd-layout{grid-template-columns:minmax(0,1fr) 280px!important;gap:22px;align-items:start}
 html body.product-detail-page #product-page.software-detail .sd-primary{gap:20px;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr)}

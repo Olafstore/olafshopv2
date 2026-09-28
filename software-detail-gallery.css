@@ -1,0 +1,16 @@
+html body.product-detail-page #product-page.software-detail .sd-faq-freeform>div{white-space:pre-wrap;overflow-wrap:anywhere;tab-size:4;line-height:1.85;font-size:14px;color:#c7d8e8}
+html body.product-detail-page #product-page.software-detail .sd-gallery{display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;align-items:start}
+html body.product-detail-page #product-page.software-detail .sd-gallery .pd-hero-img{grid-column:2;grid-row:1;width:100%;margin:0;border:1px solid #1d3244;border-radius:10px}
+html body.product-detail-page #product-page.software-detail .sd-thumbnail-rail{grid-column:1;grid-row:1;width:100%;margin:0}
+html body.product-detail-page #product-page.software-detail .sd-thumbnail-rail .pd-screenshots{display:flex;flex-direction:column;gap:9px;padding:2px;width:100%;max-height:none}
+html body.product-detail-page #product-page.software-detail .sd-thumbnail-rail .pd-thumb{width:100%;height:auto;aspect-ratio:1;border-radius:8px}
+html body.product-detail-page #product-page.software-detail #btn-buy{min-height:46px;border:1px solid #159eff;border-radius:8px;background:linear-gradient(105deg,#2ca7fa,#0065ff);box-shadow:none;font-size:16px;padding:10px 14px}
+html body.product-detail-page #product-page.software-detail .sd-payment-panel{border:1px solid #192d40!important;border-radius:9px!important;background:linear-gradient(135deg,#091521,#050e17)!important;box-shadow:none!important;padding:12px}
+html body.product-detail-page #product-page.software-detail .sd-payment-panel>p{display:none}
+html body.product-detail-page #product-page.software-detail .sd-payments{display:flex;justify-content:center;gap:0;margin-top:10px;flex-wrap:wrap}
+html body.product-detail-page #product-page.software-detail .sd-payment-method{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;flex:1;min-width:90px;max-width:170px;background:transparent!important;border:0!important;border-radius:0;padding:5px 14px}
+html body.product-detail-page #product-page.software-detail .sd-payment-method+.sd-payment-method{border-left:1px solid #1a2a39!important}
+html body.product-detail-page #product-page.software-detail .sd-payment-method img{width:76px;height:34px;object-fit:contain}
+html body.product-detail-page #product-page.software-detail .sd-payment-method>div{text-align:center}
+html body.product-detail-page #product-page.software-detail .sd-payment-method small{display:none}
+@media(max-width:700px){html body.product-detail-page #product-page.software-detail .sd-gallery{grid-template-columns:48px minmax(0,1fr);gap:8px}}

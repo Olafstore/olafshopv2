@@ -44,7 +44,8 @@ window.OlafSoftwareDetailCards=(container,p,store={})=>{
  [c.descriptionTab,c.guideTab].forEach((title,i)=>{if(title)nav.children[i].textContent=title});
  for(const [key,label] of [['faq',c.faqTab||'คำถามที่พบบ่อย'],['reviews',c.reviewsTab||'รีวิวจากลูกค้า']]){
   const panel=el('div');panel.id='sd-'+key;panel.hidden=true;panel.setAttribute('role','tabpanel');
-  if(c[key])lines(c[key]).forEach(line=>{const [title,...body]=line.split('|');panel.append(card(title,[body.join('|')]))});else panel.append(el('p',key==='faq'?(c.faqEmpty||'สอบถามข้อมูลเพิ่มเติมผ่านช่องทางติดต่อของร้าน'):(c.reviewsEmpty||'ยังไม่มีรีวิวที่เผยแพร่')));
+  if(key==='faq'){const box=el('section',null,'pd-section sd-faq-freeform');box.append(el('div',c.faq||c.faqEmpty||'สอบถามข้อมูลเพิ่มเติมผ่านช่องทางติดต่อของร้าน'));panel.append(box)}
+  else if(c[key])lines(c[key]).forEach(line=>{const [title,...body]=line.split('|');panel.append(card(title,[body.join('|')]))});else panel.append(el('p',c.reviewsEmpty||'ยังไม่มีรีวิวที่เผยแพร่'));
   const button=el('button',label);button.type='button';button.id=panel.id+'-tab';button.setAttribute('role','tab');button.setAttribute('aria-controls',panel.id);button.setAttribute('aria-selected','false');button.tabIndex=-1;panel.setAttribute('aria-labelledby',button.id);
   panels.push(panel);nav.append(button);nav.parentNode.append(panel);
  }

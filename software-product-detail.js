@@ -1,6 +1,6 @@
 window.OlafSoftwareDetail={
  applies:p=>Boolean(window.OlafExtraProducts?.isExtraCategory?.(p?.category))||/^(software|office|adobe|capcut|antivirus)$/.test(p?.category||''),
- enhance(container,p){
+ enhance(container,p,store={}){
   if(!this.applies(p)){container.classList.remove('software-detail');return}
   container.classList.add('software-detail');
   const layout=container.querySelector('.pd-layout'),left=layout?.querySelector('.pd-left'),summary=layout?.querySelector('.pd-sidebar');
@@ -28,6 +28,6 @@ window.OlafSoftwareDetail={
   const related=container.querySelector('.pd-related-section');if(related){const title=related.querySelector('h3');if(title)title.textContent='สินค้าแนะนำ';const note=related.querySelector('.pd-related-heading p');if(note)note.textContent='เลือกดูสินค้าอื่นของร้าน';aside.append(related)}
   left.remove();layout.replaceChildren(gallery,summary,aside,details);
   container.querySelector('.pd-breadcrumb').href='more-products.html';
-  window.OlafSoftwareDetailCards?.(container,p);
+  window.OlafSoftwareDetailCards?.(container,p,store);
  }
 };

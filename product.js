@@ -2452,7 +2452,7 @@ function renderProduct() {
 
   createIconSet();
   hydrateImages();
-  window.OlafSoftwareDetail?.enhance(container,p);
+  window.OlafSoftwareDetail?.enhance(container,p,globalPayload?.store || {});
   renderProductFavorites();
   setupSmoothDetails(container);
   setupRelatedScroller(container);

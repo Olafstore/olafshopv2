@@ -1,0 +1,33 @@
+#product-page.software-detail{width:calc(100% - 64px);max-width:1440px;padding:22px 0 40px;margin:0 auto}
+#product-page.software-detail .pd-layout{grid-template-columns:minmax(0,1.1fr) minmax(0,1.1fr) minmax(230px,.6fr);gap:26px;align-items:start}
+#product-page.software-detail .sd-aside{grid-column:3;grid-row:1 / 3;gap:18px}
+#product-page.software-detail .sd-details{grid-column:1 / 3;grid-row:2}
+#product-page.software-detail .pd-sidebar-card{background:transparent!important;border:0!important;box-shadow:none!important}
+#product-page.software-detail .pd-sidebar-body{padding:0}
+#product-page.software-detail .sd-aside .pd-section{margin:0;padding:20px;background:linear-gradient(135deg,#091722,#030d17);border:1px solid #173044;border-radius:13px}
+#product-page.software-detail .sd-aside .pd-info-card{padding:0;background:transparent;border:0}
+#product-page.software-detail .pd-info-row{display:grid;grid-template-columns:1fr 1.2fr;gap:12px;font-size:12px}
+#product-page.software-detail .pd-related-controls{display:none}
+#product-page.software-detail .pd-related-grid{display:grid!important;grid-template-columns:1fr!important;overflow:visible}
+#product-page.software-detail .pd-related-grid>.pd-related-card:nth-child(n+4){display:none!important}
+#product-page.software-detail .pd-layout{grid-template-rows:auto auto;align-content:start}
+#product-page.software-detail .pd-related-card{display:grid!important;grid-template-columns:68px minmax(0,1fr);gap:10px;min-width:0!important;padding:0;border:0;background:none}
+#product-page.software-detail .pd-related-img{width:68px;height:68px;aspect-ratio:1}
+#product-page.software-detail .pd-related-body{padding:0}
+#product-page.software-detail .pd-sidebar-title{font-size:24px;line-height:1.3}
+#product-page.software-detail .pd-price-row{margin:6px 0}
+#product-page.software-detail .pd-price-label{margin-top:12px}
+#product-page.software-detail .sd-purchase-actions{margin:14px 0}
+#product-page.software-detail .sd-benefit-grid{margin:20px 0;gap:12px}
+#product-page.software-detail .sd-benefit-grid>div{border:0;padding-left:30px;position:relative}
+.sd-service-icon{position:absolute;left:0;top:2px;width:23px;height:23px;filter:invert(59%) sepia(71%) saturate(1640%) hue-rotate(171deg)}
+.sd-single-option{padding:14px;border:1px solid #159ef6;border-radius:10px;background:#092036;margin:18px 0 12px}.sd-single-option strong{color:#92b6d4;font-size:12px}.sd-single-option-name{margin-top:7px;color:#fff}
+.sd-thumbnail-rail{grid-column:1;grid-row:1;display:flex;flex-direction:column;min-height:0;border:1px solid #152d40;border-radius:10px;background:#061521;overflow:hidden}
+.sd-thumbnail-rail>button{border:0;color:#a5cfea;background:#0b1b29;font-size:22px;line-height:24px;cursor:pointer}
+#product-page.software-detail .sd-thumbnail-rail .pd-screenshots{max-height:430px;flex:1;overflow:auto;scrollbar-width:thin}
+#product-page.software-detail #sd-description{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:16px}
+#product-page.software-detail #sd-description>.pd-admin-detail-section{grid-column:1/-1}
+#product-page.software-detail #sd-description[hidden]{display:none}
+.sd-payments>span{border:1px solid #274961;background:#081d30;border-radius:5px;padding:5px 9px;font-size:12px}
+@media(max-width:1100px){#product-page.software-detail .pd-layout{grid-template-columns:1fr 1fr}#product-page.software-detail .sd-aside{grid-column:2;grid-row:2}#product-page.software-detail .sd-details{grid-column:1;grid-row:2}#product-page.software-detail #sd-description{display:block}}
+@media(max-width:700px){#product-page.software-detail{width:calc(100% - 28px)}#product-page.software-detail .pd-layout{grid-template-columns:1fr;gap:20px}#product-page.software-detail .sd-aside,#product-page.software-detail .sd-details{grid-column:1;grid-row:auto}.sd-thumbnail-rail{grid-column:1;grid-row:2;flex-direction:row}#product-page.software-detail .sd-thumbnail-rail .pd-screenshots{flex-direction:row;max-height:80px}.sd-thumbnail-rail>button{width:25px;flex-shrink:0}#product-page.software-detail .sd-benefit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#product-page.software-detail .pd-sidebar-title{font-size:22px}}

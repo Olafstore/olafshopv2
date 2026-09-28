@@ -3,12 +3,16 @@ window.OlafSoftwareDetail={
  enhance(container,p,store={}){
   if(!this.applies(p)){container.classList.remove('software-detail');return}
   container.classList.add('software-detail');
+  // The old Microsoft theme forces 16:9 images and strips card backgrounds.
+  // Keep product data/checkout logic, but stop that legacy skin on this layout.
+  document.body.classList.remove('product-theme-windows','product-theme-minecraft','product-theme-rockstar');
   const layout=container.querySelector('.pd-layout'),left=layout?.querySelector('.pd-left'),summary=layout?.querySelector('.pd-sidebar');
   if(!left||!summary)return;
   const gallery=document.createElement('section');gallery.className='sd-gallery';gallery.setAttribute('aria-label','รูปสินค้า');
   ['.pd-hero-img','.pd-screenshots'].forEach(selector=>{const node=left.querySelector(selector);if(node)gallery.append(node)});
   left.querySelector('.pd-gallery-label')?.remove();
   if(!gallery.querySelector('img')){const cover=summary.querySelector('.pd-sidebar-cover img');if(cover){const holder=document.createElement('div');holder.className='pd-hero-img';holder.append(cover.cloneNode(true));gallery.append(holder)}}
+  const thumbnails=gallery.querySelector('.pd-screenshots');if(thumbnails){const rail=document.createElement('div');rail.className='sd-thumbnail-rail';const control=(label,direction)=>{const button=document.createElement('button');button.type='button';button.textContent=direction<0?'⌃':'⌄';button.setAttribute('aria-label',label);button.addEventListener('click',()=>thumbnails.scrollBy({top:direction*160,left:matchMedia('(max-width:700px)').matches?direction*100:0,behavior:'smooth'}));return button};thumbnails.before(rail);rail.append(control('เลื่อนรูปก่อนหน้า',-1),thumbnails,control('เลื่อนรูปถัดไป',1))}
   const aside=document.createElement('aside');aside.className='sd-aside';
   const info=left.querySelector('.pd-info-card')?.closest('.pd-section');if(info)aside.append(info);
   if(p.warranty){const box=document.createElement('section');box.className='pd-section sd-warranty';const title=document.createElement('h3');title.textContent='การรับประกัน';const text=document.createElement('p');text.textContent=p.warranty;box.append(title,text);aside.append(box)}

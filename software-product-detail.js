@@ -66,6 +66,8 @@ window.OlafSoftwareDetail={
   summary.querySelector('.sd-product-header')?.after(rating);
   const paymentRow=summary.querySelector('.sd-payments');
   if(paymentRow){
+   const seen=new Set();
+   [...paymentRow.children].forEach(node=>{const label=(node.alt||node.textContent||'').trim();const method=/promptpay|พร้อมเพ/i.test(label)?'promptpay':/true.?money|ทรูมันนี่|^wallet$/i.test(label)?'truemoney':'';if(!method||seen.has(method))node.remove();else seen.add(method)});
    const panel=document.createElement('section');panel.className='sd-payment-panel';
    const title=document.createElement('strong');title.textContent=config.paymentTitle||'ช่องทางการชำระเงิน';
    const note=document.createElement('p');note.textContent=config.paymentNote||'ชำระผ่านช่องทางที่ร้านกำหนด';panel.append(title,note);

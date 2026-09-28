@@ -1,0 +1,15 @@
+/* Purchase + existing favorites action, with a compact payment-logo strip. */
+html body.product-detail-page #product-page.software-detail .sd-purchase-actions{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:10px;align-items:stretch}
+html body.product-detail-page #product-page.software-detail .sd-purchase-actions [data-product-favorite]{display:flex!important;align-items:center;justify-content:center;gap:8px;min-height:46px;margin:0;padding:10px;border:1px solid #2786bf;border-radius:8px;background:#071322;color:#d9ebfb;font-size:12px;line-height:1.4}
+html body.product-detail-page #product-page.software-detail .sd-purchase-actions [data-product-favorite].is-favorite{background:#102c48;border-color:#48b5ff;color:#7ecfff}
+html body.product-detail-page #product-page.software-detail .sd-purchase-actions [data-product-favorite]:hover{background:#10253b;border-color:#5cbeff}
+html body.product-detail-page #product-page.software-detail .sd-purchase-actions button svg{width:18px;height:18px;flex:none}
+html body.product-detail-page #product-page.software-detail .sd-purchase-actions #btn-buy{font-size:14px}
+html body.product-detail-page #product-page.software-detail .sd-payment-panel{display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:5px 0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important}
+html body.product-detail-page #product-page.software-detail .sd-payment-panel>strong{font-size:11px;font-weight:500;color:#bed0e2}
+html body.product-detail-page #product-page.software-detail .sd-payment-panel .sd-payments{display:flex;align-items:center;gap:18px;margin:0}
+html body.product-detail-page #product-page.software-detail .sd-payment-method{flex:none;min-width:0;max-width:none;margin:0;padding:0!important;border:0!important;background:none!important}
+html body.product-detail-page #product-page.software-detail .sd-payment-method+.sd-payment-method{border:0!important}
+html body.product-detail-page #product-page.software-detail .sd-payment-method img{width:56px;height:28px;object-fit:contain;padding:0;border:0;background:none}
+html body.product-detail-page #product-page.software-detail .sd-payment-method:has(img)>div{display:none}
+@media(max-width:380px){html body.product-detail-page #product-page.software-detail .sd-purchase-actions{gap:7px}html body.product-detail-page #product-page.software-detail .sd-purchase-actions #btn-buy{font-size:12px}html body.product-detail-page #product-page.software-detail .sd-purchase-actions [data-product-favorite]{font-size:11px}}

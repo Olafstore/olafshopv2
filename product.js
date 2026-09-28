@@ -1892,7 +1892,7 @@ function mergeRelatedProductSources(...sources) {
 }
 
 function isExtraProductCategory(category) {
-  return Boolean(window.OlafExtraProducts?.isExtraCategory?.(category));
+  return Boolean(window.OlafExtraProducts?.isExtraCategory?.(category)) || /^(software|office|adobe|capcut|antivirus)$/.test(category || '');
 }
 
 function relatedCandidateProducts(product, sourceProducts = globalPayload?.products || []) {
@@ -2097,7 +2097,7 @@ function renderProduct() {
     : [];
 
   // Use ONLY gallery images as requested by the user
-  const screenshotSrcs = [...new Set(galleryArr.filter(Boolean))].slice(0, 6);
+  const screenshotSrcs = [...new Set((isExtraProductCategory(p.category) ? [p.image,...galleryArr] : galleryArr).filter(Boolean))].slice(0, 6);
 
   // Main displayed image on left = first gallery image
   const leftMainImg = screenshotSrcs[0] || "";
@@ -2452,6 +2452,7 @@ function renderProduct() {
 
   createIconSet();
   hydrateImages();
+  window.OlafSoftwareDetail?.enhance(container,p);
   renderProductFavorites();
   setupSmoothDetails(container);
   setupRelatedScroller(container);

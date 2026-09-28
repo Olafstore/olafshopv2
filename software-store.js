@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
  function render(){
   const heading=main.querySelector('.sw-section-heading>div');
   heading.classList.add('sw-heading-copy');
-  if(!heading.querySelector('.sw-heading-flame'))heading.insertAdjacentHTML('afterbegin',img('assets/software-heading-fire.png','','sw-heading-flame'));
+  if(!heading.querySelector('.sw-heading-flame'))heading.insertAdjacentHTML('afterbegin',img(icon('stars'),'','sw-heading-flame'));
   main.querySelector('.sw-categories').innerHTML=categories.map(c=>'<button type="button" data-sw-category="'+c.id+'" aria-pressed="'+(selected===c.id)+'">'+img(categoryImage(c),categoryName(c))+'<span><b>'+esc(categoryName(c))+'</b><small>ดูทั้งหมด <em>›</em></small></span></button>').join('');
   const sorted=[...products].sort((a,b)=>Number(Number(b.stock)>0)-Number(Number(a.stock)>0)||Number(b.sold||0)-Number(a.sold||0));
   const list=Array.isArray(config.featuredIds)?[...new Set(config.featuredIds)].slice(0,5).map(id=>products.find(p=>p.id===id)).filter(Boolean):sorted.slice(0,5);

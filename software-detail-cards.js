@@ -18,7 +18,7 @@ window.OlafSoftwareDetailCards=(container,p,store={})=>{
  // Keep the three service facts consistent, including products without optional metadata.
  const legacyBenefits=lines(c.benefits).map(line=>line.split('|').map(value=>value.trim()));
  const serviceFacts=[
-  [c.deliveryTitle||legacyBenefits[0]?.[0]||'การจัดส่ง',c.deliveryText||legacyBenefits[0]?.slice(1).join('|')||p.delivery||'ตรวจสอบวิธีรับสินค้าในรายละเอียดคำสั่งซื้อ'],
+  [c.deliveryTitle||legacyBenefits[0]?.[0]||'การจัดส่ง',c.deliveryText||legacyBenefits[0]?.slice(1).join('|')||p.delivery||'ดูวิธีรับในคำสั่งซื้อ'],
   [c.warrantyBenefitTitle||legacyBenefits[1]?.[0]||'การรับประกัน',c.warrantyBenefitText||legacyBenefits[1]?.slice(1).join('|')||p.warranty||'เป็นไปตามเงื่อนไขที่ร้านระบุ'],
   [c.brandTitle||legacyBenefits[2]?.[0]||'แบรนด์',c.brandText||legacyBenefits[2]?.slice(1).join('|')||p.publisher||categoryName]
  ];
@@ -63,5 +63,9 @@ window.OlafSoftwareDetailCards=(container,p,store={})=>{
  summary.querySelectorAll('.sd-benefit-grid>div').forEach((box,i)=>{const icon=el('img',null,'sd-service-icon');icon.src='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/'+['lightning-charge-fill','shield-check','display','headset'][i%4]+'.svg';icon.alt='';box.prepend(icon)});
  if(!summary.querySelector('.sd-payments')&&store.payment){const methods=[];if(store.payment.promptPayId||store.promptPayId)methods.push('PromptPay');if(store.payment.bankName)methods.push(store.payment.bankName);if(store.payment.walletName)methods.push(store.payment.walletName);if(methods.length){const row=el('div',null,'sd-payments');row.append(el('strong',c.paymentTitle||'ช่องทางชำระเงิน'));methods.forEach(method=>row.append(el('span',method)));summary.append(row)}}
  const payments=summary.querySelector('.sd-payments');
- if(payments){payments.setAttribute('aria-label',c.paymentTitle||'ช่องทางชำระเงิน');actions.before(payments)}
+ if(payments){payments.setAttribute('aria-label',c.paymentTitle||'ช่องทางชำระเงิน');const price=summary.querySelector('.pd-price-row');if(price)price.append(payments);else actions.before(payments)}
+ const smallIcon=name=>{const icon=el('img',null,'sd-fact-icon');icon.src='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/'+name+'.svg';icon.alt='';return icon};
+ info?.querySelectorAll('.pd-info-row').forEach((row,index)=>{const label=row.firstElementChild;if(label&&!label.querySelector('svg,img,i'))label.prepend(smallIcon(['grid','app-indicator','building','box-seam'][index%4]))});
+ const warranty=aside.querySelector('.sd-warranty');
+ if(warranty){warranty.querySelector('h3')?.prepend(smallIcon('shield-check'));warranty.querySelectorAll('p').forEach(node=>node.prepend(smallIcon('chat-dots')))}
 };

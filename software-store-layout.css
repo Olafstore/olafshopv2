@@ -8,7 +8,7 @@ body.software-store-page .software-root>.sw-hero-banner .sw-banner-image{positio
 .software-root .sw-cover>img{object-fit:cover;object-position:center}
 .software-root .sw-cover>span{background:linear-gradient(135deg,#ff456e,#f5194d);font-size:10px;padding:4px 7px;box-shadow:0 2px 8px #ff23543d}
 .software-root .sw-heading-copy{position:relative;padding-left:38px}
-.software-root .sw-heading-flame{position:absolute;left:0;top:0;width:30px;height:34px;object-fit:contain;filter:drop-shadow(0 0 5px #ff8c3055)}
+.software-root .sw-heading-flame{position:absolute;left:0;top:0;width:30px;height:34px;object-fit:contain;filter:invert(59%) sepia(71%) saturate(1640%) hue-rotate(171deg) drop-shadow(0 0 5px #009cff55)}
 .software-root .sw-buy-row a,.software-root .sw-promo span,.software-root .sw-show-all{gap:5px;padding:5px 8px}
 .software-root .sw-buy-row .sw-button-icon,.software-root .sw-promo .sw-button-icon,.software-root .sw-show-all .sw-button-icon{width:15px;height:15px;margin:0}
 body.software-store-page main.extras-main[data-software-store]{padding:0 5% 32px}

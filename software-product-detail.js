@@ -36,5 +36,20 @@ window.OlafSoftwareDetail={
   const primary=document.createElement('div');primary.className='sd-primary';primary.append(gallery,summary,details);layout.replaceChildren(primary,aside);
   const warranty=aside.querySelector('.sd-warranty'),relatedCard=aside.querySelector('.pd-related-section');if(warranty&&relatedCard)aside.insertBefore(warranty,relatedCard);
   summary.querySelectorAll('.sd-payments>strong').forEach(node=>node.remove());
+  const config=p.sourceMetadata?.softwareDetail||{};
+  const paymentRow=summary.querySelector('.sd-payments');
+  if(paymentRow){
+   const panel=document.createElement('section');panel.className='sd-payment-panel';
+   const title=document.createElement('strong');title.textContent=config.paymentTitle||'ช่องทางการชำระเงิน';
+   const note=document.createElement('p');note.textContent=config.paymentNote||'ชำระผ่านช่องทางที่ร้านกำหนด';panel.append(title,note);
+   [...paymentRow.children].forEach(node=>{const item=document.createElement('div');item.className='sd-payment-method';const name=document.createElement('strong');name.textContent=node.alt||node.textContent;item.append(node,name);paymentRow.append(item)});
+   panel.append(paymentRow);summary.querySelector('.sd-purchase-actions')?.after(panel);
+  }
+  const highlights=description.querySelector('.sd-highlights');
+  if(highlights&&!config.highlightsTitle)highlights.querySelector('h3').textContent='สิ่งที่คุณจะได้รับ';
+  // Keep additional product information accessible below the primary composition.
+  const more=document.createElement('details');more.className='sd-additional';
+  const moreTitle=document.createElement('summary');moreTitle.textContent='ข้อมูลสินค้าและการรับประกัน';more.append(moreTitle,aside);details.append(more);
+  layout.replaceChildren(primary);
  }
 };

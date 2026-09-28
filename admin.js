@@ -2861,6 +2861,7 @@ function fillProductForm(product) {
   form.elements.platformLinks.value = serializePipeRows(value.platformLinks, ["label", "url", "icon"]);
   form.elements.featureBlocks.value = serializePipeRows(value.featureBlocks, ["icon", "title", "text"]);
   form.elements.detailSections.value = serializePipeRows(value.detailSections, ["title", "body"]);
+  window.OlafSoftwareDetailEditor?.load(form,value);
   form.elements.steamRelatedLinks.value = (value.steamRelatedLinks ?? []).join("\n");
   const badges = normalizeBadgeOverrides(value.badgeOverrides);
   form.elements.badge1Label.value = badges[0]?.label || "";
@@ -3212,10 +3213,10 @@ function productFromForm(form) {
     ),
     steamRelatedLinks: uniqueList(compactLines(form.elements.steamRelatedLinks.value)),
     steamAppId: steamAppIdValue === "" ? null : Number(steamAppIdValue),
-    sourceMetadata:
-      previousProduct?.sourceMetadata && typeof previousProduct.sourceMetadata === "object"
-        ? previousProduct.sourceMetadata
-        : {},
+    sourceMetadata: {
+      ...(previousProduct?.sourceMetadata || {}),
+      softwareDetail: window.OlafSoftwareDetailEditor?.read(form) || previousProduct?.sourceMetadata?.softwareDetail || {}
+    },
     badgeOverrides: normalizeBadgeOverrides([
       {
         label: form.elements.badge1Label?.value,

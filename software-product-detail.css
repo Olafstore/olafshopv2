@@ -1,4 +1,12 @@
 .software-detail{max-width:1540px;margin:auto;color:#e8f2ff}
+.software-detail .sd-brand-logo{width:64px;height:64px;object-fit:contain;float:left;margin:0 18px 12px 0}
+.software-detail .sd-subtitle{font-size:16px;line-height:1.6;color:#bcd0df;margin:8px 0 20px}
+.software-detail .sd-benefit-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:22px 0}
+.software-detail .sd-benefit-grid>div{border-left:2px solid #12aaff;padding-left:9px}.software-detail .sd-benefit-grid strong{font-size:12px;display:block}.software-detail .sd-benefit-grid small{display:block;color:#96b4ce;font-size:11px;margin-top:6px}
+.software-detail .sd-payments{display:flex;align-items:center;flex-wrap:wrap;gap:14px;margin-top:22px}.software-detail .sd-payments strong{font-size:12px}.software-detail .sd-payments img{width:48px;height:30px;object-fit:contain}
+.software-detail .sd-editable-card p{font-size:13px;line-height:1.8;color:#bcd2e4;margin:10px 0}.software-detail .sd-highlights p:before,.software-detail .sd-warranty p:before{content:'✓';display:inline-grid;place-items:center;width:20px;height:20px;margin-right:8px;color:#05111b;background:#45b6ff;border-radius:50%}
+.software-detail .sd-tabs{overflow-x:auto}.software-detail .sd-tabs button{white-space:nowrap}
+@media(max-width:700px){.software-detail .sd-benefit-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.software-detail .sd-payments{gap:10px}}
 .software-detail>.pd-bg-backdrop,.software-detail>.pd-brand-hero{display:none}
 .software-detail .pd-layout{display:grid!important;grid-template-columns:minmax(280px,1.1fr) minmax(300px,1.1fr) minmax(230px,.6fr);gap:24px;align-items:start}
 .software-detail .sd-gallery{display:grid;grid-template-columns:70px minmax(0,1fr);gap:14px;min-width:0}

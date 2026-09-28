@@ -28,5 +28,6 @@ window.OlafSoftwareDetail={
   const related=container.querySelector('.pd-related-section');if(related){const title=related.querySelector('h3');if(title)title.textContent='สินค้าแนะนำ';const note=related.querySelector('.pd-related-heading p');if(note)note.textContent='เลือกดูสินค้าอื่นของร้าน';aside.append(related)}
   left.remove();layout.replaceChildren(gallery,summary,aside,details);
   container.querySelector('.pd-breadcrumb').href='more-products.html';
+  window.OlafSoftwareDetailCards?.(container,p);
  }
 };

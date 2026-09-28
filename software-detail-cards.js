@@ -27,6 +27,13 @@ window.OlafSoftwareDetailCards=(container,p,store={})=>{
  header.after(services);
  summary.querySelector('.pd-sidebar-publisher')?.remove();
  const info=aside.querySelector('.pd-info-card');
+ if(info&&!c.infoRows){
+  const purposes={windows:'ระบบปฏิบัติการสำหรับพีซี',office:'งานเอกสารและสำนักงาน',adobe:'งานออกแบบและสร้างสรรค์',capcut:'ตัดต่อวิดีโอและสร้างคอนเทนต์',antivirus:'ซอฟต์แวร์ด้านความปลอดภัย',other:'โปรแกรมและสินค้าดิจิทัล'};
+  const stockRow=[...info.children].find(row=>/สถานะสต็อก/.test(row.textContent));
+  info.replaceChildren();
+  [['หมวดหมู่',categoryName],['การใช้งาน',c.categoryDescription||purposes[category?.id]||purposes.other],['แบรนด์',c.brandText||p.publisher],['การจัดส่ง',c.deliveryText||p.delivery]].filter(([,value])=>value).forEach(([key,value])=>{const row=el('div',null,'pd-info-row');row.append(el('span',key),el('strong',value));info.append(row)});
+  if(stockRow)info.append(stockRow);
+ }
  if(info&&c.infoRows){info.replaceChildren();lines(c.infoRows).forEach(line=>{const [key,...value]=line.split('|');const row=el('div',null,'pd-info-row');row.append(el('span',key),el('strong',value.join('|')));info.append(row)})}
  if(c.infoTitle&&info)info.closest('.pd-section').querySelector('h3').textContent=c.infoTitle;
  if(c.warrantyLines){aside.querySelector('.sd-warranty')?.remove();const box=card(c.warrantyTitle||'การรับประกัน',lines(c.warrantyLines));box.classList.add('sd-warranty');aside.append(box)}else if(c.warrantyTitle){const title=aside.querySelector('.sd-warranty h3');if(title)title.textContent=c.warrantyTitle}
@@ -55,4 +62,6 @@ window.OlafSoftwareDetailCards=(container,p,store={})=>{
  const favorite=summary.querySelector('[data-product-favorite]');if(favorite)actions.append(favorite);
  summary.querySelectorAll('.sd-benefit-grid>div').forEach((box,i)=>{const icon=el('img',null,'sd-service-icon');icon.src='https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/icons/'+['lightning-charge-fill','shield-check','display','headset'][i%4]+'.svg';icon.alt='';box.prepend(icon)});
  if(!summary.querySelector('.sd-payments')&&store.payment){const methods=[];if(store.payment.promptPayId||store.promptPayId)methods.push('PromptPay');if(store.payment.bankName)methods.push(store.payment.bankName);if(store.payment.walletName)methods.push(store.payment.walletName);if(methods.length){const row=el('div',null,'sd-payments');row.append(el('strong',c.paymentTitle||'ช่องทางชำระเงิน'));methods.forEach(method=>row.append(el('span',method)));summary.append(row)}}
+ const payments=summary.querySelector('.sd-payments');
+ if(payments){payments.setAttribute('aria-label',c.paymentTitle||'ช่องทางชำระเงิน');actions.before(payments)}
 };

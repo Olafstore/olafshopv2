@@ -1,6 +1,6 @@
 (()=>{
  if(location.pathname.endsWith('/profile-store.html'))return;
- const css=document.createElement('link');css.rel='stylesheet';css.href='site-header-refresh.css?v=20260929-v63';document.head.append(css);
+ const css=document.createElement('link');css.rel='stylesheet';css.href='site-header-refresh.css?v=20260929-v64';document.head.append(css);
  document.addEventListener('DOMContentLoaded',()=>{
   document.body.classList.add('olaf-header-refresh');
   let header=document.querySelector('.topbar');
@@ -10,6 +10,8 @@
    document.body.prepend(header);
   }
   header.classList.add('refresh-header');
+  const footer=document.querySelector('.site-footer'),band=document.querySelector('.checkout-band');
+  if(footer&&band){const alignFooter=()=>{const rect=band.getBoundingClientRect();footer.style.setProperty('--aligned-footer-width',rect.width+'px')};alignFooter();new ResizeObserver(alignFooter).observe(band);}
   let actions=header.querySelector('.topbar-actions');
   if(!actions){actions=document.createElement('div');actions.className='topbar-actions';header.append(actions)}
   const actionLink=(label,href,shape,cls)=>{const a=document.createElement('a');a.className=cls;a.href=href;a.setAttribute('aria-label',label);a.title=label;a.innerHTML='<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">'+shape+'</svg>';return a};

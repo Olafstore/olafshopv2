@@ -51,5 +51,18 @@ body.software-store-page main.extras-main[data-software-store]{padding:0 5% 32px
 .software-root .sw-card,.software-root .sw-categories button,.software-root .sw-promo,.software-root a,.software-root .sw-show-all{transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease,filter .2s ease}
 @media(hover:hover){.software-root .sw-card:hover,.software-root .sw-categories button:hover{transform:translateY(-3px);border-color:#299eff;box-shadow:0 7px 22px #008cff26}.software-root .sw-buy-row a:hover,.software-root .sw-hero-actions a:hover,.software-root .sw-show-all:hover{transform:translateY(-2px);filter:brightness(1.15)}.software-root .sw-promo:hover span{transform:translateY(-2px);box-shadow:0 0 16px #149dff55}}
 .software-root .sw-promo span{transition:transform .2s ease,box-shadow .2s ease}
+.software-root .sw-promo{transition:transform .3s ease,box-shadow .3s ease;--promo-glow:#168fff55}
+.software-root .sw-promo-adobe{--promo-glow:#bc46ff55}
+.software-root .sw-promo::after{content:'';position:absolute;inset:-50%;z-index:2;pointer-events:none;background:linear-gradient(110deg,transparent 40%,#ffffff20 50%,transparent 60%);transform:translateX(-110%);opacity:0}
+.software-root .sw-promo .sw-promo-bg{transition:transform .55s ease;transform:scale(1);transform-origin:center}
+.software-root .sw-promo:focus-visible{outline:2px solid #65caff;outline-offset:4px;box-shadow:0 8px 26px var(--promo-glow)}
+@media(hover:hover) and (prefers-reduced-motion:no-preference){
+ .software-root .sw-promo:hover{transform:translateY(-4px);box-shadow:0 12px 28px var(--promo-glow)}
+ .software-root .sw-promo:hover .sw-promo-bg{transform:scale(1.025)}
+ .software-root .sw-promo:hover::after,.software-root .sw-promo:focus-visible::after{animation:sw-promo-sheen .85s ease-out both}
+}
+.software-root .sw-promo:active{transform:scale(.99)}
+@keyframes sw-promo-sheen{0%{transform:translateX(-110%);opacity:0}20%{opacity:1}100%{transform:translateX(110%);opacity:0}}
+@media(prefers-reduced-motion:reduce){.software-root .sw-promo:active,.software-root .sw-promo:hover{transform:none}.software-root .sw-promo::after{animation:none!important;display:none}}
 @media(prefers-reduced-motion:reduce){.software-root *{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
 @media(max-width:850px){.software-root>.sw-hero-banner{height:auto;aspect-ratio:1916 / 370;min-height:0}.software-root>.sw-hero-banner .sw-hero-actions{bottom:auto}}

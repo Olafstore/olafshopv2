@@ -29,6 +29,8 @@
   <script src="friends.js?v=20260913-v259" defer></script>
   <script src="image-performance.js?v=20260924-cover-v13" defer></script>
 <script src="delivery-payload.js?v=20260716-qr-alignment-v111" defer></script>
+<script src="download-delivery.js?v=20260929-v68" defer></script>
+<link rel="stylesheet" href="download-delivery.css?v=20260929-v68">
     <script src="site-navigation.js?v=20260927-manual-v25" defer></script>
   <script src="notifications.js?v=20260909-updates-v224" defer></script>
   <link rel="stylesheet" href="profile-shop.css?v=20260907-backgrounds-v203" />
@@ -3661,6 +3663,8 @@
     }
 
     function renderDeliveryAccountSections(parsed, { orderId = '' } = {}) {
+      const download=window.OlafDownloadDelivery?.render(parsed?.rawText);
+      if(download)return download;
       if (!parsed?.deliveries?.length) return '';
       return parsed.deliveries.map((delivery, deliveryIndex) => `
         <section class="inventory-delivery-set">
@@ -3922,7 +3926,8 @@
           const parsedDelivery = window.OlafDeliveryPayload?.parse
             ? window.OlafDeliveryPayload.parse(rawDeliveredText)
             : { rawText: rawDeliveredText, structured: false, deliveries: [], accounts: [], legacyText: rawDeliveredText };
-          const deliveredText = parsedDelivery.accounts?.length && window.OlafDeliveryPayload?.formatAll
+          const downloadDelivery=window.OlafDownloadDelivery?.parse(rawDeliveredText);
+          const deliveredText = downloadDelivery ? [downloadDelivery.label,downloadDelivery.note].filter(Boolean).join('\n') : parsedDelivery.accounts?.length && window.OlafDeliveryPayload?.formatAll
             ? window.OlafDeliveryPayload.formatAll(parsedDelivery)
             : rawDeliveredText;
           const items = Array.isArray(order.items) && order.items.length

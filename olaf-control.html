@@ -16,10 +16,12 @@
   <script src="friends.js?v=20260913-v259" defer></script>
     <script src="image-performance.js?v=20260607-performance" defer></script>
 <script src="delivery-payload.js?v=20260716-qr-alignment-v111" defer></script>
+<script src="download-delivery.js?v=20260929-v68" defer></script>
+<link rel="stylesheet" href="download-delivery.css?v=20260929-v68">
     <script src="admin-shop-history.js?v=20260908-v215" defer></script>
     <link rel="stylesheet" href="admin-shop-history.css?v=20260908-v215" />
     <script src="software-detail-editor.js?v=20260928-v54" defer></script>
-    <script src="admin.js?v=20260928-v43" defer></script>
+    <script src="admin.js?v=20260929-v68" defer></script>
     <script src="software-store-data.js?v=20260927-v31" defer></script>
     <script src="extra-products.js?v=20260919-office-v260" defer></script>
     <script src="software-image-upload.js?v=20260928-v39" defer></script>
@@ -835,6 +837,16 @@
                     <option value="expired">expired</option>
                   </select>
                 </label>
+                <label>
+                  วิธีจัดส่งออเดอร์นี้
+                  <select name="deliveryMode"><option value="legacy">ระบบเดิม (Account / Key / ข้อความ)</option><option value="download">แนบลิงก์ดาวน์โหลด</option></select>
+                </label>
+                <div data-download-fields hidden>
+                  <label>ลิงก์ดาวน์โหลด HTTPS<input name="downloadUrl" type="url" placeholder="https://..."></label>
+                  <label>ข้อความปุ่ม<input name="downloadLabel" type="text" value="ดาวน์โหลดไฟล์" maxlength="100"></label>
+                  <label>คำแนะนำการดาวน์โหลด<textarea name="downloadNote" rows="3"></textarea></label>
+                  <small>เลือกสถานะ delivered หลังตรวจสอบการชำระเงินแล้ว ลิงก์ภายนอกอาจถูกส่งต่อได้ ควรใช้ลิงก์จำกัดสิทธิ์หรือมีวันหมดอายุ</small>
+                </div>
                 <label>
                   ข้อมูลจัดส่ง / Account / Key
                   <textarea name="deliveryNote" rows="7" placeholder="กรอกข้อมูลจัดส่งหลังยืนยันสลิป"></textarea>

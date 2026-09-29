@@ -1,0 +1,9 @@
+(()=>{
+ const safeUrl=value=>{try{const url=new URL(String(value||'').trim());return url.protocol==='https:'&&!url.username&&!url.password?url.href:''}catch{return ''}};
+ const parse=raw=>{try{const data=JSON.parse(String(raw||''));if(data.type!=='olaf-download-delivery'||data.version!==1||!safeUrl(data.url))return null;return {url:safeUrl(data.url),label:String(data.label||'ดาวน์โหลดไฟล์'),note:String(data.note||'')}}catch{return null}};
+ const serialize=({url,label,note})=>{const valid=safeUrl(url);if(!valid)throw new Error('กรุณากรอกลิงก์ดาวน์โหลด HTTPS ที่ถูกต้อง');return JSON.stringify({type:'olaf-download-delivery',version:1,url:valid,label:String(label||'ดาวน์โหลดไฟล์').trim(),note:String(note||'')})};
+ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const render=raw=>{const data=parse(raw);return data?'<section class="download-delivery-card"><strong>ไฟล์สินค้าพร้อมดาวน์โหลด</strong>'+(data.note?'<p>'+esc(data.note)+'</p>':'')+'<a class="download-delivery-button" href="'+esc(data.url)+'" target="_blank" rel="noopener noreferrer" referrerpolicy="no-referrer"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></svg>'+esc(data.label)+'</a><small>เปิดลิงก์ดาวน์โหลดในแท็บใหม่</small></section>':''};
+ window.OlafDownloadDelivery={safeUrl,parse,serialize,render};
+ document.addEventListener('DOMContentLoaded',()=>{const form=document.querySelector('#order-form');if(!form)return;const select=form.elements.deliveryMode;const sync=()=>{const enabled=select.value==='download';form.querySelector('[data-download-fields]').hidden=!enabled;form.elements.downloadUrl.required=enabled;form.elements.deliveryNote.closest('label').hidden=enabled};select.addEventListener('change',sync);window.OlafDownloadDelivery.syncForm=sync;sync()});
+})();

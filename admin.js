@@ -4280,6 +4280,8 @@ function adminPaymentMethodLabel(order = {}) {
 function adminDeliveryHistoryHtml(order = {}) {
   const raw = String(order.deliveredPayload || order.deliveryNote || "").trim();
   if (!raw) return '<span class="admin-history-empty">ยังไม่มีข้อมูลจัดส่ง</span>';
+  const downloadMarkup=window.OlafDownloadDelivery?.render(raw);
+  if(downloadMarkup)return downloadMarkup;
   const parsed = window.OlafDeliveryPayload?.parse?.(raw);
   let body = "";
   if (parsed?.deliveries?.length) {
@@ -4651,6 +4653,13 @@ function renderOrderForm() {
   $("#delete-order").disabled = !order;
   form.elements.status.value = order?.status || "waiting_admin";
   form.elements.deliveryNote.value = order?.deliveryNote || "";
+  const download=window.OlafDownloadDelivery?.parse(order?.deliveredPayload||order?.deliveryNote);
+  form.elements.deliveryMode.value=download?'download':'legacy';
+  form.elements.downloadUrl.value=download?.url||'';
+  form.elements.downloadLabel.value=download?.label||'ดาวน์โหลดไฟล์';
+  form.elements.downloadNote.value=download?.note||'';
+  if(download)form.elements.deliveryNote.value='';
+  window.OlafDownloadDelivery?.syncForm?.();
   renderAdminDeliveryPreview(order);
   const items = order?.items?.length
     ? `
@@ -4690,11 +4699,14 @@ async function saveOrderFromForm(event) {
   const orderId = state.selectedOrderId;
 
   try {
+    const deliveryValue=form.elements.deliveryMode.value==='download'
+      ?window.OlafDownloadDelivery.serialize({url:form.elements.downloadUrl.value,label:form.elements.downloadLabel.value,note:form.elements.downloadNote.value})
+      :form.elements.deliveryNote.value;
     await window.OlafOrders.adminUpdateOrder({
       orderId,
       status: form.elements.status.value,
-      deliveryNote: form.elements.deliveryNote.value,
-      deliveredPayload: form.elements.deliveryNote.value
+      deliveryNote: deliveryValue,
+      deliveredPayload: deliveryValue
     });
     await loadData();
     state.selectedOrderId = orderId;

@@ -1,0 +1,22 @@
+body.olaf-header-refresh .topbar.refresh-header{background:linear-gradient(115deg,#091629f5,#101d35f5)!important;border-bottom:1px solid #294563!important;box-shadow:0 8px 26px #02081830;backdrop-filter:blur(18px);gap:18px;padding:12px 24px;align-items:center}
+body.olaf-header-refresh .topbar .topbar-actions{display:flex;align-items:center;gap:9px!important;min-width:0}
+body.olaf-header-refresh .topbar .mobile-nav-toggle{min-width:38px;min-height:40px;border:1px solid #2a4869!important;border-radius:11px!important;background:#142942!important;color:#badbff!important}
+body.olaf-header-refresh .topbar .icon-button,body.olaf-header-refresh .topbar .account-button,body.olaf-header-refresh .topbar .mobile-menu-toggle{box-sizing:border-box;min-width:42px;min-height:42px;border-radius:12px!important;border:1px solid #2a4869!important;background:linear-gradient(145deg,#19304c,#0e2039)!important;color:#badbff!important;display:inline-flex;justify-content:center;align-items:center;gap:8px;box-shadow:inset 0 1px #ffffff08;transition:background .18s,border-color .18s,box-shadow .18s;text-decoration:none}
+body.olaf-header-refresh .topbar .icon-button svg,body.olaf-header-refresh .topbar .account-button svg{width:20px;height:20px;stroke-width:1.7}
+body.olaf-header-refresh .topbar .icon-button:hover,body.olaf-header-refresh .topbar .account-button:hover{border-color:#50aafb!important;box-shadow:0 0 16px #218fff22}
+body.olaf-header-refresh .topbar .main-nav a{border-radius:8px;padding:8px 10px;color:#c7d6e8;font-size:13px;text-decoration:none;white-space:nowrap}
+body.olaf-header-refresh .topbar .main-nav a:hover{color:#75caff;background:#1a3653}
+body.olaf-header-refresh .topbar :is(.site-global-search,.topbar-search-wrap,.refresh-search){border:1px solid #2a4663!important;border-radius:24px!important;background:#081526!important;box-shadow:inset 0 2px 5px #0002;min-height:42px;align-items:center}
+body.olaf-header-refresh .topbar :is(.site-global-search,.topbar-search-wrap,.refresh-search):focus-within{border-color:#41aaf7!important;box-shadow:0 0 0 3px #249fff20}
+body.olaf-header-refresh .topbar input[type=search]{color:#e3f1ff!important;background:transparent!important;border:0!important;font:inherit;font-size:12px;outline:none;min-width:0}
+body.olaf-header-refresh .topbar input[type=search]::placeholder{color:#89a4c0}
+body.olaf-header-refresh .topbar :focus-visible{outline:2px solid #69caff;outline-offset:3px}
+body.olaf-header-refresh .refresh-standalone{display:flex;flex-wrap:wrap;position:relative;z-index:50;font-family:Kanit,system-ui,sans-serif}
+body.olaf-header-refresh .refresh-standalone .brand{color:#eef7ff;text-decoration:none}
+body.olaf-header-refresh .refresh-standalone .main-nav{display:flex;flex-wrap:wrap;gap:3px}
+body.olaf-header-refresh .refresh-search{display:flex;padding:0 10px;gap:8px}
+body.olaf-header-refresh .refresh-search button{border:0;border-radius:16px;padding:5px 9px;background:#175a94;color:white;cursor:pointer}
+body.olaf-header-refresh .refresh-standalone .account-button{padding:0 12px}
+@media(min-width:1181px){body.olaf-header-refresh .topbar.refresh-header{flex-wrap:wrap}body.olaf-header-refresh .topbar .topbar-actions{margin-left:auto}body.olaf-header-refresh .topbar :is(.site-global-search,.topbar-search-wrap){width:clamp(190px,20vw,300px)}}
+@media(max-width:600px){body.olaf-header-refresh .topbar.refresh-header{padding:10px 12px;gap:8px}body.olaf-header-refresh .topbar .topbar-actions{gap:6px!important}body.olaf-header-refresh .topbar .icon-button,body.olaf-header-refresh .topbar .account-button{min-width:36px;min-height:38px;border-radius:10px!important}body.olaf-header-refresh .refresh-standalone .topbar-actions{flex-wrap:wrap;width:100%}body.olaf-header-refresh .refresh-search{width:100%;box-sizing:border-box}body.olaf-header-refresh .refresh-search input{flex:1}body.olaf-header-refresh .refresh-standalone .main-nav{width:100%;gap:2px}}
+@media(prefers-reduced-motion:reduce){body.olaf-header-refresh .topbar *{transition:none!important}}

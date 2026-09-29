@@ -1,0 +1,8 @@
+/* Presentation only; payment logic is unchanged. */
+#order-confirm-submit-btn{display:flex;align-items:center;justify-content:center;gap:9px}
+#order-confirm-submit-btn svg{width:20px;height:20px;flex:none;stroke-width:1.8}
+dialog.olaf-checkout-v98.qr-payment-dialog .qr-image-frame>.qr-loading:not([hidden]){box-sizing:border-box!important;position:absolute!important;inset:0!important;width:100%!important;height:100%!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:12px!important;padding:20px!important;text-align:center!important;transform:none!important}
+dialog.olaf-checkout-v98.qr-payment-dialog .qr-image-frame>.qr-loading::before{content:''!important;display:block!important;flex:none!important;width:30px!important;height:30px!important;box-sizing:border-box!important;margin:0!important;border:3px solid #dce8f6!important;border-top-color:#168fff!important;border-radius:50%!important;animation:olafQrSpin .9s linear infinite!important}
+dialog.olaf-checkout-v98.qr-payment-dialog .qr-loading>svg,dialog.olaf-checkout-v98.qr-payment-dialog .qr-loading>i{display:none!important}
+dialog.olaf-checkout-v98.qr-payment-dialog .qr-loading>span{max-width:210px;line-height:1.6;margin:0!important}
+dialog.olaf-checkout-v98.qr-payment-dialog .qr-image-frame.has-qr-image>.qr-loading,dialog.olaf-checkout-v98.qr-payment-dialog .qr-loading[hidden]{display:none!important}

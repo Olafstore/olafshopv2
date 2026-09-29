@@ -1,5 +1,10 @@
-body.home-page .home-free-games{padding:18px!important;gap:22px;border:1px solid #284569;border-radius:18px;background:linear-gradient(120deg,#11213b,#071225);overflow:hidden}
-body.home-page .home-free-games-rail{min-width:0;overflow:hidden;display:block!important}
+body.home-page .home-free-games{display:flex!important;flex-direction:column!important;align-items:stretch!important;padding:18px!important;gap:14px!important;min-height:0!important;height:auto!important;border:1px solid #284569;border-radius:18px;background:linear-gradient(120deg,#11213b,#071225);overflow:hidden}
+body.home-page .home-free-games-heading{display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:space-between!important;width:100%!important;min-width:0!important;padding:0!important;margin:0!important}
+body.home-page #home-free-games-title{display:flex;align-items:center;gap:10px;font-size:21px!important;line-height:1.4;margin:0!important;color:#eaf5ff}
+body.home-page #home-free-games-title svg{width:23px;height:23px;color:#56bdff}
+body.home-page .home-free-games-nav{display:none!important}
+body.home-page .home-free-games .free-marquee-pause{width:30px;height:30px;min-width:30px;margin:0;padding:0;border-radius:50%;font-size:13px}
+body.home-page .home-free-games-rail{min-width:0;overflow:hidden;display:block!important;width:100%!important;margin:0!important;padding:0!important}
 body.home-page #index-free-games-list.is-marquee{display:block!important;overflow:hidden!important;width:100%;padding:5px 0!important;scroll-snap-type:none}
 .free-marquee-track{display:flex;width:max-content;animation:free-games-loop var(--free-marquee-duration,45s) linear infinite}
 .free-marquee-group{display:flex;gap:14px;padding-right:14px;flex:none}
@@ -7,7 +12,7 @@ body.home-page .free-marquee-group .home-free-game-card{display:flex!important;f
 body.home-page .free-marquee-group .home-free-game-art{flex:0 0 98px!important;width:98px!important;height:78px!important;border-radius:8px;overflow:hidden}
 body.home-page .free-marquee-group .home-free-game-info{min-width:0;display:grid;gap:6px}
 body.home-page .free-marquee-group .home-free-game-info>strong{font-size:13px!important;line-height:1.5;white-space:normal!important;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-body.home-page .free-marquee-group .home-free-game-info small{font-size:10px!important;line-height:1.6;white-space:normal!important;color:#aec4df}
+body.home-page .free-marquee-group .home-free-game-info small{font-size:11px!important;line-height:1.6;white-space:normal!important;color:#aec4df}
 .is-marquee:hover .free-marquee-track,.is-marquee:focus-within .free-marquee-track,.is-marquee.is-paused .free-marquee-track{animation-play-state:paused}
 .free-marquee-pause{margin-top:6px;border:1px solid #365b7f;border-radius:20px;background:#10233a;color:#baddff;padding:4px 10px;font:inherit;font-size:11px;cursor:pointer}
 @keyframes free-games-loop{to{transform:translateX(-50%)}}

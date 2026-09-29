@@ -143,12 +143,22 @@
   function renderHomeOffers() {
     const target = document.getElementById("index-free-games-list");
     if (!target) return;
-    const currentOffers = activeOffers().sort((a,b)=>Number(b.platform==='epic')-Number(a.platform==='epic')).slice(0, 6);
-    const upcomingOffers = state.upcomingOffers.filter(isUpcoming).sort((left, right) => new Date(left.startsAt) - new Date(right.startsAt)).slice(0, 4);
+    const currentOffers = activeOffers().sort((a,b)=>Number(b.platform==='epic')-Number(a.platform==='epic'));
+    const upcomingOffers = state.upcomingOffers.filter(isUpcoming).sort((left, right) => new Date(left.startsAt) - new Date(right.startsAt));
     const cards = [...currentOffers.map(homeOfferCard), ...upcomingOffers.map(homeUpcomingOfferCard)];
-    target.innerHTML = cards.length ? cards.join("") : `<div class="home-free-games-empty"><i data-lucide="radar"></i><span>กำลังตรวจสอบเกมฟรีจากแพลตฟอร์มทางการ</span></div>`;
+    target.classList.toggle('is-marquee',cards.length>0);
+    if(cards.length){
+      const repeated=Array.from({length:Math.max(1,Math.ceil(8/cards.length))},()=>cards.join('')).join('');
+      target.innerHTML='<div class="free-marquee-track"><div class="free-marquee-group">'+repeated+'</div><div class="free-marquee-group" aria-hidden="true">'+repeated+'</div></div>';
+      target.querySelectorAll('.free-marquee-group').forEach((group,i)=>[...group.children].forEach((card,j)=>{if(i||j>=cards.length){card.tabIndex=-1;card.setAttribute('aria-hidden','true')}}));
+      target.style.setProperty('--free-marquee-duration',Math.max(40,cards.length*7)+'s');
+      target.setAttribute('aria-live','off');
+      let pause=document.querySelector('.free-marquee-pause');
+      if(!pause){pause=document.createElement('button');pause.type='button';pause.className='free-marquee-pause';pause.textContent='หยุดเลื่อน';pause.setAttribute('aria-pressed','false');document.querySelector('.home-free-games-heading').append(pause);pause.addEventListener('click',()=>{const stopped=target.classList.toggle('is-paused');pause.setAttribute('aria-pressed',String(stopped));pause.textContent=stopped?'เลื่อนต่อ':'หยุดเลื่อน'})}
+      document.getElementById('free-games-prev').hidden=true;document.getElementById('free-games-next').hidden=true;
+    }else target.innerHTML=`<div class="home-free-games-empty"><i data-lucide="radar"></i><span>กำลังตรวจสอบเกมฟรีจากแพลตฟอร์มทางการ</span></div>`;
     bindImageFallbacks(target);
-    bindHomeOfferScroll(target);
+    if(!cards.length)bindHomeOfferScroll(target);
     if (window.lucide) window.lucide.createIcons();
   }
 

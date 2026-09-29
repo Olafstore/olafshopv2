@@ -1,4 +1,11 @@
 /* Purchase + existing favorites action, with a compact payment-logo strip. */
+html body.product-detail-page #product-page.software-detail #sd-description{display:grid!important;gap:18px;align-items:start}
+html body.product-detail-page #product-page.software-detail #sd-description[hidden]{display:none!important}
+html body.product-detail-page #product-page.software-detail #sd-description>.pd-section{padding:20px!important;min-width:0}
+html body.product-detail-page #product-page.software-detail #sd-description .pd-description,html body.product-detail-page #product-page.software-detail #sd-description p{color:#c8d8eb;line-height:1.85;font-size:13px}
+html body.product-detail-page #product-page.software-detail .pd-related-grid{width:100%!important;max-width:none!important;grid-template-columns:minmax(0,1fr)!important;justify-items:stretch;gap:12px}
+html body.product-detail-page #product-page.software-detail .pd-related-card{box-sizing:border-box;width:100%!important;max-width:none!important;margin:0!important}
+@media(max-width:1100px){html body.product-detail-page #product-page.software-detail #sd-description{grid-template-columns:minmax(0,1fr)!important}}
 html body.product-detail-page #product-page.software-detail .pd-platform-links{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:10px;margin-top:10px}
 html body.product-detail-page #product-page.software-detail .pd-platform-link{box-sizing:border-box;min-width:0;min-height:46px;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;border-radius:8px;font-size:12px;line-height:1.4}
 html body.product-detail-page #product-page.software-detail .pd-platform-link svg{width:18px;height:18px;flex:none}

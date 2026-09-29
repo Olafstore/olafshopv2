@@ -1,5 +1,11 @@
 body.olaf-header-refresh .topbar.refresh-header{background:linear-gradient(115deg,#091629f5,#101d35f5)!important;border-bottom:1px solid #294563!important;box-shadow:0 8px 26px #02081830;backdrop-filter:blur(18px);gap:18px;padding:12px 24px;align-items:center}
 body.olaf-header-refresh .topbar .topbar-actions{display:flex;align-items:center;gap:9px!important;min-width:0}
+body.olaf-header-refresh .topbar.refresh-header .main-nav{justify-content:flex-start!important;gap:3px!important;flex:0 1 auto!important}
+body.olaf-header-refresh .topbar.refresh-header .main-nav a{padding:8px!important;margin:0!important}
+body.olaf-header-refresh .topbar.refresh-header :is(.icon-button,.account-button,.mobile-nav-toggle,.topbar-search-toggle,.site-global-search-toggle){border-radius:50%!important;width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important;padding:0!important;flex-shrink:0}
+body.olaf-header-refresh .topbar.refresh-header .account-button>span{display:none!important}
+body.olaf-header-refresh .topbar.refresh-header .account-button{font-size:0!important;gap:0!important}
+body.olaf-header-refresh .topbar.refresh-header .account-button svg{width:20px!important;height:20px!important}
 body.olaf-header-refresh .topbar .mobile-nav-toggle{min-width:38px;min-height:40px;border:1px solid #2a4869!important;border-radius:11px!important;background:#142942!important;color:#badbff!important}
 body.olaf-header-refresh .topbar .icon-button,body.olaf-header-refresh .topbar .account-button,body.olaf-header-refresh .topbar .mobile-menu-toggle{box-sizing:border-box;min-width:42px;min-height:42px;border-radius:12px!important;border:1px solid #2a4869!important;background:linear-gradient(145deg,#19304c,#0e2039)!important;color:#badbff!important;display:inline-flex;justify-content:center;align-items:center;gap:8px;box-shadow:inset 0 1px #ffffff08;transition:background .18s,border-color .18s,box-shadow .18s;text-decoration:none}
 body.olaf-header-refresh .topbar .icon-button svg,body.olaf-header-refresh .topbar .account-button svg{width:20px;height:20px;stroke-width:1.7}

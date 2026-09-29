@@ -51,6 +51,12 @@ body.software-store-page main.extras-main[data-software-store]{padding:0 5% 32px
 .software-root .sw-card,.software-root .sw-categories button,.software-root .sw-promo,.software-root a,.software-root .sw-show-all{transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease,filter .2s ease}
 @media(hover:hover){.software-root .sw-card:hover,.software-root .sw-categories button:hover{transform:translateY(-3px);border-color:#299eff;box-shadow:0 7px 22px #008cff26}.software-root .sw-buy-row a:hover,.software-root .sw-hero-actions a:hover,.software-root .sw-show-all:hover{transform:translateY(-2px);filter:brightness(1.15)}.software-root .sw-promo:hover span{transform:translateY(-2px);box-shadow:0 0 16px #149dff55}}
 .software-root .sw-promo span{transition:transform .2s ease,box-shadow .2s ease}
+.sw-loading-card{display:flex;gap:14px;min-height:140px;padding:10px;border:1px solid #243d59;border-radius:12px;background:#0b192d;overflow:hidden}
+.sw-loading-image{width:40%;border-radius:8px;background:#172e48;flex-shrink:0}
+.sw-loading-copy{flex:1;padding-top:14px;display:flex;flex-direction:column;gap:12px}
+.sw-loading-copy i{height:11px;width:90%;border-radius:6px;background:#172e48}.sw-loading-copy i:nth-child(2){width:65%}.sw-loading-copy i:last-child{margin-top:auto;width:50%;height:20px}
+.sw-loading-image,.sw-loading-copy i{background-image:linear-gradient(100deg,transparent 20%,#459bdb26 50%,transparent 80%);background-size:220% 100%;animation:sw-loading-shimmer 1.5s ease-in-out infinite}
+@keyframes sw-loading-shimmer{from{background-position:200% 0}to{background-position:-100% 0}}
 .software-root .sw-promo{transition:transform .3s ease,box-shadow .3s ease;--promo-glow:#168fff55}
 .software-root .sw-promo-adobe{--promo-glow:#bc46ff55}
 .software-root .sw-promo::after{content:'';position:absolute;inset:-50%;z-index:2;pointer-events:none;background:linear-gradient(110deg,transparent 40%,#ffffff20 50%,transparent 60%);transform:translateX(-110%);opacity:0}

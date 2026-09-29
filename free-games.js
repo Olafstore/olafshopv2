@@ -153,8 +153,6 @@
       target.querySelectorAll('.free-marquee-group').forEach((group,i)=>[...group.children].forEach((card,j)=>{if(i||j>=cards.length){card.tabIndex=-1;card.setAttribute('aria-hidden','true')}}));
       target.style.setProperty('--free-marquee-duration',Math.max(40,cards.length*7)+'s');
       target.setAttribute('aria-live','off');
-      let pause=document.querySelector('.free-marquee-pause');
-      if(!pause){pause=document.createElement('button');pause.type='button';pause.className='free-marquee-pause';pause.textContent='Ⅱ';pause.setAttribute('aria-label','หยุดเลื่อนเกม');pause.setAttribute('aria-pressed','false');document.querySelector('.home-free-games-heading').append(pause);pause.addEventListener('click',()=>{const stopped=target.classList.toggle('is-paused');pause.setAttribute('aria-pressed',String(stopped));pause.setAttribute('aria-label',stopped?'เลื่อนเกมต่อ':'หยุดเลื่อนเกม');pause.textContent=stopped?'▶':'Ⅱ'})}
       document.getElementById('free-games-prev').hidden=true;document.getElementById('free-games-next').hidden=true;
     }else target.innerHTML=`<div class="home-free-games-empty"><i data-lucide="radar"></i><span>กำลังตรวจสอบเกมฟรีจากแพลตฟอร์มทางการ</span></div>`;
     bindImageFallbacks(target);

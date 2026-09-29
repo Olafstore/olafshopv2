@@ -13,7 +13,7 @@ html body.product-detail-page #product-page.software-detail .sd-payment-panel>st
 html body.product-detail-page #product-page.software-detail .sd-payment-panel .sd-payments{display:flex;align-items:center;gap:18px;margin:0}
 html body.product-detail-page #product-page.software-detail .sd-payment-method{flex:none;min-width:0;max-width:none;margin:0;padding:0!important;border:0!important;background:none!important}
 html body.product-detail-page #product-page.software-detail .sd-payment-method+.sd-payment-method{border:0!important}
-html body.product-detail-page #product-page.software-detail .sd-payment-method img{width:64px;height:32px;object-fit:contain;padding:0;border:0;background:none}
+html body.product-detail-page #product-page.software-detail .sd-payment-method img{width:72px;height:24px;object-fit:fill;padding:0;border:0;background:none}
 html body.product-detail-page #product-page.software-detail .sd-payment-method:has(img)>div{display:none}
 @media(max-width:380px){html body.product-detail-page #product-page.software-detail .sd-purchase-actions{gap:7px}html body.product-detail-page #product-page.software-detail .sd-purchase-actions #btn-buy{font-size:12px}html body.product-detail-page #product-page.software-detail .sd-purchase-actions [data-product-favorite]{font-size:11px}}
 @media(max-width:700px){

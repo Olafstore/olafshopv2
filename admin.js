@@ -4699,6 +4699,11 @@ async function saveOrderFromForm(event) {
   const orderId = state.selectedOrderId;
 
   try {
+    if(form.elements.status.value==='cancelled'&&isSupplierAdminOrder(selectedOrder())){
+      await cancelPendingSupplierOrder(orderId);
+      await loadData();state.selectedOrderId=orderId;renderAll();
+      showAdminToast('ยกเลิกออเดอร์ API แล้ว','success');closeMobileAdminEditor();return;
+    }
     const deliveryValue=form.elements.deliveryMode.value==='download'
       ?window.OlafDownloadDelivery.serialize({url:form.elements.downloadUrl.value,label:form.elements.downloadLabel.value,note:form.elements.downloadNote.value})
       :form.elements.deliveryNote.value;
@@ -4720,13 +4725,23 @@ async function saveOrderFromForm(event) {
   }
 }
 
+function isSupplierAdminOrder(order){return /^S499-/i.test(String(order?.orderNumber||''));}
+async function cancelPendingSupplierOrder(orderId){
+ const {error}=await window.olafSupabase.rpc('admin_cancel_pending_supplier_order',{p_order_id:orderId});
+ if(error){
+  if(String(error.message).includes('SUPPLIER_REFUND_REVIEW_REQUIRED'))throw new Error('ออเดอร์นี้ชำระเงิน ใช้ Point หรือเริ่มจัดส่งแล้ว ต้องตรวจสอบการคืนเงินและผลจากต้นทางก่อนยกเลิก');
+  if(error.code==='PGRST202'||String(error.message).includes('schema cache'))throw new Error('กรุณารันไฟล์ supabase-admin-cancel-supplier-v69.sql ในฐานข้อมูลก่อน');
+  throw error;
+ }
+}
 async function deleteSelectedOrder() {
   if (!state.selectedOrderId) return;
   const orderId = state.selectedOrderId;
-  if (!(await adminConfirm("ยกเลิกออเดอร์นี้ใช่ไหม? ระบบจะคืนสต็อกถ้าออเดอร์ยังไม่เคยถูกยกเลิก"))) return;
+  if (!(await adminConfirm(isSupplierAdminOrder(selectedOrder())?'ยกเลิกออเดอร์ API ที่ยังไม่ชำระนี้ใช่ไหม? จะปล่อยยอดจองในร้าน แต่ไม่สั่งคืนเงินหรือแก้สต็อกต้นทาง':"ยกเลิกออเดอร์นี้ใช่ไหม? ระบบจะคืนสต็อกถ้าออเดอร์ยังไม่เคยถูกยกเลิก"))) return;
 
   try {
-    await window.OlafOrders.adminUpdateOrder({
+    if(isSupplierAdminOrder(selectedOrder()))await cancelPendingSupplierOrder(orderId);
+    else await window.OlafOrders.adminUpdateOrder({
       orderId,
       status: "cancelled",
       deliveryNote: selectedOrder()?.deliveryNote || "",

@@ -17,11 +17,12 @@
     <script src="image-performance.js?v=20260607-performance" defer></script>
 <script src="delivery-payload.js?v=20260716-qr-alignment-v111" defer></script>
 <script src="download-delivery.js?v=20260929-v68" defer></script>
-<link rel="stylesheet" href="download-delivery.css?v=20260929-v68">
+<script src="product-download-admin.js?v=20261001-v70" defer></script>
+<link rel="stylesheet" href="download-delivery.css?v=20261001-v70">
     <script src="admin-shop-history.js?v=20260908-v215" defer></script>
     <link rel="stylesheet" href="admin-shop-history.css?v=20260908-v215" />
     <script src="software-detail-editor.js?v=20260928-v54" defer></script>
-    <script src="admin.js?v=20260930-v69" defer></script>
+    <script src="admin.js?v=20261001-v70" defer></script>
     <script src="software-store-data.js?v=20260927-v31" defer></script>
     <script src="extra-products.js?v=20260919-office-v260" defer></script>
     <script src="software-image-upload.js?v=20260928-v39" defer></script>
@@ -480,6 +481,26 @@
                     <input name="sortOrder" type="number" min="0" step="1" />
                   </label>
                 </div>
+                <section class="offline-stock-editor" aria-label="การจัดส่งสินค้า">
+                  <h3>การจัดส่งสินค้า</h3>
+                  <p>สำหรับสินค้าของร้านที่ไม่มีแพ็กเกจย่อย สินค้า API และแพ็กเกจใช้ระบบเดิม</p>
+                  <label>วิธีจัดส่ง
+                    <select name="productDeliveryMode" disabled>
+                      <option value="legacy">ระบบเดิม (Account / Key / ข้อความ)</option>
+                      <option value="download">ลิงก์ดาวน์โหลดอัตโนมัติ</option>
+                    </select>
+                  </label>
+                  <div data-product-download-fields hidden>
+                    <label>ลิงก์ดาวน์โหลด HTTPS <input name="productDownloadUrl" type="url" maxlength="2000" placeholder="https://…" /></label>
+                    <div class="form-row">
+                      <label>ชื่อปุ่ม <input name="productDownloadLabel" maxlength="120" value="ดาวน์โหลดไฟล์" /></label>
+                      <label>จำนวนพร้อมขาย <input name="productDownloadStock" type="number" min="0" max="100000" step="1" /></label>
+                    </div>
+                    <label>คำแนะนำสำหรับลูกค้า <textarea name="productDownloadNote" rows="3" maxlength="4000"></textarea></label>
+                  </div>
+                  <p data-product-download-status role="status" aria-live="polite"></p>
+                  <button type="button" class="primary-button" data-save-product-download disabled>บันทึกการจัดส่งและสต็อก</button>
+                </section>
                 <section class="offline-stock-editor" id="offline-stock-editor" hidden aria-label="Steam Offline stock items">
                   <div class="offline-stock-head">
                     <div>

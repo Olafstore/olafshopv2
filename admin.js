@@ -2876,6 +2876,11 @@ function fillProductForm(product) {
   form.elements.description.value = value.description;
   renderProductPackagesEditor(product);
   renderOfflineStockEditor(value);
+  window.OlafProductDownloadAdmin?.load(form, value, stock => {
+    value.stock = stock;
+    replaceProductInState(value);
+    if (!window.OlafProductDownloadAdmin.enabled()) renderOfflineStockEditor(value);
+  });
 }
 
 function isAcceptableImageUrl(value) {
@@ -3180,7 +3185,7 @@ function productFromForm(form) {
   const steamAppIdValue = form.elements.steamAppId.value.trim();
   
   const category = form.elements.category.value;
-  const stock = usesManagedStockEditor({ id, category })
+  const stock = !window.OlafProductDownloadAdmin?.enabled() && usesManagedStockEditor({ id, category })
     ? offlineStockLinesFromEditor().length
     : Number(form.elements.stock.value) || 0;
 
@@ -3244,7 +3249,8 @@ async function saveProductFromForm(event) {
   const form = event.currentTarget;
   const product = productFromForm(event.currentTarget);
   const packageDrafts = packageDraftsFromEditor();
-  const isOfflineProduct = usesManagedStockEditor(product);
+  const isDownloadProduct = window.OlafProductDownloadAdmin?.enabled();
+  const isOfflineProduct = !isDownloadProduct && usesManagedStockEditor(product);
   const offlineStockLines = isOfflineProduct ? offlineStockLinesFromEditor() : [];
   const isNew = !state.selectedProductId;
   const previous = isNew ? null : selectedProduct();
@@ -3256,6 +3262,7 @@ async function saveProductFromForm(event) {
   createIconSet();
 
   try {
+    window.OlafProductDownloadAdmin?.validate(form, previous, packageDrafts);
     if (!isNew && getCachedProductPackages(product.id) === null) {
       throw new Error("กรุณาโหลดแพ็กเกจเดิมให้สำเร็จก่อนบันทึก");
     }
@@ -3302,7 +3309,7 @@ async function saveProductFromForm(event) {
       savedProduct = mapSupabaseProductRow(data);
     }
 
-    if (!isOfflineProduct && Number(savedProduct.stock || 0) !== requestedStock) {
+    if (!isDownloadProduct && !isOfflineProduct && Number(savedProduct.stock || 0) !== requestedStock) {
       const adjustedProduct = await window.OlafProducts.setAdminProductStock({
         productId: savedProduct.id,
         stock: requestedStock,
@@ -6049,6 +6056,7 @@ function bindEvents() {
       stock: Number(form.elements.stock.value || 0)
     };
     renderOfflineStockEditor(product);
+    window.OlafProductDownloadAdmin?.sync(form);
   });
 
   $("#add-managed-stock-account")?.addEventListener("click", addManagedStockAccountDraft);

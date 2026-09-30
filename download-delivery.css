@@ -3,3 +3,5 @@
 .download-delivery-button{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:12px 20px;border-radius:9px;background:linear-gradient(110deg,#009df6,#0861eb);color:white!important;text-decoration:none;font-weight:600;overflow-wrap:anywhere}
 .download-delivery-button:focus-visible{outline:3px solid #80d7ff;outline-offset:3px}
 [data-download-fields]{display:grid;gap:12px}[data-download-fields][hidden]{display:none}
+[data-product-download-fields]{display:grid;gap:12px;min-width:0}[data-product-download-fields][hidden]{display:none}
+[data-product-download-status]{margin:0;line-height:1.7;overflow-wrap:anywhere}

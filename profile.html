@@ -30,7 +30,8 @@
   <script src="image-performance.js?v=20260924-cover-v13" defer></script>
 <script src="delivery-payload.js?v=20260716-qr-alignment-v111" defer></script>
 <script src="download-delivery.js?v=20260929-v68" defer></script>
-<link rel="stylesheet" href="download-delivery.css?v=20260929-v68">
+<script src="product-download-client.js?v=20261001-v70" defer></script>
+<link rel="stylesheet" href="download-delivery.css?v=20261001-v70">
     <script src="site-navigation.js?v=20260927-manual-v25" defer></script>
   <script src="notifications.js?v=20260909-updates-v224" defer></script>
   <link rel="stylesheet" href="profile-shop.css?v=20260907-backgrounds-v203" />
@@ -3725,7 +3726,8 @@
 
     function renderOrderDelivery(order) {
       const { rawText, parsed } = parseDeliveredOrder(order);
-      if (!rawText) return '';
+      const automaticDownloads = window.OlafProductDownloads?.render(order) || '';
+      if (!rawText) return automaticDownloads;
       const accountSections = renderDeliveryAccountSections(parsed, { orderId: order.id || '' });
       const emailItem = (order.items || []).find((item) => {
         const product = profileState.products.find((candidate) => String(candidate.id || '') === String(item.productId || ''));
@@ -3747,6 +3749,7 @@
           <p>ข้อมูลสินค้าที่จัดส่ง</p>
           ${productNumberHtml}
           ${accountSections || `<pre>${escape(rawText)}</pre>`}
+          ${automaticDownloads}
         </div>
       `;
     }
@@ -3951,8 +3954,11 @@
               delivered: 'ตรวจสลิปแล้ว และจัดส่งสินค้าเรียบร้อยแล้ว'
             };
             const fallbackText = fallbackByStatus[order.status] || 'กำลังรอดำเนินการ';
-            const deliveryText = deliveredText || fallbackText;
-            const hasDetail = order.status === 'delivered' && Boolean(deliveredText);
+            const automaticDownload = order.paymentStatus === 'verified' && ['confirmed','delivered'].includes(order.status)
+              ? window.OlafProductDownloads?.item(item.id) : '';
+            const downloadInfo = window.OlafDownloadDelivery?.parse(automaticDownload);
+            const deliveryText = downloadInfo ? [downloadInfo.label, downloadInfo.note].filter(Boolean).join('\n') : deliveredText || fallbackText;
+            const hasDetail = Boolean(downloadInfo) || (order.status === 'delivered' && Boolean(deliveredText));
 
             return {
               key: `${order.id || order.orderNumber || 'order'}-${item.id || index}`,
@@ -3977,7 +3983,7 @@
               platform: inventoryPlatformLabel(category),
               typeLabel: inventoryTypeLabel(category, product, item),
               deliveryText,
-              deliveryPayload: parsedDelivery,
+              deliveryPayload: downloadInfo ? {rawText: automaticDownload, accounts: []} : parsedDelivery,
               preview: inventoryPreview(deliveryText) || fallbackText,
               primaryCopy: parsedDelivery.accounts?.[0]?.id || extractPrimaryCopy(deliveredText),
               hasDetail
@@ -4206,6 +4212,8 @@
       document.getElementById('inventory-modal-summary').textContent = row.hasDetail
         ? 'สามารถคัดลอกข้อมูลสินค้าได้จากปุ่มด้านล่าง'
         : 'สินค้านี้ยังอยู่ระหว่างรอข้อมูลจากแอดมิน';
+      const isDownloadDelivery = Boolean(window.OlafDownloadDelivery?.parse(row.deliveryPayload?.rawText));
+      if (isDownloadDelivery) document.getElementById('inventory-modal-summary').textContent = 'ชำระเงินแล้ว สามารถเปิดลิงก์ดาวน์โหลดด้านล่างได้เลย';
       document.getElementById('inventory-modal-order').textContent = `Order #${row.orderNumber || '-'}`;
       document.getElementById('inventory-modal-status').textContent = row.statusLabel || '-';
       document.getElementById('inventory-modal-date').textContent = formatInventoryDate(row.createdAt);
@@ -4231,6 +4239,7 @@
       document.getElementById('inventory-modal-footnote').textContent = row.hasDetail
         ? 'หากต้องการรหัส 2FA ให้ติดต่อ Facebook หรือ Discord ของร้าน'
         : 'หลังตรวจสลิปแล้ว สินค้า Offline จะจัดส่งอัตโนมัติ ส่วนสินค้าอื่นแอดมินจะจัดส่งให้';
+      if (isDownloadDelivery) document.getElementById('inventory-modal-footnote').textContent = 'หากเปิดลิงก์หรือดาวน์โหลดไม่ได้ กรุณาติดต่อร้านพร้อมหมายเลขออเดอร์';
       document.getElementById('inventory-modal-product-id').textContent = `Product ID: ${row.productId || '-'}`;
       renderInventoryOrderActions(row);
 
@@ -4830,6 +4839,7 @@
           ]);
           profileState.orders = orders;
           profileState.products = products;
+          await window.OlafProductDownloads?.refresh();
           profileState.lastOrdersRefreshAt = Date.now();
           renderOrdersList(orders);
           await window.OlafSupplierUI?.refreshInventory();

@@ -107,6 +107,7 @@
   const NAV_ITEMS = [
     { href: "index.html", label: "หน้าหลัก", icon: "house", match: ["index.html", ""] },
     { href: "index.html#catalog", label: "สินค้า", icon: "shopping-bag", matchHash: "#catalog" },
+    { href: "rentals.html", label: "เช่าเกม", icon: "gamepad-2", match: ["rentals.html"] },
     { href: "more-products.html", label: "หมวดหมู่", icon: "layout-grid", match: ["more-products.html"] },
     { href: "products.html", label: "ดูสินค้าทั้งหมด", icon: "shopping-bag", match: ["products.html"] },
     { href: "manual.html", label: "คู่มือ", icon: "book-open", match: ["manual.html"] },

@@ -10,6 +10,8 @@
    document.body.prepend(header);
   }
   header.classList.add('refresh-header');
+  const rentalNav=header.querySelector('.main-nav');
+  if(rentalNav&&!rentalNav.querySelector('a[href="rentals.html"]')){const link=document.createElement('a');link.href='rentals.html';link.textContent='เช่าเกม';rentalNav.children[1]?.after(link);if(!link.isConnected)rentalNav.append(link);}
   const footer=document.querySelector('.site-footer'),band=document.querySelector('.checkout-band');
   if(footer&&band){const alignFooter=()=>{const rect=band.getBoundingClientRect();footer.style.setProperty('--aligned-footer-width',rect.width+'px')};alignFooter();new ResizeObserver(alignFooter).observe(band);}
   let actions=header.querySelector('.topbar-actions');

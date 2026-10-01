@@ -10,7 +10,7 @@
     SUPPLIER_MANUAL_REVIEW_REQUIRED:'ยังยืนยันผลการจองไม่ได้ กรุณาติดต่อร้าน ห้ามโอนซ้ำ',RENTAL_RESULT_UNKNOWN:'ยังยืนยันผลไม่ได้ กรุณาโหลดออเดอร์ก่อนลองใหม่',
     SUPPLIER_MIGRATION_REQUIRED:'ระบบฐานข้อมูลเช่ายังไม่พร้อม กรุณาติดต่อร้าน',RATE_LIMITED:'เรียกข้อมูลถี่เกินไป กรุณารอ',SUPPLIER_RATE_LIMITED:'คำขอมาก กรุณารอ',
     SESSION_CHANGED:'บัญชีที่เข้าสู่ระบบเปลี่ยน กรุณาโหลดใหม่'};
-  let products=[],epoch=0,secretEpoch=0,secretTimer=null,codeTimer=null,detailEpoch=0,orderEpoch=0;
+  let products=[],selectedGenre='',epoch=0,secretEpoch=0,secretTimer=null,codeTimer=null,detailEpoch=0,orderEpoch=0;
   const notice=message=>{const target=$('rental-dialog').open?document.querySelector('#rental-detail [role=status]'):$('rental-notice');if(target)target.textContent=message;};
   async function run(button,task){button.disabled=true;try{await task();}catch(e){notice((errors[e.code]||'ทำรายการไม่สำเร็จ กรุณาลองโหลดสถานะใหม่')+(e.code?` [${e.code}]`:'')+(e.retryAfter?` รอ ${e.retryAfter} วินาที`:''));
       if(e.retryAfter){button.dataset.locked='true';setTimeout(()=>{delete button.dataset.locked;if(button.isConnected)button.disabled=false;},e.retryAfter*1000);return;}
@@ -75,10 +75,22 @@
     $('rental-dialog').showModal();
   }
   function renderCatalog(){const query=$('rental-search').value.trim().toLowerCase();const grid=$('rental-grid');grid.replaceChildren();
-    for(const p of products.filter(p=>p.name.toLowerCase().includes(query))){const card=el('article');card.className='rental-card';
-      if(p.image){const image=el('img');image.src=p.image;image.alt=p.name;image.loading='lazy';image.referrerPolicy='no-referrer';card.append(image);}
-      card.append(el('h3',p.name),el('p','ราคาและไอดีว่างขึ้นอยู่กับระยะเวลาเช่า'),button('เลือกเวลาเช่า',()=>openBooking(p),true));grid.append(card);}
+    const filtered=products.filter(p=>p.name.toLowerCase().includes(query)&&(!selectedGenre||(p.genres||[]).includes(selectedGenre)));
+    $('rental-count').textContent=`${filtered.length} เกม`;
+    for(const p of filtered){const card=el('article');card.className='rental-card';
+      const media=el('div');media.className='rental-card-media';
+      if(p.image){const image=el('img');image.src=p.image;image.alt=p.name;image.loading='lazy';image.referrerPolicy='no-referrer';image.onerror=()=>image.remove();media.append(image);}
+      const badge=el('span','STEAM • RENTAL');badge.className='rental-badge';media.append(badge);card.append(media);
+      const content=el('div');content.className='rental-card-content';const tags=el('div');tags.className='rental-tags';
+      for(const genre of (p.genres||[]).slice(0,2))tags.append(el('span',genre));
+      if(!tags.children.length)tags.append(el('span','เช่าตามเวลา'));
+      content.append(el('h3',p.name),tags,el('p','เลือกแพ็กเกจเพื่อดูราคาและคิวว่าง'),button('เลือกเวลาเช่า',()=>openBooking(p),true));card.append(content);grid.append(card);}
     if(!grid.children.length)grid.append(el('p','ไม่พบสินค้าเช่าที่ตรงกับการค้นหา'));
+  }
+  function renderCategories(){const box=$('rental-categories');box.replaceChildren();
+    for(const genre of ['',...new Set(products.flatMap(p=>p.genres||[]))]){const b=button('',()=>{selectedGenre=genre;renderCategories();renderCatalog();$('games').scrollIntoView({behavior:'smooth'});});
+      const cover=products.find(p=>p.image&&(!genre||(p.genres||[]).includes(genre)));if(cover){const img=el('img');img.src=cover.image;img.alt='';img.loading='lazy';img.onerror=()=>img.remove();b.append(img);}
+      b.append(el('span',genre||'เกมทั้งหมด'),el('span','→'));b.setAttribute('aria-pressed',String(selectedGenre===genre));box.append(b);}
   }
   async function loadOrders(){const orders=await api('orders');const list=$('rental-orders');list.replaceChildren();
     for(const o of orders){const row=el('div');row.className='rental-order-row';row.append(el('span',`${o.name} · ${o.kind==='renewal'?'ต่ออายุ':'เช่า'} · ${money(o.total)} · ${o.orderNumber}`),button('ดูออเดอร์',()=>renderOrder(o)));list.append(row);}
@@ -132,7 +144,8 @@
     $('rental-refresh').onclick=event=>run(event.currentTarget,loadOrders);
     document.addEventListener('visibilitychange',()=>{if(document.hidden)clearSecrets();});window.addEventListener('pagehide',clearSecrets);
     window.olafSupabase?.auth.onAuthStateChange(event=>{if(['SIGNED_IN','SIGNED_OUT'].includes(event)){epoch++;clearSecrets();orderEpoch++;detailEpoch++;$('rental-dialog').close();$('rental-orders').replaceChildren();$('rental-order').hidden=true;$('rental-order').replaceChildren();}});
-    try{products=(await api('catalog')).products;renderCatalog();notice('เลือกเกมเพื่อตรวจคิวและราคาล่าสุด');}catch(e){notice(errors[e.code]||'โหลดสินค้าเช่าไม่ได้ กรุณาลองใหม่ภายหลัง');}
+    renderCategories();
+    try{products=(await api('catalog')).products;renderCatalog();renderCategories();notice('เช่าตามช่วงเวลา • ตรวจคิวและราคาล่าสุดก่อนชำระ • ไม่ใช่การซื้อขาด');}catch(e){notice(errors[e.code]||'โหลดสินค้าเช่าไม่ได้ กรุณาลองใหม่ภายหลัง');}
     try{await loadOrders();const id=new URLSearchParams(location.search).get('order');if(id)await refreshOrder(id);}catch(e){if(e.code==='AUTH_REQUIRED')$('rental-orders').append(el('p','กรุณาเข้าสู่ระบบผ่านหน้าบัญชีของฉันเพื่อดูออเดอร์'));else notice(errors[e.code]||'โหลดออเดอร์ไม่ได้');}
   });
 })();

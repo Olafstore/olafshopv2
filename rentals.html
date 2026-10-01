@@ -3,23 +3,28 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer">
   <title>เช่าไอดี Steam | OLAF SHOP</title>
-  <link rel="stylesheet" href="rental-store.css?v=20261001-v72">
+  <link rel="stylesheet" href="rental-store.css?v=20261001-v73">
+  <link rel="stylesheet" href="rental-theme-v73.css?v=20261001-v73">
+  <link rel="stylesheet" href="rental-art-v73.css?v=20261001-v73">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" defer></script>
   <script src="slip-qr-scanner.js?v=20260621-slip-verify-v2" defer></script>
   <script src="supabase-client.js?v=20260909-updates-v224" defer></script>
-  <script src="rental-store.js?v=20261001-v72" defer></script>
+  <script src="rental-store.js?v=20261001-v73" defer></script>
 </head>
 <body>
-  <header class="rental-nav"><a class="rental-brand" href="index.html">OLAF SHOP</a><nav aria-label="เมนูหลัก"><a href="index.html">หน้าหลัก</a><a href="#games">เช่าไอดี Steam</a><a href="#orders">ออเดอร์เช่าของฉัน</a><a href="profile.html">บัญชีของฉัน</a></nav></header>
+  <header class="rental-nav"><a class="rental-brand" href="index.html"><svg aria-hidden="true" width="34" height="28" viewBox="0 0 32 24" fill="none"><path d="M9 3h14c4 0 8 13 6 17-2 3-6-1-8-4H11c-2 3-6 7-8 4C1 16 5 3 9 3Z" fill="#2aaeff"/><path d="M9 7v7M5.5 10.5h7" stroke="#061524" stroke-width="2.5"/><circle cx="23" cy="8" r="1.7" fill="#061524"/><circle cx="26" cy="12" r="1.7" fill="#061524"/></svg> OLAF <b>SHOP</b></a><nav aria-label="เมนูหลัก"><a href="index.html">หน้าหลัก</a><a href="rentals.html" aria-current="page">เช่าเกม</a><a href="#categories">หมวดหมู่เกม</a><a href="manual.html">คู่มือ</a><a href="#orders">ออเดอร์เช่าของฉัน</a><a href="profile.html">บัญชีของฉัน</a></nav><a class="rental-account" href="profile.html">เข้าสู่บัญชี ↗</a></header>
   <main>
-    <section class="rental-intro"><span>STEAM RENTAL</span><h1>เลือกเกม เลือกเวลา<br>พร้อมเล่นในช่วงของคุณ</h1><p>เช่าเป็นช่วงเวลา ไม่ใช่ซื้อขาด • เวลาแสดงเป็นเวลาไทย (UTC+7)<br>เริ่มได้ทุกครึ่งชั่วโมง จองล่วงหน้าไม่เกิน 7 วัน</p></section>
+    <section class="rental-intro"><div class="rental-hero-art" aria-hidden="true"><img id="rental-hero-image" src="assets/rental-hero-v73.png" alt="" fetchpriority="high"></div><div class="rental-hero-copy"><span class="rental-eyebrow">YOUR NEXT ADVENTURE STARTS HERE</span><h1>เช่าไอดีเกม <em>Steam</em><br>เลือกเวลา แล้วไปเล่นกัน</h1><p>เกมที่อยากเล่น ในช่วงเวลาของคุณ<br>เลือกแพ็กเกจ ตรวจคิว และชำระเงินบนเว็บ</p><div class="rental-hero-buttons"><a class="rental-cta" href="#games">เลือกเกมที่อยากเล่น <span>→</span></a><a class="rental-outline" href="#orders">ออเดอร์ของฉัน</a></div><div class="rental-perks"><span>◷ เริ่มทุกครึ่งชั่วโมง</span><span>◇ จองล่วงหน้า 7 วัน</span><span>⊕ Steam Guard</span></div></div><aside class="rental-steps"><h2>ขั้นตอนการเช่า</h2><ol><li><strong>เลือกเกมและแพ็กเกจ</strong><span>ตรวจไอดีว่างและเวลาเริ่มเช่า</span></li><li><strong>ชำระเงินและแนบสลิป</strong><span>ระบบจองเมื่อยืนยันชำระสำเร็จ</span></li><li><strong>เปิดใช้งานเมื่อพร้อมเล่น</strong><span>กดรับบัญชีเมื่อถึงช่วงเวลาเช่า</span></li></ol></aside></section>
     <p id="rental-notice" role="status" aria-live="polite">กำลังโหลดสินค้าเช่า…</p>
-    <section id="games"><div class="rental-section-head"><h2>เกมที่เปิดให้เช่า</h2><label>ค้นหาเกม <input id="rental-search" type="search" placeholder="ชื่อเกม…"></label></div><div id="rental-grid" class="rental-grid"></div></section>
+    <section id="games"><div class="rental-section-head"><div><span class="rental-eyebrow">EXPLORE YOUR NEXT GAME</span><h2>เกมที่เปิดให้เช่า <small id="rental-count"></small></h2><p>เลือกเกมที่ใช่ แล้วตรวจแพ็กเกจและคิวล่าสุด</p></div><label class="rental-search-label">ค้นหาเกม <input id="rental-search" type="search" placeholder="⌕  พิมพ์ชื่อเกมที่อยากเล่น…"></label></div><div id="rental-grid" class="rental-grid"></div></section>
+    <section id="categories"><div class="rental-section-head"><div><h2>ค้นหาตามหมวดหมู่</h2><p>หมวดหมู่จากข้อมูลเกมที่ผู้ให้บริการส่งมา</p></div></div><div id="rental-categories" class="rental-categories"></div></section>
+    <section class="rental-benefits" aria-label="บริการของร้าน"><div><span>ϟ</span><h3>จองผ่านระบบ</h3><p>ตรวจคิวล่าสุดก่อนยืนยันรายการ</p></div><div><span>◇</span><h3>ดูสิทธิ์ในออเดอร์</h3><p>เวลาเริ่มและสิ้นสุดแสดงชัดเจน</p></div><div><span>⊕</span><h3>ขอ Steam Guard</h3><p>ขอโค้ดได้ตลอดช่วงเวลาเช่า</p></div><div><span>◷</span><h3>ต่อเวลาได้</h3><p>ก่อนหมดเวลาและไม่ชนคิวถัดไป</p></div></section>
     <section id="orders"><div class="rental-section-head"><h2>ออเดอร์เช่าของฉัน</h2><button id="rental-refresh" type="button">โหลดออเดอร์</button></div><div id="rental-orders"></div></section>
     <section id="rental-order" class="rental-panel" hidden></section>
     <p>หากชำระแล้วแต่คิวถูกจองตัดหน้า หรือระบบยังยืนยันผลไม่ได้ <a href="https://www.facebook.com/byOlafshop" target="_blank" rel="noopener noreferrer">ติดต่อร้าน</a> พร้อมเลขออเดอร์ ห้ามโอนซ้ำ</p>
   </main>
+  <footer class="rental-footer"><div><a class="rental-brand" href="index.html">OLAF <b>SHOP</b></a><p>เช่าไอดี Steam เลือกเกม เลือกเวลา<br>เช่าเป็นช่วงเวลา ไม่ใช่ซื้อขาด</p></div><div><h3>เมนูหลัก</h3><a href="index.html">หน้าหลัก</a><a href="#games">เช่าเกม</a><a href="#orders">ออเดอร์ของฉัน</a></div><div><h3>ช่วยเหลือ</h3><a href="manual.html">คู่มือการใช้งาน</a><a href="https://www.facebook.com/byOlafshop" target="_blank" rel="noopener noreferrer">ติดต่อร้าน ↗</a><p>เวลาทั้งหมดแสดงเป็นเวลาไทย UTC+7</p></div></footer>
   <dialog id="rental-dialog" aria-labelledby="rental-title"><button id="rental-close" type="button" aria-label="ปิด">×</button><div id="rental-detail"></div></dialog>
 </body>
 </html>

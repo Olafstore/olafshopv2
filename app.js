@@ -2605,7 +2605,11 @@ function steamEditorialCollectionsMarkup(products) {
 }
 
 function steamActivitySlides(products) {
-  const available = products.filter((product) => Number(product.stock || 0) > 0);
+  // Only account products belong in this shelf, including its non-discount fallback.
+  const available = products.filter((product) =>
+    ["steam-account", "offline"].includes(String(product.category || "").trim().toLowerCase()) &&
+    product.isActive !== false && Number(product.stock || 0) > 0
+  );
   if (!available.length) return [];
 
   const discounted = available
@@ -2669,7 +2673,7 @@ function steamActivityCarouselMarkup(products) {
         <div>
           <span>OLAF EVENT PICKS</span>
           <h3>ส่วนลดและกิจกรรม</h3>
-          <p>สินค้าในร้านที่พร้อมส่ง คัดใหม่และสุ่มให้ทุกครั้งที่เข้าชม</p>
+          <p>ไอดี Steam และ Steam Offline พร้อมส่ง คัดใหม่และสุ่มให้ทุกครั้งที่เข้าชม</p>
         </div>
         <a href="#catalog">ดูเพิ่มเติม <i data-lucide="arrow-up-right"></i></a>
       </header>

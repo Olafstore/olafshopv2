@@ -3781,6 +3781,7 @@
     }
 
     function productNames(order) {
+      if (String(order.orderNumber || '').startsWith('R499-')) return 'เช่าไอดี Steam / ต่ออายุ';
       return (order.items || [])
         .map(item => escape(item.productName || item.name || item.productId || 'สินค้า'))
         .join(', ') || '-';
@@ -3836,9 +3837,9 @@
                 ${orderCountdownMarkup(o)}
               </div>
               <div class="profile-order-cell profile-order-action" data-label="จัดการ">
-                <button class="profile-order-open supplier-order-button" type="button" ${String(o.orderNumber||'').startsWith('S499-') ? 'data-supplier-order' : 'data-open-order'}="${escape(o.id)}">
+                <button class="profile-order-open supplier-order-button" type="button" ${String(o.orderNumber||'').startsWith('R499-') ? 'data-rental-order' : String(o.orderNumber||'').startsWith('S499-') ? 'data-supplier-order' : 'data-open-order'}="${escape(o.id)}">
                   <i data-lucide="arrow-up-right" style="width:15px;height:15px"></i>
-                  ${String(o.orderNumber||'').startsWith('S499-') ? 'รับบัญชี / Steam Guard' : isPointTopupOrder(o) ? 'ดูรายการ' : 'เปิดในคลัง'}
+                  ${String(o.orderNumber||'').startsWith('R499-') ? 'จัดการการเช่า / Steam Guard' : String(o.orderNumber||'').startsWith('S499-') ? 'รับบัญชี / Steam Guard' : isPointTopupOrder(o) ? 'ดูรายการ' : 'เปิดในคลัง'}
                 </button>
               </div>
               ${String(o.paymentVerificationNote || '') === 'PAYMENT_AMOUNT_INSUFFICIENT' || String(o.paymentVerificationNote || '') === 'PAYMENT_AMOUNT_INSUFFICIENT_POINTS_CREDITED' ? `
@@ -3917,7 +3918,7 @@
       const productMap = new Map((products || []).map(product => [String(product.id || '').trim(), product]));
       const rows = (orders || [])
         .filter(order => {
-          if (isPointTopupOrder(order)||String(order.orderNumber||'').startsWith('S499-')) return false;
+          if (isPointTopupOrder(order)||/^(S499|R499)-/.test(String(order.orderNumber||''))) return false;
           if (['cancelled', 'expired'].includes(order.status)) return false;
           const expiresAt = unpaidOrderExpiresAt(order);
           return !expiresAt || expiresAt.getTime() > Date.now();
@@ -4988,6 +4989,11 @@
           return;
         }
 
+        const rentalOrder = event.target.closest('[data-rental-order]');
+        if (rentalOrder) {
+          location.href = 'rentals.html?order=' + encodeURIComponent(rentalOrder.getAttribute('data-rental-order')) + '#rental-order';
+          return;
+        }
         const openOrder = event.target.closest('[data-open-order]');
         if (openOrder) {
           const orderId = openOrder.getAttribute('data-open-order');

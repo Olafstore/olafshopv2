@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer">
+  <title>เช่าไอดี Steam | OLAF SHOP</title>
+  <link rel="stylesheet" href="rental-store.css?v=20261001-v72">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" defer></script>
+  <script src="slip-qr-scanner.js?v=20260621-slip-verify-v2" defer></script>
+  <script src="supabase-client.js?v=20260909-updates-v224" defer></script>
+  <script src="rental-store.js?v=20261001-v72" defer></script>
+</head>
+<body>
+  <header class="rental-nav"><a class="rental-brand" href="index.html">OLAF SHOP</a><nav aria-label="เมนูหลัก"><a href="index.html">หน้าหลัก</a><a href="#games">เช่าไอดี Steam</a><a href="#orders">ออเดอร์เช่าของฉัน</a><a href="profile.html">บัญชีของฉัน</a></nav></header>
+  <main>
+    <section class="rental-intro"><span>STEAM RENTAL</span><h1>เลือกเกม เลือกเวลา<br>พร้อมเล่นในช่วงของคุณ</h1><p>เช่าเป็นช่วงเวลา ไม่ใช่ซื้อขาด • เวลาแสดงเป็นเวลาไทย (UTC+7)<br>เริ่มได้ทุกครึ่งชั่วโมง จองล่วงหน้าไม่เกิน 7 วัน</p></section>
+    <p id="rental-notice" role="status" aria-live="polite">กำลังโหลดสินค้าเช่า…</p>
+    <section id="games"><div class="rental-section-head"><h2>เกมที่เปิดให้เช่า</h2><label>ค้นหาเกม <input id="rental-search" type="search" placeholder="ชื่อเกม…"></label></div><div id="rental-grid" class="rental-grid"></div></section>
+    <section id="orders"><div class="rental-section-head"><h2>ออเดอร์เช่าของฉัน</h2><button id="rental-refresh" type="button">โหลดออเดอร์</button></div><div id="rental-orders"></div></section>
+    <section id="rental-order" class="rental-panel" hidden></section>
+    <p>หากชำระแล้วแต่คิวถูกจองตัดหน้า หรือระบบยังยืนยันผลไม่ได้ <a href="https://www.facebook.com/byOlafshop" target="_blank" rel="noopener noreferrer">ติดต่อร้าน</a> พร้อมเลขออเดอร์ ห้ามโอนซ้ำ</p>
+  </main>
+  <dialog id="rental-dialog" aria-labelledby="rental-title"><button id="rental-close" type="button" aria-label="ปิด">×</button><div id="rental-detail"></div></dialog>
+</body>
+</html>

@@ -12,6 +12,7 @@
     INVALID_CHECKOUT:'ข้อมูลคำสั่งเช่าไม่ถูกต้อง กรุณาโหลดคิวและตรวจราคาใหม่',RENTAL_DATABASE_VALIDATION_FAILED:'ฐานข้อมูลปฏิเสธคำสั่งเช่า กรุณาให้แอดมินตรวจสูตรราคาเช่า v73 (+20 บาท) ยังไม่ได้สร้างออเดอร์',
     SESSION_CHANGED:'บัญชีที่เข้าสู่ระบบเปลี่ยน กรุณาโหลดใหม่',AUTH_TIMEOUT:'ระบบสมาชิกตอบกลับช้า กรุณาลองอีกครั้งหรือเข้าสู่ระบบใหม่',
     BROWSER_STORAGE_UNAVAILABLE:'พื้นที่บันทึกในเบราว์เซอร์ไม่พร้อม จึงยังไม่ได้สร้างออเดอร์ กรุณาเปิดเว็บในแท็บใหม่',
+    POINT_BALANCE_INSUFFICIENT:'พอยต์ไม่พอหรือยอดเปลี่ยนแล้ว กรุณาตรวจยอดใหม่',
     NETWORK_ERROR:'เชื่อมต่อไม่สำเร็จ กรุณาลองใหม่โดยไม่โอนซ้ำ',PAYMENT_UI_UNAVAILABLE:'สร้างออเดอร์แล้ว แต่เปิดหน้าชำระไม่ได้ กรุณาเปิดออเดอร์เดิมจากลิงก์ด้านล่าง'};
   let epoch=0,secretEpoch=0,secretTimer=null,codeTimer=null,detailEpoch=0,orderEpoch=0,authIdentity;
   const notice=message=>{const target=$('rental-dialog').open?document.querySelector('#rental-detail [role=status]'):(document.querySelector('.rental-inline-status')||$('rental-notice'));if(target)target.textContent=message;};
@@ -32,6 +33,33 @@
   }
   function clearSecrets(){secretEpoch++;clearTimeout(secretTimer);clearTimeout(codeTimer);document.querySelectorAll('[data-rental-secret]').forEach(n=>n.remove());}
   function secretBox(text,parent){const n=el('pre',text);n.className='rental-secret';n.dataset.rentalSecret='';parent.append(n);return n;}
+  async function checkoutOptions(quote,product){
+    const version=epoch;let balance=0,balanceLoaded=false;
+    let balanceTimer;
+    try{const wallet=await Promise.race([window.OlafOrders.fetchPointBalance(),new Promise((_,reject)=>{balanceTimer=setTimeout(()=>reject(new Error('POINT_TIMEOUT')),12000);})]);balance=Math.max(0,Number(wallet.balance)||0);balanceLoaded=true;}catch{}finally{clearTimeout(balanceTimer);}
+    if(version!==epoch)throw {code:'SESSION_CHANGED'};
+    return new Promise(resolve=>{
+      const dialog=el('dialog');dialog.className='rental-booking-dialog rental-checkout-dialog';
+      const heading=el('h2','ยืนยันการสั่งซื้อ'),summary=el('div');summary.className='rental-summary';
+      summary.append(el('strong',product.name),el('p',`${quote.durationDays} วัน · ${date(quote.startAt)}`));
+      const methods=el('div');methods.className='rental-payment-choices';
+      const radios=[];
+      for(const [value,label] of [['promptpay','PromptPay'],['wallet','TrueMoney Wallet']]){
+        const row=el('label'),radio=el('input');radio.type='radio';radio.name='rental-payment';radio.value=value;radio.checked=value==='promptpay';
+        row.append(radio,el('span',label));methods.append(row);radios.push(radio);
+      }
+      const points=el('label');points.className='rental-points-choice';const use=el('input');use.type='checkbox';use.disabled=!balanceLoaded||!balance;
+      points.append(use,el('span',balanceLoaded?`ใช้ Point ชำระ · คงเหลือ ${money(balance)}`:'โหลด Point ไม่สำเร็จ ใช้ช่องทางชำระอื่นได้'));
+      const total=el('strong');total.className='rental-checkout-total';
+      const update=()=>{const discount=use.checked?Math.min(balance,quote.price):0;total.textContent=`ยอดชำระ ${money(Math.round((quote.price-discount)*100)/100)}`;methods.hidden=discount===quote.price;};use.onchange=update;update();
+      const actions=el('div');actions.className='rental-actions';let settled=false;
+      const finish=value=>{if(settled)return;settled=true;dialog.close();dialog.remove();resolve(value);};
+      actions.append(button('ย้อนกลับ',()=>finish(null)),button('ยืนยันชำระเงิน',()=>finish({paymentMethod:radios.find(r=>r.checked).value,pointsToUse:use.checked?Math.round(Math.min(balance,quote.price)*100)/100:0}),true));
+      dialog.append(heading,summary,el('h3','ช่องทางชำระเงิน'),methods,points,total,actions);
+      dialog.addEventListener('cancel',e=>{e.preventDefault();finish(null);});dialog.addEventListener('close',()=>finish(null));
+      document.body.append(dialog);dialog.showModal();
+    });
+  }
   async function openBooking(product,parentOrder=null,inline=false){
     const current=++detailEpoch;await session();const data=await api('availability',undefined,{productId:product.id});if(current!==detailEpoch)return;
     const box=inline?$('rental-booking'):$('rental-detail');if(!box)return;box.replaceChildren();box.append(el('h2',parentOrder?'ต่ออายุ '+product.name:'เลือกแพ็กเกจเช่า'));box.firstChild.id=inline?'rental-booking-title':'rental-title';
@@ -47,8 +75,30 @@
     for(const d of durations){const option=el('option',`${d} วัน`);option.value=d;days.append(option);}
     const account=field('ไอดีที่ต้องการ',el('select'));const auto=el('option','เลือกไอดีที่ว่างและราคาถูกที่สุด');auto.value='';account.append(auto);
     for(const a of data.accounts){const option=el('option',`ไอดี #${a.account_id}`);option.value=a.account_id;account.append(option);}account.disabled=Boolean(parentOrder);
-    const payment=field('ช่องทางชำระเงิน',el('select'));
-    for(const [value,text] of [['promptpay','PromptPay'],['wallet','TrueMoney Wallet']]){const o=el('option',text);o.value=value;payment.append(o);}
+    // Payment choices live in the confirmation dialog, not in the rental package form.
+    const payment=el('input');payment.type='hidden';payment.value='promptpay';
+    days.parentElement.classList.add('rental-native-field');account.parentElement.classList.add('rental-native-field');
+    const packages=el('div'),accounts=el('div');packages.className='rental-package-grid';accounts.className='rental-account-grid';
+    packages.setAttribute('aria-label','แพ็กเกจเช่า');accounts.setAttribute('aria-label','ไอดีที่ว่างสำหรับช่วงเวลาที่เลือก');
+    form.append(el('h3','เลือกแพ็กเกจ'),packages,el('h3','เลือกไอดีและคิวว่าง'),accounts);
+    function renderChoices(){
+      packages.replaceChildren();accounts.replaceChildren();
+      const from=Date.parse(start.value+':00+07:00'),to=from+Number(days.value)*86400000;
+      for(const d of durations){const prices=data.accounts.filter(a=>!account.value||String(a.account_id)===account.value).map(a=>a.rates[d]?.price).filter(p=>p>0);
+        const b=button('',()=>{days.value=String(d);days.dispatchEvent(new Event('change'));});
+        b.className='rental-package-choice';b.setAttribute('aria-pressed',String(Number(days.value)===d));b.disabled=checkoutBusy||!prices.length;
+        b.append(el('strong',d+' วัน'),el('span',prices.length?'เริ่ม '+money(Math.min(...prices)):'ไม่มีแพ็กเกจ'));packages.append(b);
+      }
+      if(!parentOrder){const b=button('เลือกไอดีว่างราคาถูกที่สุด',()=>{account.value='';account.dispatchEvent(new Event('change'));});b.className='rental-account-choice';b.setAttribute('aria-pressed',String(!account.value));b.disabled=checkoutBusy;accounts.append(b);}
+      for(const a of data.accounts){
+        const validStart=Number.isFinite(from)&&from%1800000===0&&from>=Math.floor(Date.now()/1800000)*1800000&&from<=Date.now()+7*86400000
+          &&(!data.bookable_from||from>=Date.parse(data.bookable_from))&&(!data.bookable_until||from<=Date.parse(data.bookable_until));
+        const available=validStart&&a.rates[days.value]?.price>0&&!a.busy.some(b=>from<Date.parse(b.to)&&to>Date.parse(b.from));
+        const b=button('',()=>{account.value=String(a.account_id);account.dispatchEvent(new Event('change'));});b.className='rental-account-choice';b.setAttribute('aria-pressed',String(account.value===String(a.account_id)));b.disabled=checkoutBusy||!available||Boolean(parentOrder);
+        b.append(el('strong','Steam ID #'+a.account_id),el('span',available?'คิวว่าง · '+money(a.rates[days.value].price):'ไม่ว่างในช่วงที่เลือก'));
+        if(a.busy.length)b.append(el('small','คิวถัดไป '+date(a.busy[0].from)));accounts.append(b);
+      }
+    }
     const availability=el('details'),summary=el('summary','ดูราคาและช่วงเวลาที่ถูกจอง (รวมเวลาพักแล้ว)');availability.append(summary);
     for(const a of data.accounts){availability.append(el('p',`ไอดี #${a.account_id} · `+Object.entries(a.rates).map(([d,r])=>`${d} วัน ${money(r.price)}`).join(' / ')));
       for(const busy of a.busy)availability.append(el('p',`${date(busy.from)} – ${date(busy.to)}`));}
@@ -58,16 +108,18 @@
     consent.append(check,el('span','ฉันเข้าใจว่าเป็นการเช่าตามเวลา ไม่ใช่ซื้อขาด และหากคิวถูกจองตัดหน้าหลังชำระเงิน ต้องติดต่อร้านตรวจสอบออเดอร์ก่อนโอนเพิ่ม'));
     const buy=button('ยืนยันและไปชำระเงิน',async()=>{
       if(!quote||!check.checked||checkoutBusy){status.textContent='กรุณาตรวจคิวและราคา แล้วติ๊กยอมรับเงื่อนไขก่อน';return;}
-      const confirmedQuote=quote,paymentMethod=payment.value;checkoutBusy=true;buy.textContent='กำลังสร้างออเดอร์…';buy.setAttribute('aria-busy','true');status.textContent='กำลังสร้างออเดอร์และเปิดหน้าชำระเงิน กรุณารอ ไม่ต้องกดซ้ำ';
+      const confirmedQuote=quote;checkoutBusy=true;buy.textContent='กำลังเปิดหน้าชำระเงิน…';buy.setAttribute('aria-busy','true');
       const controls=[start,days,account,payment,check,...box.querySelectorAll('button')].filter(c=>c!==buy),previousDisabled=controls.map(c=>c.disabled);controls.forEach(c=>c.disabled=true);
       try{
+        const choices=await checkoutOptions(confirmedQuote,product);if(!choices)return;
+        const {paymentMethod,pointsToUse}=choices;buy.textContent='กำลังสร้างออเดอร์…';status.textContent='กำลังสร้างออเดอร์ กรุณารอ ไม่ต้องกดซ้ำ';
         const s=await session();if(current!==detailEpoch)throw {code:'SESSION_CHANGED'};
-        const requestKey=`rental-request:${s.user.id}:${JSON.stringify(confirmedQuote)}:${paymentMethod}`;
+        const requestKey=`rental-request:${s.user.id}:${JSON.stringify(confirmedQuote)}:${paymentMethod}:${pointsToUse}`;
         let requestId;try{requestId=sessionStorage.getItem(requestKey);if(!requestId){requestId=crypto.randomUUID();sessionStorage.setItem(requestKey,requestId);}}catch{throw {code:'BROWSER_STORAGE_UNAVAILABLE'};}
-        const order=await api('checkout',{...confirmedQuote,requestId,paymentMethod,expectedPrice:confirmedQuote.price});
+        const order=await api('checkout',{...confirmedQuote,requestId,paymentMethod,pointsToUse,expectedPrice:confirmedQuote.price});
         // Keep the idempotency key if the QR adapter fails, so retry returns this order.
         let recovery=box.querySelector('[data-rental-checkout-order]');if(!recovery){recovery=el('a','เปิดออเดอร์เดิม / ไปหน้าชำระเงิน');recovery.dataset.rentalCheckoutOrder='';recovery.className='secondary-button';box.append(recovery);}recovery.href='rental-order.html?order='+encodeURIComponent(order.id);
-        if(order.paymentStatus==='verified'){location.href=recovery.href;return;}
+        if(order.paymentStatus==='verified'){if(order.state==='pending')try{await api('fulfill',{orderId:order.id});}catch{}location.href=recovery.href;return;}
         status.textContent='สร้างออเดอร์แล้ว กำลังเปิด QR หากไม่ขึ้นให้เปิดออเดอร์เดิมด้านล่าง';
         if(typeof window.OlafRentalPayment?.open!=='function')throw {code:'PAYMENT_UI_UNAVAILABLE'};
         if($('rental-dialog').open)$('rental-dialog').close();await window.OlafRentalPayment.open(order,product);
@@ -75,7 +127,8 @@
     },true);buy.disabled=true;
     const syncBuy=()=>buy.disabled=checkoutBusy||!quote||!check.checked;buy.syncDisabled=syncBuy;
     const invalidate=()=>{quote=null;result.replaceChildren();syncBuy();check.checked=false;status.textContent='เลือกแพ็กเกจแล้วกดตรวจคิวและราคาอีกครั้ง';};
-    for(const input of [start,days,account,payment])input.addEventListener('change',invalidate);
+    for(const input of [start,days,account])input.addEventListener('change',()=>{invalidate();renderChoices();});
+    renderChoices();
     check.addEventListener('change',()=>{syncBuy();status.textContent=quote?(check.checked?'พร้อมชำระเงิน กดยืนยันและไปชำระเงินได้เลย':'ตรวจราคาแล้ว กรุณาติ๊กยอมรับเงื่อนไขก่อนชำระ'):'กรุณากดตรวจคิวและราคาก่อน';});
     box.append(button('ตรวจคิวและราคา',async()=>{
       invalidate();const input={productId:product.id,durationDays:Number(days.value),startAt:new Date(start.value+':00+07:00').toISOString(),accountId:account.value?Number(account.value):null,
@@ -102,14 +155,20 @@
     if(order.needsSupport)box.append(el('p','ชำระเงินแล้ว แต่ยังยืนยันการจอง/ต่ออายุไม่ได้ กรุณาติดต่อร้านพร้อมหมายเลขออเดอร์ ห้ามโอนซ้ำ'));
     if(order.state==='reserved')box.append(el('p',order.canPlay?'อยู่ในช่วงเช่า กดเปิดใช้งานเมื่อพร้อมเล่น':Date.now()<Date.parse(order.startAt)?'จองสำเร็จ รอถึงเวลาเริ่มเช่าแล้วโหลดสถานะใหม่':'ต่ออายุสำเร็จ หรือสิ้นสุดช่วงเวลาเช่าแล้ว'));
     if(order.canPlay){
+      const delivery=el('section');delivery.className='rental-access-card';delivery.append(el('h3','ไอดี Steam ของคุณ'),el('p','เปิดใช้งานเมื่อพร้อมเล่น หรือดูข้อมูลเพื่อล็อกอินเอง สิทธิ์ใช้ได้เฉพาะช่วงเวลาเช่า'));
+      const deliveryActions=el('div');deliveryActions.className='rental-actions';delivery.append(deliveryActions);box.append(delivery);
+      const guard=el('section');guard.className='rental-access-card rental-guard-card';guard.append(el('h3','Steam Guard'),el('p','ขอโค้ดได้ไม่จำกัดระหว่างเช่า โค้ดจะซ่อนอัตโนมัติเมื่อหมดอายุ'));box.append(guard);
       const reveal=async(action)=>{clearSecrets();const token=secretEpoch;const result=await api(action,{orderId:order.id});
         if(token!==secretEpoch||document.hidden||version!==orderEpoch||Date.now()>=Date.parse(result.endAt))return;
-        secretBox(`Steam ID: ${result.account.username}\nPassword: ${result.account.password}`,box);
+        const credentials=el('div');credentials.dataset.rentalSecret='';credentials.className='rental-credential-grid';
+        for(const [label,value] of [['Steam ID',result.account.username],['Password',result.account.password]]){
+          const row=el('div');row.className='rental-credential-row';row.append(el('span',label),el('strong',value),button('คัดลอก '+label,async()=>{await navigator.clipboard.writeText(value);notice('คัดลอก '+label+' แล้ว');}));credentials.append(row);
+        }delivery.append(credentials);
         secretTimer=setTimeout(clearSecrets,Math.max(0,Math.min(Date.parse(result.endAt)-Date.now(),300000)));};
-      actions.append(button('เปิดใช้งานเมื่อพร้อมเล่น',()=>reveal('activate'),true),button('ดูข้อมูลเข้าเกม',()=>reveal('delivery')),
-        button('ขอ Steam Guard',async()=>{const token=secretEpoch;const result=await api('guard',{orderId:order.id});if(token!==secretEpoch||document.hidden||version!==orderEpoch)return;
-          clearTimeout(codeTimer);document.querySelector('[data-rental-code]')?.remove();const code=secretBox(result.code,box);code.dataset.rentalCode='';codeTimer=setTimeout(()=>code.remove(),Math.min(result.validForSeconds*1000,Math.max(0,Date.parse(order.endAt)-Date.now())));}),
-        button('ต่ออายุ',()=>openBooking({id:order.productId,name:order.name},order)));
+      deliveryActions.append(button('เปิดใช้งานเมื่อพร้อมเล่น',()=>reveal('activate'),true),button('ดูข้อมูลเข้าเกม',()=>reveal('delivery')));
+      guard.append(button('ขอ Steam Guard',async()=>{const token=secretEpoch;const result=await api('guard',{orderId:order.id});if(token!==secretEpoch||document.hidden||version!==orderEpoch)return;
+          clearTimeout(codeTimer);document.querySelector('[data-rental-code]')?.remove();const code=secretBox(result.code,guard);code.dataset.rentalCode='';codeTimer=setTimeout(()=>code.remove(),Math.min(result.validForSeconds*1000,Math.max(0,Date.parse(order.endAt)-Date.now())));},true));
+      actions.append(button('ต่ออายุ',()=>openBooking({id:order.productId,name:order.name},order)));
     }
   }
   window.OlafRental={api,openBooking,notice,refreshOrder,session,clearSecrets};
@@ -126,6 +185,7 @@
       if(event==='SIGNED_IN'&&(authIdentity===undefined||authIdentity===nextIdentity)){authIdentity=nextIdentity;return;}
       authIdentity=nextIdentity;
       epoch++;clearSecrets();orderEpoch++;detailEpoch++;$('rental-dialog').close();
+      document.querySelectorAll('.rental-checkout-dialog').forEach(d=>d.close());
       if($('rental-order')){$('rental-order').hidden=true;$('rental-order').replaceChildren();}
       window.OlafRentalPayment?.reset();window.dispatchEvent(new Event('olaf:rental-auth'));
     });

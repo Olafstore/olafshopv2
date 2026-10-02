@@ -37,8 +37,28 @@
    const introduction=node('section',undefined,'rental-panel rental-introduction');introduction.append(node('span','STEAM • เช่าไอดีตามเวลา','rental-kicker'),node('h1',p.name),node('p',(p.genres||[]).join(' · '),'rental-game-genres'),node('p',p.shortDescription||'เลือกแพ็กเกจและช่วงเวลาเช่าสำหรับเกมนี้'));
    const rules=node('div',undefined,'rental-rules');for(const [title,body] of [['เลือกเวลา','เริ่มทุก 30 นาที จองล่วงหน้าไม่เกิน 7 วัน'],['พร้อมเล่น','กดเปิดใช้งานเองเมื่อถึงเวลาเช่า'],['ระหว่างเช่า','ขอ Steam Guard และต่ออายุก่อนหมดเวลาได้']]){const n=node('div');n.append(node('strong',title),node('p',body));rules.append(n);}introduction.append(rules);
    left.append(gallery,introduction,textSection('รายละเอียดเกม',p.description||p.shortDescription));
-   const requirements=node('section',undefined,'rental-panel');requirements.append(node('h2','ความต้องการระบบ'));const columns=node('div',undefined,'rental-requirements');for(const [key,label] of [['minimum','ขั้นต่ำ'],['recommended','แนะนำ']])columns.append(textSection(label,(p.requirements?.[key]||[]).join('\n')));requirements.append(columns);left.append(requirements);
-   const aside=node('aside',undefined,'rental-panel rental-booking-panel');aside.id='rental-booking';layout.append(left,aside);target.append(layout);target.setAttribute('aria-busy','false');await booking();
+   const requirements=node('section',undefined,'rental-panel');requirements.append(node('h2','ความต้องการระบบ'));const columns=node('div',undefined,'rental-requirements');
+   for(const [key,label] of [['minimum','ขั้นต่ำ'],['recommended','แนะนำ']]){
+     const card=node('section',undefined,'rental-spec-card');card.append(node('h3',label));const list=node('ul');
+     const lines=p.requirements?.[key]||[];for(const line of lines){if(!line.trim()||/^(ขั้นต่ำ|แนะนำ|minimum|recommended):?$/i.test(line.trim()))continue;list.append(node('li',line));}
+     if(!list.children.length)list.append(node('li','ยังไม่มีข้อมูลจากผู้พัฒนา'));card.append(list);columns.append(card);
+   }requirements.append(columns);left.append(requirements);
+   const delivery=node('section',undefined,'rental-panel rental-delivery-guide');delivery.append(node('h2','การจัดส่งไอดีและ Steam Guard'));
+   for(const [title,body] of [['01 · ชำระเงินและจองคิว','ใช้ Point หรือชำระและแนบสลิปผ่านระบบร้านเดิม ระบบจองไอดีเมื่อยืนยันชำระสำเร็จ'],['02 · เปิดไอดีเมื่อพร้อมเล่น','เข้าหน้าออเดอร์เมื่อถึงเวลาเช่า แล้วกดเปิดใช้งานเพื่อรับ Steam ID และรหัสผ่าน'],['03 · รับ Steam Guard','กดขอโค้ดในหน้าออเดอร์ได้ตลอดช่วงเช่า ไม่จำกัดจำนวนครั้ง และต่ออายุได้ก่อนหมดเวลา']]){
+     const row=node('div',undefined,'rental-delivery-step');row.append(node('strong',title),node('p',body));delivery.append(row);
+   }left.append(delivery);
+   const aside=node('aside',undefined,'rental-panel rental-booking-panel');aside.id='rental-booking';layout.append(left,aside);target.append(layout);target.setAttribute('aria-busy','false');
+   recommendations(target,p);await booking();
   }catch(e){target.setAttribute('aria-busy','false');target.replaceChildren(node('h1',e.code==='ORDER_NOT_FOUND'?'เกมนี้ยังไม่มีชื่อและรูปที่ยืนยันได้':'โหลดรายละเอียดเกมไม่ได้'),node('p','กรุณากลับไปเลือกเกมอื่น หรือโหลดข้อมูลใหม่ภายหลัง'));const link=node('a','กลับไปเลือกเกม','secondary-button');link.href='rentals.html';target.append(link);}}
  document.addEventListener('DOMContentLoaded',()=>{const page=document.body.dataset.rentalPage;if(page==='catalog'){$('rental-search').addEventListener('input',()=>{shownLimit=24;renderCards();});$('rental-more').onclick=async()=>{shownLimit+=24;if(pending.length)await loadBatch();else renderCards();};catalog();}if(page==='product'){product();window.addEventListener('olaf:rental-auth',booking);}});
+ async function recommendations(target,current){
+   const panel=node('section',undefined,'rental-panel rental-recommendations'),grid=node('div',undefined,'rental-grid');panel.append(node('h2','เกมเช่าแนะนำ'),node('p','เลือกเกมอื่นที่น่าสนใจ พร้อมตรวจแพ็กเกจและคิวว่าง'),grid);target.append(panel);
+   try{const data=await window.OlafRental.api('catalog');if(!panel.isConnected)return;
+     const games=data.products.filter(p=>valid(p)&&p.id!==current.id).sort((a,b)=>Number(b.genres?.some(g=>current.genres?.includes(g)))-Number(a.genres?.some(g=>current.genres?.includes(g)))).slice(0,4);
+     for(const p of games){const card=node('a',undefined,'rental-card rental-recommended-card');card.href='rental-product.html?id='+encodeURIComponent(p.id);
+       const image=node('img');image.src=p.image;image.alt=p.name;image.loading='lazy';image.onerror=()=>card.remove();
+       const body=node('div',undefined,'rental-card-body');body.append(node('strong',p.name),node('p',(p.genres||[]).slice(0,2).join(' · ')),node('span','ดูแพ็กเกจเช่า →','rental-card-cta'));card.append(image,body);grid.append(card);
+     }if(!games.length)panel.remove();
+   }catch{panel.remove();}
+ }
 })();

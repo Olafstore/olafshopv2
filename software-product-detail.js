@@ -1,9 +1,12 @@
 window.OlafSoftwareDetail={
  decorateBuy(container){
-  const button=container.querySelector('#btn-buy'),price=container.querySelector('[data-purchase-price]');
-  if(!button||button.disabled||!price)return;
+  const button=container.querySelector('#btn-buy');
+  if(!button)return;
   button.querySelector('.sd-buy-price')?.remove();
-  const value=document.createElement('span');value.className='sd-buy-price';value.textContent=price.textContent;button.append(value);
+  if(button.disabled)return;
+  button.querySelector('.sd-buy-label')?.remove();
+  [...button.childNodes].filter(node=>node.nodeType===3).forEach(node=>node.remove());
+  const label=document.createElement('span');label.className='sd-buy-label';label.textContent='ซื้อเลย';button.append(label);
  },
  applies:p=>Boolean(window.OlafExtraProducts?.isExtraCategory?.(p?.category))||/^(software|office|adobe|capcut|antivirus)$/.test(p?.category||''),
  enhance(container,p,store={}){

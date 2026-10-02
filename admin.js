@@ -5306,6 +5306,9 @@ function renderPaymentForm() {
   const heroPreview = document.getElementById('hero-background-preview');
   const heroUrl = pendingHeroBackground || state.payload.store.heroBackgroundUrl;
   if (heroPreview && heroUrl) { heroPreview.src = heroUrl; heroPreview.hidden = false; }
+  const rentalPreview=document.getElementById('rental-background-preview');
+  const rentalUrl=pendingRentalBackground||state.payload.store.rentalHeroBackgroundUrl;
+  if(rentalPreview&&rentalUrl){rentalPreview.src=rentalUrl;rentalPreview.hidden=false;}
 }
 
 function renderQrPreview(qrUrl, trueMoneyQrUrl) {
@@ -5509,54 +5512,46 @@ function handleSiteIconUpload(event) {
 }
 
 let pendingHeroBackground = '';
-let heroUploadVersion = 0;
+let pendingRentalBackground = '';
+const backgroundUploadVersions = {hero:0,rental:0};
+const backgroundUploadBusy = new Set();
+let backgroundSaving = false;
 async function handleHeroBackgroundUpload(event) {
-  const file = event.target.files?.[0];
-  if (!file) return;
-  const status = document.getElementById('hero-background-status');
-  const button = document.getElementById('save-hero-background');
-  const version = ++heroUploadVersion;
-  pendingHeroBackground = '';
-  button.disabled = true;
-  let objectUrl;
+  const file=event.target.files?.[0];if(!file)return;
+  const prefix=event.target.id==='rental-background-upload'?'rental':'hero',status=document.getElementById(prefix+'-background-status'),button=document.getElementById('save-'+prefix+'-background');
+  const version=++backgroundUploadVersions[prefix];backgroundUploadBusy.add(prefix);if(prefix==='hero')pendingHeroBackground='';else pendingRentalBackground='';button.disabled=true;let objectUrl;
   try {
-    if (!['image/png','image/jpeg','image/webp'].includes(file.type)) throw new Error('กรุณาเลือกรูป PNG, JPG หรือ WebP');
-    if (file.size > 8 * 1024 * 1024) throw new Error('รูปต้องมีขนาดไม่เกิน 8 MB');
-    status.textContent = 'กำลังเตรียมรูปพื้นหลัง…';
-    objectUrl = URL.createObjectURL(file);
-    const image = new Image();
-    await new Promise((resolve,reject) => { image.onload=resolve; image.onerror=()=>reject(new Error('อ่านรูปไม่สำเร็จ')); image.src=objectUrl; });
-    const scale = Math.min(1,1920/image.width,1080/image.height);
-    const canvas = document.createElement('canvas');
-    canvas.width=Math.max(1,Math.round(image.width*scale)); canvas.height=Math.max(1,Math.round(image.height*scale));
-    canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);
-    const data = canvas.toDataURL('image/webp',.82);
-    if (data.length > 2*1024*1024) throw new Error('รูปมีรายละเอียดมากเกินไป กรุณาลดขนาดรูปแล้วลองใหม่');
-    if (version !== heroUploadVersion) return;
-    pendingHeroBackground=data;
-    const preview=document.getElementById('hero-background-preview'); preview.src=data; preview.hidden=false;
-    status.textContent='เลือกรูปแล้ว กดบันทึกพื้นหลังหน้าแรกเพื่อใช้งาน';
-  } catch (error) { if (version === heroUploadVersion) status.textContent=error.message; }
-  finally { if (objectUrl) URL.revokeObjectURL(objectUrl); if (version === heroUploadVersion) button.disabled=false; }
+    if(!['image/png','image/jpeg','image/webp'].includes(file.type))throw new Error('กรุณาเลือกภาพ PNG, JPG หรือ WebP');
+    if(file.size>8*1024*1024)throw new Error('ภาพต้องมีขนาดไม่เกิน 8 MB');
+    status.textContent='กำลังเตรียมภาพแบนเนอร์…';objectUrl=URL.createObjectURL(file);const image=new Image();
+    await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=()=>reject(new Error('ไม่สามารถอ่านภาพได้'));image.src=objectUrl;});
+    const scale=Math.min(1,1920/image.width,1080/image.height),canvas=document.createElement('canvas');
+    canvas.width=Math.max(1,Math.round(image.width*scale));canvas.height=Math.max(1,Math.round(image.height*scale));canvas.getContext('2d').drawImage(image,0,0,canvas.width,canvas.height);
+    const data=canvas.toDataURL('image/webp',.82);if(data.length>2*1024*1024)throw new Error('กรุณาลดขนาดหรือรายละเอียดของภาพ แล้วลองใหม่');
+    if(version!==backgroundUploadVersions[prefix])return;
+    if(prefix==='hero')pendingHeroBackground=data;else pendingRentalBackground=data;
+    const preview=document.getElementById(prefix+'-background-preview');preview.src=data;preview.hidden=false;
+    status.textContent='เตรียมภาพเรียบร้อย กรุณากดบันทึกเพื่อใช้งาน';
+  }catch(error){if(version===backgroundUploadVersions[prefix])status.textContent=error.message;}
+  finally{if(objectUrl)URL.revokeObjectURL(objectUrl);if(version===backgroundUploadVersions[prefix]){backgroundUploadBusy.delete(prefix);if(!backgroundSaving)button.disabled=false;}}
 }
-
-async function saveHeroBackground() {
-  const status=document.getElementById('hero-background-status');
-  if (!pendingHeroBackground) { status.textContent='กรุณาเลือกรูปก่อนบันทึก'; return; }
-  const button=document.getElementById('save-hero-background');
-  const input=document.getElementById('hero-background-upload');
-  button.disabled=true; input.disabled=true;
+async function saveHeroBackground(event) {
+  if(backgroundSaving)return;
+  const prefix=event?.currentTarget?.id==='save-rental-background'?'rental':'hero',key=prefix==='rental'?'rentalHeroBackgroundUrl':'heroBackgroundUrl';
+  const pending=prefix==='hero'?pendingHeroBackground:pendingRentalBackground,status=document.getElementById(prefix+'-background-status');
+  if(backgroundUploadBusy.size){status.textContent='กรุณารอให้ระบบเตรียมภาพเสร็จก่อนบันทึก';return;}
+  if(!pending){status.textContent='กรุณาเลือกภาพก่อนบันทึก';return;}
+  const controls=['hero','rental'].flatMap(p=>[document.getElementById('save-'+p+'-background'),document.getElementById(p+'-background-upload')]).filter(Boolean);
+  const disabled=controls.map(c=>c.disabled);backgroundSaving=true;controls.forEach(c=>c.disabled=true);
   try {
-    status.textContent='กำลังบันทึก…';
-    const settings=await window.OlafStoreSettings.fetchStoreSettings({forceRefresh:true});
-    await saveOnlineStoreSettings({...settings,heroBackgroundUrl:pendingHeroBackground});
-    const verified = await window.OlafStoreSettings.fetchStoreSettings({forceRefresh:true});
-    if (verified.heroBackgroundUrl !== pendingHeroBackground) throw new Error('ค่าพื้นหลังยังไม่ถูกบันทึกในฐานข้อมูล กรุณาตรวจสิทธิ์หรือฟังก์ชัน admin_save_store_settings');
-    state.payload.store.heroBackgroundUrl=pendingHeroBackground;
-    pendingHeroBackground='';
-    status.textContent='บันทึกแล้ว เปิดหรือรีเฟรชหน้าแรกเพื่อดูพื้นหลังใหม่';
-  } catch (error) { status.textContent=`บันทึกไม่สำเร็จ: ${error.message || 'กรุณาลองใหม่'}`; }
-  finally { button.disabled=false; input.disabled=false; }
+    status.textContent='กำลังบันทึกภาพแบนเนอร์…';
+    const settings=await window.OlafStoreSettings.fetchStoreSettings({forceRefresh:true});await saveOnlineStoreSettings({...settings,[key]:pending});
+    const verified=await window.OlafStoreSettings.fetchStoreSettings({forceRefresh:true});
+    if(verified[key]!==pending)throw new Error('ฐานข้อมูลยังไม่บันทึกภาพ กรุณาตรวจสิทธิ์และ admin_save_store_settings');
+    state.payload.store[key]=pending;if(prefix==='hero')pendingHeroBackground='';else pendingRentalBackground='';
+    status.textContent='บันทึกเรียบร้อย กรุณาโหลด'+(prefix==='hero'?'หน้าแรก':'หน้าเช่าเกม')+'ใหม่เพื่อดูภาพที่อัปเดต';
+  }catch(error){status.textContent='ไม่สามารถบันทึกได้: '+(error.message||'กรุณาลองใหม่ภายหลัง');}
+  finally{backgroundSaving=false;controls.forEach((c,i)=>c.disabled=disabled[i]);}
 }
 
 window.addEventListener('olaf-software-settings-saved',event=>{
@@ -6172,6 +6167,8 @@ function bindEvents() {
   $("#site-icon-upload").addEventListener("change", handleSiteIconUpload);
   $("#hero-background-upload")?.addEventListener("change", handleHeroBackgroundUpload);
   $("#save-hero-background")?.addEventListener("click", saveHeroBackground);
+  $("#rental-background-upload")?.addEventListener("change", handleHeroBackgroundUpload);
+  $("#save-rental-background")?.addEventListener("click", saveHeroBackground);
   $("#clear-custom-qr").addEventListener("click", () => {
     revokePreviewUrl(state.pendingQrPreviewUrl);
     revokePreviewUrl(state.pendingTrueMoneyQrPreviewUrl);

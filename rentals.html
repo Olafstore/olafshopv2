@@ -30,9 +30,11 @@
 <script src="notifications.js?v=20260909-updates-v224" defer></script>
 <script src="site-navigation.js?v=20261002-rental-v74" defer></script>
 <script src="order-action-popup.js?v=20260621-order-animation" defer></script>
-<script src="rental-store.js?v=20261002-rental-v84" defer></script>
+<script src="rental-store.js?v=20261002-v86" defer></script>
 <script src="rental-native-v80.js?v=20261002-rental-v84" defer></script>
-<script src="rental-catalog-v74.js?v=20261002-rental-v84" defer></script>
+<script src="rental-catalog-v74.js?v=20261002-v86" defer></script>
+<link rel="stylesheet" href="site-footer-v86.css?v=20261002-v86">
+<link rel="stylesheet" href="rental-catalog-v86.css?v=20261002-v86">
 </head>
 <body class="rental-site" data-rental-page="catalog"><div class="page">
 <header class="topbar">
@@ -105,10 +107,10 @@
       </div>
     </header>
 <main id="rental-main"><section class="rental-hero"><div><span class="rental-kicker">STEAM RENTAL</span><h1>เกมที่อยากเล่น<br><span>ในเวลาของคุณ</span></h1><p>เลือกเกมและแพ็กเกจเช่า ตรวจคิวว่าง แล้วเริ่มเล่นในช่วงเวลาที่เลือก</p><a class="primary-button" href="#games">เลือกเกม <span aria-hidden="true">↗</span></a><div class="rental-hero-meta"><span>เริ่มทุก 30 นาที</span><span>จองล่วงหน้า 7 วัน</span><span>ขอ Steam Guard ได้</span></div></div><div class="rental-hero-note"><i data-lucide="gamepad-2"></i><strong>เช่าตามเวลา ไม่ใช่ซื้อขาด</strong><p>จองหลังตรวจชำระสำเร็จ<br>กดเปิดใช้งานเมื่อถึงเวลาและพร้อมเล่น</p></div></section>
-<section id="games"><div class="rental-section-head"><div><span class="rental-kicker">เลือกการผจญภัยครั้งต่อไป</span><h2>เกมเช่าทั้งหมด <small id="rental-count"></small></h2></div><label class="rental-search">ค้นหาเกม<input id="rental-search" type="search" placeholder="ค้นหาชื่อเกมบน Steam…"></label></div>
+<section id="games"><div class="rental-section-head"><div><span class="rental-kicker">เลือกการผจญภัยครั้งต่อไป</span><h2>เกมเช่าทั้งหมด <small id="rental-count"></small></h2></div><div class="rental-search" role="search"><img src="https://api.iconify.design/lucide/search.svg?color=%236eb6ff" alt="" aria-hidden="true"><input id="rental-search" type="search" aria-label="ค้นหาเกมเช่า" placeholder="ค้นหาชื่อเกมที่ต้องการเช่า…" autocomplete="off"><button id="rental-search-clear" type="button" aria-label="ล้างคำค้นหา" hidden>×</button></div></div>
 <div id="rental-categories" class="rental-categories" aria-label="กรองหมวดหมู่"></div>
 <p id="rental-notice" role="status" aria-live="polite">กำลังตรวจสอบข้อมูลเกม…</p>
-<div id="rental-grid" class="rental-grid" aria-busy="true"><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div></div><button id="rental-more" class="secondary-button" type="button" hidden>ดูเกมเพิ่มเติม</button></section></main>
+<div id="rental-grid" class="rental-grid" aria-busy="true"><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div></div></section></main>
 <footer class="site-footer">
       <div class="footer-grid">
         <div class="footer-brand">
@@ -126,12 +128,11 @@
             </span>
             <span class="brand-text" data-olaf-store-name>OLAF SHOP</span>
           </a>
-          <p>เว็บจำหน่าย ไอดี/คีย์ เกมแท้ราคาถูกออฟไลน์ และออนไลน์ เปิดให้บริการมาแล้วมากกว่า 3 ปี
-            และทีมงานซัพพอร์ต 12:00 - 23:00น.</p>
+          <p>OLAF SHOP ให้บริการจำหน่ายเกมดิจิทัล บัญชีเกม และเช่าไอดี Steam พร้อมบริการช่วยเหลือ เวลา 12:00–23:00 น.</p>
         </div>
 
         <div class="footer-links">
-          <h4>ช่วยเหลือ</h4>
+          <h4>ข้อมูลและบริการ</h4>
           <ul>
             <li><a href="https://olaf-shop.gitbook.io/manual-olaf-shop/undefined-1/undefined">ศูนย์ช่วยเหลือ</a></li>
             <li><a href="https://www.facebook.com/byOlafshop" target="_blank">ติดต่อเรา</a></li>
@@ -139,7 +140,7 @@
         </div>
 
         <div class="footer-payments">
-          <h4>Payment Methods</h4>
+          <h4>ช่องทางชำระเงิน</h4>
           <div class="payment-badges">
             <span class="payment-badge">PromptPay</span>
             <span class="payment-badge">TrueMoney Wallet</span>
@@ -148,7 +149,7 @@
       </div>
 
       <div class="footer-bottom">
-        <p>&copy; 2025 OLAF SHOP. All rights reserved.</p>
+        <p>&copy; 2026 OLAF SHOP. สงวนลิขสิทธิ์</p>
         <div class="footer-bottom-links">
           <a href="https://olaf-shop.gitbook.io/manual-olaf-shop/undefined/undefined">ข้อกำหนดและเงื่อนไข</a>
           <a href="https://olaf-shop.gitbook.io/manual-olaf-shop">นโยบายความเป็นส่วนตัว</a>

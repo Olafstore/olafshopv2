@@ -1,0 +1,9 @@
+/* A shared content width independent of page-specific checkout bands. */
+html body .site-footer.site-footer {box-sizing:border-box;width:100%;max-width:none;padding:48px 0 28px!important;margin-top:48px;}
+html body .site-footer.site-footer .footer-grid,
+html body .site-footer.site-footer .footer-bottom {box-sizing:border-box;width:min(1320px,calc(100% - 64px))!important;max-width:1320px!important;margin-inline:auto!important;}
+html body .site-footer.site-footer .footer-grid {gap:32px;padding:0;}
+html body .site-footer.site-footer .footer-brand>p {max-width:460px;line-height:1.85;font-size:13px;margin-top:18px;}
+html body .site-footer.site-footer .footer-bottom {padding-top:24px;margin-top:32px;gap:18px;}
+html body .site-footer.site-footer .footer-bottom-links {display:flex;gap:24px;flex-wrap:wrap;}
+@media(max-width:760px){html body .site-footer.site-footer {padding-top:32px!important;margin-top:32px;}html body .site-footer.site-footer .footer-grid,html body .site-footer.site-footer .footer-bottom {width:calc(100% - 40px)!important;}html body .site-footer.site-footer .footer-grid {grid-template-columns:1fr;gap:24px;}html body .site-footer.site-footer .footer-payments {text-align:left;}html body .site-footer.site-footer .payment-badges {justify-content:flex-start;}html body .site-footer.site-footer .footer-bottom {flex-direction:column;align-items:flex-start;}html body .site-footer.site-footer .footer-bottom-links {gap:12px 20px;}}

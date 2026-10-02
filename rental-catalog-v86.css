@@ -1,0 +1,17 @@
+.rental-site .rental-search {gap:10px;min-height:48px;box-sizing:border-box;min-width:0;width:min(100%,380px);border-radius:14px;padding:8px 14px;}
+.rental-site .rental-search:focus-within {border-color:var(--brand-hover,#6eb6ff);box-shadow:0 0 0 3px #389aff22;}
+.rental-site .rental-search input[type=search],.rental-site .rental-search input[type=search]:focus-visible {outline:none!important;box-shadow:none!important;border:0!important;background:transparent!important;min-height:30px;padding:0;flex:1;min-width:0;}
+.rental-site .rental-search input::-webkit-search-cancel-button {display:none;}
+.rental-site #rental-main #rental-search-clear {border:0;background:transparent;color:var(--text-secondary);width:30px;height:30px;min-height:30px;padding:0;cursor:pointer;font-size:22px;border-radius:8px;}
+.rental-site #rental-search-clear[hidden] {display:none;}
+.rental-site #rental-search-clear:focus-visible {outline:2px solid var(--brand-hover);outline-offset:2px;}
+.rental-site .rental-search>img {width:18px;height:18px;flex-shrink:0;}
+.rental-site .rental-catalog-price {display:flex;align-items:center;gap:8px;color:var(--brand-hover,#6eb6ff);font-size:15px;margin:14px 0;min-height:24px;}
+.rental-site .rental-card .rental-topic-icon {width:18px!important;height:18px!important;aspect-ratio:auto!important;object-fit:contain;border:0;border-radius:0;flex-shrink:0;}
+.rental-site .rental-card .rental-card-cta {display:flex;align-items:center;justify-content:center;gap:9px;min-height:46px;border-radius:12px;background:linear-gradient(120deg,#163a69,#182b48);border-color:#315783;color:#b4d9ff;font-weight:500;transition:background .18s,border-color .18s;}
+.rental-site .rental-card .rental-card-cta:hover {background:#204c82;border-color:#6eb6ff;}
+.rental-site .rental-card-cta:focus-visible {outline:2px solid #6eb6ff;outline-offset:3px;}
+.rental-site .rental-cta-arrow {margin-left:auto;}
+.rental-site .rental-art-unavailable {background:var(--bg-card);min-height:130px;}
+@media(max-width:760px){.rental-site .rental-search {width:100%;}.rental-site .rental-card .rental-card-cta {gap:6px;font-size:12px;padding:8px;}.rental-site .rental-catalog-price {font-size:13px;}}
+@media(prefers-reduced-motion:reduce){.rental-site .rental-card .rental-card-cta {transition:none;}}

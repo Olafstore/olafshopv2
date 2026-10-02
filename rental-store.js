@@ -30,7 +30,7 @@
   async function session(){let timer;try{const {data,error}=await Promise.race([window.olafSupabase.auth.getSession(),new Promise((_,reject)=>{timer=setTimeout(()=>reject({code:'AUTH_TIMEOUT'}),12000);})]);if(error||!data?.session)throw {code:'AUTH_REQUIRED'};if(authIdentity===undefined)authIdentity=data.session.user.id;return data.session;}finally{clearTimeout(timer);}}
   async function api(action,body,query={}){
     const version=epoch,headers={Accept:'application/json'};
-    if(!['catalog','product'].includes(action)){const s=await session();headers.Authorization=`Bearer ${s.access_token}`;}
+    if(!['catalog','product','price'].includes(action)){const s=await session();headers.Authorization=`Bearer ${s.access_token}`;}
     if(body!==undefined)headers['Content-Type']='application/json';
     const response=await fetch('/api/admin-supplier?'+new URLSearchParams({action:`rent-${action}`,...query}),{
       method:body===undefined?'GET':'POST',headers,cache:'no-store',signal:AbortSignal.timeout(45000),...(body!==undefined?{body:JSON.stringify(body)}:{})});

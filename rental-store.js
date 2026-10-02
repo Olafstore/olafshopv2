@@ -10,13 +10,13 @@
     SUPPLIER_MANUAL_REVIEW_REQUIRED:'ยังยืนยันผลการจองไม่ได้ กรุณาติดต่อร้าน ห้ามโอนซ้ำ',RENTAL_RESULT_UNKNOWN:'ยังยืนยันผลไม่ได้ กรุณาโหลดออเดอร์ก่อนลองใหม่',
     SUPPLIER_MIGRATION_REQUIRED:'ระบบฐานข้อมูลเช่ายังไม่พร้อม กรุณาติดต่อร้าน',RATE_LIMITED:'เรียกข้อมูลถี่เกินไป กรุณารอ',SUPPLIER_RATE_LIMITED:'คำขอมาก กรุณารอ',
     SESSION_CHANGED:'บัญชีที่เข้าสู่ระบบเปลี่ยน กรุณาโหลดใหม่'};
-  let epoch=0,secretEpoch=0,secretTimer=null,codeTimer=null,detailEpoch=0,orderEpoch=0;
+  let epoch=0,secretEpoch=0,secretTimer=null,codeTimer=null,detailEpoch=0,orderEpoch=0,authIdentity;
   const notice=message=>{const target=$('rental-dialog').open?document.querySelector('#rental-detail [role=status]'):(document.querySelector('.rental-inline-status')||$('rental-notice'));if(target)target.textContent=message;};
   async function run(button,task){button.disabled=true;try{await task();}catch(e){notice((errors[e.code]||'ทำรายการไม่สำเร็จ กรุณาลองโหลดสถานะใหม่')+(e.code?` [${e.code}]`:'')+(e.retryAfter?` รอ ${e.retryAfter} วินาที`:''));
       if(e.retryAfter){button.dataset.locked='true';setTimeout(()=>{delete button.dataset.locked;if(button.isConnected)button.disabled=false;},e.retryAfter*1000);return;}
     }finally{if(button.isConnected&&!button.dataset.locked)button.disabled=false;}}
   const button=(text,task,primary=false)=>{const b=el('button',text);b.type='button';if(primary)b.className='primary';b.addEventListener('click',()=>run(b,()=>task(b)));return b;};
-  async function session(){const {data,error}=await window.olafSupabase.auth.getSession();if(error||!data?.session)throw {code:'AUTH_REQUIRED'};return data.session;}
+  async function session(){const {data,error}=await window.olafSupabase.auth.getSession();if(error||!data?.session)throw {code:'AUTH_REQUIRED'};if(authIdentity===undefined)authIdentity=data.session.user.id;return data.session;}
   async function api(action,body,query={}){
     const version=epoch,headers={Accept:'application/json'};
     if(!['catalog','product'].includes(action)){const s=await session();headers.Authorization=`Bearer ${s.access_token}`;}
@@ -103,11 +103,18 @@
     $('rental-close').onclick=()=>{$('rental-dialog').close();detailEpoch++;};
     $('rental-dialog').addEventListener('close',()=>detailEpoch++);
     document.addEventListener('visibilitychange',()=>{if(document.hidden)clearSecrets();});window.addEventListener('pagehide',clearSecrets);
-    window.olafSupabase?.auth.onAuthStateChange(event=>{if(['SIGNED_IN','SIGNED_OUT'].includes(event)){
+    window.olafSupabase?.auth.onAuthStateChange((event,authSession)=>{
+      const nextIdentity=authSession?.user?.id||null;
+      if(event==='INITIAL_SESSION'){if(authIdentity===undefined)authIdentity=nextIdentity;return;}
+      if(!['SIGNED_IN','SIGNED_OUT'].includes(event))return;
+      // Supabase also emits SIGNED_IN on tab focus/session recovery for the same user.
+      // Only an actual identity change should invalidate checkout and close its QR.
+      if(event==='SIGNED_IN'&&(authIdentity===undefined||authIdentity===nextIdentity)){authIdentity=nextIdentity;return;}
+      authIdentity=nextIdentity;
       epoch++;clearSecrets();orderEpoch++;detailEpoch++;$('rental-dialog').close();
       if($('rental-order')){$('rental-order').hidden=true;$('rental-order').replaceChildren();}
       window.OlafRentalPayment?.reset();window.dispatchEvent(new Event('olaf:rental-auth'));
-    }});
+    });
     const id=new URLSearchParams(location.search).get('order');
     if(id&&document.body.dataset.rentalPage!=='order'){location.replace('rental-order.html?order='+encodeURIComponent(id));return;}
     if(document.body.dataset.rentalPage==='order'){

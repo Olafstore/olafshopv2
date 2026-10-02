@@ -10,8 +10,8 @@
 .rental-site #rental-main .rental-account-choice,.rental-site .rental-booking-dialog .rental-account-choice {display:grid!important;grid-template-columns:minmax(0,1fr) auto;align-items:center;min-height:76px!important;padding:14px 16px!important;gap:7px 12px!important;}
 .rental-account-choice>strong {grid-column:1;grid-row:1;font-size:13px!important;overflow-wrap:anywhere;}
 .rental-account-choice>.rental-slot-badge {grid-column:2;grid-row:1;}
-.rental-account-choice>span:not(.rental-slot-badge) {grid-column:2;grid-row:2;}
-.rental-account-choice>small {grid-column:1;grid-row:2;}
+.rental-site .rental-account-choice>span:not(.rental-slot-badge) {grid-column:1/-1;grid-row:2;min-width:0;white-space:normal;overflow-wrap:anywhere;}
+.rental-site .rental-account-choice>small {grid-column:1/-1;grid-row:3;min-width:0;white-space:normal;overflow-wrap:anywhere;}
 .rental-account-auto>span:not(.rental-slot-badge) {grid-column:1/-1;grid-row:2;}
 .rental-time-popup {padding:24px!important;box-shadow:0 20px 90px #0009,0 0 30px #268be51f;}
 .rental-time-step {display:inline-flex;padding:7px 12px;border:1px solid var(--border,#2f527b);border-radius:20px;color:var(--brand-hover,#74b8ff);font-size:12px;}

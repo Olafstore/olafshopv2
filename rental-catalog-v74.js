@@ -35,11 +35,11 @@
   $('rental-notice').classList.toggle('rental-loading-label',loading);
   $('rental-count').textContent=`${visible.length} / ${products.length} เกม`;grid.setAttribute('aria-busy',String(loading));$('rental-search-clear').hidden=!search;
  }
- async function catalog(){const token=++generation;loading=true;products=[];genre='';$('rental-notice').textContent='กำลังเตรียมรายการเกมเช่า…';renderCards();
+ async function catalog(){const token=++generation;loading=true;products=[];genre='';$('rental-notice').hidden=false;$('rental-notice').textContent='กำลังเตรียมรายการเกมเช่า…';renderCards();
   try{const data=await window.OlafRental.api('catalog');if(token!==generation)return;
    $('rental-notice').textContent='กำลังโหลดเกมทั้งหมดและตรวจสอบข้อมูลจาก Steam…';
    const result=await verifiedGames(data.products,p=>{if(token!==generation)return;products.push(p);categoryButtons();renderCards();});
-   if(token!==generation)return;loading=false;categoryButtons();renderCards();$('rental-notice').textContent=result.failed?'บางเกมไม่สามารถตรวจสอบข้อมูลได้ในขณะนี้ รายการอื่นโหลดครบแล้ว':'โหลดรายการเกมทั้งหมดเรียบร้อยแล้ว';
+   if(token!==generation)return;loading=false;categoryButtons();renderCards();$('rental-notice').textContent='';$('rental-notice').hidden=true;
   }catch(e){if(token!==generation)return;loading=false;renderCards();$('rental-notice').textContent=e.code==='RENTAL_DISABLED'?'ระบบเช่าเกมยังไม่เปิดให้บริการ':'ไม่สามารถโหลดรายการเกมได้ กรุณาลองใหม่ภายหลัง';const retry=node('button','ลองโหลดรายการอีกครั้ง');retry.onclick=catalog;$('rental-grid').append(retry);}
  }
  async function rentalBackground(){try{const settings=await window.OlafStoreSettings.fetchStoreSettings();const url=String(settings.rentalHeroBackgroundUrl||'');if(!/^https:\/\//.test(url)&&!/^data:image\/webp;base64,[A-Za-z0-9+/=]+$/.test(url))return;

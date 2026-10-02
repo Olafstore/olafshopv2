@@ -3,8 +3,8 @@
   const money=n=>new Intl.NumberFormat('th-TH',{style:'currency',currency:'THB'}).format(n);
   const date=s=>new Date(s).toLocaleString('th-TH',{timeZone:'Asia/Bangkok'});
   function icon(kind='gamepad'){
-    const paths={gamepad:'M6 8h12l3 9-3 2-4-4h-4l-4 4-3-2 3-9Z M7 10v4 M5 12h4 M16 11h.01 M18 13h.01',user:'M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z M4 21v-2a8 8 0 0 1 16 0v2',calendar:'M5 5h14v15H5Z M8 3v4 M16 3v4 M5 10h14 M8 14h2 M14 14h2',wallet:'M3 6h18v14H3Z M3 6l15-3v3 M16 11h5v5h-5Z',clock:'M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z M12 7v5l3 2',shield:'M12 3 4 6v6c0 5 8 9 8 9s8-4 8-9V6l-8-3Z M8 12l3 3 5-6',file:'M6 3h8l4 4v14H6Z M14 3v5h4 M9 12h6 M9 16h6',cpu:'M6 6h12v12H6Z M9 9h6v6H9Z M9 3v3 M15 3v3 M9 18v3 M15 18v3 M3 9h3 M3 15h3 M18 9h3 M18 15h3'};
-    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','1.7');svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');svg.setAttribute('aria-hidden','true');svg.classList.add('rental-topic-icon');const path=document.createElementNS(svg.namespaceURI,'path');path.setAttribute('d',paths[kind]||paths.gamepad);svg.append(path);return svg;
+    const names={gamepad:'gamepad-2',user:'user-round',calendar:'calendar-days',wallet:'wallet-cards',clock:'clock-3',shield:'shield-check',file:'file-text',cpu:'cpu',minimum:'memory-stick',recommended:'monitor-check',delivery:'package-check',key:'key-round',guide:'book-open-check'};
+    const img=el('img');img.src='https://api.iconify.design/lucide/'+(names[kind]||names.gamepad)+'.svg?color=%236eb6ff';img.className='rental-topic-icon';img.alt='';img.width=18;img.height=18;img.decoding='async';img.referrerPolicy='no-referrer';img.setAttribute('aria-hidden','true');img.addEventListener('error',()=>{img.style.visibility='hidden';},{once:true});return img;
   }
   const errors={AUTH_REQUIRED:'กรุณาเข้าสู่ระบบผ่านหน้าบัญชีของฉันก่อน',RENTAL_DISABLED:'ร้านยังไม่เปิดระบบเช่า',INVALID_START_AT:'เลือกเวลาเริ่มทุกนาที 00 หรือ 30 ภายใน 7 วัน',
     SLOT_UNAVAILABLE:'ช่วงเวลานี้ถูกจองแล้ว กรุณาโหลดคิวใหม่และเลือกอีกครั้ง',DURATION_UNAVAILABLE:'ไอดีนี้ไม่มีระยะเวลาเช่าที่เลือก',SUPPLIER_PRICE_CHANGED:'ราคา/ไอดีว่างเปลี่ยนแล้ว กรุณาตรวจราคาใหม่',
@@ -91,10 +91,9 @@
     const packages=el('div'),accounts=el('div');packages.className='rental-package-grid';accounts.className='rental-account-grid';
     packages.setAttribute('aria-label','แพ็กเกจเช่า');accounts.setAttribute('aria-label','ไอดีที่ว่างสำหรับช่วงเวลาที่เลือก');
     const accountHeading=el('div');accountHeading.className='rental-choice-heading';const count=el('span');count.className='rental-availability-count';count.setAttribute('aria-live','polite');accountHeading.append(el('h3','เลือกไอดีและคิวว่าง'),count);
-    const more=button('',()=>{expanded=!expanded;renderChoices();});more.className='rental-account-more';
     const estimate=el('div');estimate.className='rental-estimate';estimate.setAttribute('aria-live','polite');
-    form.append(el('h3','เลือกแพ็กเกจ'),packages,accountHeading,accounts,more,estimate);
-    let expanded=false;
+    form.append(el('h3','เลือกแพ็กเกจ'),packages,accountHeading,accounts,estimate);
+    accounts.tabIndex=0;accounts.setAttribute('role','group');
     function slots(){
       const from=Date.parse(start.value+':00+07:00'),to=from+Number(days.value)*86400000;
       const validStart=Number.isFinite(from)&&from%1800000===0&&from>=Math.floor(Date.now()/1800000)*1800000&&from<=Date.now()+7*86400000
@@ -112,15 +111,12 @@
       const rows=slots().sort((x,y)=>Number(y.available)-Number(x.available)||(x.a.rates[days.value]?.price||Infinity)-(y.a.rates[days.value]?.price||Infinity)||x.a.account_id-y.a.account_id);
       const free=rows.filter(r=>r.available);count.textContent=`${free.length} ไอดีว่าง / ${rows.length} ไอดี`;
       if(!parentOrder){const b=button('',()=>{account.value='';account.dispatchEvent(new Event('change'));accounts.querySelector('.rental-account-auto')?.focus({preventScroll:true});});b.className='rental-account-choice rental-account-auto';b.setAttribute('aria-pressed',String(!account.value));b.disabled=checkoutBusy||!free.length;b.append(el('strong','ให้ระบบเลือกไอดี'),el('span','เลือกไอดีว่างราคาถูกที่สุดสำหรับช่วงเวลานี้'));accounts.append(b);}
-      let shown=expanded?rows:rows.slice(0,4);
-      const selected=rows.find(r=>String(r.a.account_id)===account.value);if(selected&&!shown.includes(selected))shown=[...shown.slice(0,3),selected];
-      for(const {a,available} of shown){
+      for(const {a,available} of rows){
         const b=button('',()=>{account.value=String(a.account_id);account.dispatchEvent(new Event('change'));accounts.querySelector('[data-account-id="'+a.account_id+'"]')?.focus({preventScroll:true});});b.className='rental-account-choice';b.setAttribute('aria-pressed',String(account.value===String(a.account_id)));b.disabled=checkoutBusy||!available||Boolean(parentOrder);
         b.dataset.accountId=a.account_id;b.dataset.available=String(Boolean(available));
         const name=el('strong',(available?'ไอดีว่าง #':'ไอดี #')+a.account_id),badge=el('span',available?'ว่าง':'ไม่ว่าง');name.prepend(icon('user'));badge.className='rental-slot-badge';b.append(name,badge,el('span',available?money(a.rates[days.value].price)+' / '+days.value+' วัน':a.rates[days.value]?'คิวชนกับช่วงที่เลือก':'ไม่มีแพ็กเกจนี้'));
         if(!available&&a.busy.length)b.append(el('small','มีคิว '+date(a.busy[0].from)));accounts.append(b);
       }
-      more.hidden=rows.length<=4;more.textContent=expanded?'แสดงไอดีน้อยลง':`ดูไอดีทั้งหมด (${rows.length})`;more.disabled=checkoutBusy;
       const chosen=free.find(r=>String(r.a.account_id)===account.value)||(!account.value?free[0]:null);
       estimate.replaceChildren(el('span',chosen?'ราคาแพ็กเกจที่เลือก':'ยังไม่มีไอดีว่างสำหรับตัวเลือกนี้'),el('strong',chosen?money(chosen.a.rates[days.value].price):'เลือกช่วงเวลาอื่น'),el('small','ราคายืนยันหลังตรวจคิว · หัก Point ได้ในขั้นตอนชำระเงิน'));
       estimate.firstChild.prepend(icon('wallet'));accounts.querySelector('.rental-account-auto strong')?.prepend(icon('shield'));

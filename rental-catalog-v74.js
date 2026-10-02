@@ -49,7 +49,7 @@
    }requirements.append(columns);
    const delivery=node('section',undefined,'rental-panel rental-delivery-guide');delivery.append(node('h2','การจัดส่งไอดีและ Steam Guard'));
    for(const [title,body] of [['01 · ชำระเงินและจองคิว','ใช้ Point หรือชำระและแนบสลิปผ่านระบบร้านเดิม ระบบจองไอดีเมื่อยืนยันชำระสำเร็จ'],['02 · เปิดไอดีเมื่อพร้อมเล่น','เข้าหน้าออเดอร์เมื่อถึงเวลาเช่า แล้วกดเปิดใช้งานเพื่อรับ Steam ID และรหัสผ่าน'],['03 · รับ Steam Guard','กดขอโค้ดในหน้าออเดอร์ได้ตลอดช่วงเช่า ไม่จำกัดจำนวนครั้ง และต่ออายุได้ก่อนหมดเวลา']]){
-     const row=node('div',undefined,'rental-delivery-step');row.append(node('strong',title),node('p',body));delivery.append(row);
+     const row=node('div',undefined,'rental-delivery-step'),label=node('strong',title);label.prepend(window.OlafRental.icon(title.startsWith('01')?'wallet':title.startsWith('02')?'key':'shield'));row.append(label,node('p',body.replace('เข้าหน้าออเดอร์','เข้าคลังสินค้า').replace('ในหน้าออเดอร์','จากคลังสินค้า')));delivery.append(row);
    }
    const contents=[description,requirements,delivery];const tabButtons=[];
    function selectTab(index){contents.forEach((n,i)=>{n.hidden=i!==index;});tabButtons.forEach((b,i)=>{b.setAttribute('aria-selected',String(i===index));b.tabIndex=i===index?0:-1;});}
@@ -60,7 +60,7 @@
      tabs.append(b);tabButtons.push(b);
    }selectTab(0);details.append(tabs,...contents);
    left.append(details);const aside=node('aside',undefined,'rental-panel rental-booking-panel');aside.id='rental-booking';layout.append(left,aside);target.append(layout);target.setAttribute('aria-busy','false');
-   for(const h of target.querySelectorAll('h2,h3'))h.prepend(window.OlafRental.icon(h.textContent.includes('ระบบ')||h.textContent.includes('Minimum')||h.textContent.includes('Recommended')?'cpu':h.textContent.includes('Guard')?'shield':'file'));recommendations(target,p);await booking();
+   for(const h of target.querySelectorAll('h2,h3'))h.prepend(window.OlafRental.icon(h.textContent.includes('Recommended')?'recommended':h.textContent.includes('Minimum')?'minimum':h.textContent.includes('ระบบ')?'cpu':h.textContent.includes('Guard')?'delivery':'file'));recommendations(target,p);await booking();
   }catch(e){target.setAttribute('aria-busy','false');target.replaceChildren(node('h1',e.code==='ORDER_NOT_FOUND'?'เกมนี้ยังไม่มีชื่อและรูปที่ยืนยันได้':'โหลดรายละเอียดเกมไม่ได้'),node('p','กรุณากลับไปเลือกเกมอื่น หรือโหลดข้อมูลใหม่ภายหลัง'));const link=node('a','กลับไปเลือกเกม','secondary-button');link.href='rentals.html';target.append(link);}}
  document.addEventListener('DOMContentLoaded',()=>{const page=document.body.dataset.rentalPage;if(page==='catalog'){$('rental-search').addEventListener('input',()=>{shownLimit=24;renderCards();});$('rental-more').onclick=async()=>{shownLimit+=24;if(pending.length)await loadBatch();else renderCards();};catalog();}if(page==='product'){product();window.addEventListener('olaf:rental-auth',booking);}});
  async function recommendations(target,current){

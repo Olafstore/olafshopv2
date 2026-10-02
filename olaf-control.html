@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="th">
-  <head><script src="site-header-refresh.js?v=20261001-rental-v73"></script>
+  <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex,nofollow" />
@@ -37,15 +37,16 @@
     <link rel="stylesheet" href="friends-premium.css?v=20260913-v258" />
   <script src="friends-social.js?v=20260913-v259" defer></script>
   <link rel="stylesheet" href="friends-layout.css?v=20260913-v259" />
+  <link rel="stylesheet" href="admin-workspace-v88.css?v=20261003-v88" />
 </head>
-  <body>
+  <body class="admin-redesign">
     <section class="admin-login-screen" id="admin-login-screen">
       <form class="admin-login-card" id="admin-login-form">
         <span class="admin-brand-mark">O</span>
-        <p class="eyebrow">Admin Secure Access</p>
-        <h1>OLAF SHOP Control Center</h1>
+        <p class="eyebrow">OLAF SHOP · ADMIN</p>
+        <h1>เข้าสู่ระบบจัดการร้านค้า</h1>
         <label>อีเมลแอดมิน <input name="email" type="email" placeholder="admin@example.com" autocomplete="email" required /></label>
-        <label>Password <input name="password" type="password" required /></label>
+        <label>รหัสผ่าน <input name="password" type="password" autocomplete="current-password" required /></label>
         <button class="primary-button" type="submit"><i data-lucide="lock-keyhole"></i> เข้าหลังบ้าน</button>
         <p class="form-message" id="admin-login-message"></p>
       </form>
@@ -64,14 +65,14 @@
         </div>
         <nav class="admin-nav" aria-label="เมนูหลังบ้าน">
           <div class="nav-section">
-            <p class="nav-section-label">Overview</p>
+            <p class="nav-section-label">ภาพรวมร้านค้า</p>
             <button class="is-active" type="button" data-panel-target="dashboard">
               <i data-lucide="layout-dashboard"></i>
               ภาพรวม
             </button>
           </div>
           <div class="nav-section">
-            <p class="nav-section-label">Commerce</p>
+            <p class="nav-section-label">สินค้าและคำสั่งซื้อ</p>
             <button type="button" data-panel-target="products">
               <i data-lucide="package"></i>
               สินค้า
@@ -82,7 +83,7 @@
             </button>
             <button type="button" data-panel-target="orders">
               <i data-lucide="receipt-text"></i>
-              Orders
+              คำสั่งซื้อ
             </button>
             <button type="button" data-panel-target="finance">
               <i data-lucide="wallet-cards"></i>
@@ -144,7 +145,7 @@
               <span>เมนู</span>
             </button>
             <div>
-              <p class="eyebrow" id="admin-panel-eyebrow">Admin Console</p>
+              <p class="eyebrow" id="admin-panel-eyebrow">พื้นที่จัดการร้านค้า</p>
               <h1 id="admin-panel-title">ภาพรวมธุรกิจ</h1>
             </div>
           </div>
@@ -160,7 +161,7 @@
             </a>
             <button class="danger-button" id="admin-logout" type="button">
               <i data-lucide="log-out"></i>
-              Logout
+              ออกจากระบบ
             </button>
           </div>
         </header>
@@ -169,9 +170,9 @@
           <section class="admin-dashboard-hero" aria-labelledby="dashboard-hero-title">
             <div class="admin-dashboard-hero-copy">
               <span class="admin-live-pill"><i data-lucide="activity"></i> ระบบพร้อมใช้งาน</span>
-              <p class="eyebrow">OLAF SHOP BUSINESS OVERVIEW</p>
-              <h2 id="dashboard-hero-title">ศูนย์ควบคุมร้านค้า</h2>
-              <p>ติดตามยอดขาย สต็อก ออเดอร์ และงานสำคัญจากหน้าจอเดียว</p>
+              <p class="eyebrow">OLAF SHOP · BUSINESS WORKSPACE</p>
+              <h2 id="dashboard-hero-title">ทุกงานของร้าน ในที่เดียว</h2>
+              <p>ตรวจสอบคำสั่งซื้อ ติดตามสินค้า และจัดการร้านค้าได้อย่างเป็นระบบ</p>
             </div>
             <div class="admin-dashboard-hero-side">
               <time id="dashboard-current-date">-</time>

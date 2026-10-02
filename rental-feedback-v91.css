@@ -1,0 +1,20 @@
+/* Motion is limited to genuine pending states, never a blocking full-page overlay. */
+.rental-site .rental-skeleton{position:relative;overflow:hidden;border:1px solid #233653;border-radius:18px;background:#101b2e;padding:0 0 24px;min-width:0}
+.rental-site .rental-skeleton-art{height:auto;aspect-ratio:460/215;background:#172842;border-radius:0}
+.rental-site .rental-skeleton-line{height:14px;margin:22px 20px 0;background:#20334f;border-radius:8px;width:calc(100% - 40px)}
+.rental-site .rental-skeleton-line.short{width:48%;margin-top:14px}
+.rental-site .rental-skeleton::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 20%,rgba(110,182,255,.13) 50%,transparent 80%);transform:translateX(-100%);animation:rental-shimmer-v91 1.8s ease-in-out infinite}
+.rental-site .rental-skeleton-art,.rental-site .rental-skeleton-line{animation:none}
+.rental-site .rental-loading-label,.rental-saved-dialog .rental-loading-label{display:flex;align-items:center;justify-content:flex-start;gap:12px;color:#a9cfff;min-height:40px}
+.rental-loading-label::before{content:"";flex:none;width:20px;height:20px;border:2px solid #294669;border-top-color:#6eb6ff;border-radius:50%;animation:rental-orbit-v91 .9s linear infinite}
+.rental-saved-dialog{box-sizing:border-box;width:min(620px,calc(100% - 32px));max-height:calc(100dvh - 40px);padding:24px;border:1px solid #31527a;border-radius:22px;background:#0d192c;color:#e4eeff;box-shadow:0 24px 90px #0008;overflow:auto}
+.rental-saved-dialog::backdrop{background:#020817bc;backdrop-filter:blur(5px)}
+.rental-saved-head{display:flex;align-items:center;justify-content:space-between;gap:16px}.rental-saved-head h2{font-size:22px;margin:0}
+.rental-saved-dialog button{min-height:44px;padding:8px 14px;border-radius:12px;border:1px solid #31527a;background:#172c48;color:#c5e2ff;cursor:pointer}
+.rental-saved-head button{font-size:25px;width:44px;padding:0;flex:none}
+.rental-saved-list{display:grid;gap:12px}.rental-saved-row{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #243c5b;border-radius:14px;background:#091323;min-width:0}
+.rental-saved-row a{display:flex;align-items:center;gap:12px;flex:1;min-width:0;color:inherit;text-decoration:none}.rental-saved-row img{width:64px;height:64px;border-radius:10px;object-fit:cover;flex:none}.rental-saved-row span{min-width:0;overflow-wrap:anywhere}.rental-saved-row strong,.rental-saved-row small{display:block}.rental-saved-row small{color:#94a9c4;margin-top:5px}.rental-saved-row button{flex:none}
+.rental-saved-dialog :focus-visible{outline:2px solid #6eb6ff;outline-offset:3px}
+@keyframes rental-shimmer-v91{to{transform:translateX(100%)}}@keyframes rental-orbit-v91{to{transform:rotate(360deg)}}
+@media(max-width:480px){.rental-saved-dialog{padding:16px}.rental-saved-row{flex-wrap:wrap}.rental-saved-row a{flex-basis:100%}.rental-saved-row button{margin-left:auto}}
+@media(prefers-reduced-motion:reduce){.rental-site .rental-skeleton::after,.rental-loading-label::before{animation:none;transform:none}}

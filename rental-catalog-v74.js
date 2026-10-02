@@ -30,10 +30,12 @@
    const price=node('strong',undefined,'rental-catalog-price'),priceText=node('span','กำลังโหลดราคา…');price.append(window.OlafRental.icon('wallet'),priceText);
    body.append(title,node('p',(p.genres||[]).slice(0,2).join(' · ')||'เกม Steam','rental-card-genres'),price);
    const cta=node('a',undefined,'rental-card-cta');cta.href=href;cta.append(window.OlafRental.icon('calendar'),node('span','เลือกแพ็กเกจเช่า'),node('span','→','rental-cta-arrow'));body.append(cta);card.append(art,body);grid.append(card);priceLabel(priceText,p);}
-  if(!visible.length)grid.append(node('p',loading?'กำลังโหลดรายการเกม…':'ไม่พบเกมที่ตรงกับคำค้นหา','rental-empty'));
+  if(loading){for(let i=0;i<(visible.length?2:6);i++){const skeleton=node('div',undefined,'rental-skeleton');skeleton.setAttribute('aria-hidden','true');skeleton.append(node('div',undefined,'rental-skeleton-art'),node('div',undefined,'rental-skeleton-line'),node('div',undefined,'rental-skeleton-line short'));grid.append(skeleton);}}
+  else if(!visible.length)grid.append(node('p','ไม่พบเกมที่ตรงกับคำค้นหา','rental-empty'));
+  $('rental-notice').classList.toggle('rental-loading-label',loading);
   $('rental-count').textContent=`${visible.length} / ${products.length} เกม`;grid.setAttribute('aria-busy',String(loading));$('rental-search-clear').hidden=!search;
  }
- async function catalog(){const token=++generation;loading=true;products=[];genre='';renderCards();
+ async function catalog(){const token=++generation;loading=true;products=[];genre='';$('rental-notice').textContent='กำลังเตรียมรายการเกมเช่า…';renderCards();
   try{const data=await window.OlafRental.api('catalog');if(token!==generation)return;
    $('rental-notice').textContent='กำลังโหลดเกมทั้งหมดและตรวจสอบข้อมูลจาก Steam…';
    const result=await verifiedGames(data.products,p=>{if(token!==generation)return;products.push(p);categoryButtons();renderCards();});

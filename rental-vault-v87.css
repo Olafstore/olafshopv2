@@ -1,0 +1,57 @@
+/* Rental delivery shares the Offline vault composition; rules stay rental-only. */
+.rental-delivery-layout {min-width:0;}
+.rental-vault .rental-topic-icon,.rental-delivery-layout .rental-topic-icon {display:inline-block!important;width:18px!important;height:18px!important;min-width:18px!important;max-width:18px!important;flex:none;object-fit:contain;vertical-align:middle;margin-right:7px;}
+.rental-delivery-layout h3 {display:flex;align-items:center;gap:0;font-size:16px;margin:0;}
+.rental-delivery-layout .supplier-vault-product {display:grid;grid-template-columns:1fr 1fr;min-height:160px;margin:10px 0;border:1px solid #3180c6;border-radius:12px;overflow:hidden;background:#081831;}
+.rental-delivery-layout .supplier-vault-product>img {width:100%;height:160px;display:block;object-fit:cover;border-right:1px solid #378ad8;}
+.rental-delivery-layout .supplier-vault-product>div {display:flex;flex-direction:column;justify-content:center;gap:10px;min-width:0;padding:16px 18px;}
+.rental-delivery-layout .supplier-vault-product:not(:has(>img))>div {grid-column:1/-1;}
+.rental-delivery-layout .supplier-vault-product p {margin:0;font-size:13px;line-height:1.5;color:#a8c3e8;overflow-wrap:anywhere;}
+.rental-delivery-layout .supplier-vault-product-name {font-weight:700;color:#eff5ff!important;}
+.rental-delivery-layout .supplier-vault-state {align-self:flex-start;padding:7px 10px;border:1px solid #006e63;border-radius:9px;background:#0049378c;color:#6cf5bd!important;font-weight:700;}
+.rental-delivery-layout .rental-access-schedule {padding:14px 16px!important;margin:10px 0!important;border:1px solid #2369aa;border-radius:12px;background:#06152b;}
+.rental-delivery-layout .rental-access-schedule p {margin:9px 0 5px;font-size:13px;line-height:1.6;}
+.rental-delivery-layout .rental-access-schedule small {display:block;font-size:10px;color:#94b0d4;overflow-wrap:anywhere;}
+.rental-delivery-layout>.rental-actions {display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
+.rental-delivery-layout>.rental-actions button {display:flex;align-items:center;justify-content:center;padding:9px 12px;min-height:38px;border:1px solid #3180c6;border-radius:9px;background:#12335d;color:#eaf6ff;font-size:12px;}
+.rental-delivery-layout>p {font-size:12px;line-height:1.65;color:#a8c3e8;margin:10px 2px;}
+.rental-delivery-layout .supplier-vault-account,.rental-delivery-layout .supplier-vault-guard {position:relative;margin:10px 0;padding:15px 16px;border:1px solid #2369aa;border-radius:12px;background:linear-gradient(145deg,#071832ef,#051227ec);}
+.rental-delivery-layout .supplier-vault-account {display:grid;gap:9px;}
+.rental-delivery-layout .rental-delivery-status {margin:0;font-size:11px;color:#94b0d4;line-height:1.5;}
+.rental-delivery-layout .rental-credential-grid {display:grid;gap:9px;margin:0;}
+.rental-delivery-layout .rental-credential-row {display:grid;grid-template-columns:18px 85px minmax(0,1fr);gap:8px;align-items:center;font-size:12px;color:#b8d0f0;padding:0;margin:0;border:0;background:transparent;}
+.rental-delivery-layout .rental-credential-row>span {grid-column:auto;}
+.rental-delivery-layout .rental-credential-row>.rental-topic-icon {margin:0;}
+.rental-delivery-layout .supplier-vault-field {display:flex;align-items:center;gap:7px;min-width:0;grid-column:3;grid-row:1;}
+.rental-delivery-layout .supplier-vault-field input {flex:1;min-width:0;width:0;height:38px;padding:8px 10px;border:1px solid #315987;border-radius:9px;background:#10223d;color:#eaf4ff;font-size:13px;box-sizing:border-box;}
+.rental-vault .supplier-vault-field input {min-height:38px!important;max-height:38px;}
+.rental-delivery-layout .supplier-vault-field button {display:flex;align-items:center;justify-content:center;gap:4px;min-width:80px;min-height:38px;padding:6px 8px;border:1px solid #4bb2fb;border-radius:9px;background:linear-gradient(120deg,#194b84,#12335d);color:#eaf6ff;font-size:12px;font-weight:700;}
+.rental-delivery-layout .supplier-vault-field button .rental-topic-icon {margin:0;width:16px!important;height:16px!important;min-width:16px!important;max-width:16px!important;}
+.rental-delivery-layout .supplier-vault-field .supplier-vault-eye {min-width:38px;width:38px;padding:6px;}
+.rental-delivery-layout .supplier-vault-account .rental-actions {display:flex;align-items:center;flex-wrap:wrap;gap:9px;margin:3px 0 0;}
+.rental-delivery-layout .supplier-vault-account .rental-actions button {min-height:38px;padding:8px 12px;border:1px solid #4bb2fb;border-radius:9px;background:linear-gradient(90deg,#079efc,#0560e5);color:white;font-size:12px;}
+.rental-delivery-layout .rental-activation-note {flex:1;min-width:130px;font-size:10px;line-height:1.6;color:#94b0d4;}
+.rental-delivery-layout .supplier-vault-guard {border-color:#1689ed;box-shadow:0 0 18px #008efa36;}
+.rental-delivery-layout .supplier-vault-guard>p:not(.supplier-vault-guard-note) {position:static;margin:6px 0;color:#88a5cc;font-size:11px;line-height:1.6;}
+.rental-delivery-layout .supplier-vault-guard [data-guard-start] {position:relative;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:50px;margin:12px 0 7px;border:2px solid #56d8ff;border-radius:9px;background:linear-gradient(90deg,#079efc,#0560e5);color:#fff;font-size:16px;font-weight:800;box-shadow:0 0 12px #06a5ff80;}
+.rental-delivery-layout [data-guard-start] .rental-topic-icon:first-child {filter:invert(1);}
+.rental-delivery-layout [data-guard-start] .rental-topic-icon:last-child {position:absolute;right:14px;margin:0;}
+.rental-delivery-layout .supplier-vault-guard-note {display:flex;align-items:center;margin:0;padding:9px;border:1px solid #185291;border-radius:8px;background:#061936;color:#94b0d4;font-size:11px;line-height:1.55;}
+.rental-delivery-layout button:focus-visible {outline:2px solid #8fe4ff;outline-offset:3px;}
+.rental-vault [data-rental-status]:empty {display:none;}
+.rental-vault [data-rental-status]:not(:empty) {font-size:12px;line-height:1.6;overflow-wrap:anywhere;}
+.rental-vault .supplier-vault-footer button {border-radius:10px;color:#eaf6ff;}
+@media(max-width:560px){
+ .rental-delivery-layout .supplier-vault-product {min-height:116px;}
+ .rental-delivery-layout .supplier-vault-product>img {height:116px;}
+ .rental-delivery-layout .supplier-vault-product>div {padding:10px;gap:6px;}
+ .rental-delivery-layout .supplier-vault-product p {font-size:11px;}
+ .rental-delivery-layout .supplier-vault-account,.rental-delivery-layout .supplier-vault-guard {padding:13px 12px;}
+ .rental-delivery-layout .rental-credential-row {grid-template-columns:16px 61px minmax(0,1fr);gap:5px;font-size:11px;}
+ .rental-delivery-layout .supplier-vault-field {gap:5px;}
+ .rental-delivery-layout .supplier-vault-field button {min-width:32px;padding:6px;font-size:0;}
+ .rental-vault .supplier-vault-field button {font-size:0!important;}
+ .rental-delivery-layout .supplier-vault-field .supplier-vault-eye {width:32px;min-width:32px;}
+ .rental-delivery-layout .supplier-vault-field input {padding:6px;font-size:12px;}
+ .rental-delivery-layout h3 {font-size:14px;}
+}

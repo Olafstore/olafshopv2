@@ -7,7 +7,8 @@
   document.addEventListener('olaf:rental-checkout-presented',event=>{const key=checkoutKeys.get(event.detail?.orderId);if(key){try{sessionStorage.removeItem(key);}catch{}checkoutKeys.delete(event.detail.orderId);}});
   function icon(kind='gamepad'){
     const names={gamepad:'gamepad-2',user:'user-round',calendar:'calendar-days',wallet:'wallet-cards',clock:'clock-3',shield:'shield-check',file:'file-text',cpu:'cpu',minimum:'memory-stick',recommended:'monitor-check',delivery:'package-check',key:'key-round',guide:'book-open-check'};
-    const img=el('img');img.src='https://api.iconify.design/lucide/'+(names[kind]||names.gamepad)+'.svg?color=%236eb6ff';img.className='rental-topic-icon';img.alt='';img.width=18;img.height=18;img.decoding='async';img.referrerPolicy='no-referrer';img.setAttribute('aria-hidden','true');img.addEventListener('error',()=>{img.style.visibility='hidden';},{once:true});return img;
+    Object.assign(names,{lock:'lock-keyhole',eye:'eye',copy:'copy',chevron:'chevron-right',info:'info',refresh:'refresh-cw'});
+    const img=el('img');img.src=kind==='steam'?'https://cdn.jsdelivr.net/npm/simple-icons@v14/icons/steam.svg':'https://api.iconify.design/lucide/'+(names[kind]||names.gamepad)+'.svg?color=%236eb6ff';img.className='rental-topic-icon';img.alt='';img.width=18;img.height=18;img.decoding='async';img.referrerPolicy='no-referrer';img.setAttribute('aria-hidden','true');img.addEventListener('error',()=>{img.style.visibility='hidden';},{once:true});return img;
   }
   const errors={AUTH_REQUIRED:'กรุณาเข้าสู่ระบบผ่านหน้าบัญชีของฉันก่อน',RENTAL_DISABLED:'ร้านยังไม่เปิดระบบเช่า',INVALID_START_AT:'เลือกเวลาเริ่มทุกนาที 00 หรือ 30 ภายใน 7 วัน',
     SLOT_UNAVAILABLE:'ช่วงเวลานี้ถูกจองแล้ว กรุณาโหลดคิวใหม่และเลือกอีกครั้ง',DURATION_UNAVAILABLE:'ไอดีนี้ไม่มีระยะเวลาเช่าที่เลือก',SUPPLIER_PRICE_CHANGED:'ราคา/ไอดีว่างเปลี่ยนแล้ว กรุณาตรวจราคาใหม่',
@@ -179,7 +180,8 @@
   }
   async function renderOrder(order){
     clearSecrets();const version=++orderEpoch;const box=$('rental-order');box.hidden=false;box.replaceChildren();
-    const summary=el('section');summary.className='supplier-vault-product';const info=el('div');info.append(el('h3',order.name),el('p','เช่าไอดี Steam'),el('p',order.paymentStatus==='verified'?'ชำระเงินแล้ว':'รอชำระเงิน'));summary.append(info);box.append(summary);
+    box.classList.add('rental-delivery-layout');
+    const summary=el('section');summary.className='supplier-vault-product';const info=el('div');const productName=el('p','ชื่อสินค้า : '+order.name);productName.className='supplier-vault-product-name';const productState=el('p',order.canPlay?'● พร้อมรับสินค้า':order.paymentStatus==='verified'?'● ชำระเงินแล้ว':'รอชำระเงิน');productState.className='supplier-vault-state';info.append(productName,el('p','หมวดหมู่ : เช่าไอดี Steam'),productState);summary.append(info);box.append(summary);
     api('product',undefined,{productId:order.productId}).then(p=>{if(version!==orderEpoch||!summary.isConnected)return;const image=el('img');image.src=p.image;image.alt=p.name;image.onerror=()=>image.remove();summary.prepend(image);}).catch(()=>{});
     const schedule=el('section');schedule.className='rental-access-schedule';schedule.append(el('h3','ช่วงเวลาที่เข้าไอดีและรับ Steam Guard ได้'),el('p',`${date(order.startAt)} – ${date(order.endAt)}`),el('small','เวลาไทย UTC+7 · '+order.orderNumber));box.append(schedule);
     if(document.body.dataset.rentalPage==='order'){box.scrollIntoView({behavior:'smooth',block:'start'});history.replaceState(null,'',`rental-order.html?order=${encodeURIComponent(order.id)}`);}
@@ -193,16 +195,16 @@
     if(order.needsSupport)box.append(el('p','ชำระเงินแล้ว แต่ยังยืนยันการจอง/ต่ออายุไม่ได้ กรุณาติดต่อร้านพร้อมหมายเลขออเดอร์ ห้ามโอนซ้ำ'));
     if(order.state==='reserved')box.append(el('p',order.canPlay?'อยู่ในช่วงเช่า กดเปิดใช้งานเมื่อพร้อมเล่น':Date.now()<Date.parse(order.startAt)?'จองสำเร็จ รอถึงเวลาเริ่มเช่าแล้วโหลดสถานะใหม่':'ต่ออายุสำเร็จ หรือสิ้นสุดช่วงเวลาเช่าแล้ว'));
     if(order.canPlay){
-      const delivery=el('section');delivery.className='rental-access-card';delivery.append(el('h3','ไอดี Steam ของคุณ'),el('p','ข้อมูลบัญชีโหลดให้อัตโนมัติ รหัสผ่านเริ่มแบบซ่อน เปิดใช้งานเมื่อคุณพร้อมเล่นเท่านั้น'));const deliveryStatus=el('p','กำลังโหลดข้อมูลบัญชี…');deliveryStatus.className='rental-delivery-status';deliveryStatus.setAttribute('role','status');delivery.append(deliveryStatus);
+      const delivery=el('section');delivery.className='supplier-vault-account';const accountHeading=el('h3','ข้อมูลบัญชีผู้ใช้');accountHeading.prepend(icon('key'));delivery.append(accountHeading);const deliveryStatus=el('p','กำลังโหลดข้อมูลบัญชี…');deliveryStatus.className='rental-delivery-status';deliveryStatus.setAttribute('role','status');delivery.append(deliveryStatus);
       const deliveryActions=el('div');deliveryActions.className='rental-actions';delivery.append(deliveryActions);box.append(delivery);
-      const guard=el('section');guard.className='rental-access-card rental-guard-card';const guardHeading=el('h3','Steam Guard'),guardHint=el('p','รับรหัสยืนยันสำหรับไอดีนี้ · แสดงเวลาที่เหลือและซ่อนเมื่อหมดอายุ');guard.append(guardHeading,guardHint);box.append(guard);
+      const guard=el('section');guard.className='supplier-vault-guard';const guardHeading=el('h3','Steam Guard'),guardHint=el('p','รับรหัสยืนยันสำหรับไอดีนี้ · แสดงเวลาที่เหลือและซ่อนเมื่อหมดอายุ');guardHeading.prepend(icon('shield'));guard.append(guardHeading,guardHint);box.append(guard);
       const reveal=async(action)=>{clearSecrets();const token=secretEpoch;const result=await api(action,{orderId:order.id});
         if(token!==secretEpoch||document.hidden||version!==orderEpoch||Date.now()>=Date.parse(result.endAt))return;
         const credentials=el('div');credentials.dataset.rentalSecret='';credentials.className='rental-credential-grid';
         for(const [label,value] of [['Steam ID',result.account.username],['รหัสผ่าน',result.account.password]]){
-          const row=el('label');row.className='rental-credential-row supplier-vault-field';const input=el('input');input.readOnly=true;input.value=value;input.type=label==='Steam ID'?'text':'password';input.setAttribute('aria-label',label);row.append(el('span',label),input);
-          if(label!=='Steam ID')row.append(button('แสดง',b=>{const show=input.type==='password';input.type=show?'text':'password';b.textContent=show?'ซ่อน':'แสดง';b.setAttribute('aria-pressed',String(show));}));row.append(button('คัดลอก',async()=>{await navigator.clipboard.writeText(value);notice('คัดลอก '+label+' แล้ว');}));credentials.append(row);
-        }delivery.append(credentials);deliveryStatus.textContent='พร้อมรับข้อมูล · ใช้ได้เฉพาะช่วงเวลาเช่า';
+          const row=el('label');row.className='rental-credential-row';const field=el('div');field.className='supplier-vault-field';const input=el('input');input.readOnly=true;input.value=value;input.type=label==='Steam ID'?'text':'password';input.autocomplete='off';input.setAttribute('aria-label',label);row.append(icon(label==='Steam ID'?'user':'lock'),el('span',label),field);field.append(input);
+          if(label!=='Steam ID'){const eye=button('',b=>{const show=input.type==='password';input.type=show?'text':'password';b.setAttribute('aria-label',show?'ซ่อนรหัสผ่าน':'แสดงรหัสผ่าน');b.setAttribute('aria-pressed',String(show));});eye.className='supplier-vault-eye';eye.setAttribute('aria-label','แสดงรหัสผ่าน');eye.setAttribute('aria-pressed','false');eye.append(icon('eye'));field.append(eye);}const copy=button('คัดลอก',async()=>{await navigator.clipboard.writeText(value);notice('คัดลอก '+label+' แล้ว');});copy.setAttribute('aria-label','คัดลอก '+label);copy.prepend(icon('copy'));field.append(copy);credentials.append(row);
+        }delivery.insertBefore(credentials,deliveryActions);deliveryStatus.textContent='พร้อมรับข้อมูล · ใช้ได้เฉพาะช่วงเวลาเช่า';
         secretTimer=setTimeout(clearSecrets,Math.max(0,Math.min(Date.parse(result.endAt)-Date.now(),300000)));};
       deliveryActions.append(button('เปิดใช้งานเมื่อพร้อมเล่น',()=>reveal('activate'),true));
       reveal('delivery').catch(e=>{if(version===orderEpoch&&delivery.isConnected)deliveryStatus.textContent=e.code==='RENTAL_RESULT_UNKNOWN'?'บัญชียังไม่พร้อมแสดง กดเปิดใช้งานเมื่อคุณพร้อมเล่น หรือลองโหลดสถานะใหม่':(errors[e.code]||'โหลดข้อมูลบัญชีไม่ได้ กรุณาลองโหลดสถานะใหม่');});
@@ -210,9 +212,11 @@
           clearTimeout(codeTimer);clearInterval(guardTickTimer);document.querySelector('[data-rental-code]')?.remove();const expires=Date.now()+Math.min(result.validForSeconds*1000,Math.max(0,Date.parse(order.endAt)-Date.now()));if(expires<=Date.now()){guardHint.textContent='รหัสหมดอายุแล้ว กรุณาขอใหม่';return;}
           const code=el('div');code.className='rental-guard-code';code.dataset.rentalSecret='';code.dataset.rentalCode='';const value=el('strong',result.code),countdown=el('span');countdown.className='rental-guard-countdown';code.append(value,countdown,button('คัดลอกรหัส',async()=>{if(Date.now()>=expires)return;await navigator.clipboard.writeText(result.code);notice('คัดลอกรหัส Steam Guard แล้ว');}));guard.append(code);
           const tick=()=>{const remaining=Math.max(0,Math.ceil((expires-Date.now())/1000));countdown.textContent='ใช้ได้อีก '+remaining+' วินาที';if(!remaining){code.remove();clearInterval(guardTickTimer);guardHint.textContent='รหัสหมดอายุแล้ว กรุณาขอ Steam Guard ใหม่';}};tick();guardTickTimer=setInterval(tick,250);codeTimer=setTimeout(tick,Math.max(0,expires-Date.now()));},true));
-      actions.append(button('ต่ออายุ',()=>renewOrder(order)));
+      const guardButton=guard.querySelector('button');guardButton.dataset.guardStart='';guardButton.prepend(icon('steam'));guardButton.append(icon('chevron'));const guardNote=el('p','รหัสจะแสดงตามเวลาที่กำหนดและซ่อนเมื่อหมดอายุ กรุณาเก็บข้อมูลบัญชีเป็นความลับ');guardNote.className='supplier-vault-guard-note';guardNote.prepend(icon('info'));guard.append(guardNote);
+      const activationNote=el('small','กดเปิดใช้งานเฉพาะเมื่อพร้อมเล่น โดยใช้ได้ภายในช่วงเวลาเช่าเท่านั้น');activationNote.className='rental-activation-note';deliveryActions.append(activationNote);
+      const renewal=button('ต่ออายุ',()=>renewOrder(order));renewal.prepend(icon('calendar'));actions.append(renewal);
     }
-    box.querySelectorAll('h3').forEach((h,i)=>h.prepend(icon(['gamepad','clock','user','shield'][i%4])));
+    schedule.querySelector('h3').prepend(icon('clock'));actions.firstElementChild.prepend(icon('refresh'));
   }
   async function openInventory(id){
     document.querySelectorAll('.rental-vault').forEach(d=>{d.close();d.remove();});clearSecrets();
@@ -220,7 +224,8 @@
     const header=el('div');header.className='supplier-vault-header';const emblem=el('span');emblem.className='supplier-steam-emblem';const mark=el('img');mark.src='https://cdn.jsdelivr.net/npm/simple-icons@v14/icons/steam.svg';mark.alt='';emblem.append(mark);header.append(emblem,el('h2','รับข้อมูลสินค้า Steam · เช่า'));
     const close=button('×',()=>{orderEpoch++;clearSecrets();dialog.close();});close.className='supplier-vault-close';close.setAttribute('aria-label','ปิด');
     const feedback=el('p');feedback.dataset.rentalStatus='';feedback.setAttribute('role','status');feedback.setAttribute('aria-live','polite');
-    const box=el('div');box.id='rental-order';box.append(el('p','กำลังโหลดข้อมูล…'));dialog.append(close,header,feedback,box);dialog.addEventListener('close',()=>{orderEpoch++;clearSecrets();dialog.remove();});document.body.append(dialog);dialog.showModal();
+    const subtitle=el('p','รับไอดี รหัสผ่าน และ Steam Guard ภายในช่วงเวลาเช่าของคุณ');subtitle.className='supplier-vault-subtitle';const footer=el('div');footer.className='supplier-vault-footer';const footerNote=el('span','เช่าไอดีตามเวลา · ไม่ใช่การซื้อขาด');footerNote.prepend(icon('clock'));footer.append(footerNote,button('ปิด',()=>{orderEpoch++;clearSecrets();dialog.close();}));
+    const box=el('div');box.id='rental-order';box.append(el('p','กำลังโหลดข้อมูล…'));dialog.append(close,header,subtitle,feedback,box,footer);dialog.addEventListener('close',()=>{orderEpoch++;clearSecrets();dialog.remove();});document.body.append(dialog);dialog.showModal();
     const token=orderEpoch;try{const order=await api('order',undefined,{orderId:id});if(!dialog.open||token!==orderEpoch)return;await renderOrder(order);}catch(e){if(dialog.open)box.replaceChildren(el('p',errors[e.code]||'โหลดข้อมูลไม่ได้ กรุณาลองใหม่'));}
   }
   async function loadInventory(){const token=epoch;try{const orders=await api('orders');const catalog=await api('catalog').catch(()=>({products:[]}));for(const p of catalog.products||[])if(p.mediaStatus==='ready'&&p.image)rentalImages.set(String(p.id),p.image);

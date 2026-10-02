@@ -28,7 +28,7 @@
 <script src="rental-payment-v74.js?v=20261001-v74" defer></script>
 <script src="rental-catalog-v74.js?v=20261001-v74" defer></script>
 </head>
-<body class="rental-site" data-rental-page="catalog"><div class="page">
+<body class="rental-site" data-rental-page="product"><div class="page">
 <header class="topbar">
       <a class="brand" href="index.html" aria-label="OLAF SHOP">
         <span class="brand-mark">O</span>
@@ -98,11 +98,9 @@
         </a>
       </div>
     </header>
-<main id="rental-main"><section class="rental-hero"><div><span class="rental-kicker">STEAM RENTAL</span><h1>เกมที่อยากเล่น<br><span>ในเวลาของคุณ</span></h1><p>เลือกเกมและแพ็กเกจเช่า ตรวจคิวว่าง แล้วเริ่มเล่นในช่วงเวลาที่เลือก</p><a class="primary-button" href="#games">เลือกเกม <span aria-hidden="true">↗</span></a><div class="rental-hero-meta"><span>เริ่มทุก 30 นาที</span><span>จองล่วงหน้า 7 วัน</span><span>ขอ Steam Guard ได้</span></div></div><div class="rental-hero-note"><i data-lucide="gamepad-2"></i><strong>เช่าตามเวลา ไม่ใช่ซื้อขาด</strong><p>จองหลังตรวจชำระสำเร็จ<br>กดเปิดใช้งานเมื่อถึงเวลาและพร้อมเล่น</p></div></section>
-<section id="games"><div class="rental-section-head"><div><span class="rental-kicker">เลือกการผจญภัยครั้งต่อไป</span><h2>เกมเช่าทั้งหมด <small id="rental-count"></small></h2></div><label class="rental-search">ค้นหาเกม<input id="rental-search" type="search" placeholder="ค้นหาชื่อเกมบน Steam…"></label></div>
-<div id="rental-categories" class="rental-categories" aria-label="กรองหมวดหมู่"></div>
-<p id="rental-notice" role="status" aria-live="polite">กำลังตรวจสอบข้อมูลเกม…</p>
-<div id="rental-grid" class="rental-grid" aria-busy="true"><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton" aria-hidden="true"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div></div><button id="rental-more" class="secondary-button" type="button" hidden>ดูเกมเพิ่มเติม</button></section></main>
+<main id="rental-main"><nav class="rental-breadcrumb" aria-label="เส้นทาง"><a href="index.html">หน้าหลัก</a><span>/</span><a href="rentals.html">เช่าเกม</a><span>/</span><span id="rental-crumb-title">รายละเอียดเกม</span></nav>
+<p id="rental-notice" role="status" aria-live="polite">กำลังโหลดรายละเอียดเกม…</p>
+<div id="rental-product" aria-busy="true"><div class="rental-product-skeleton" role="status"><div class="rental-skeleton"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><div class="rental-skeleton"><div class="rental-skeleton-art"></div><div class="rental-skeleton-line"></div><div class="rental-skeleton-line short"></div></div><span>กำลังเตรียมข้อมูลเกมและแพ็กเกจเช่า</span></div></div></main>
 <footer class="site-footer">
       <div class="footer-grid">
         <div class="footer-brand">

@@ -2,7 +2,7 @@
   "cleanUrls": false,
   "trailingSlash": false,
   "functions": {
-    "api/admin-supplier.js": {"maxDuration": 60},
+    "api/admin-supplier.js": {"maxDuration": 60,"includeFiles":"assets/supplier-steam-media-v18.json"},
     "api/friend-image.js": {"maxDuration": 40},
     "api/product-page.js": {"includeFiles": "product.html", "maxDuration": 15},
     "api/sitemap.js": {"maxDuration": 60},

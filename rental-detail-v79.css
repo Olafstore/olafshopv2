@@ -1,0 +1,94 @@
+/* Rental detail v79. Scoped to the rental detail page; main site chrome is unchanged. */
+html[data-site-theme=light] .rental-site #rental-main,html[data-site-theme=light] .rental-site .rental-booking-dialog {--bg:#f0f5fc;--bg-card:#fff;--bg-card-hover:#eaf2ff;--bg-elevated:#e2ebf8;--border:#ceddf0;--border-hover:#abc5e5;--text:#20344f;--text-secondary:#405675;--brand-hover:#164d8f;color:var(--text);}
+html[data-site-theme=light] .rental-site #rental-main .rental-package-choice[aria-pressed=true],html[data-site-theme=light] .rental-site .rental-booking-dialog .rental-package-choice[aria-pressed=true] {background:linear-gradient(140deg,#e0edff,#f0f5fc);}
+html[data-site-theme=light] .rental-site #rental-main button.primary,html[data-site-theme=light] .rental-site .rental-booking-dialog button.primary {color:#fff;}
+.rental-site[data-rental-page="product"] #rental-main {max-width:1320px;margin-top:24px;}
+.rental-site[data-rental-page="product"] .rental-breadcrumb {margin:0 0 20px;font-size:12px;}
+.rental-site[data-rental-page="product"] .rental-product-layout {grid-template-columns:minmax(0,1.12fr) minmax(390px,.88fr);gap:24px;align-items:start;}
+.rental-site[data-rental-page="product"] .rental-product-content {display:grid;gap:20px;}
+.rental-site[data-rental-page="product"] .rental-gallery {padding:24px;background:var(--bg-card);border-radius:20px;}
+.rental-site .rental-game-heading {margin-bottom:20px;}
+.rental-site .rental-game-heading h1 {font-size:clamp(26px,3vw,38px);line-height:1.25;margin:10px 0 14px;letter-spacing:-.5px;}
+.rental-site .rental-genre-chips {display:flex;flex-wrap:wrap;gap:7px;}
+.rental-site .rental-genre-chips span {font-size:11px;color:var(--text-secondary);border:1px solid var(--border);border-radius:20px;padding:4px 10px;background:var(--bg);}
+.rental-site[data-rental-page="product"] .rental-game-cover {aspect-ratio:460/215;border-radius:12px;object-fit:contain;background:var(--bg);}
+.rental-site[data-rental-page="product"] .rental-thumbnails {padding:3px 0 8px;margin-top:12px;gap:9px;scrollbar-width:thin;}
+.rental-site[data-rental-page="product"] #rental-main .rental-thumbnails button {flex:0 0 76px;height:auto;min-height:0;border-radius:8px;border:2px solid transparent;background:var(--bg);padding:0;}
+.rental-site[data-rental-page="product"] #rental-main .rental-thumbnails button[aria-pressed=true] {border-color:var(--brand-hover);}
+.rental-site .rental-game-facts {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px;padding-top:18px;border-top:1px solid var(--border);}
+.rental-site .rental-game-facts>div {display:grid;gap:5px;}
+.rental-site .rental-game-facts strong {font-size:12px;color:var(--text);}
+.rental-site .rental-game-facts span {font-size:11px;color:var(--text-secondary);}
+.rental-site[data-rental-page="product"] .rental-booking-panel {grid-row:auto;position:static;padding:26px;border-radius:20px;background:var(--bg-card);}
+.rental-site .rental-booking-panel h2 {font-size:23px;line-height:1.4;margin:0;padding:0;border:0;}
+.rental-site .rental-booking-intro {margin:8px 0 0;font-size:12px!important;}
+.rental-site .rental-fields {gap:12px;margin:24px 0 16px;}
+.rental-site .rental-fields h3 {margin:8px 0 0;font-size:13px;line-height:1.5;}
+.rental-site .rental-fields .rental-start-field {font-size:13px;color:var(--text);gap:10px;}
+.rental-site .rental-fields .rental-start-field input {height:48px;padding:12px 14px;border-radius:10px;}
+.rental-site .rental-time-note {font-size:11px;line-height:1.6;color:var(--text-secondary);}
+.rental-site .rental-time-quick {display:flex;gap:8px;}
+.rental-site #rental-main .rental-time-quick button,.rental-site .rental-booking-dialog .rental-time-quick button {min-height:34px;height:auto;padding:6px 12px;border-radius:20px;font-size:11px;background:var(--bg);}
+.rental-site .rental-package-grid {grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+.rental-site #rental-main .rental-package-choice,.rental-site .rental-booking-dialog .rental-package-choice {height:auto;min-height:90px;grid-auto-rows:max-content;align-content:center;gap:8px;padding:16px 12px;border-radius:12px;white-space:normal;line-height:1.45;}
+.rental-site .rental-package-choice strong {font-size:20px;}
+.rental-site .rental-package-choice span {font-size:11px;}
+.rental-site #rental-main .rental-package-choice[aria-pressed=true],.rental-site .rental-booking-dialog .rental-package-choice[aria-pressed=true] {background:linear-gradient(140deg,var(--brand-strong),var(--bg-elevated));border-color:var(--brand-hover);box-shadow:inset 0 0 0 1px var(--brand-hover);}
+.rental-site .rental-choice-heading {display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-top:6px;}
+.rental-site .rental-choice-heading h3 {margin:0;}
+.rental-site .rental-availability-count {font-size:11px;color:var(--brand-hover);}
+.rental-site .rental-account-grid {grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:max-content;align-content:start;gap:10px;max-height:none;overflow:visible;padding:0;}
+.rental-site #rental-main .rental-account-choice,.rental-site .rental-booking-dialog .rental-account-choice {position:relative;height:auto;min-height:94px;grid-template-columns:minmax(0,1fr) auto;grid-auto-rows:max-content;align-content:start;align-items:start;gap:8px;padding:14px;border-radius:12px;line-height:1.55;white-space:normal;overflow-wrap:anywhere;background:var(--bg);box-shadow:none;}
+.rental-site .rental-account-choice strong {font-size:12px;line-height:1.55;min-width:0;}
+.rental-site .rental-account-choice>span:not(.rental-slot-badge),.rental-site .rental-account-choice small {grid-column:1/-1;font-size:11px;line-height:1.6;color:var(--text-secondary);}
+.rental-site .rental-account-choice .rental-slot-badge {font-size:10px;line-height:1.4;padding:3px 7px;border-radius:20px;background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-secondary);}
+.rental-site .rental-account-choice[data-available=true] .rental-slot-badge {color:var(--brand-hover);border-color:var(--border-hover);}
+.rental-site #rental-main .rental-account-choice:disabled,.rental-site .rental-booking-dialog .rental-account-choice:disabled {opacity:1;color:var(--text-secondary);border-style:dashed;cursor:not-allowed;background:var(--bg);box-shadow:none;}
+.rental-site #rental-main .rental-account-choice[aria-pressed=true],.rental-site .rental-booking-dialog .rental-account-choice[aria-pressed=true] {background:var(--bg-elevated);border:1px solid var(--brand-hover);box-shadow:inset 3px 0 0 var(--brand-hover);}
+.rental-site #rental-main .rental-account-auto,.rental-site .rental-booking-dialog .rental-account-auto {grid-column:1/-1;min-height:74px;padding:14px 16px;}
+.rental-site .rental-account-auto strong:before {content:'✓';display:inline-grid;place-items:center;margin-right:9px;width:20px;height:20px;border-radius:50%;background:var(--brand-strong);color:white;font-size:11px;}
+.rental-site #rental-main .rental-account-more,.rental-site .rental-booking-dialog .rental-account-more {height:auto;min-height:34px;font-size:11px;border:0;background:transparent;color:var(--brand-hover);padding:4px;}
+.rental-site .rental-account-more[hidden] {display:none!important;}
+.rental-site .rental-estimate {display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:6px 10px;margin-top:8px;padding:16px;border:1px solid var(--border);border-radius:12px;background:var(--bg);}
+.rental-site .rental-estimate>span {font-size:12px;color:var(--text-secondary);}
+.rental-site .rental-estimate strong {font-size:23px;color:var(--brand-hover);}
+.rental-site .rental-estimate small {grid-column:1/-1;color:var(--text-secondary);font-size:10px;line-height:1.6;}
+.rental-site .rental-fields details {max-height:260px;overflow:auto;border:0;border-top:1px solid var(--border);border-radius:0;padding:14px 0 0;background:transparent;font-size:11px;line-height:1.8;}
+.rental-site .rental-fields details p {font-size:11px;}
+.rental-site .rental-booking-panel>button {min-height:46px;border-radius:12px;font-size:13px;}
+.rental-site .rental-consent {margin:16px 0;font-size:11px;gap:10px;line-height:1.8;}
+.rental-site .rental-inline-status {font-size:12px!important;line-height:1.8!important;margin:12px 0;overflow-wrap:anywhere;}
+.rental-site .rental-inline-status:empty {display:none;}
+.rental-site .rental-booking-empty {padding:20px;margin:20px 0;border:1px dashed var(--border-hover);border-radius:12px;background:var(--bg);}
+.rental-site .rental-booking-empty h3 {font-size:16px;margin:0 0 10px;}
+.rental-site .rental-booking-empty p {font-size:12px;line-height:1.8;}
+.rental-site .rental-summary {background:var(--bg-elevated);padding:18px;border-radius:12px;}
+.rental-site .rental-summary strong {font-size:19px;line-height:1.6;}
+.rental-site[data-rental-page="product"] .rental-information {margin:0;padding:0;border-radius:20px;overflow:hidden;background:var(--bg-card);}
+.rental-site .rental-info-tabs {display:flex;gap:6px;padding:12px 18px;border-bottom:1px solid var(--border);overflow-x:auto;}
+.rental-site #rental-main .rental-info-tabs button {flex:none;background:transparent;border:0;border-radius:10px;padding:12px 16px;color:var(--text-secondary);font-size:13px;min-height:44px;}
+.rental-site #rental-main .rental-info-tabs button[aria-selected=true] {background:var(--bg-elevated);color:var(--brand-hover);}
+.rental-site .rental-info-content {padding:28px;}
+.rental-site .rental-info-content[hidden] {display:none!important;}
+.rental-site .rental-info-content h2 {border:0;padding:0;margin:0 0 16px;font-size:18px;}
+.rental-site .rental-description {display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:5;line-clamp:5;max-height:calc(1.9em * 5);overflow:hidden;line-height:1.9!important;font-size:14px!important;margin:0!important;}
+.rental-site .rental-source-link {display:inline-block;margin-top:16px;color:var(--brand-hover);font-size:12px;}
+.rental-site .rental-info-content .rental-requirements {gap:18px;}
+.rental-site .rental-spec-card {border-radius:12px;}
+.rental-site .rental-delivery-guide {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;}
+.rental-site .rental-delivery-guide h2 {grid-column:1/-1;margin-bottom:0;}
+.rental-site .rental-delivery-step {padding:20px!important;border:1px solid var(--border)!important;border-radius:12px;background:var(--bg);}
+.rental-site .rental-delivery-step p {font-size:12px;}
+.rental-site[data-rental-page="product"] .rental-recommendations {padding:24px;border-radius:20px;background:var(--bg-card);}
+.rental-site[data-rental-page="product"] .rental-recommendations h2 {border:0;padding:0;margin-bottom:6px;}
+.rental-site[data-rental-page="product"] .rental-recommendations>p {margin:0 0 20px;font-size:12px;}
+.rental-site[data-rental-page="product"] .rental-recommended-card strong {display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;}
+.rental-site[data-rental-page="product"] .rental-recommendations .rental-grid {grid-template-columns:repeat(4,minmax(0,1fr));}
+.rental-site .rental-checkout-dialog {border-radius:20px;}
+.rental-site .rental-checkout-dialog h2 {font-size:24px;}
+.rental-site .rental-checkout-dialog .rental-summary p {font-size:12px;line-height:1.7;}
+.rental-site .rental-checkout-dialog .rental-actions button {height:auto;min-height:46px;border-radius:10px;}
+@media(max-width:1080px){.rental-site[data-rental-page="product"] .rental-product-layout {grid-template-columns:minmax(0,1fr) minmax(350px,.92fr);gap:18px;}.rental-site[data-rental-page="product"] .rental-gallery,.rental-site[data-rental-page="product"] .rental-booking-panel {padding:20px;}.rental-site .rental-game-facts {grid-template-columns:1fr;gap:10px;}.rental-site .rental-game-facts>div {display:flex;justify-content:space-between;gap:10px;}}
+@media(max-width:800px){.rental-site[data-rental-page="product"] .rental-product-layout {grid-template-columns:1fr;}.rental-site[data-rental-page="product"] .rental-product-content {display:block;}.rental-site[data-rental-page="product"] .rental-booking-panel {grid-row:auto;}.rental-site .rental-game-facts {grid-template-columns:repeat(3,minmax(0,1fr));}.rental-site .rental-game-facts>div {display:grid;gap:5px;}.rental-site .rental-delivery-guide {grid-template-columns:1fr;}.rental-site .rental-info-content {padding:22px;}.rental-site[data-rental-page="product"] .rental-recommendations .rental-grid {grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:480px){.rental-site[data-rental-page="product"] #rental-main {width:calc(100% - 24px);margin-top:18px;}.rental-site[data-rental-page="product"] .rental-gallery,.rental-site[data-rental-page="product"] .rental-booking-panel {padding:18px;border-radius:16px;}.rental-site .rental-game-heading h1 {font-size:27px;}.rental-site .rental-game-facts {gap:10px;}.rental-site .rental-game-facts strong {font-size:11px;}.rental-site .rental-game-facts span {font-size:10px;}.rental-site .rental-package-grid {grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;}.rental-site #rental-main .rental-package-choice {padding:12px 8px;min-height:82px;}.rental-site .rental-package-choice strong {font-size:18px;}.rental-site .rental-package-choice span {font-size:10px;}.rental-site #rental-main .rental-account-choice {padding:12px 10px;}.rental-site .rental-account-choice strong {font-size:11px;}.rental-site .rental-account-choice .rental-slot-badge {font-size:9px;padding:3px 5px;}.rental-site .rental-estimate {padding:14px;}.rental-site .rental-estimate strong {font-size:21px;}.rental-site .rental-info-tabs {padding:10px;gap:4px;}.rental-site #rental-main .rental-info-tabs button {padding:10px 12px;font-size:11px;}.rental-site .rental-info-content {padding:20px;}.rental-site[data-rental-page="product"] .rental-recommendations {padding:18px;}.rental-site .rental-recommended-card strong {font-size:13px;}}
+@media(prefers-reduced-motion:reduce){.rental-site .rental-product-layout * {scroll-behavior:auto!important;transition:none!important;}}

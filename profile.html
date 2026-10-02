@@ -25,11 +25,12 @@
   <script src="supplier-catalog.js?v=20260925-v18" defer></script>
   <script src="order-action-popup.js?v=20260621-order-animation" defer></script>
   <link rel="stylesheet" href="checkout-visual-fix.css?v=20260929-v61">
-  <link rel="stylesheet" href="rental-detail-v79.css?v=20261002-rental-v83">
-<link rel="stylesheet" href="rental-detail-v81.css?v=20261002-rental-v83">
-<link rel="stylesheet" href="rental-detail-v82.css?v=20261002-rental-v83">
-  <script src="rental-store.js?v=20261002-rental-v83" defer></script>
-  <script src="rental-native-v80.js?v=20261002-rental-v83" defer></script>
+  <link rel="stylesheet" href="rental-detail-v79.css?v=20261002-rental-v84">
+<link rel="stylesheet" href="rental-detail-v81.css?v=20261002-rental-v84">
+<link rel="stylesheet" href="rental-detail-v82.css?v=20261002-rental-v84">
+<link rel="stylesheet" href="rental-detail-v84.css?v=20261002-rental-v84">
+  <script src="rental-store.js?v=20261002-rental-v84" defer></script>
+  <script src="rental-native-v80.js?v=20261002-rental-v84" defer></script>
   <script src="platform-store.js?v=20260619-profile-update-fix" defer></script>
   <link rel="stylesheet" href="friends.css?v=20260910-mobile-launch-v242" />
   <script src="friends.js?v=20260913-v259" defer></script>
@@ -4021,7 +4022,7 @@
         : `<div class="inventory-card-thumb-empty"><i data-lucide="archive" style="width:24px;height:24px"></i></div>`;
 
       return `
-        <article class="inventory-card">
+        <article class="inventory-card${row.rentalOrderId ? ' rental-inventory-card' : ''}">
           ${imageBlock}
           <div class="inventory-card-body">
             <div class="inventory-card-top">

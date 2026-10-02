@@ -38,7 +38,7 @@
    image.src=p.image;image.alt=p.name;image.className='rental-game-cover';image.onerror=()=>{target.replaceChildren(node('p','โหลดรูปเกมไม่ได้ กรุณาโหลดหน้านี้ใหม่ก่อนเลือกแพ็กเกจ'));activeProduct=null;};gallery.append(image);
    const thumbs=node('div',undefined,'rental-thumbnails');for(const [i,url] of [...new Set([p.image,...(p.screenshots||[])])].filter(u=>safeImage(u,p.steamAppId)).slice(0,7).entries()){const b=node('button');b.type='button';b.setAttribute('aria-label',i?'ดูภาพเกม '+i:'ดูภาพหน้าปก');b.setAttribute('aria-pressed',String(i===0));const img=node('img');img.src=url;img.alt='';img.loading='lazy';img.onerror=()=>b.remove();b.onclick=()=>{image.src=url;thumbs.querySelectorAll('button').forEach(n=>n.setAttribute('aria-pressed',String(n===b)));};b.append(img);thumbs.append(b);}gallery.append(thumbs);
    heading.querySelector('h1').prepend(window.OlafRental.icon('gamepad'));left.append(gallery);
-   const details=node('section',undefined,'rental-panel rental-information');const tabs=node('div',undefined,'rental-info-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','ข้อมูลเกมและการเช่า');
+   const details=node('section',undefined,'rental-panel rental-information');
    const description=node('section',undefined,'rental-info-content');description.append(node('h2','รายละเอียดเกม'),node('p',String(p.shortDescription||p.description||'ยังไม่มีรายละเอียดเกมจากผู้พัฒนา').replace(/\s+/g,' ').trim(),'rental-description'));
    const source=node('a','ดูข้อมูลเกมบน Steam ↗','rental-source-link');source.href='https://store.steampowered.com/app/'+p.steamAppId+'/';source.target='_blank';source.rel='noopener noreferrer';description.append(source);
    const requirements=node('section',undefined,'rental-panel');requirements.append(node('h2','ความต้องการระบบ'));const columns=node('div',undefined,'rental-requirements');
@@ -48,17 +48,10 @@
      if(!list.children.length)list.append(node('li','ยังไม่มีข้อมูลจากผู้พัฒนา'));card.append(list);columns.append(card);
    }requirements.append(columns);
    const delivery=node('section',undefined,'rental-panel rental-delivery-guide');delivery.append(node('h2','การจัดส่งไอดีและ Steam Guard'));
-   for(const [title,body] of [['01 · ชำระเงินและจองคิว','ใช้ Point หรือชำระและแนบสลิปผ่านระบบร้านเดิม ระบบจองไอดีเมื่อยืนยันชำระสำเร็จ'],['02 · เปิดไอดีเมื่อพร้อมเล่น','เข้าหน้าออเดอร์เมื่อถึงเวลาเช่า แล้วกดเปิดใช้งานเพื่อรับ Steam ID และรหัสผ่าน'],['03 · รับ Steam Guard','กดขอโค้ดในหน้าออเดอร์ได้ตลอดช่วงเช่า ไม่จำกัดจำนวนครั้ง และต่ออายุได้ก่อนหมดเวลา']]){
+   for(const [title,body] of [['01 · ชำระเงินและจองคิว','ใช้ Point หรือชำระและแนบสลิปผ่านระบบร้านเดิม ระบบจองไอดีเมื่อยืนยันชำระสำเร็จ'],['02 · ข้อมูลไอดีในคลังสินค้า','เมื่อถึงเวลาเช่า เปิดข้อมูลสินค้าเพื่อดู Steam ID และรหัสผ่านที่ซ่อนอยู่ กดเปิดใช้งานเมื่อพร้อมเล่น'],['03 · รับ Steam Guard','ขอรหัสจากคลังสินค้าในช่วงเช่า ระบบซ่อนรหัสเมื่อหมดอายุ และต่อไอดีเดิมได้ก่อนสิ้นสุดเวลา']]){
      const row=node('div',undefined,'rental-delivery-step'),label=node('strong',title);label.prepend(window.OlafRental.icon(title.startsWith('01')?'wallet':title.startsWith('02')?'key':'shield'));row.append(label,node('p',body.replace('เข้าหน้าออเดอร์','เข้าคลังสินค้า').replace('ในหน้าออเดอร์','จากคลังสินค้า')));delivery.append(row);
    }
-   const contents=[description,requirements,delivery];const tabButtons=[];
-   function selectTab(index){contents.forEach((n,i)=>{n.hidden=i!==index;});tabButtons.forEach((b,i)=>{b.setAttribute('aria-selected',String(i===index));b.tabIndex=i===index?0:-1;});}
-   for(const [index,label] of ['รายละเอียดเกม','ความต้องการระบบ','วิธีเช่าและรับไอดี'].entries()){
-     const b=node('button',label);b.type='button';b.id='rental-tab-'+index;b.setAttribute('role','tab');b.setAttribute('aria-controls','rental-info-'+index);
-     const content=contents[index];content.id='rental-info-'+index;content.className='rental-info-content'+(index===2?' rental-delivery-guide':'');content.setAttribute('role','tabpanel');content.setAttribute('aria-labelledby',b.id);
-     b.onclick=()=>selectTab(index);b.onkeydown=e=>{let next;if(e.key==='ArrowRight')next=(index+1)%3;if(e.key==='ArrowLeft')next=(index+2)%3;if(e.key==='Home')next=0;if(e.key==='End')next=2;if(next!==undefined){e.preventDefault();selectTab(next);tabButtons[next].focus();}};
-     tabs.append(b);tabButtons.push(b);
-   }selectTab(0);details.append(tabs,...contents);
+   description.className='rental-info-content';requirements.className='rental-info-content';delivery.className='rental-info-content rental-delivery-guide';details.append(description,requirements,delivery);
    left.append(details);const aside=node('aside',undefined,'rental-panel rental-booking-panel');aside.id='rental-booking';layout.append(left,aside);target.append(layout);target.setAttribute('aria-busy','false');
    for(const h of target.querySelectorAll('h2,h3'))h.prepend(window.OlafRental.icon(h.textContent.includes('Recommended')?'recommended':h.textContent.includes('Minimum')?'minimum':h.textContent.includes('ระบบ')?'cpu':h.textContent.includes('Guard')?'delivery':'file'));recommendations(target,p);await booking();
   }catch(e){target.setAttribute('aria-busy','false');target.replaceChildren(node('h1',e.code==='ORDER_NOT_FOUND'?'เกมนี้ยังไม่มีชื่อและรูปที่ยืนยันได้':'โหลดรายละเอียดเกมไม่ได้'),node('p','กรุณากลับไปเลือกเกมอื่น หรือโหลดข้อมูลใหม่ภายหลัง'));const link=node('a','กลับไปเลือกเกม','secondary-button');link.href='rentals.html';target.append(link);}}

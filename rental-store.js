@@ -3,6 +3,7 @@
   const money=n=>new Intl.NumberFormat('th-TH',{style:'currency',currency:'THB'}).format(n);
   const date=s=>new Date(s).toLocaleString('th-TH',{timeZone:'Asia/Bangkok'});
   const checkoutKeys=new Map();
+  const rentalImages=new Map();let guardTickTimer;
   document.addEventListener('olaf:rental-checkout-presented',event=>{const key=checkoutKeys.get(event.detail?.orderId);if(key){try{sessionStorage.removeItem(key);}catch{}checkoutKeys.delete(event.detail.orderId);}});
   function icon(kind='gamepad'){
     const names={gamepad:'gamepad-2',user:'user-round',calendar:'calendar-days',wallet:'wallet-cards',clock:'clock-3',shield:'shield-check',file:'file-text',cpu:'cpu',minimum:'memory-stick',recommended:'monitor-check',delivery:'package-check',key:'key-round',guide:'book-open-check'};
@@ -12,7 +13,7 @@
     SLOT_UNAVAILABLE:'ช่วงเวลานี้ถูกจองแล้ว กรุณาโหลดคิวใหม่และเลือกอีกครั้ง',DURATION_UNAVAILABLE:'ไอดีนี้ไม่มีระยะเวลาเช่าที่เลือก',SUPPLIER_PRICE_CHANGED:'ราคา/ไอดีว่างเปลี่ยนแล้ว กรุณาตรวจราคาใหม่',
     RENEW_WINDOW_CLOSED:'ต่ออายุได้เฉพาะช่วงที่ยังเช่าอยู่',RENTAL_RENEWAL_BUSY:'มีออเดอร์ต่ออายุที่ยังไม่เสร็จ กรุณาดูออเดอร์เดิมก่อน',
     RENTAL_NOT_ACTIVE:'ยังไม่ถึงเวลาเช่าหรือสิทธิ์สิ้นสุดแล้ว',RENTAL_NOT_STARTED:'ยังไม่ถึงเวลาเช่า',RENTAL_EXPIRED:'หมดเวลาเช่าแล้ว',
-    ACTIVATION_BUSY:'กำลังเปิดใช้งาน กรุณารอตามเวลาที่แจ้งแล้วกดใหม่',ACTIVATION_FAILED:'เปิดใช้งานไม่สำเร็จ ลองใหม่ภายหลัง หรือกดดูข้อมูลเข้าเกมเพื่อล็อกอินเอง',
+    ACTIVATION_BUSY:'กำลังเปิดใช้งาน กรุณารอตามเวลาที่แจ้งแล้วกดใหม่',ACTIVATION_FAILED:'เปิดใช้งานไม่สำเร็จ ลองใหม่ภายหลัง หรือใช้ข้อมูลบัญชีที่แสดงในหน้านี้เพื่อล็อกอินเอง',
     SUPPLIER_MANUAL_REVIEW_REQUIRED:'ยังยืนยันผลการจองไม่ได้ กรุณาติดต่อร้าน ห้ามโอนซ้ำ',RENTAL_RESULT_UNKNOWN:'ยังยืนยันผลไม่ได้ กรุณาโหลดออเดอร์ก่อนลองใหม่',
     SUPPLIER_MIGRATION_REQUIRED:'ระบบฐานข้อมูลเช่ายังไม่พร้อม กรุณาติดต่อร้าน',RATE_LIMITED:'เรียกข้อมูลถี่เกินไป กรุณารอ',SUPPLIER_RATE_LIMITED:'คำขอมาก กรุณารอ',
     INVALID_CHECKOUT:'ข้อมูลคำสั่งเช่าไม่ถูกต้อง กรุณาโหลดคิวและตรวจราคาใหม่',RENTAL_DATABASE_VALIDATION_FAILED:'ฐานข้อมูลปฏิเสธคำสั่งเช่า กรุณาให้แอดมินตรวจสูตรราคาเช่า v73 (+20 บาท) ยังไม่ได้สร้างออเดอร์',
@@ -37,10 +38,12 @@
     if(!response.ok||!result.success)throw {code:result.code,retryAfter:Math.min(3600,Number(response.headers.get('Retry-After'))||0)};
     return result.data;
   }
-  function clearSecrets(){secretEpoch++;clearTimeout(secretTimer);clearTimeout(codeTimer);document.querySelectorAll('[data-rental-secret]').forEach(n=>n.remove());}
+  function clearSecrets(){secretEpoch++;clearTimeout(secretTimer);clearTimeout(codeTimer);clearInterval(guardTickTimer);document.querySelectorAll('[data-rental-secret]').forEach(n=>n.remove());}
   function secretBox(text,parent){const n=el('pre',text);n.className='rental-secret';n.dataset.rentalSecret='';parent.append(n);return n;}
   async function openBooking(product,parentOrder=null,inline=false,draft=null){
-    const current=++detailEpoch;await session();const data=await api('availability',undefined,{productId:product.id});if(current!==detailEpoch)return;
+    if(!inline&&!$('rental-detail')){const dialog=el('dialog');dialog.id='rental-dialog';dialog.className='rental-booking-dialog';dialog.setAttribute('aria-labelledby','rental-title');const close=button('×',()=>dialog.close());close.className='rental-booking-close';close.setAttribute('aria-label','ปิดแพ็กเกจเช่า');const content=el('div');content.id='rental-detail';dialog.append(close,content);dialog.addEventListener('close',()=>{if(Number(dialog.dataset.bookingEpoch)===detailEpoch)detailEpoch++;});document.body.append(dialog);}
+    const current=++detailEpoch;if(!inline)$('rental-dialog').dataset.bookingEpoch=String(current);await session();const data=await api('availability',undefined,{productId:product.id});if(current!==detailEpoch)return;
+    if(parentOrder){if(!parentOrder.accountId)throw {code:'ORDER_NOT_FOUND'};data.accounts=data.accounts.filter(a=>a.account_id===Number(parentOrder.accountId));}
     const box=inline?$('rental-booking'):$('rental-detail');if(!box)return;box.replaceChildren();box.append(el('h2',parentOrder?'ต่ออายุ '+product.name:'เลือกแพ็กเกจเช่า'));box.firstChild.id=inline?'rental-booking-title':'rental-title';
     const status=el('p');status.setAttribute('role','status');if(inline)status.className='rental-inline-status';box.append(status);
     if(!data.accounts.some(a=>Object.keys(a.rates||{}).length)){
@@ -78,7 +81,7 @@
       actions.append(back,next);popup.append(el('h2','เลือกวันและเวลาเช่า'),el('p','เวลาไทย UTC+7 · รอบละ 30 นาที'),step,daysGrid,selected,times,error,actions);popup.addEventListener('close',()=>popup.remove());document.body.append(popup);popup.showModal();
     });timeButton.className='rental-time-picker';timeButton.disabled=Boolean(parentOrder);start.hidden=true;start.parentElement.append(timeButton);
     const updateTime=()=>timeButton.textContent=Number.isFinite(Date.parse(start.value))?date(start.value+':00+07:00')+'  ▾':'เลือกวันและเวลา';start.addEventListener('change',updateTime);updateTime();
-    const timeNote=el('small','เวลาไทย UTC+7 · เริ่มนาที 00 / 30 · จองล่วงหน้าไม่เกิน 7 วัน');timeNote.className='rental-time-note';form.append(timeNote);
+    const timeNote=el('small',parentOrder?'เวลาไทย UTC+7 · ต่อไอดีเดิมจากเวลาสิ้นสุดเดิม · ระบบตรวจคิวก่อนชำระ':'เวลาไทย UTC+7 · เริ่มนาที 00 / 30 · จองล่วงหน้าไม่เกิน 7 วัน');timeNote.className='rental-time-note';form.append(timeNote);
     if(!parentOrder){const quick=el('div');quick.className='rental-time-quick';for(const [offset,text] of [[0,'เช่าตอนนี้'],[1,'บล็อกถัดไป']])quick.append(button(text,()=>{start.value=localInput((Math.floor(Date.now()/1800000)+offset)*1800000);start.dispatchEvent(new Event('change'));}));form.append(quick);}
     const days=field('ระยะเวลาเช่า',el('select'));
     const durations=[...new Set(data.accounts.flatMap(a=>Object.keys(a.rates)))].map(Number).sort((a,b)=>a-b);
@@ -86,6 +89,7 @@
     if(draft?.days&&durations.includes(Number(draft.days)))days.value=draft.days;
     const account=field('ไอดีที่ต้องการ',el('select'));const auto=el('option','เลือกไอดีที่ว่างและราคาถูกที่สุด');auto.value='';account.append(auto);
     for(const a of data.accounts){const option=el('option',`ไอดี #${a.account_id}`);option.value=a.account_id;account.append(option);}account.disabled=Boolean(parentOrder);
+    if(parentOrder)account.value=String(parentOrder.accountId);
     if(!parentOrder&&data.accounts.some(a=>String(a.account_id)===draft?.account))account.value=draft.account;
     // Payment choices live in the confirmation dialog, not in the rental package form.
     const payment=el('input');payment.type='hidden';payment.value='promptpay';
@@ -98,9 +102,9 @@
     accounts.tabIndex=0;accounts.setAttribute('role','group');
     function slots(){
       const from=Date.parse(start.value+':00+07:00'),to=from+Number(days.value)*86400000;
-      const validStart=Number.isFinite(from)&&from%1800000===0&&from>=Math.floor(Date.now()/1800000)*1800000&&from<=Date.now()+7*86400000
+      const validStart=Boolean(parentOrder)||Number.isFinite(from)&&from%1800000===0&&from>=Math.floor(Date.now()/1800000)*1800000&&from<=Date.now()+7*86400000
         &&(!data.bookable_from||from>=Date.parse(data.bookable_from))&&(!data.bookable_until||from<=Date.parse(data.bookable_until));
-      return data.accounts.map(a=>({a,available:Boolean(validStart&&a.rates[days.value]?.price>0&&!a.busy.some(b=>from<Date.parse(b.to)&&to>Date.parse(b.from)))}));
+      return data.accounts.map(a=>({a,available:Boolean(validStart&&a.rates[days.value]?.price>0&&(parentOrder||!a.busy.some(b=>from<Date.parse(b.to)&&to>Date.parse(b.from))))}));
     }
     function renderChoices(){
       packages.replaceChildren();accounts.replaceChildren();
@@ -163,6 +167,16 @@
     if(!inline)$('rental-dialog')?.showModal();
   }
   async function refreshOrder(id){await renderOrder(await api('order',undefined,{orderId:id}));}
+  async function renewOrder(order){
+    const version=orderEpoch,dialog=el('dialog');dialog.className='rental-renew-confirm';dialog.setAttribute('aria-labelledby','rental-renew-title');
+    const title=el('h2','ต้องการต่ออายุไอดีนี้ใช่ไหม?');title.id='rental-renew-title';title.prepend(icon('clock'));
+    dialog.append(title,el('p',order.name),el('p','ไอดี #'+order.accountId+' · '+order.orderNumber),el('p','ต่อจาก '+date(order.endAt)+' โดยใช้ไอดีเดิม เลือกแพ็กเกจและตรวจราคาก่อนชำระ ไม่มีการหักเงินในขั้นนี้'));
+    const accepted=await new Promise(resolve=>{const actions=el('div');actions.className='rental-actions';actions.append(button('ยกเลิก',()=>dialog.close()),button('ยืนยันต่ออายุ',()=>{resolve(true);dialog.close();},true));dialog.append(actions);dialog.addEventListener('close',()=>{resolve(false);dialog.remove();},{once:true});document.body.append(dialog);dialog.showModal();});
+    if(!accepted||version!==orderEpoch)return;
+    const current=await api('order',undefined,{orderId:order.id});if(version!==orderEpoch)return;if(!current.canPlay)throw {code:'RENEW_WINDOW_CLOSED'};
+    document.querySelectorAll('.rental-vault[open]').forEach(d=>d.close());clearSecrets();
+    await openBooking({id:current.productId,name:current.name},current);
+  }
   async function renderOrder(order){
     clearSecrets();const version=++orderEpoch;const box=$('rental-order');box.hidden=false;box.replaceChildren();
     const summary=el('section');summary.className='supplier-vault-product';const info=el('div');info.append(el('h3',order.name),el('p','เช่าไอดี Steam'),el('p',order.paymentStatus==='verified'?'ชำระเงินแล้ว':'รอชำระเงิน'));summary.append(info);box.append(summary);
@@ -179,21 +193,24 @@
     if(order.needsSupport)box.append(el('p','ชำระเงินแล้ว แต่ยังยืนยันการจอง/ต่ออายุไม่ได้ กรุณาติดต่อร้านพร้อมหมายเลขออเดอร์ ห้ามโอนซ้ำ'));
     if(order.state==='reserved')box.append(el('p',order.canPlay?'อยู่ในช่วงเช่า กดเปิดใช้งานเมื่อพร้อมเล่น':Date.now()<Date.parse(order.startAt)?'จองสำเร็จ รอถึงเวลาเริ่มเช่าแล้วโหลดสถานะใหม่':'ต่ออายุสำเร็จ หรือสิ้นสุดช่วงเวลาเช่าแล้ว'));
     if(order.canPlay){
-      const delivery=el('section');delivery.className='rental-access-card';delivery.append(el('h3','ไอดี Steam ของคุณ'),el('p','เปิดใช้งานเมื่อพร้อมเล่น หรือดูข้อมูลเพื่อล็อกอินเอง สิทธิ์ใช้ได้เฉพาะช่วงเวลาเช่า'));
+      const delivery=el('section');delivery.className='rental-access-card';delivery.append(el('h3','ไอดี Steam ของคุณ'),el('p','ข้อมูลบัญชีโหลดให้อัตโนมัติ รหัสผ่านเริ่มแบบซ่อน เปิดใช้งานเมื่อคุณพร้อมเล่นเท่านั้น'));const deliveryStatus=el('p','กำลังโหลดข้อมูลบัญชี…');deliveryStatus.className='rental-delivery-status';deliveryStatus.setAttribute('role','status');delivery.append(deliveryStatus);
       const deliveryActions=el('div');deliveryActions.className='rental-actions';delivery.append(deliveryActions);box.append(delivery);
-      const guard=el('section');guard.className='rental-access-card rental-guard-card';guard.append(el('h3','Steam Guard'),el('p','ขอโค้ดได้ไม่จำกัดระหว่างเช่า โค้ดจะซ่อนอัตโนมัติเมื่อหมดอายุ'));box.append(guard);
+      const guard=el('section');guard.className='rental-access-card rental-guard-card';const guardHeading=el('h3','Steam Guard'),guardHint=el('p','รับรหัสยืนยันสำหรับไอดีนี้ · แสดงเวลาที่เหลือและซ่อนเมื่อหมดอายุ');guard.append(guardHeading,guardHint);box.append(guard);
       const reveal=async(action)=>{clearSecrets();const token=secretEpoch;const result=await api(action,{orderId:order.id});
         if(token!==secretEpoch||document.hidden||version!==orderEpoch||Date.now()>=Date.parse(result.endAt))return;
         const credentials=el('div');credentials.dataset.rentalSecret='';credentials.className='rental-credential-grid';
         for(const [label,value] of [['Steam ID',result.account.username],['รหัสผ่าน',result.account.password]]){
           const row=el('label');row.className='rental-credential-row supplier-vault-field';const input=el('input');input.readOnly=true;input.value=value;input.type=label==='Steam ID'?'text':'password';input.setAttribute('aria-label',label);row.append(el('span',label),input);
           if(label!=='Steam ID')row.append(button('แสดง',b=>{const show=input.type==='password';input.type=show?'text':'password';b.textContent=show?'ซ่อน':'แสดง';b.setAttribute('aria-pressed',String(show));}));row.append(button('คัดลอก',async()=>{await navigator.clipboard.writeText(value);notice('คัดลอก '+label+' แล้ว');}));credentials.append(row);
-        }delivery.append(credentials);
+        }delivery.append(credentials);deliveryStatus.textContent='พร้อมรับข้อมูล · ใช้ได้เฉพาะช่วงเวลาเช่า';
         secretTimer=setTimeout(clearSecrets,Math.max(0,Math.min(Date.parse(result.endAt)-Date.now(),300000)));};
-      deliveryActions.append(button('เปิดใช้งานเมื่อพร้อมเล่น',()=>reveal('activate'),true),button('ดูข้อมูลเข้าเกม',()=>reveal('delivery')));
+      deliveryActions.append(button('เปิดใช้งานเมื่อพร้อมเล่น',()=>reveal('activate'),true));
+      reveal('delivery').catch(e=>{if(version===orderEpoch&&delivery.isConnected)deliveryStatus.textContent=e.code==='RENTAL_RESULT_UNKNOWN'?'บัญชียังไม่พร้อมแสดง กดเปิดใช้งานเมื่อคุณพร้อมเล่น หรือลองโหลดสถานะใหม่':(errors[e.code]||'โหลดข้อมูลบัญชีไม่ได้ กรุณาลองโหลดสถานะใหม่');});
       guard.append(button('ขอ Steam Guard',async()=>{const token=secretEpoch;const result=await api('guard',{orderId:order.id});if(token!==secretEpoch||document.hidden||version!==orderEpoch)return;
-          clearTimeout(codeTimer);document.querySelector('[data-rental-code]')?.remove();const code=secretBox(result.code,guard);code.dataset.rentalCode='';codeTimer=setTimeout(()=>code.remove(),Math.min(result.validForSeconds*1000,Math.max(0,Date.parse(order.endAt)-Date.now())));},true));
-      actions.append(button('ต่ออายุ',()=>openBooking({id:order.productId,name:order.name},order)));
+          clearTimeout(codeTimer);clearInterval(guardTickTimer);document.querySelector('[data-rental-code]')?.remove();const expires=Date.now()+Math.min(result.validForSeconds*1000,Math.max(0,Date.parse(order.endAt)-Date.now()));if(expires<=Date.now()){guardHint.textContent='รหัสหมดอายุแล้ว กรุณาขอใหม่';return;}
+          const code=el('div');code.className='rental-guard-code';code.dataset.rentalSecret='';code.dataset.rentalCode='';const value=el('strong',result.code),countdown=el('span');countdown.className='rental-guard-countdown';code.append(value,countdown,button('คัดลอกรหัส',async()=>{if(Date.now()>=expires)return;await navigator.clipboard.writeText(result.code);notice('คัดลอกรหัส Steam Guard แล้ว');}));guard.append(code);
+          const tick=()=>{const remaining=Math.max(0,Math.ceil((expires-Date.now())/1000));countdown.textContent='ใช้ได้อีก '+remaining+' วินาที';if(!remaining){code.remove();clearInterval(guardTickTimer);guardHint.textContent='รหัสหมดอายุแล้ว กรุณาขอ Steam Guard ใหม่';}};tick();guardTickTimer=setInterval(tick,250);codeTimer=setTimeout(tick,Math.max(0,expires-Date.now()));},true));
+      actions.append(button('ต่ออายุ',()=>renewOrder(order)));
     }
     box.querySelectorAll('h3').forEach((h,i)=>h.prepend(icon(['gamepad','clock','user','shield'][i%4])));
   }
@@ -206,11 +223,15 @@
     const box=el('div');box.id='rental-order';box.append(el('p','กำลังโหลดข้อมูล…'));dialog.append(close,header,feedback,box);dialog.addEventListener('close',()=>{orderEpoch++;clearSecrets();dialog.remove();});document.body.append(dialog);dialog.showModal();
     const token=orderEpoch;try{const order=await api('order',undefined,{orderId:id});if(!dialog.open||token!==orderEpoch)return;await renderOrder(order);}catch(e){if(dialog.open)box.replaceChildren(el('p',errors[e.code]||'โหลดข้อมูลไม่ได้ กรุณาลองใหม่'));}
   }
-  async function loadInventory(){const token=epoch;try{const orders=await api('orders');const catalog=await api('catalog').catch(()=>({products:[]}));const media=new Map((catalog.products||[]).filter(p=>p.mediaStatus==='ready').map(p=>[String(p.id),p.image]));for(const o of orders)o.image=media.get(String(o.productId))||'';if(token===epoch)document.dispatchEvent(new CustomEvent('olaf:rental-inventory',{detail:orders}));}catch{if(token===epoch)notice('โหลดรายการเช่าไม่สำเร็จ กรุณาโหลดหน้าใหม่');}}
+  async function loadInventory(){const token=epoch;try{const orders=await api('orders');const catalog=await api('catalog').catch(()=>({products:[]}));for(const p of catalog.products||[])if(p.mediaStatus==='ready'&&p.image)rentalImages.set(String(p.id),p.image);
+    const missing=[...new Set(orders.filter(o=>o.kind==='booking'&&o.paymentStatus==='verified'&&!rentalImages.has(String(o.productId))).map(o=>String(o.productId)))];let next=0;
+    await Promise.all([0,1].map(async()=>{while(next<missing.length){const id=missing[next++];try{const p=await api('product',undefined,{productId:id});if(token!==epoch)return;if(p.image)rentalImages.set(id,p.image);}catch{}}}));
+    for(const o of orders)o.image=rentalImages.get(String(o.productId))||'';if(token===epoch)document.dispatchEvent(new CustomEvent('olaf:rental-inventory',{detail:orders}));
+    }catch{if(token===epoch)notice('โหลดรายการเช่าไม่สำเร็จ กรุณาโหลดหน้าใหม่');}}
   window.OlafRental={api,openBooking,notice,refreshOrder,session,clearSecrets,openInventory,loadInventory,icon};
   document.addEventListener('DOMContentLoaded',async()=>{
-    if($('rental-close'))$('rental-close').onclick=()=>{$('rental-dialog')?.close();detailEpoch++;};
-    $('rental-dialog')?.addEventListener('close',()=>detailEpoch++);
+    if($('rental-close'))$('rental-close').onclick=()=>{$('rental-dialog')?.close();};
+    $('rental-dialog')?.addEventListener('close',e=>{if(Number(e.currentTarget.dataset.bookingEpoch)===detailEpoch)detailEpoch++;});
     document.addEventListener('visibilitychange',()=>{if(document.hidden)clearSecrets();});window.addEventListener('pagehide',clearSecrets);
     window.olafSupabase?.auth.onAuthStateChange((event,authSession)=>{
       const nextIdentity=authSession?.user?.id||null;
@@ -221,7 +242,7 @@
       if(event==='SIGNED_IN'&&(authIdentity===undefined||authIdentity===nextIdentity)){authIdentity=nextIdentity;return;}
       authIdentity=nextIdentity;
       epoch++;clearSecrets();orderEpoch++;detailEpoch++;$('rental-dialog')?.close();
-      document.querySelectorAll('.rental-checkout-dialog').forEach(d=>d.close());
+      document.querySelectorAll('.rental-checkout-dialog,.rental-renew-confirm').forEach(d=>d.close());
       if($('rental-order')){$('rental-order').hidden=true;$('rental-order').replaceChildren();}
       window.OlafRentalPayment?.reset();window.OlafRentalNative?.reset();window.dispatchEvent(new Event('olaf:rental-auth'));
       document.querySelectorAll('.rental-vault').forEach(d=>d.close());document.dispatchEvent(new CustomEvent('olaf:rental-inventory',{detail:[]}));

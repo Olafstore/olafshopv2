@@ -1,0 +1,12 @@
+/* Five full-catalog categories: two large cards followed by three compact cards. */
+@media(max-width:640px){
+ body.catalog-page #category-tabs {display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:8px;width:100%;min-width:0;}
+ body.catalog-page #category-tabs .tab-button {grid-column:span 2;min-width:0;min-height:100px;height:auto;padding:10px 7px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;text-align:center;overflow:hidden;border-radius:12px;}
+ body.catalog-page #category-tabs .tab-button:nth-child(-n+2) {grid-column:span 3;min-height:78px;flex-direction:row;gap:8px;text-align:left;padding:10px;}
+ body.catalog-page #category-tabs .tab-button>span {min-width:0;font-size:12px;line-height:1.45;overflow-wrap:anywhere;}
+ body.catalog-page #category-tabs .tab-button small {display:block;font-size:8px;line-height:1.4;letter-spacing:0;white-space:normal;overflow-wrap:anywhere;margin-top:3px;}
+ body.catalog-page #category-tabs .tab-button :is(svg,i,.catalog-web-icon) {width:24px;height:24px;min-width:24px;flex:none;margin:0;}
+ body.catalog-page #category-tabs .tab-button>b {position:static!important;flex:none;align-self:center;font-size:11px;line-height:1.4;padding:3px 6px;min-width:24px;margin:0;}
+ body.catalog-page #category-tabs .tab-button:nth-child(-n+2)>b {margin-left:auto;}
+ body.catalog-page #category-tabs .catalog-category-art {position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;}
+}

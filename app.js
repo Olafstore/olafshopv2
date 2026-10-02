@@ -976,7 +976,7 @@ async function loadRecentPurchases() {
   } catch (error) {
     console.warn("Recent public purchases unavailable", error);
     state.recentPurchases = [];
-    state.recentPurchasesError = "รัน supabase-public-recent-purchases.sql เพื่อเปิดรายการซื้อล่าสุด";
+    state.recentPurchasesError = "โหลดรายการซื้อล่าสุดไม่ได้ กรุณาลองใหม่ภายหลัง";
   } finally {
     state.recentPurchasesLoading = false;
     renderRecentPurchases();

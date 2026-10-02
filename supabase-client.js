@@ -2041,12 +2041,27 @@
   }
 
   async function fetchRecentPublicPurchases(limit = 10) {
-    const safeLimit = Math.max(1, Math.min(20, Number(limit || 10)));
-    const { data, error } = await requireClient().rpc("fetch_recent_public_purchases", {
-      p_limit: safeLimit
+    const safeLimit = Math.max(1, Math.min(20, Math.trunc(Number(limit) || 10)));
+    const client = requireClient();
+    const results = await Promise.allSettled([
+      client.rpc("fetch_recent_public_purchases", { p_limit: safeLimit }),
+      client.rpc("fetch_recent_public_api_purchases_v85", { p_limit: safeLimit })
+    ]);
+    const rows = results.map(result => result.status === "fulfilled" && !result.value.error
+      ? normalizeArray(result.value.data).map(mapRecentPurchaseRow).filter(Boolean) : null);
+    if (rows.every(value => value === null)) {
+      throw results[0].reason || results[0].value?.error || new Error("Recent purchases unavailable");
+    }
+    results.forEach((result, index) => {
+      if (rows[index] === null) console.warn("Recent purchase feed unavailable", index === 1 ? "API v85" : "legacy");
     });
-    if (error) throw error;
-    return normalizeArray(data).map(mapRecentPurchaseRow).filter(Boolean);
+    // API checkouts may also have a placeholder order_item in the legacy feed.
+    // Prefer the safe API snapshot once per order; preserve ordinary multi-item orders.
+    const apiRows = rows[1] || [];
+    const apiOrders = new Set(apiRows.map(row => row.orderNumber).filter(Boolean));
+    return [...apiRows, ...(rows[0] || []).filter(row => !apiOrders.has(row.orderNumber))]
+      .sort((a, b) => (Date.parse(b.createdAt) || 0) - (Date.parse(a.createdAt) || 0))
+      .slice(0, safeLimit);
   }
 
   async function fetchOrderById(orderId) {

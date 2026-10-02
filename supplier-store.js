@@ -75,7 +75,7 @@
       try{await session();}catch{location.href='login.html?return='+encodeURIComponent(location.pathname+location.search);return;}
       const s=await session();const key=`supplier-request:${s.user.id}:${p.id}:${select.value}`;
       let requestId=sessionStorage.getItem(key);if(!requestId){requestId=crypto.randomUUID();sessionStorage.setItem(key,requestId);}
-      const order=await api('checkout',{productId:p.id,requestId,paymentMethod:select.value,expectedPrice:p.price});
+      let order;try{order=await api('checkout',{productId:p.id,requestId,paymentMethod:select.value,expectedPrice:p.price});}catch(error){if(error.code==='ORDER_REPLACED')sessionStorage.removeItem(key);throw error;}
       sessionStorage.removeItem(key);$('supplier-detail').close();notice('สร้างออเดอร์แล้ว ชำระยอดตามที่แสดงให้ครบถึงสตางค์');
       if(!adminPage){location.href=`profile.html?order=${encodeURIComponent(order.id)}#orders`;return;}
       history.replaceState(null,'',`supplier-store.html?order=${encodeURIComponent(order.id)}#supplier-order`);await renderOrder(order);await loadOrders();
@@ -238,7 +238,7 @@
         const userSession=await session();
         const key=`olaf-supplier-native:${userSession.user.id}:${p.id}:${paymentMethod}:${p.price}:${pointsToUse}`;
         let requestId=sessionStorage.getItem(key);if(!requestId){requestId=crypto.randomUUID();sessionStorage.setItem(key,requestId);}
-        const order=await api('checkout',{productId:p.id,requestId,paymentMethod,expectedPrice:p.price,pointsToUse});
+        let order;try{order=await api('checkout',{productId:p.id,requestId,paymentMethod,expectedPrice:p.price,pointsToUse});}catch(error){if(error.code==='ORDER_REPLACED')sessionStorage.removeItem(key);throw error;}
         // Clear only after a confirmed response; transport failures retain the ref.
         sessionStorage.removeItem(key);
         return order;

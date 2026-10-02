@@ -2033,6 +2033,7 @@
     const { data, error } = await requireClient()
       .from("orders")
       .select(columns)
+      .is("checkout_replaced_at", null)
       .order("created_at", { ascending: false });
     if (error) throw error;
     const orders = normalizeArray(data).map(mapOrderRow).filter(Boolean);

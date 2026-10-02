@@ -2971,6 +2971,8 @@ function openSupplierQuoteLoading(){
   dialog.addEventListener('cancel',event=>event.preventDefault());document.body.append(dialog);dialog.showModal();syncProductOverlayState();return dialog;
 }
 function supplierCheckoutError(error){
+  if(error?.code==='UNPAID_POINT_EVIDENCE_REQUIRED')return 'หลักฐาน Point ของออเดอร์ค้างไม่ครบ กรุณาติดต่อร้าน ยังไม่ได้ยกเลิกหรือสร้างออเดอร์ใหม่';
+  if(error?.code==='ORDER_REPLACED')return 'ออเดอร์เดิมถูกยกเลิกแล้ว กรุณากดซื้อใหม่เพื่อตรวจราคาและสร้างรายการปัจจุบัน';
   if(error?.code==='POINT_BALANCE_INSUFFICIENT')return 'Point ไม่เพียงพอ กรุณาตรวจยอดแล้วลองใหม่';
   if(error?.code==='SUPPLIER_OUT_OF_STOCK')return 'สินค้าหมดชั่วคราว กรุณาเลือกสินค้าอื่น';
   if(['SUPPLIER_RATE_LIMITED','RATE_LIMITED','SUPPLIER_DATABASE_RATE_LIMITED'].includes(error?.code))return `คำขอถี่เกินไป กรุณารอ ${Math.max(1,Number(error.retryAfter)||60)} วินาที แล้วลองใหม่ ไม่ต้องกดซ้ำ`;
@@ -2980,6 +2982,7 @@ function supplierCheckoutError(error){
 function orderErrorMessage(error) {
   if(currentProduct?.supplierProduct)return supplierCheckoutError(error);
   const message = String(error?.message || "");
+  if (message.includes("UNPAID_POINT_EVIDENCE_REQUIRED")) return "หลักฐาน Point ของออเดอร์ค้างไม่ครบ กรุณาติดต่อร้าน ยังไม่ได้ยกเลิกหรือสร้างออเดอร์ใหม่";
   if (message.includes("INSUFFICIENT_STOCK")) return "สินค้านี้มีจำนวนไม่เพียงพอ กรุณาเลือกจำนวนใหม่";
   if (message.includes("PACKAGE_NOT_FOUND")) return "ไม่พบแพ็คเกจที่เลือก กรุณารีเฟรชหน้าเว็บแล้วลองใหม่";
   if (message.includes("PACKAGE_NOT_ACTIVE")) return "แพ็คเกจนี้ปิดขายชั่วคราว กรุณาเลือกแพ็คเกจอื่น";
@@ -3028,6 +3031,7 @@ async function submitOrder(formData) {
     if (orderNumberWrap) orderNumberWrap.hidden = false;
     setCheckoutOrderDialogOpen($("#order-dialog"), false, { immediate: true });
     if (Number(savedOrder?.total || 0) <= 0 || savedOrder?.paymentStatus === "verified") {
+      if(typeof rentalCheckoutDelegate==='function')document.dispatchEvent(new CustomEvent('olaf:rental-checkout-presented',{detail:{orderId:savedOrder.id}}));
       if ($("#qr-dialog")?.open) setProductQrDialogOpen($("#qr-dialog"), false);
       showToast(
         savedOrder?.status === "delivered"
@@ -3043,6 +3047,7 @@ async function submitOrder(formData) {
       return;
     }
     showPaymentResult(savedOrder);
+    if(typeof rentalCheckoutDelegate==='function'&&$("#qr-dialog")?.open&&currentQrOrder?.id===savedOrder.id)document.dispatchEvent(new CustomEvent('olaf:rental-checkout-presented',{detail:{orderId:savedOrder.id}}));
     showToast("สร้างคำสั่งซื้อแล้ว กรุณาชำระเงินและแนบสลิป", "payment", 5000);
     return;
   } catch (error) {

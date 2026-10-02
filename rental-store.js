@@ -2,6 +2,8 @@
   const $=id=>document.getElementById(id),el=(tag,text)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;return n;};
   const money=n=>new Intl.NumberFormat('th-TH',{style:'currency',currency:'THB'}).format(n);
   const date=s=>new Date(s).toLocaleString('th-TH',{timeZone:'Asia/Bangkok'});
+  const checkoutKeys=new Map();
+  document.addEventListener('olaf:rental-checkout-presented',event=>{const key=checkoutKeys.get(event.detail?.orderId);if(key){try{sessionStorage.removeItem(key);}catch{}checkoutKeys.delete(event.detail.orderId);}});
   function icon(kind='gamepad'){
     const names={gamepad:'gamepad-2',user:'user-round',calendar:'calendar-days',wallet:'wallet-cards',clock:'clock-3',shield:'shield-check',file:'file-text',cpu:'cpu',minimum:'memory-stick',recommended:'monitor-check',delivery:'package-check',key:'key-round',guide:'book-open-check'};
     const img=el('img');img.src='https://api.iconify.design/lucide/'+(names[kind]||names.gamepad)+'.svg?color=%236eb6ff';img.className='rental-topic-icon';img.alt='';img.width=18;img.height=18;img.decoding='async';img.referrerPolicy='no-referrer';img.setAttribute('aria-hidden','true');img.addEventListener('error',()=>{img.style.visibility='hidden';},{once:true});return img;
@@ -141,7 +143,8 @@
         const s=await session();if(current!==detailEpoch)throw {code:'SESSION_CHANGED'};
         const requestKey=`rental-request:${s.user.id}:${JSON.stringify(confirmedQuote)}:${paymentMethod}:${pointsToUse}`;
         let requestId;try{requestId=sessionStorage.getItem(requestKey);if(!requestId){requestId=crypto.randomUUID();sessionStorage.setItem(requestKey,requestId);}}catch{throw {code:'BROWSER_STORAGE_UNAVAILABLE'};}
-        const order=await api('checkout',{...confirmedQuote,requestId,paymentMethod,pointsToUse,expectedPrice:confirmedQuote.price});
+        let order;try{order=await api('checkout',{...confirmedQuote,requestId,paymentMethod,pointsToUse,expectedPrice:confirmedQuote.price});}catch(error){if(error.code==='ORDER_REPLACED'){sessionStorage.removeItem(requestKey);box.querySelector('[data-rental-checkout-order]')?.remove();}throw error;}
+        checkoutKeys.set(order.id,requestKey);
         // Keep the idempotency key if the QR adapter fails, so retry returns this order.
         let recovery=box.querySelector('[data-rental-checkout-order]');if(!recovery){recovery=el('a','เปิดออเดอร์เดิม / ไปหน้าชำระเงิน');recovery.dataset.rentalCheckoutOrder='';recovery.className='secondary-button';box.append(recovery);}recovery.href='rental-order.html?order='+encodeURIComponent(order.id);
         recovery.href='profile.html?order='+encodeURIComponent(order.id)+'#inventory';

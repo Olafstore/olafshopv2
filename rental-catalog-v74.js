@@ -37,14 +37,14 @@
    const genres=node('div',undefined,'rental-genre-chips');for(const genre of (p.genres||[]).slice(0,4))genres.append(node('span',genre));heading.append(genres);gallery.append(heading);
    image.src=p.image;image.alt=p.name;image.className='rental-game-cover';image.onerror=()=>{target.replaceChildren(node('p','โหลดรูปเกมไม่ได้ กรุณาโหลดหน้านี้ใหม่ก่อนเลือกแพ็กเกจ'));activeProduct=null;};gallery.append(image);
    const thumbs=node('div',undefined,'rental-thumbnails');for(const [i,url] of [...new Set([p.image,...(p.screenshots||[])])].filter(u=>safeImage(u,p.steamAppId)).slice(0,7).entries()){const b=node('button');b.type='button';b.setAttribute('aria-label',i?'ดูภาพเกม '+i:'ดูภาพหน้าปก');b.setAttribute('aria-pressed',String(i===0));const img=node('img');img.src=url;img.alt='';img.loading='lazy';img.onerror=()=>b.remove();b.onclick=()=>{image.src=url;thumbs.querySelectorAll('button').forEach(n=>n.setAttribute('aria-pressed',String(n===b)));};b.append(img);thumbs.append(b);}gallery.append(thumbs);
-   const facts=node('div',undefined,'rental-game-facts');for(const [title,body] of [['เช่าตามเวลา','ไม่ใช่ซื้อขาด'],['Steam Guard','ขอโค้ดระหว่างเช่า'],['ชำระเงิน','QR หรือ Point']]){const item=node('div');item.append(node('strong',title),node('span',body));facts.append(item);}gallery.append(facts);left.append(gallery);
+   const zoom=node('button','ขยายภาพเกม ⤢','rental-image-expand');zoom.type='button';zoom.onclick=()=>{const popup=node('dialog',undefined,'rental-art-popup'),cover=node('img'),close=node('button','ปิด');cover.src=image.src;cover.alt=p.name;close.onclick=()=>popup.close();popup.append(cover,close);popup.addEventListener('close',()=>popup.remove());document.body.append(popup);popup.showModal();};gallery.append(zoom);left.append(gallery);
    const details=node('section',undefined,'rental-panel rental-information');const tabs=node('div',undefined,'rental-info-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','ข้อมูลเกมและการเช่า');
    const description=node('section',undefined,'rental-info-content');description.append(node('h2','รายละเอียดเกม'),node('p',String(p.shortDescription||p.description||'ยังไม่มีรายละเอียดเกมจากผู้พัฒนา').replace(/\s+/g,' ').trim(),'rental-description'));
    const source=node('a','ดูข้อมูลเกมบน Steam ↗','rental-source-link');source.href='https://store.steampowered.com/app/'+p.steamAppId+'/';source.target='_blank';source.rel='noopener noreferrer';description.append(source);
    const requirements=node('section',undefined,'rental-panel');requirements.append(node('h2','ความต้องการระบบ'));const columns=node('div',undefined,'rental-requirements');
    for(const [key,label] of [['minimum','ขั้นต่ำ'],['recommended','แนะนำ']]){
-     const card=node('section',undefined,'rental-spec-card');card.append(node('h3',label));const list=node('ul');
-     const lines=p.requirements?.[key]||[];for(const line of lines){if(!line.trim()||/^(ขั้นต่ำ|แนะนำ|minimum|recommended):?$/i.test(line.trim()))continue;list.append(node('li',line));}
+     const card=node('section',undefined,'rental-spec-card');card.append(node('h3',label+(key==='minimum'?' (Minimum)':' (Recommended)')));const list=node('ul');
+     const lines=p.requirements?.[key]||[];for(const line of lines){if(!line.trim()||/^(ขั้นต่ำ|แนะนำ|minimum|recommended):?$/i.test(line.trim()))continue;const item=node('li'),parts=line.split(':');if(parts.length>1){item.append(node('strong',parts.shift()+': '),document.createTextNode(parts.join(':').trim()));}else item.textContent=line;list.append(item);}
      if(!list.children.length)list.append(node('li','ยังไม่มีข้อมูลจากผู้พัฒนา'));card.append(list);columns.append(card);
    }requirements.append(columns);
    const delivery=node('section',undefined,'rental-panel rental-delivery-guide');delivery.append(node('h2','การจัดส่งไอดีและ Steam Guard'));
@@ -60,11 +60,11 @@
      tabs.append(b);tabButtons.push(b);
    }selectTab(0);details.append(tabs,...contents);
    left.append(details);const aside=node('aside',undefined,'rental-panel rental-booking-panel');aside.id='rental-booking';layout.append(left,aside);target.append(layout);target.setAttribute('aria-busy','false');
-   recommendations(target,p);await booking();
+   for(const [i,h] of [...target.querySelectorAll('h2,h3')].entries()){const icon=node('i');icon.setAttribute('data-lucide',['file-text','cpu','shield-check','clock'][i%4]);h.prepend(icon);}window.lucide?.createIcons();recommendations(target,p);await booking();
   }catch(e){target.setAttribute('aria-busy','false');target.replaceChildren(node('h1',e.code==='ORDER_NOT_FOUND'?'เกมนี้ยังไม่มีชื่อและรูปที่ยืนยันได้':'โหลดรายละเอียดเกมไม่ได้'),node('p','กรุณากลับไปเลือกเกมอื่น หรือโหลดข้อมูลใหม่ภายหลัง'));const link=node('a','กลับไปเลือกเกม','secondary-button');link.href='rentals.html';target.append(link);}}
  document.addEventListener('DOMContentLoaded',()=>{const page=document.body.dataset.rentalPage;if(page==='catalog'){$('rental-search').addEventListener('input',()=>{shownLimit=24;renderCards();});$('rental-more').onclick=async()=>{shownLimit+=24;if(pending.length)await loadBatch();else renderCards();};catalog();}if(page==='product'){product();window.addEventListener('olaf:rental-auth',booking);}});
  async function recommendations(target,current){
-   const panel=node('section',undefined,'rental-panel rental-recommendations'),grid=node('div',undefined,'rental-grid');panel.append(node('h2','เกมเช่าแนะนำ'),node('p','เลือกเกมอื่นที่น่าสนใจ พร้อมตรวจแพ็กเกจและคิวว่าง'),grid);target.append(panel);
+   const panel=node('section',undefined,'rental-panel rental-recommendations'),grid=node('div',undefined,'rental-grid');panel.append(node('h2','เกมเช่า'),node('p','เลือกเกมอื่นที่น่าสนใจ พร้อมตรวจแพ็กเกจและคิวว่าง'),grid);target.append(panel);
    try{const data=await window.OlafRental.api('catalog');if(!panel.isConnected)return;
      const games=data.products.filter(p=>valid(p)&&p.id!==current.id).sort((a,b)=>Number(b.genres?.some(g=>current.genres?.includes(g)))-Number(a.genres?.some(g=>current.genres?.includes(g)))).slice(0,4);
      for(const p of games){const card=node('a',undefined,'rental-card rental-recommended-card');card.href='rental-product.html?id='+encodeURIComponent(p.id);

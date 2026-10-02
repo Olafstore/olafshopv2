@@ -1,8 +1,43 @@
-﻿const $ = (s) => document.querySelector(s);
+(() => {
+const $ = (s) => document.querySelector(s);
 const params = new URLSearchParams(location.search);
 const productId = params.get("id");
 let globalPayload = null;
 let currentProduct = null;
+let rentalCheckoutDelegate = null;
+// Rental pages mount the existing storefront dialogs and reuse their checkout UI.
+window.OlafNativeRentalCheckout = {
+  bind() {
+    document.getElementById('close-order').onclick=()=>setCheckoutOrderDialogOpen(document.getElementById('order-dialog'),false);
+    document.querySelectorAll('#order-dialog [data-close-dialog]').forEach(b=>b.onclick=()=>setCheckoutOrderDialogOpen(document.getElementById('order-dialog'),false));
+    for(const id of ['order-dialog','order-confirm-dialog'])document.getElementById(id).addEventListener('cancel',e=>{e.preventDefault();id==='order-dialog'?setCheckoutOrderDialogOpen(e.currentTarget,false):setOrderConfirmDialogOpen(e.currentTarget,false);});
+    document.querySelector('[data-qr-close-btn]').onclick=()=>setProductQrDialogOpen(document.getElementById('qr-dialog'),false);
+    document.getElementById('qr-dialog').addEventListener('cancel',e=>{e.preventDefault();setProductQrDialogOpen(e.currentTarget,false);});
+    document.querySelector('[data-qr-upload-slip-btn]').onclick=openQrSlipPicker;
+    document.querySelector('[data-qr-view-order-btn]').onclick=viewCurrentQrOrder;
+    document.querySelector('[data-qr-cancel-btn]').onclick=cancelCurrentQrOrder;
+  },
+  async open(product, quote, create) {
+    globalPayload = { products: [], store: await fetchOnlineStoreSettings(true) || {} };
+    currentProduct = {...product, price: quote.price, stock: 1, category: 'offline', label: `เช่าไอดี Steam · ${quote.durationDays} วัน`, supplierProduct: true};
+    currentProductPackages = []; selectedPackageId = null; detailQuantity = 1;
+    rentalCheckoutDelegate = create;
+    let rentalTerms=document.getElementById('native-rental-terms');
+    if(!rentalTerms){rentalTerms=document.createElement('p');rentalTerms.id='native-rental-terms';document.querySelector('#order-confirm-dialog .order-confirm-terms-scroll')?.prepend(rentalTerms);}
+    rentalTerms.textContent=`เช่าตามเวลา ไม่ใช่ซื้อขาด · ${quote.durationDays} วัน · ${new Date(quote.startAt).toLocaleString('th-TH',{timeZone:'Asia/Bangkok'})} – ${new Date(quote.endAt).toLocaleString('th-TH',{timeZone:'Asia/Bangkok'})} (เวลาไทย) · รับไอดีและ Steam Guard เฉพาะช่วงเช่า หากชำระแล้วจองไม่สำเร็จ ให้ติดต่อร้าน ห้ามโอนซ้ำ`;
+    openOrderConfirmDialog(quote.price, quote.price);
+  },
+  async payment(order, product) {
+    globalPayload = { products: [], store: await fetchOnlineStoreSettings(true) || {} };
+    currentProduct = {...product, price: Number(order.total), stock: 1, category: 'offline', supplierProduct: true};
+    showPaymentResult(order);
+  },
+  reset() {
+    rentalCheckoutDelegate = null; currentQrOrder = null;
+    for (const id of ['order-dialog','order-confirm-dialog','qr-dialog']) {const d=document.getElementById(id);if(d?.open)d.close();}
+    syncProductOverlayState();
+  }
+};
 window.addEventListener('olaf:supplier-catalog',event=>{
   if(!currentProduct?.supplierProduct)return;
   const fresh=event.detail.find(p=>p.id===currentProduct.id);
@@ -2969,7 +3004,9 @@ async function submitOrder(formData) {
 
   try {
     if (!window.OlafOrders?.createOrder) throw new Error("Supabase order client is not ready");
-    const savedOrder = p.supplierProduct
+    const savedOrder = typeof rentalCheckoutDelegate==='function'
+      ? await rentalCheckoutDelegate(normalizePaymentMethod(formData.get('paymentMethod')), checkoutPointState.pointsToUse || 0)
+      : p.supplierProduct
       ? await window.OlafSupplierUI.createCheckout(p.rawPublic,normalizePaymentMethod(formData.get('paymentMethod')),checkoutPointState.pointsToUse || 0)
       : await window.OlafOrders.createOrder({
       productId: p.id,
@@ -2983,7 +3020,8 @@ async function submitOrder(formData) {
     });
 
     // Once an order exists, a failed catalog refresh must not hide its payment UI.
-    if(p.supplierProduct)await refreshCurrentProduct().catch(()=>null);
+    if(typeof rentalCheckoutDelegate==='function'){ /* Rental quote was already checked; do not refresh the offline product. */ }
+    else if(p.supplierProduct)await refreshCurrentProduct().catch(()=>null);
     else await refreshCurrentProduct();
     setTextContent("[data-checkout-order-number]", formatOrderReference(savedOrder));
     const orderNumberWrap = $("[data-checkout-order-container]");
@@ -3835,6 +3873,7 @@ function updateAccountChrome() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  if (document.body.dataset.rentalPage) return;
   const authReady = window.OlafStore?.ready?.catch((error) => {
     console.warn("Auth initialization delayed", error);
     return null;
@@ -3908,3 +3947,4 @@ document.addEventListener("DOMContentLoaded", async () => {
   await authReady;
   updateAccountChrome();
 });
+})();

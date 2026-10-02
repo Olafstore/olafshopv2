@@ -24,6 +24,10 @@
   <script src="age-gate.js?v=20260925-v16" defer></script>
   <script src="supplier-catalog.js?v=20260925-v18" defer></script>
   <script src="order-action-popup.js?v=20260621-order-animation" defer></script>
+  <link rel="stylesheet" href="checkout-visual-fix.css?v=20260929-v61">
+  <link rel="stylesheet" href="rental-detail-v79.css?v=20261002-rental-v80">
+  <script src="rental-store.js?v=20261002-rental-v80" defer></script>
+  <script src="rental-native-v80.js?v=20261002-rental-v80" defer></script>
   <script src="platform-store.js?v=20260619-profile-update-fix" defer></script>
   <link rel="stylesheet" href="friends.css?v=20260910-mobile-launch-v242" />
   <script src="friends.js?v=20260913-v259" defer></script>
@@ -3893,7 +3897,8 @@
       }
     }
 
-    let supplierInventoryOrders=[];
+    let supplierInventoryOrders=[],rentalInventoryOrders=[];
+    document.addEventListener('olaf:rental-inventory',event=>{rentalInventoryOrders=Array.isArray(event.detail)?event.detail:[];collectInventoryRows(profileState.orders||[],profileState.products||[]);renderInventoryList();const id=new URLSearchParams(location.search).get('order');if(id&&rentalInventoryOrders.some(o=>o.id===id)&&!window.rentalAutoOpened){window.rentalAutoOpened=true;window.OlafRental?.openInventory(id);}});
     document.addEventListener('olaf:supplier-order-open',event=>{
       event.preventDefault();const o=event.detail;if(!o)return;
       if(o.canReceive&&o.paymentStatus==='verified'){toggleInventoryModal(false);window.OlafSupplierUI?.openInventory(o.id);return;}
@@ -3999,6 +4004,7 @@
           category:'offline',platform:'Steam',typeLabel:'Steam Offline',hasDetail:o.canReceive,primaryCopy:'',deliveryText:'',deliveryPayload:{accounts:[]},
           preview:o.canReceive?'พร้อมรับบัญชีและ Steam Guard':o.needsSupport?'กรุณาติดต่อร้านเพื่อตรวจการจัดส่ง':'ชำระเงินแล้ว กำลังเตรียมจัดส่ง'});
       }
+      for(const o of rentalInventoryOrders.filter(o=>o.kind==='booking'&&o.paymentStatus==='verified'&&!['cancelled','expired'].includes(o.status))){rows.push({key:'rental-'+o.id,rentalOrderId:o.id,orderId:o.id,orderNumber:o.orderNumber,productName:o.name,productImageUrl:o.image,quantity:1,createdAt:o.createdAt,status:o.status,statusLabel:orderStatusLabel(o.status),total:o.total,paymentMethod:o.paymentMethod,paymentStatus:o.paymentStatus,category:'offline',platform:'Steam',typeLabel:'Steam เช่า',hasDetail:true,primaryCopy:'',deliveryText:'',deliveryPayload:{accounts:[]},preview:'เข้าไอดีและรับ Steam Guard: '+new Date(o.startAt).toLocaleString('th-TH')+' – '+new Date(o.endAt).toLocaleString('th-TH')});}
       rows.sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
       profileState.inventoryRows = rows;
       profileState.inventoryLookup = new Map(rows.map(row => [row.key, row]));
@@ -4294,6 +4300,7 @@
 
     async function openInventoryModalWithOrder(row) {
       if (!row) return;
+      if(row.rentalOrderId){toggleInventoryModal(false);await window.OlafRental?.openInventory(row.rentalOrderId);return;}
       if(row.supplierOrderId){toggleInventoryModal(false);await window.OlafSupplierUI?.openInventory(row.supplierOrderId);return;}
       if (row.paymentSlipPath && !row.paymentSlipUrl && window.OlafOrders?.fetchOrderById) {
         try {
@@ -4844,6 +4851,7 @@
           profileState.lastOrdersRefreshAt = Date.now();
           renderOrdersList(orders);
           await window.OlafSupplierUI?.refreshInventory();
+          await window.OlafRental?.loadInventory();
           collectInventoryRows(orders, products);
           renderInventoryList();
 
@@ -4991,7 +4999,7 @@
 
         const rentalOrder = event.target.closest('[data-rental-order]');
         if (rentalOrder) {
-          location.href = 'rental-order.html?order=' + encodeURIComponent(rentalOrder.getAttribute('data-rental-order'));
+          window.OlafRental?.openInventory(rentalOrder.getAttribute('data-rental-order'));
           return;
         }
         const openOrder = event.target.closest('[data-open-order]');

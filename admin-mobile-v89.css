@@ -1,0 +1,63 @@
+/* All admin panels: intrinsic columns, local table scrolling and touch-safe editors. */
+.admin-redesign :is(.admin-panel,.admin-grid,.admin-card,.admin-form,.form-row,.stock-board,.stock-card,.finance-grid) {min-width:0;box-sizing:border-box;}
+.admin-redesign .table-wrap {width:100%;max-width:100%;min-width:0;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;}
+.admin-redesign .json-preview {max-width:100%;overflow:auto;}
+@media(max-width:900px){
+ .admin-redesign .admin-panel {animation:none!important;transform:none!important;}
+ .admin-redesign :is(.admin-grid,.admin-pro-overview,.admin-executive-grid,.finance-insight-grid,.finance-summary-grid,.admin-health-grid,.activity-admin-preview-grid,.free-random-admin-grid) {grid-template-columns:minmax(0,1fr)!important;gap:16px;}
+ .admin-redesign :is(.admin-grid,.form-row)>* {min-width:0;max-width:100%;}
+ .admin-redesign :is(.form-row,.form-row.three,.system-req-grid) {grid-template-columns:minmax(0,1fr)!important;gap:14px;}
+ .admin-redesign [data-software-fields] {grid-template-columns:minmax(0,1fr)!important;}
+ .admin-redesign .stock-board {grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+ .admin-redesign :is(.stock-toolbar,.finance-toolbar) {display:flex;flex-direction:column;align-items:stretch;gap:14px;}
+ .admin-redesign :is(.stock-toolbar,.finance-toolbar)>* {width:100%;min-width:0;max-width:100%;}
+ .admin-redesign .admin-form {width:100%;min-width:0;}
+ .admin-redesign :is(.admin-form label,fieldset) {min-width:0;max-width:100%;}
+ .admin-redesign .admin-form label {overflow-wrap:anywhere;}
+ .admin-redesign :is(input:not([type=checkbox]):not([type=radio]),select,textarea) {min-width:0;max-width:100%;box-sizing:border-box;font-size:16px;}
+ .admin-redesign .admin-form :is(input:not([type=checkbox]):not([type=radio]),select,textarea) {width:100%;}
+ .admin-redesign .admin-form :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select) {min-height:44px;}
+ .admin-redesign .admin-main button {min-height:44px;}
+ .admin-redesign :is(input[type=checkbox],input[type=radio]) {flex:none;}
+ .admin-redesign input[type=file] {width:100%;padding:10px;font-size:13px;}
+ .admin-redesign :is(.form-actions,.data-actions,.dialog-actions,.package-editor-head,.package-card-head,.offline-stock-head,.admin-mini-heading,.card-heading) {flex-wrap:wrap;min-width:0;gap:10px;}
+ .admin-redesign :is(.form-actions,.data-actions,.dialog-actions)>:is(button,a,label) {min-height:44px;max-width:100%;white-space:normal;overflow-wrap:anywhere;}
+ .admin-redesign .card-heading {align-items:flex-start;}
+ .admin-redesign .card-heading>div {min-width:0;}
+ .admin-redesign :is(.search-control,.search-control input) {min-width:0;max-width:100%;}
+ .admin-redesign :is(.category-tabs,.stock-category-tabs) {display:flex;flex-wrap:nowrap;max-width:100%;overflow-x:auto;gap:8px;padding-bottom:8px;}
+ .admin-redesign :is(.category-tabs,.stock-category-tabs)>* {flex:none;}
+ .admin-redesign .table-wrap .admin-table {min-width:640px;}
+ /* Existing customer/wallet tables already become labelled mobile cards. */
+ .admin-redesign .admin-panel[data-panel=users] .table-wrap .admin-table,
+ .admin-redesign .admin-panel[data-panel=finance] .finance-card-wide .table-wrap .admin-table {min-width:0;}
+ .admin-redesign :is(#users-table,#finance-wallets-table) {min-width:0;width:100%;}
+ .admin-redesign :is(#users-table,#finance-wallets-table) td {min-width:0;white-space:normal;overflow-wrap:anywhere;}
+ .admin-redesign .table-wrap :is(th,td) {font-size:12px;}
+ .admin-redesign .table-wrap :is(button,a) {min-height:44px;}
+ .admin-redesign :is(.admin-product-editor,.admin-user-editor,.admin-order-editor) {inset:12px!important;left:12px!important;top:12px!important;width:calc(100vw - 24px)!important;height:calc(100dvh - 24px)!important;max-height:calc(100dvh - 24px)!important;max-width:none!important;margin:0!important;padding:0!important;contain:none!important;content-visibility:visible!important;}
+ .admin-redesign :is(.admin-product-editor,.admin-user-editor,.admin-order-editor).is-open {transform:none!important;}
+ .admin-redesign :is(.admin-product-editor,.admin-user-editor,.admin-order-editor)>.card-heading {flex:none;width:100%;padding:16px 64px 16px 16px;min-height:70px;}
+ .admin-redesign :is(.admin-product-editor,.admin-user-editor,.admin-order-editor)>.card-heading span {white-space:normal;overflow-wrap:anywhere;}
+ .admin-redesign :is(.admin-product-editor,.admin-user-editor,.admin-order-editor) .admin-form {flex:1;min-height:0;max-height:none!important;overflow-y:auto!important;overflow-x:hidden;padding:18px 16px max(24px,env(safe-area-inset-bottom));overscroll-behavior:contain;touch-action:pan-y;}
+ .admin-redesign :is(.admin-product-editor,.admin-user-editor,.admin-order-editor) .form-actions {position:static;display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+ .admin-redesign :is(.admin-product-editor,.admin-user-editor,.admin-order-editor) .form-actions>button {flex:1 1 120px;}
+ body.admin-redesign:is(.admin-product-editor-open,.admin-user-editor-open,.admin-order-editor-open) {touch-action:auto;}
+ .admin-redesign .admin-card:hover {transform:none!important;}
+ .admin-redesign .admin-dialog {position:fixed!important;inset:16px!important;margin:auto!important;transform:none!important;width:min(520px,calc(100vw - 32px))!important;max-width:calc(100vw - 32px)!important;max-height:calc(100dvh - 32px)!important;overflow-y:auto;}
+ .admin-redesign .dialog-content {padding:20px;min-width:0;}
+ .admin-redesign .admin-dialog p {overflow-wrap:anywhere;}
+ .admin-redesign :is(.hero-background-preview,.rental-background-preview,img) {max-width:100%;}
+}
+@media(max-width:560px){
+ .admin-redesign :is(.stock-board,.free-random-slot-grid,.free-random-milestone-grid) {grid-template-columns:minmax(0,1fr)!important;}
+ .admin-redesign .package-field-grid {grid-template-columns:minmax(0,1fr);}
+ .admin-redesign .stock-buttons {grid-template-columns:repeat(2,minmax(0,1fr));}
+ .admin-redesign :is(.package-editor-head,.package-card-head,.offline-stock-head,.admin-mini-heading) {flex-direction:column;align-items:stretch;}
+ .admin-redesign :is(.form-actions,.data-actions,.dialog-actions)>:is(button,a) {flex:1 1 120px;}
+ .admin-redesign .admin-card {padding:16px;}
+ .admin-redesign fieldset {margin-inline:0;padding:14px;}
+ .admin-redesign legend {max-width:100%;white-space:normal;overflow-wrap:anywhere;font-size:13px;}
+ .admin-redesign .admin-form :is(h3,h4,strong,small) {overflow-wrap:anywhere;}
+ .admin-redesign .stock-card {padding:14px;}
+}

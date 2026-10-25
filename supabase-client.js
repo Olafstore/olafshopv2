@@ -1180,6 +1180,7 @@
       packageSubtitle: row.package_subtitle || "",
       packagePrice: row.package_price == null ? null : Number(row.package_price),
       packageSnapshot: normalizeObject(row.package_snapshot),
+      category: row.category || "",
       createdAt: row.created_at || ""
     };
   }
@@ -2097,6 +2098,23 @@
       .order("created_at", { ascending: false });
     if (error) throw error;
     const orders = normalizeArray(data).map(mapOrderRow).filter(Boolean);
+    try {
+      const {data:sessionData}=await requireClient().auth.getSession();
+      const token=sessionData?.session?.access_token;
+      if(token){
+        const response=await fetch('/api/admin-supplier?action=shop-adminOrders',{headers:{Authorization:`Bearer ${token}`},cache:'no-store'});
+        const payload=await response.json();
+        if(response.ok&&payload?.success&&Array.isArray(payload.data)){
+          const supplierOrders=payload.data.map(mapOrderRow).filter(Boolean);
+          const byId=new Map(orders.map(order=>[order.id,order]));
+          supplierOrders.forEach(order=>byId.set(order.id,order));
+          orders.splice(0,orders.length,...byId.values());
+          orders.sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
+        }
+      }
+    } catch (error) {
+      console.warn('Supplier admin orders unavailable', {code:error?.code});
+    }
     return includeSlipUrls ? withPaymentSlipUrls(orders) : orders;
   }
 

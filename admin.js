@@ -4241,7 +4241,7 @@ function financeOrderItemSummary(order) {
   const itemRows = items.map((item) => {
     const currentProduct = productsById.get(String(item.productId || "")) || {};
     const name = item.productName || item.name || currentProduct.name || item.productId || "สินค้า";
-    const category = currentProduct.category ? categoryLabel(currentProduct.category) : "ไม่ระบุหมวด";
+    const category = currentProduct.category ? categoryLabel(currentProduct.category) : item.category === "api" ? "API" : "ไม่ระบุหมวด";
     return { item, currentProduct, name, category };
   });
   const title = items
@@ -4626,6 +4626,10 @@ function renderOrdersTable() {
         .map(
           (order) => {
             const user = userForOrder(order, users);
+            const orderItems=Array.isArray(order.items)?order.items:[];
+            const firstItem=orderItems[0];
+            const itemName=firstItem?.productName||firstItem?.name||"ยังไม่ระบุสินค้า";
+            const itemExtra=orderItems.length>1?` +${orderItems.length-1} รายการ`:"";
             const pointInfo =
               Number(order.pointsRedeemedAmount || 0) > 0 || Number(order.pointCreditAmount || 0) > 0
                 ? `ใช้ ${formatPointAmount(order.pointsRedeemedAmount || 0)}P / เครดิต ${formatPointAmount(order.pointCreditAmount || 0)}P`
@@ -4633,6 +4637,7 @@ function renderOrdersTable() {
             return `
             <tr>
               <td><strong>${escapeHtml(order.orderNumber || order.id)}</strong><br><span>${formatAdminDateTime(order.createdAt)}</span></td>
+              <td><strong>${escapeHtml(itemName)}${itemExtra}</strong>${firstItem?.category==="api"?'<br><span>API</span>':""}</td>
               <td>
                 <div class="finance-mini-user">
                   <strong>${escapeHtml(adminUserLabel(user))}</strong>
@@ -4649,7 +4654,7 @@ function renderOrdersTable() {
           }
         )
         .join("")
-    : `<tr><td colspan="7">ยังไม่มีคำสั่งซื้อ</td></tr>`;
+    : `<tr><td colspan="8">ยังไม่มีคำสั่งซื้อ</td></tr>`;
 }
 
 function renderOrderForm() {

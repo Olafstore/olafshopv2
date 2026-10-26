@@ -1,6 +1,6 @@
 (function () {
   const MAX_SLIP_SIZE = 5 * 1024 * 1024;
-  const MAX_SCAN_DIMENSION = 1800;
+  const SCAN_DIMENSIONS = [1800, 2600];
 
   function scannerError(code) {
     const error = new Error(code);
@@ -35,12 +35,12 @@
     return loadImage(file);
   }
 
-  function canvasForDrawable(drawable) {
+  function canvasForDrawable(drawable, maxDimension) {
     const sourceWidth = Number(drawable.width || drawable.naturalWidth || 0);
     const sourceHeight = Number(drawable.height || drawable.naturalHeight || 0);
     if (!sourceWidth || !sourceHeight) throw scannerError("SLIP_IMAGE_INVALID");
 
-    const scale = Math.min(1, MAX_SCAN_DIMENSION / Math.max(sourceWidth, sourceHeight));
+    const scale = maxDimension / Math.max(sourceWidth, sourceHeight);
     const width = Math.max(1, Math.round(sourceWidth * scale));
     const height = Math.max(1, Math.round(sourceHeight * scale));
     const canvas = document.createElement("canvas");
@@ -68,10 +68,22 @@
   function scanWithJsQr(context, width, height) {
     if (typeof window.jsQR !== "function") return "";
     const imageData = context.getImageData(0, 0, width, height);
-    const result = window.jsQR(imageData.data, width, height, {
-      inversionAttempts: "attemptBoth"
-    });
-    return String(result?.data || "").trim();
+    const direct = window.jsQR(imageData.data, width, height, { inversionAttempts: "attemptBoth" });
+    if (direct?.data) return String(direct.data).trim();
+
+    // Wallet slips often render a small, low-contrast QR on a colored background.
+    // Retry grayscale threshold variants without changing the decoded payload.
+    for (const threshold of [145, 185]) {
+      const pixels = new Uint8ClampedArray(imageData.data);
+      for (let i = 0; i < pixels.length; i += 4) {
+        const gray = Math.round(pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114);
+        const value = gray >= threshold ? 255 : 0;
+        pixels[i] = pixels[i + 1] = pixels[i + 2] = value;
+      }
+      const result = window.jsQR(pixels, width, height, { inversionAttempts: "attemptBoth" });
+      if (result?.data) return String(result.data).trim();
+    }
+    return "";
   }
 
   async function scanFile(file) {
@@ -85,9 +97,14 @@
 
     const drawable = await drawableFromFile(file);
     try {
-      const { canvas, context, width, height } = canvasForDrawable(drawable);
-      const nativePayload = await scanWithBarcodeDetector(canvas);
-      const payload = nativePayload || scanWithJsQr(context, width, height);
+      let nativePayload = "";
+      let payload = "";
+      for (const dimension of SCAN_DIMENSIONS) {
+        const { canvas, context, width, height } = canvasForDrawable(drawable, dimension);
+        if (!nativePayload) nativePayload = await scanWithBarcodeDetector(canvas);
+        payload = nativePayload || scanWithJsQr(context, width, height);
+        if (payload) break;
+      }
       if (!payload) throw scannerError("SLIP_QR_NOT_FOUND");
       return {
         payload,

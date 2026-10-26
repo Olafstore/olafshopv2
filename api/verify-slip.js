@@ -314,21 +314,37 @@ export async function scanQrFromImage(buffer) {
   const widths = [1800, 2600];
   for (const width of widths) {
     try {
-      const { data, info } = await image
+      const base = image
         .clone()
         .resize({
           width,
           height: width,
           fit: "inside",
           withoutEnlargement: width === 1800
-        })
-        .ensureAlpha()
-        .raw()
-        .toBuffer({ resolveWithObject: true });
-      const decoded = jsQR(new Uint8ClampedArray(data), info.width, info.height, {
-        inversionAttempts: "attemptBoth"
-      });
-      if (decoded?.data) return clean(decoded.data);
+        });
+      const variants = [
+        base.clone().ensureAlpha().raw(),
+        base.clone().greyscale().normalise().threshold(145).toColourspace("srgb").ensureAlpha().raw(),
+        base.clone().greyscale().normalise().threshold(185).toColourspace("srgb").ensureAlpha().raw()
+      ];
+      for (const variant of variants) {
+        const { data, info } = await variant.toBuffer({ resolveWithObject: true });
+        let rgba = data;
+        if (info.channels !== 4) {
+          rgba = new Uint8ClampedArray(info.width * info.height * 4);
+          for (let pixel = 0; pixel < info.width * info.height; pixel += 1) {
+            const source = pixel * info.channels;
+            const target = pixel * 4;
+            const gray = data[source];
+            rgba[target] = gray;
+            rgba[target + 1] = info.channels > 1 ? data[source + 1] : gray;
+            rgba[target + 2] = info.channels > 2 ? data[source + 2] : gray;
+            rgba[target + 3] = info.channels === 2 ? data[source + 1] : info.channels === 4 ? data[source + 3] : 255;
+          }
+        }
+        const decoded = jsQR(new Uint8ClampedArray(rgba), info.width, info.height, { inversionAttempts: "attemptBoth" });
+        if (decoded?.data) return clean(decoded.data);
+      }
     } catch (error) {
       // Try the next local decoding size without consuming the external quota.
     }

@@ -3862,28 +3862,32 @@ function bindEvents() {
   });
 
   document.body.addEventListener("click", async (event) => {
-    const detailButton = event.target.closest("[data-detail]");
-    const addButton = event.target.closest("[data-add]");
-    const detailAddButton = event.target.closest("[data-detail-add]");
-    const favoriteButton = event.target.closest("[data-favorite]");
-    const discoverySkip = event.target.closest("[data-discovery-skip]");
-    const quantityButton = event.target.closest("[data-qty]");
-    const copyOrder = event.target.closest("[data-copy-order]");
-    const authFromReview = event.target.closest("[data-open-auth-from-review]");
-    const logoutButton = event.target.closest("[data-logout]");
-    if(event.target.closest('[data-catalog-more]')){state.currentPage++;renderProducts();return;}
-    const pageButton = event.target.closest("[data-page]");
-    const homeCategoryButton = event.target.closest("[data-home-category]");
-    const homeCategoryViewButton = event.target.closest("[data-home-category-view]");
-    const showcaseCategoryButton = event.target.closest("[data-showcase-category]");
-    const promoVideoButton = event.target.closest("[data-promo-video]");
-    const steamCategoryButton = event.target.closest("[data-steam-category]");
-    const steamSpotlightStep = event.target.closest("[data-steam-spotlight-step]");
-    const steamSpotlightDot = event.target.closest("[data-steam-spotlight-dot]");
-    const steamDiscoveryButton = event.target.closest("[data-steam-discovery-mode]");
-    const steamDealsScroll = event.target.closest("[data-steam-deals-scroll]");
-    const steamActivityStep = event.target.closest("[data-steam-activity-step]");
-    const steamActivityDot = event.target.closest("[data-steam-activity-dot]");
+    const actionTarget = event.target.closest(
+      "[data-detail], [data-add], [data-detail-add], [data-favorite], [data-discovery-skip], [data-qty], [data-copy-order], [data-open-auth-from-review], [data-logout], [data-catalog-more], [data-page], [data-home-category], [data-home-category-view], [data-showcase-category], [data-promo-video], [data-steam-category], [data-steam-spotlight-step], [data-steam-spotlight-dot], [data-steam-discovery-mode], [data-steam-deals-scroll], [data-steam-activity-step], [data-steam-activity-dot], [data-user-section], [data-user-logout]"
+    );
+    if (!actionTarget) return;
+    const detailButton = actionTarget.matches("[data-detail]") ? actionTarget : null;
+    const addButton = actionTarget.matches("[data-add]") ? actionTarget : null;
+    const detailAddButton = actionTarget.matches("[data-detail-add]") ? actionTarget : null;
+    const favoriteButton = actionTarget.matches("[data-favorite]") ? actionTarget : null;
+    const discoverySkip = actionTarget.matches("[data-discovery-skip]") ? actionTarget : null;
+    const quantityButton = actionTarget.matches("[data-qty]") ? actionTarget : null;
+    const copyOrder = actionTarget.matches("[data-copy-order]") ? actionTarget : null;
+    const authFromReview = actionTarget.matches("[data-open-auth-from-review]") ? actionTarget : null;
+    const logoutButton = actionTarget.matches("[data-logout]") ? actionTarget : null;
+    if(actionTarget.matches('[data-catalog-more]')){state.currentPage++;renderProducts();return;}
+    const pageButton = actionTarget.matches("[data-page]") ? actionTarget : null;
+    const homeCategoryButton = actionTarget.matches("[data-home-category]") ? actionTarget : null;
+    const homeCategoryViewButton = actionTarget.matches("[data-home-category-view]") ? actionTarget : null;
+    const showcaseCategoryButton = actionTarget.matches("[data-showcase-category]") ? actionTarget : null;
+    const promoVideoButton = actionTarget.matches("[data-promo-video]") ? actionTarget : null;
+    const steamCategoryButton = actionTarget.matches("[data-steam-category]") ? actionTarget : null;
+    const steamSpotlightStep = actionTarget.matches("[data-steam-spotlight-step]") ? actionTarget : null;
+    const steamSpotlightDot = actionTarget.matches("[data-steam-spotlight-dot]") ? actionTarget : null;
+    const steamDiscoveryButton = actionTarget.matches("[data-steam-discovery-mode]") ? actionTarget : null;
+    const steamDealsScroll = actionTarget.matches("[data-steam-deals-scroll]") ? actionTarget : null;
+    const steamActivityStep = actionTarget.matches("[data-steam-activity-step]") ? actionTarget : null;
+    const steamActivityDot = actionTarget.matches("[data-steam-activity-dot]") ? actionTarget : null;
 
     if (favoriteButton) {
       event.preventDefault();
@@ -4037,13 +4041,13 @@ function bindEvents() {
     }
 
     // User popover sections
-    const sectionBtn = event.target.closest("[data-user-section]");
+    const sectionBtn = actionTarget.matches("[data-user-section]") ? actionTarget : null;
     if (sectionBtn) {
       showUserPopoverSection(sectionBtn.dataset.userSection);
       return;
     }
 
-    const userLogout = event.target.closest("[data-user-logout]");
+    const userLogout = actionTarget.matches("[data-user-logout]") ? actionTarget : null;
     if (userLogout) {
       await window.OlafStore?.logout();
       closeUserPopover();

@@ -256,8 +256,23 @@
     $('supplier-search')?.addEventListener('input',renderCatalog);$('supplier-refresh').addEventListener('click',e=>run(e.currentTarget,loadOrders));
     document.querySelector('.supplier-close').addEventListener('click',()=>$('supplier-detail').close());
     document.addEventListener('visibilitychange',()=>{if(!document.hidden&&location.hash==='#inventory')loadOrders();});
+    // pageshow also fires when the browser restores this page from its back/forward cache.
+    window.addEventListener('pageshow',event=>{if((event.persisted||!document.hidden)&&location.hash==='#inventory')loadOrders();});
     window.addEventListener('hashchange',()=>{if(location.hash==='#inventory')loadOrders();});
-    window.olafSupabase?.auth.onAuthStateChange((event)=>{if(['SIGNED_OUT','SIGNED_IN'].includes(event)){epoch++;closeVaults();document.dispatchEvent(new CustomEvent('olaf:supplier-inventory',{detail:[]}));currentOrder=null;$('supplier-order').hidden=true;$('supplier-order').replaceChildren();$('supplier-orders').replaceChildren();if($('supplier-admin')){$('supplier-admin').hidden=true;$('supplier-admin').replaceChildren();}if(adminPage&&event==='SIGNED_OUT')document.querySelector('main').hidden=true;}});
+    window.olafSupabase?.auth.onAuthStateChange((event)=>{
+      if(!['SIGNED_OUT','SIGNED_IN'].includes(event))return;
+      epoch++;const restoreEpoch=epoch;ordersLoadVersion++;closeVaults();
+      currentOrder=null;$('supplier-order').hidden=true;$('supplier-order').replaceChildren();$('supplier-orders').replaceChildren();
+      if($('supplier-admin')){$('supplier-admin').hidden=true;$('supplier-admin').replaceChildren();}
+      if(event==='SIGNED_OUT')document.dispatchEvent(new CustomEvent('olaf:supplier-inventory',{detail:[]}));
+      if(adminPage&&event==='SIGNED_OUT')document.querySelector('main').hidden=true;
+      // A fresh sign-in clears any prior account's supplier rows above. Reload
+      // this user's inventory after the auth callback finishes so tab restore
+      // cannot leave the API products hidden until a manual refresh.
+      if(event==='SIGNED_IN'&&location.pathname.endsWith('/profile.html'))window.setTimeout(()=>{
+        if(epoch===restoreEpoch)loadOrders();
+      },0);
+    });
     if(adminPage){try{const data=await api('catalog');products=data.products;checkoutEnabled=data.checkoutEnabled;renderCatalog();notice(checkoutEnabled?'สินค้าแสดงในหมวดเกมออฟไลน์หน้าร้านหลักแล้ว':'ยังไม่พร้อมรับคำสั่งซื้อ กรุณาตรวจ Environment / SQL');}catch{notice('ยังโหลดสินค้าไม่ได้');}}
     if(adminPage||location.pathname.endsWith('/profile.html'))await loadOrders();
     if(!adminPage)return;

@@ -10,7 +10,7 @@
     SUPPLIER_PRODUCT_UNAVAILABLE:'สินค้านี้ยังไม่เปิดขาย',IDEMPOTENCY_CONFLICT:'คำขอสั่งซื้อเดิมไม่ตรงกัน กรุณาโหลดออเดอร์ก่อนลองใหม่',
     SUPPLIER_FULFILLMENT_BUSY:'กำลังจัดส่ง กรุณารอสักครู่แล้วโหลดออเดอร์ใหม่',SUPPLIER_MANUAL_REVIEW_REQUIRED:'ออเดอร์นี้ต้องให้ร้านตรวจสอบ กรุณาติดต่อร้าน',
     VERIFIED_PAYMENT_REQUIRED:'ยังไม่มีผลยืนยันชำระเงินที่ถูกต้อง',DELIVERY_NOT_READY:'ยังส่งมอบไม่สำเร็จ กรุณาโหลดสถานะใหม่',
-    CODE_LIMIT_REACHED:'ใช้โควตา Steam Guard ครบแล้ว กรุณาติดต่อร้าน',CODE_UNAVAILABLE:'บัญชีนี้ไม่รองรับ Steam Guard อัตโนมัติ',
+    CODE_LIMIT_REACHED:'ใช้โควตา Steam Guard ครบแล้ว ระบบจะเปิดให้ขอใหม่เมื่อครบ 24 ชั่วโมง',GUARD_COOLDOWN:'ขอ Steam Guard ครบ 3 ครั้งแล้ว กรุณารอให้ครบ 24 ชั่วโมงก่อนขอใหม่',CODE_UNAVAILABLE:'บัญชีนี้ไม่รองรับ Steam Guard อัตโนมัติ',
     ORDER_REFUNDED:'ออเดอร์นี้ถูกคืนเงินแล้ว',GUARD_WINDOW_CLOSED:'รอบ Steam Guard สิ้นสุดแล้ว กรุณากดเปิดรอบใหม่',
     GUARD_BUSY:'กำลังประมวลผล Steam Guard กรุณารออย่างน้อย 65 วินาที',RATE_LIMITED:'เรียกถี่เกินไป กรุณารอแล้วลองใหม่',
     SUPPLIER_RATE_LIMITED:'มีคำขอมาก กรุณารอหนึ่งนาทีแล้วลองใหม่',ORDER_NOT_FOUND:'ไม่พบออเดอร์ของคุณ',
@@ -20,7 +20,7 @@
   function clearSecrets(){guardVersion++;clearInterval(guardTimer);guardTimer=null;document.querySelectorAll('[data-supplier-secret]').forEach(n=>n.remove());document.querySelectorAll('[data-guard-start]').forEach(n=>{delete n.dataset.locked;n.disabled=false;});}
   Object.assign(errors,{SUPPLIER_MIGRATION_REQUIRED:'ยังไม่ได้ติดตั้ง SQL ชุดหน้าร้านหลัก กรุณาแจ้งแอดมิน',SUPPLIER_PERMISSION_REQUIRED:'สิทธิ์ฐานข้อมูลไม่พร้อม กรุณาแจ้งแอดมิน',SUPPLIER_SCHEMA_MISMATCH:'โครงสร้างฐานข้อมูลออเดอร์ไม่ตรง กรุณาแจ้งแอดมิน',SUPPLIER_DATABASE_UNAVAILABLE:'ฐานข้อมูลไม่พร้อม กรุณาลองใหม่',SERVER_CONFIG_REQUIRED:'Server Environment ยังไม่ครบ กรุณาแจ้งแอดมิน',MIN_TOPUP_REQUIRED:'ร้านยังไม่ผ่านเงื่อนไขยอดเติมของผู้ให้บริการ',SUPPLIER_PRICE_CHANGED:'ราคาเปลี่ยนแล้ว กรุณาปิดและเปิดสั่งซื้อใหม่เพื่อยืนยันราคาใหม่'});
   errors.SUPPLIER_UPSTREAM_BLOCKED='499K ปฏิเสธการเชื่อมต่อจากเซิร์ฟเวอร์ร้าน กรุณาติดต่อร้าน ยังไม่มีการสั่งซื้อหรือตัดเงิน';
-  async function run(control,task){control.disabled=true;try{await task();}catch(e){notice((errors[e.code]||'ทำรายการไม่สำเร็จ กรุณาโหลดสถานะใหม่ก่อนลองซ้ำ')+(e.code?' ['+e.code+']':''));}finally{if(control.isConnected)control.disabled=control.dataset.locked==='true';}}
+  async function run(control,task){control.disabled=true;try{await task();}catch(e){let message=errors[e.code]||'ทำรายการไม่สำเร็จ กรุณาโหลดสถานะใหม่ก่อนลองซ้ำ';if(e.code==='GUARD_COOLDOWN'&&e.retryAfter){const h=Math.floor(e.retryAfter/3600),m=Math.ceil(e.retryAfter%3600/60);message=`ขอ Steam Guard ครบ 3 ครั้งแล้ว ขอใหม่ได้อีกใน ${h?`${h} ชม. `:''}${m?`${m} นาที`:'ไม่ถึง 1 นาที'}`;}notice(message+(e.code?' ['+e.code+']':''));}finally{if(control.isConnected)control.disabled=control.dataset.locked==='true';}}
   async function session(){const result=await window.olafSupabase.auth.getSession();if(result.error||!result.data?.session)throw Object.assign(new Error(),{code:'AUTH_REQUIRED'});return result.data.session;}
   const checkoutCooldowns=new Map(),pendingQuotes=new Map();
   async function quoteProduct(productId){
@@ -41,7 +41,7 @@
     const res=await fetch(`/api/admin-supplier?action=shop-${action}`,{method:body===undefined?'GET':'POST',headers,cache:'no-store',signal:AbortSignal.timeout(30000),...(body!==undefined?{body:JSON.stringify(body)}:{})});
     const result=await res.json();if(version!==epoch)throw new Error('SESSION_CHANGED');
     if(!res.ok||!result.success){
-      const retryAfter=Math.min(3600,Math.max(1,Number(res.headers.get('Retry-After'))||60));
+      const retryAfter=Math.min(result.code==='GUARD_COOLDOWN'?86400:3600,Math.max(1,Number(res.headers.get('Retry-After'))||(result.code==='GUARD_COOLDOWN'?86400:60)));
       if(checkoutAction&&(res.status===429||['SUPPLIER_RATE_LIMITED','RATE_LIMITED','SUPPLIER_DATABASE_RATE_LIMITED'].includes(result.code)))checkoutCooldowns.set(cooldownKey,Date.now()+retryAfter*1000);
       throw Object.assign(new Error(),{code:result.code,diagnostics:result.diagnostics,retryAfter});
     }return result.data;

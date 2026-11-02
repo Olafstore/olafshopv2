@@ -11,6 +11,7 @@ dialog.supplier-vault::backdrop{background:#020611d9;backdrop-filter:blur(10px)}
 .supplier-vault .supplier-vault-close .supplier-topic-icon{width:16px;height:16px;margin:0}.supplier-vault .supplier-vault-close .supplier-topic-icon img{filter:invert(78%) sepia(14%) saturate(1047%) hue-rotate(175deg)}
 .supplier-vault .supplier-vault-subtitle{margin:-6px 0 16px 80px;color:#a4bde4;font-size:14px;line-height:1.4}
 .supplier-vault [data-supplier-dialog-status]:not(:empty){margin:8px 0;padding:8px 12px;border:1px solid #bb794a;border-radius:9px;background:#51301d66}
+.supplier-vault .supplier-vault-retry{display:block;min-height:42px;margin:12px auto;padding:9px 18px;border:1px solid #4bb2fb;border-radius:9px;background:linear-gradient(120deg,#194b84,#12335d);color:#eaf6ff;font-weight:700;box-shadow:0 0 12px #088cf833}
 .supplier-vault .supplier-vault-product{display:grid;grid-template-columns:1fr 1fr;min-height:160px;margin:10px 0;border:1px solid #3180c6;border-radius:12px;background:linear-gradient(120deg,#07182c,#081631);box-shadow:0 0 18px #0e8efe2b;overflow:hidden}
 .supplier-vault .supplier-vault-product>img{display:block;width:100%;height:160px;object-fit:cover;border-right:1px solid #378ad8}
 .supplier-vault .supplier-vault-product>div{display:flex;flex-direction:column;justify-content:center;gap:12px;padding:16px 18px}

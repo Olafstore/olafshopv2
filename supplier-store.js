@@ -15,7 +15,7 @@
     GUARD_BUSY:'กำลังประมวลผล Steam Guard กรุณารออย่างน้อย 65 วินาที',RATE_LIMITED:'เรียกถี่เกินไป กรุณารอแล้วลองใหม่',
     SUPPLIER_RATE_LIMITED:'มีคำขอมาก กรุณารอหนึ่งนาทีแล้วลองใหม่',ORDER_NOT_FOUND:'ไม่พบออเดอร์ของคุณ',
     SUPPLIER_SERVICE_UNAVAILABLE:'ระบบยังไม่พร้อม กรุณาติดต่อร้านหรือลองใหม่ภายหลัง'};
-  let products=[],checkoutEnabled=false,currentOrder=null,epoch=0,guardTimer=null,guardVersion=0;
+  let products=[],checkoutEnabled=false,currentOrder=null,epoch=0,guardTimer=null,guardVersion=0,ordersLoadVersion=0;
   const notice=message=>{const box=document.querySelector('dialog.supplier-vault[open] [data-supplier-dialog-status]')||$('supplier-notice');if(box)box.textContent=message;};
   function clearSecrets(){guardVersion++;clearInterval(guardTimer);guardTimer=null;document.querySelectorAll('[data-supplier-secret]').forEach(n=>n.remove());document.querySelectorAll('[data-guard-start]').forEach(n=>{delete n.dataset.locked;n.disabled=false;});}
   Object.assign(errors,{SUPPLIER_MIGRATION_REQUIRED:'ยังไม่ได้ติดตั้ง SQL ชุดหน้าร้านหลัก กรุณาแจ้งแอดมิน',SUPPLIER_PERMISSION_REQUIRED:'สิทธิ์ฐานข้อมูลไม่พร้อม กรุณาแจ้งแอดมิน',SUPPLIER_SCHEMA_MISMATCH:'โครงสร้างฐานข้อมูลออเดอร์ไม่ตรง กรุณาแจ้งแอดมิน',SUPPLIER_DATABASE_UNAVAILABLE:'ฐานข้อมูลไม่พร้อม กรุณาลองใหม่',SERVER_CONFIG_REQUIRED:'Server Environment ยังไม่ครบ กรุณาแจ้งแอดมิน',MIN_TOPUP_REQUIRED:'ร้านยังไม่ผ่านเงื่อนไขยอดเติมของผู้ให้บริการ',SUPPLIER_PRICE_CHANGED:'ราคาเปลี่ยนแล้ว กรุณาปิดและเปิดสั่งซื้อใหม่เพื่อยืนยันราคาใหม่'});
@@ -46,7 +46,7 @@
       throw Object.assign(new Error(),{code:result.code,diagnostics:result.diagnostics,retryAfter});
     }return result.data;
   }
-  async function apiOrder(id){const s=await session();const r=await fetch('/api/admin-supplier?action=shop-order&orderId='+encodeURIComponent(id),{headers:{Authorization:'Bearer '+s.access_token},cache:'no-store'});const j=await r.json();if(!j.success)throw Object.assign(new Error(),{code:j.code});return j.data;}
+  async function apiOrder(id){const s=await session();const r=await fetch('/api/admin-supplier?action=shop-order&orderId='+encodeURIComponent(id),{headers:{Authorization:'Bearer '+s.access_token},cache:'no-store',signal:AbortSignal.timeout(20000)});const j=await r.json().catch(()=>({}));if(!r.ok||!j.success||!j.data)throw Object.assign(new Error(),{code:j.code||'SUPPLIER_SERVICE_UNAVAILABLE'});return j.data;}
   function img(url,alt,cls){const n=el('img',undefined,cls);n.src=url;n.alt=alt;n.loading='lazy';n.referrerPolicy='no-referrer';return n;}
   function price(p){const box=el('div');if(p.compareAt)box.append(el('del',money(p.compareAt),'supplier-compare'));box.append(el('strong',money(p.price),'supplier-price'));return box;}
   function renderCatalog(){
@@ -86,19 +86,20 @@
   }
   const labels={awaiting_payment:'รอชำระเงิน',waiting_admin:'กำลังตรวจชำระเงิน',confirmed:'ชำระแล้ว รอส่งมอบ',delivered:'ส่งมอบแล้ว',cancelled:'ยกเลิกแล้ว',expired:'หมดอายุ'};
   async function loadOrders(){
-    const box=$('supplier-orders');let rows;
-    try{rows=await api('orders');}catch(e){box.replaceChildren(el('p',errors[e.code]||'ยังโหลดออเดอร์ไม่ได้'));if(e.code==='AUTH_REQUIRED'){const a=el('a','เข้าสู่ระบบ');a.href='login.html?return='+encodeURIComponent(location.pathname+location.search+'#orders');box.append(a);}return;}
+    const request=++ordersLoadVersion,box=$('supplier-orders');let rows;
+    try{rows=await api('orders');}catch(e){if(request!==ordersLoadVersion)return;box.replaceChildren(el('p',errors[e.code]||'ยังโหลดออเดอร์ไม่ได้'));if(e.code==='AUTH_REQUIRED'){const a=el('a','เข้าสู่ระบบ');a.href='login.html?return='+encodeURIComponent(location.pathname+location.search+'#orders');box.append(a);}return;}
+    if(request!==ordersLoadVersion)return;
     if(location.pathname.endsWith('/profile.html')){
       document.dispatchEvent(new CustomEvent('olaf:supplier-inventory',{detail:rows}));
       const id=new URLSearchParams(location.search).get('order');
-      if(id&&!currentOrder&&location.hash!=='#inventory'){const o=rows.find(o=>o.id===id);if(o)await renderOrder(o);}return;
+      if(id&&currentOrder?.id!==id&&location.hash!=='#inventory'){const o=rows.find(o=>o.id===id);if(o)await renderOrder(o);}return;
     }
     box.replaceChildren();for(const o of rows){const row=el('article',undefined,'supplier-order-row'),text=el('div');text.append(el('strong',o.name),el('small',`${o.orderNumber} · ${money(o.price)} · ${labels[o.status]||o.status}`));
       row.append(text,button('เปิดออเดอร์',()=>renderOrder(o)));box.append(row);}
     if(!rows.length)box.append(el('p','ยังไม่มีออเดอร์สินค้าอัตโนมัติ'));
-    const id=new URLSearchParams(location.search).get('order');if(id&&!currentOrder){const o=rows.find(o=>o.id===id);if(o)await renderOrder(o);}
+    const id=new URLSearchParams(location.search).get('order');if(id&&currentOrder?.id!==id){const o=rows.find(o=>o.id===id);if(o)await renderOrder(o);}
   }
-  async function refreshOrder(orderId){const list=await api('orders');const o=list.find(o=>o.id===orderId);if(o)await renderOrder(o);else notice('ไม่พบออเดอร์ในรายการล่าสุด กรุณาติดต่อร้าน');}
+  async function refreshOrder(orderId){try{await renderOrder(await apiOrder(orderId));}catch(e){notice(errors[e.code]||'ยังโหลดออเดอร์ไม่ได้ กรุณาลองใหม่');}}
   async function paymentQR(order,box){
     try{
       const channels=await window.OlafStoreSettings.fetchPaymentChannels({activeOnly:true});
@@ -159,12 +160,18 @@
     document.body.append(dialog);dialog.showModal();return dialog;
   }
   function closeVaults(){document.querySelectorAll('dialog.supplier-vault').forEach(d=>{if(d.open)d.close();d.remove();});clearSecrets();}
+  function showInventoryRetry(dialog,orderId,message){
+    dialog.querySelector('.supplier-vault-loading')?.remove();
+    const status=dialog.querySelector('[data-supplier-dialog-status]');if(status)status.textContent=message;
+    if(dialog.querySelector('[data-supplier-vault-retry]'))return;
+    const retry=button('โหลดออเดอร์อีกครั้ง',()=>openInventory(orderId));retry.dataset.supplierVaultRetry='';retry.className='supplier-vault-retry';dialog.append(retry);
+  }
   async function openInventory(orderId){
     closeVaults();const version=guardVersion;
     const dialog=vaultDialog('รับข้อมูลสินค้า Steam');dialog.append(el('p','รับไอดี รหัสผ่าน และ Steam Guard ในหน้าต่างเดียว','supplier-vault-subtitle'),el('p','กำลังโหลดข้อมูล…','supplier-vault-loading'));
     let o;
-    try{o=await apiOrder(orderId);}catch(e){dialog.querySelector('.supplier-vault-loading')?.remove();notice(errors[e.code]||'ยังโหลดข้อมูลไม่ได้ กรุณาลองใหม่');return;}
-    if(version!==guardVersion||!dialog.open||document.hidden)return;
+    try{o=await apiOrder(orderId);}catch(e){if(version===guardVersion&&dialog.open)showInventoryRetry(dialog,orderId,errors[e.code]||'ยังโหลดออเดอร์ไม่ได้ กรุณาลองใหม่');return;}
+    if(version!==guardVersion||!dialog.open)return;
     currentOrder=o;dialog.querySelector('.supplier-vault-loading')?.remove();
     const summary=el('section',undefined,'supplier-vault-product');
     if(o.image){const cover=el('img');cover.src=o.image;cover.alt=o.name;cover.addEventListener('error',()=>cover.remove(),{once:true});summary.append(cover);}
@@ -177,7 +184,7 @@
     }
     try{
       const account=await api('delivery',{orderId:o.id});
-      if(version!==guardVersion||!dialog.open||document.hidden)return;
+      if(version!==guardVersion||!dialog.open)return;
       const box=el('div',undefined,'supplier-vault-account');box.dataset.supplierSecret='';box.dataset.supplierAccount='';box.append(el('h3','ข้อมูลบัญชีผู้ใช้'),el('small','คัดลอกข้อมูลเพื่อเข้าใช้งานได้ทันที','supplier-vault-account-hint'));
       for(const [field,title] of [['username','Steam ID'],['password','รหัสผ่าน']]){
         const label=el('label',title),row=el('div',undefined,'supplier-vault-field'),input=el('input');input.value=account[field]||'';input.readOnly=true;input.type=field==='password'?'password':'text';input.autocomplete='off';input.setAttribute('aria-label',title);row.append(input);
@@ -193,29 +200,30 @@
       box.querySelectorAll('.supplier-vault-field button:not(.supplier-vault-eye)').forEach(b=>b.prepend(vaultIcon('copy')));
       dialog.append(box);openGuard(o,dialog);
       const footer=el('div',undefined,'supplier-vault-footer');const delivery=el('span','จัดส่งอัตโนมัติ · รับสินค้าทันทีหลังชำระเงิน');delivery.prepend(vaultIcon('gear'));footer.append(delivery,button('ปิด',()=>dialog.close()));dialog.append(footer);
-    }catch(e){if(version===guardVersion)notice(errors[e.code]||'ยังเปิดข้อมูลไม่ได้ กรุณาลองใหม่');}
+    }catch(e){if(version===guardVersion&&dialog.open)showInventoryRetry(dialog,orderId,errors[e.code]||'ยังเปิดข้อมูลไม่ได้ กรุณาลองโหลดออเดอร์อีกครั้ง');}
   }
   function openGuard(o,dialog){
     const section=el('section',undefined,'supplier-vault-guard');section.append(el('h3','Steam Guard'),el('p','กดรับ Steam Guard เพื่อดูรหัสหรือยืนยันอีเมลเพิ่มเติม'));
     section.querySelector('h3').prepend(vaultIcon('shield'));
     const start=button('รับ Steam Guard',async()=>{
       const version=guardVersion,result=await api('guard',{orderId:o.id,reason:'ลูกค้าขอ Steam Guard เพื่อเข้าสู่ระบบบัญชีที่ซื้อ'});
-      if(version!==guardVersion||!dialog.open||document.hidden)return;showGuard(o,result,start,section);
+      if(version!==guardVersion||!dialog.open)return;showGuard(o,result,start,section,dialog);
     });start.setAttribute('aria-label','รับรหัส Steam Guard');start.prepend(vaultIcon('steam'));start.append(vaultIcon('chevron'));start.dataset.guardStart='';section.append(start);
     const guardNote=el('p','หลังจากกดรับ Steam Guard ระบบจะแสดงรหัสครั้งล่าสุดเพิ่มเติมทันที กรุณาเก็บข้อมูลเป็นความลับ ไม่ควรเปิดเผยให้ผู้อื่น','supplier-vault-guard-note');guardNote.prepend(vaultIcon('info'));section.append(guardNote);dialog.append(section);
   }
-  function showGuard(o,result,start,target){
+  function showGuard(o,result,start,target,dialog){
     document.querySelectorAll('[data-supplier-guard]').forEach(n=>n.remove());clearInterval(guardTimer);
     const box=el('div',undefined,'supplier-secret'),code=el('strong',result.code,'supplier-guard-code'),status=el('span');
     box.dataset.supplierSecret='';box.dataset.supplierGuard='';box.append(code,status,button('คัดลอกรหัส',()=>{if(Date.now()<validUntil)return navigator.clipboard.writeText(code.textContent);notice('รหัสหมดอายุแล้ว');}));target.append(box);
     let validUntil=Date.now()+result.valid_for_sec*1000,windowUntil=Date.now()+result.window.expires_in_sec*1000,busy=false;
     const version=guardVersion;start.disabled=true;start.dataset.locked='true';
     guardTimer=setInterval(async()=>{
-      if(version!==guardVersion||document.hidden||currentOrder?.id!==o.id){clearInterval(guardTimer);box.remove();delete start.dataset.locked;start.disabled=false;return;}
+      if(version!==guardVersion||!dialog.open||currentOrder?.id!==o.id){clearInterval(guardTimer);box.remove();delete start.dataset.locked;start.disabled=false;return;}
+      if(document.hidden)return;
       const left=Math.max(0,Math.ceil((windowUntil-Date.now())/1000));status.textContent=`เหลือ ${left} วินาที · ใช้แล้ว ${result.code_requests.used}/${result.code_requests.max} รอบ`;
       if(Date.now()>=validUntil)code.textContent='—';
       if(!left){clearInterval(guardTimer);code.textContent='หมดรอบ';delete start.dataset.locked;start.disabled=false;return;}
-      if(Date.now()>=validUntil-1000 && left>4&&!busy){busy=true;try{const next=await api('guard',{orderId:o.id});if(version!==guardVersion||document.hidden)return;code.textContent=next.code;validUntil=Date.now()+next.valid_for_sec*1000;windowUntil=Date.now()+next.window.expires_in_sec*1000;}catch(e){clearInterval(guardTimer);code.textContent='—';status.textContent=errors[e.code]||'ยังไม่ทราบผล กรุณารอ 65 วินาทีก่อนเปิดรอบใหม่';delete start.dataset.locked;start.disabled=false;}finally{busy=false;}}
+      if(Date.now()>=validUntil-1000 && left>4&&!busy){busy=true;try{const next=await api('guard',{orderId:o.id});if(version!==guardVersion||!dialog.open)return;code.textContent=next.code;validUntil=Date.now()+next.valid_for_sec*1000;windowUntil=Date.now()+next.window.expires_in_sec*1000;}catch(e){clearInterval(guardTimer);code.textContent='—';status.textContent=errors[e.code]||'ยังไม่ทราบผล กรุณารอ 65 วินาทีก่อนเปิดรอบใหม่';delete start.dataset.locked;start.disabled=false;}finally{busy=false;}}
     },1000);
   }
   function mount(){
@@ -247,8 +255,8 @@
 
     $('supplier-search')?.addEventListener('input',renderCatalog);$('supplier-refresh').addEventListener('click',e=>run(e.currentTarget,loadOrders));
     document.querySelector('.supplier-close').addEventListener('click',()=>$('supplier-detail').close());
-    document.addEventListener('visibilitychange',()=>{if(document.hidden)closeVaults();});window.addEventListener('pagehide',closeVaults);
-    window.addEventListener('hashchange',()=>{closeVaults();if(location.hash==='#inventory')loadOrders();});
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden&&location.hash==='#inventory')loadOrders();});
+    window.addEventListener('hashchange',()=>{if(location.hash==='#inventory')loadOrders();});
     window.olafSupabase?.auth.onAuthStateChange((event)=>{if(['SIGNED_OUT','SIGNED_IN'].includes(event)){epoch++;closeVaults();document.dispatchEvent(new CustomEvent('olaf:supplier-inventory',{detail:[]}));currentOrder=null;$('supplier-order').hidden=true;$('supplier-order').replaceChildren();$('supplier-orders').replaceChildren();if($('supplier-admin')){$('supplier-admin').hidden=true;$('supplier-admin').replaceChildren();}if(adminPage&&event==='SIGNED_OUT')document.querySelector('main').hidden=true;}});
     if(adminPage){try{const data=await api('catalog');products=data.products;checkoutEnabled=data.checkoutEnabled;renderCatalog();notice(checkoutEnabled?'สินค้าแสดงในหมวดเกมออฟไลน์หน้าร้านหลักแล้ว':'ยังไม่พร้อมรับคำสั่งซื้อ กรุณาตรวจ Environment / SQL');}catch{notice('ยังโหลดสินค้าไม่ได้');}}
     if(adminPage||location.pathname.endsWith('/profile.html'))await loadOrders();

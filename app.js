@@ -1443,7 +1443,7 @@ function applyPayload(payload) {
   state.categories = deriveCategories(
     visibleProducts,
     Array.isArray(payload.categories) ? payload.categories : fallbackPayload.categories
-  );
+  ).filter((category) => isFullCatalogPage || String(category.id || "").trim().toLowerCase() !== "office");
   state.products = visibleProducts.map(product=>window.OlafAgeGate?.protect(product)||product).map((product) => ({
     ...product,
     name: cleanDisplayText(product.name),

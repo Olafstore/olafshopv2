@@ -168,9 +168,15 @@
   }
   function showGuardCooldown(section,seconds){
     section.querySelector('[data-guard-cooldown]')?.remove();
-    const status=el('p',undefined,'supplier-guard-cooldown');status.dataset.guardCooldown='';section.insertBefore(status,section.querySelector('[data-guard-start]'));
+    const status=el('div',undefined,'supplier-guard-cooldown');status.dataset.guardCooldown='';
+    const heading=el('strong','ครบจำนวนการขอ Steam Guard แล้ว','supplier-guard-cooldown-title');
+    const description=el('span','สามารถขอรหัสใหม่ได้เมื่อหมดเวลารอ','supplier-guard-cooldown-description');
+    const clock=el('div',undefined,'supplier-guard-cooldown-clock');clock.setAttribute('aria-label','เวลาที่เหลือก่อนขอรหัสใหม่ได้');
+    const units={};for(const [key,label] of [['hours','ชั่วโมง'],['minutes','นาที'],['seconds','วินาที']]){const item=el('span',undefined,'supplier-guard-time-unit');units[key]=el('strong','00');item.append(units[key],el('small',label));clock.append(item);}
+    status.append(el('div',undefined,'supplier-guard-cooldown-copy'));status.firstElementChild.append(heading,description);status.append(clock);
+    section.insertBefore(status,section.querySelector('[data-guard-start]'));
     const until=Date.now()+Math.max(1,Number(seconds)||86400)*1000;
-    let timer=null;const update=()=>{const left=Math.max(0,Math.ceil((until-Date.now())/1000)),h=Math.floor(left/3600),m=Math.floor(left%3600/60),s=left%60;status.textContent=left?`ขอรหัสครบ 3 ครั้งแล้ว ขอใหม่ได้ใน ${h} ชั่วโมง ${String(m).padStart(2,'0')} นาที ${String(s).padStart(2,'0')} วินาที`:'ครบเวลารอแล้ว สามารถขอรหัสใหม่ได้';if(!left&&timer)clearInterval(timer);};
+    let timer=null;const update=()=>{const left=Math.max(0,Math.ceil((until-Date.now())/1000));units.hours.textContent=String(Math.floor(left/3600)).padStart(2,'0');units.minutes.textContent=String(Math.floor(left%3600/60)).padStart(2,'0');units.seconds.textContent=String(left%60).padStart(2,'0');if(!left){heading.textContent='ครบเวลารอแล้ว';description.textContent='สามารถกดรับ Steam Guard เพื่อขอรหัสใหม่ได้';status.classList.add('is-ready');if(timer)clearInterval(timer);}};
     update();timer=setInterval(update,1000);
   }
   async function openInventory(orderId){

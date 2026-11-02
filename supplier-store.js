@@ -20,7 +20,7 @@
   function clearSecrets(){guardVersion++;clearInterval(guardTimer);guardTimer=null;document.querySelectorAll('[data-supplier-secret]').forEach(n=>n.remove());document.querySelectorAll('[data-guard-start]').forEach(n=>{delete n.dataset.locked;n.disabled=false;});}
   Object.assign(errors,{SUPPLIER_MIGRATION_REQUIRED:'ยังไม่ได้ติดตั้ง SQL ชุดหน้าร้านหลัก กรุณาแจ้งแอดมิน',SUPPLIER_PERMISSION_REQUIRED:'สิทธิ์ฐานข้อมูลไม่พร้อม กรุณาแจ้งแอดมิน',SUPPLIER_SCHEMA_MISMATCH:'โครงสร้างฐานข้อมูลออเดอร์ไม่ตรง กรุณาแจ้งแอดมิน',SUPPLIER_DATABASE_UNAVAILABLE:'ฐานข้อมูลไม่พร้อม กรุณาลองใหม่',SERVER_CONFIG_REQUIRED:'Server Environment ยังไม่ครบ กรุณาแจ้งแอดมิน',MIN_TOPUP_REQUIRED:'ร้านยังไม่ผ่านเงื่อนไขยอดเติมของผู้ให้บริการ',SUPPLIER_PRICE_CHANGED:'ราคาเปลี่ยนแล้ว กรุณาปิดและเปิดสั่งซื้อใหม่เพื่อยืนยันราคาใหม่'});
   errors.SUPPLIER_UPSTREAM_BLOCKED='499K ปฏิเสธการเชื่อมต่อจากเซิร์ฟเวอร์ร้าน กรุณาติดต่อร้าน ยังไม่มีการสั่งซื้อหรือตัดเงิน';
-  async function run(control,task){control.disabled=true;try{await task();}catch(e){let message=errors[e.code]||'ทำรายการไม่สำเร็จ กรุณาโหลดสถานะใหม่ก่อนลองซ้ำ';if(e.code==='GUARD_COOLDOWN'&&e.retryAfter){const h=Math.floor(e.retryAfter/3600),m=Math.ceil(e.retryAfter%3600/60);message=`ขอ Steam Guard ครบ 3 ครั้งแล้ว ขอใหม่ได้อีกใน ${h?`${h} ชม. `:''}${m?`${m} นาที`:'ไม่ถึง 1 นาที'}`;}notice(message+(e.code?' ['+e.code+']':''));}finally{if(control.isConnected)control.disabled=control.dataset.locked==='true';}}
+  async function run(control,task){control.disabled=true;try{await task();}catch(e){notice(errors[e.code]||'ทำรายการไม่สำเร็จ กรุณาโหลดสถานะใหม่ก่อนลองซ้ำ');}finally{if(control.isConnected)control.disabled=control.dataset.locked==='true';}}
   async function session(){const result=await window.olafSupabase.auth.getSession();if(result.error||!result.data?.session)throw Object.assign(new Error(),{code:'AUTH_REQUIRED'});return result.data.session;}
   const checkoutCooldowns=new Map(),pendingQuotes=new Map();
   async function quoteProduct(productId){
@@ -41,7 +41,7 @@
     const res=await fetch(`/api/admin-supplier?action=shop-${action}`,{method:body===undefined?'GET':'POST',headers,cache:'no-store',signal:AbortSignal.timeout(30000),...(body!==undefined?{body:JSON.stringify(body)}:{})});
     const result=await res.json();if(version!==epoch)throw new Error('SESSION_CHANGED');
     if(!res.ok||!result.success){
-      const retryAfter=Math.min(result.code==='GUARD_COOLDOWN'?86400:3600,Math.max(1,Number(res.headers.get('Retry-After'))||(result.code==='GUARD_COOLDOWN'?86400:60)));
+      const retryAfter=Math.min(result.code==='GUARD_COOLDOWN'?86400:3600,Math.max(1,Number(res.headers.get('Retry-After'))||Number(result.retryAfter)||Number(result.error?.retryAfter)||(result.code==='GUARD_COOLDOWN'?86400:60)));
       if(checkoutAction&&(res.status===429||['SUPPLIER_RATE_LIMITED','RATE_LIMITED','SUPPLIER_DATABASE_RATE_LIMITED'].includes(result.code)))checkoutCooldowns.set(cooldownKey,Date.now()+retryAfter*1000);
       throw Object.assign(new Error(),{code:result.code,diagnostics:result.diagnostics,retryAfter});
     }return result.data;
@@ -166,6 +166,13 @@
     if(dialog.querySelector('[data-supplier-vault-retry]'))return;
     const retry=button('โหลดออเดอร์อีกครั้ง',()=>openInventory(orderId));retry.dataset.supplierVaultRetry='';retry.className='supplier-vault-retry';dialog.append(retry);
   }
+  function showGuardCooldown(section,seconds){
+    section.querySelector('[data-guard-cooldown]')?.remove();
+    const status=el('p',undefined,'supplier-guard-cooldown');status.dataset.guardCooldown='';section.append(status);
+    const until=Date.now()+Math.max(1,Number(seconds)||86400)*1000;
+    let timer=null;const update=()=>{const left=Math.max(0,Math.ceil((until-Date.now())/1000)),h=Math.floor(left/3600),m=Math.floor(left%3600/60),s=left%60;status.textContent=left?`ขอรหัสครบ 3 ครั้งแล้ว ขอใหม่ได้ใน ${h} ชั่วโมง ${String(m).padStart(2,'0')} นาที ${String(s).padStart(2,'0')} วินาที`:'ครบเวลารอแล้ว สามารถขอรหัสใหม่ได้';if(!left&&timer)clearInterval(timer);};
+    update();timer=setInterval(update,1000);
+  }
   async function openInventory(orderId){
     closeVaults();const version=guardVersion;
     const dialog=vaultDialog('รับข้อมูลสินค้า Steam');dialog.append(el('p','รับไอดี รหัสผ่าน และ Steam Guard ในหน้าต่างเดียว','supplier-vault-subtitle'),el('p','กำลังโหลดข้อมูล…','supplier-vault-loading'));
@@ -205,10 +212,13 @@
   function openGuard(o,dialog){
     const section=el('section',undefined,'supplier-vault-guard');section.append(el('h3','Steam Guard'),el('p','กดรับ Steam Guard เพื่อดูรหัสหรือยืนยันอีเมลเพิ่มเติม'));
     section.querySelector('h3').prepend(vaultIcon('shield'));
-    const start=button('รับ Steam Guard',async()=>{
-      const version=guardVersion,result=await api('guard',{orderId:o.id,reason:'ลูกค้าขอ Steam Guard เพื่อเข้าสู่ระบบบัญชีที่ซื้อ'});
-      if(version!==guardVersion||!dialog.open)return;showGuard(o,result,start,section,dialog);
-    });start.setAttribute('aria-label','รับรหัส Steam Guard');start.prepend(vaultIcon('steam'));start.append(vaultIcon('chevron'));start.dataset.guardStart='';section.append(start);
+    const start=button('',async()=>{
+      const version=guardVersion;start.disabled=true;start.classList.add('is-loading');
+      const loading=el('div',undefined,'supplier-guard-loading');loading.dataset.guardLoading='';const steam=vaultIcon('steam');steam.classList.add('supplier-guard-loading-icon');loading.append(steam,el('span','กำลังตรวจสอบและรับรหัส Steam Guard…'));section.append(loading);
+      try{const result=await api('guard',{orderId:o.id,reason:'ลูกค้าขอ Steam Guard เพื่อเข้าสู่ระบบบัญชีที่ซื้อ'});if(version!==guardVersion||!dialog.open)return;loading.remove();showGuard(o,result,start,section,dialog);}
+      catch(e){loading.remove();if(e.code==='GUARD_COOLDOWN')showGuardCooldown(section,e.retryAfter);else notice(errors[e.code]||'ยังรับรหัสไม่ได้ กรุณาลองใหม่อีกครั้ง');}
+      finally{if(start.isConnected){start.classList.remove('is-loading');start.disabled=start.dataset.locked==='true';}}
+    });start.setAttribute('aria-label','รับรหัส Steam Guard');start.append(vaultIcon('steam'),el('span','รับ Steam Guard','supplier-guard-label'),vaultIcon('chevron'));start.dataset.guardStart='';section.append(start);
     const guardNote=el('p','หลังจากกดรับ Steam Guard ระบบจะแสดงรหัสครั้งล่าสุดเพิ่มเติมทันที กรุณาเก็บข้อมูลเป็นความลับ ไม่ควรเปิดเผยให้ผู้อื่น','supplier-vault-guard-note');guardNote.prepend(vaultIcon('info'));section.append(guardNote);dialog.append(section);
   }
   function showGuard(o,result,start,target,dialog){
@@ -261,14 +271,14 @@
     window.addEventListener('hashchange',()=>{if(location.hash==='#inventory')loadOrders();});
     window.olafSupabase?.auth.onAuthStateChange((event)=>{
       if(!['SIGNED_OUT','SIGNED_IN'].includes(event))return;
-      epoch++;const restoreEpoch=epoch;ordersLoadVersion++;closeVaults();
-      currentOrder=null;$('supplier-order').hidden=true;$('supplier-order').replaceChildren();$('supplier-orders').replaceChildren();
-      if($('supplier-admin')){$('supplier-admin').hidden=true;$('supplier-admin').replaceChildren();}
-      if(event==='SIGNED_OUT')document.dispatchEvent(new CustomEvent('olaf:supplier-inventory',{detail:[]}));
-      if(adminPage&&event==='SIGNED_OUT')document.querySelector('main').hidden=true;
-      // A fresh sign-in clears any prior account's supplier rows above. Reload
-      // this user's inventory after the auth callback finishes so tab restore
-      // cannot leave the API products hidden until a manual refresh.
+      const restoreEpoch=epoch;
+      if(event==='SIGNED_OUT'){
+        epoch++;ordersLoadVersion++;closeVaults();currentOrder=null;$('supplier-order').hidden=true;$('supplier-order').replaceChildren();$('supplier-orders').replaceChildren();
+        if($('supplier-admin')){$('supplier-admin').hidden=true;$('supplier-admin').replaceChildren();}
+        document.dispatchEvent(new CustomEvent('olaf:supplier-inventory',{detail:[]}));
+        if(adminPage)document.querySelector('main').hidden=true;
+      }
+      // Reload after sign-in while leaving an already-open delivery window intact.
       if(event==='SIGNED_IN'&&location.pathname.endsWith('/profile.html'))window.setTimeout(()=>{
         if(epoch===restoreEpoch)loadOrders();
       },0);

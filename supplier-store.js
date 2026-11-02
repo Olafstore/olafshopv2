@@ -168,7 +168,7 @@
   }
   function showGuardCooldown(section,seconds){
     section.querySelector('[data-guard-cooldown]')?.remove();
-    const status=el('p',undefined,'supplier-guard-cooldown');status.dataset.guardCooldown='';section.append(status);
+    const status=el('p',undefined,'supplier-guard-cooldown');status.dataset.guardCooldown='';section.insertBefore(status,section.querySelector('[data-guard-start]'));
     const until=Date.now()+Math.max(1,Number(seconds)||86400)*1000;
     let timer=null;const update=()=>{const left=Math.max(0,Math.ceil((until-Date.now())/1000)),h=Math.floor(left/3600),m=Math.floor(left%3600/60),s=left%60;status.textContent=left?`ขอรหัสครบ 3 ครั้งแล้ว ขอใหม่ได้ใน ${h} ชั่วโมง ${String(m).padStart(2,'0')} นาที ${String(s).padStart(2,'0')} วินาที`:'ครบเวลารอแล้ว สามารถขอรหัสใหม่ได้';if(!left&&timer)clearInterval(timer);};
     update();timer=setInterval(update,1000);

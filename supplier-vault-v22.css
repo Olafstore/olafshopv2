@@ -50,9 +50,11 @@ dialog.supplier-vault::backdrop{background:#020611d9;backdrop-filter:blur(10px)}
 .supplier-vault .supplier-guard-loading{display:flex;align-items:center;justify-content:center;gap:11px;min-height:54px;margin:12px 0;padding:10px;border:1px solid #2799ed;border-radius:10px;background:linear-gradient(110deg,#082d55,#092247);color:#cdeaff;font-size:13px;animation:supplier-guard-glow 1.6s ease-in-out infinite alternate}
 .supplier-vault .supplier-guard-loading-icon{width:28px;height:28px;margin:0;animation:supplier-steam-spin 1.4s ease-in-out infinite}
 .supplier-vault .supplier-guard-loading-icon img{filter:invert(1)!important}
-.supplier-vault .supplier-guard-cooldown{margin:12px 0;padding:11px 14px;border:1px solid #4b93d8;border-radius:9px;background:#0b2344;color:#bfe5ff;font-weight:700;text-align:center;font-variant-numeric:tabular-nums}
+.supplier-vault .supplier-guard-cooldown{display:flex;align-items:center;justify-content:center;gap:9px;min-height:42px;margin:10px 0;padding:9px 14px;border:1px solid #d99827;border-radius:10px;background:linear-gradient(110deg,#4b3210 0%,#342711 48%,#28220f 100%);box-shadow:inset 0 1px #fff3,0 0 16px #f5a62325;color:#ffe6a6;font-size:12px;font-weight:750;line-height:1.5;text-align:center;font-variant-numeric:tabular-nums;animation:supplier-cooldown-glow 2.4s ease-in-out infinite alternate}
+.supplier-vault .supplier-guard-cooldown::before{content:'!';display:grid;place-items:center;flex:none;width:21px;height:21px;border:1px solid #ffc44f;border-radius:50%;background:#f3a51b22;color:#ffd36b;font-size:14px;font-weight:900}
 .supplier-vault .supplier-guard-code{display:block;padding:12px;color:#e8f7ff;text-shadow:0 0 16px #168fff;animation:supplier-code-reveal .5s cubic-bezier(.2,.8,.2,1) both}
 @keyframes supplier-steam-spin{0%,100%{transform:scale(.9) rotate(-8deg);filter:drop-shadow(0 0 2px #38baff)}50%{transform:scale(1.12) rotate(8deg);filter:drop-shadow(0 0 10px #38baff)}}
 @keyframes supplier-guard-glow{from{box-shadow:0 0 8px #008efa26}to{box-shadow:0 0 22px #008efa80}}
+@keyframes supplier-cooldown-glow{from{box-shadow:inset 0 1px #fff2,0 0 8px #f5a62318}to{box-shadow:inset 0 1px #fff4,0 0 18px #f5a62342}}
 @keyframes supplier-code-reveal{from{opacity:0;transform:translateY(8px);filter:blur(5px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
-@media(prefers-reduced-motion:reduce){.supplier-vault .supplier-guard-loading,.supplier-vault .supplier-guard-loading-icon,.supplier-vault .supplier-guard-code{animation:none}}
+@media(prefers-reduced-motion:reduce){.supplier-vault .supplier-guard-loading,.supplier-vault .supplier-guard-loading-icon,.supplier-vault .supplier-guard-code,.supplier-vault .supplier-guard-cooldown{animation:none}}

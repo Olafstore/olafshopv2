@@ -4712,9 +4712,16 @@ async function saveOrderFromForm(event) {
 
   try {
     if(form.elements.status.value==='cancelled'&&isSupplierAdminOrder(selectedOrder())){
-      await cancelPendingSupplierOrder(orderId);
+      const order=selectedOrder();
+      const isBalanceBlocked=order.supplierState==='blocked'&&order.supplierErrorCode==='SUPPLIER_INSUFFICIENT_BALANCE';
+      const creditAmount=Number(order.total)+Number(order.pointsRedeemedAmount||0);
+      const confirmText=isBalanceBlocked
+        ?`ยืนยันยกเลิกออเดอร์ ${order.orderNumber} เพราะยอดคงเหลือ 499K ไม่พอ? ระบบจะไม่คืนเงินหรือเพิ่ม Point อัตโนมัติ หลังยกเลิกให้เพิ่ม ${formatPointAmount(creditAmount)} Point ให้ลูกค้าเอง`
+        :'ยืนยันยกเลิกออเดอร์ API ที่ยังไม่ชำระ? ระบบจะไม่คืนเงินหรือแก้สต็อกต้นทาง';
+      if(!(await adminConfirm(confirmText)))return;
+      const cancelled=await cancelSupplierAdminOrder(order);
       await loadData();state.selectedOrderId=orderId;renderAll();
-      showAdminToast('ยกเลิกออเดอร์ API แล้ว','success');closeMobileAdminEditor();return;
+      showAdminToast(cancelled.pointAmount>0?`ยกเลิกออเดอร์แล้ว · เพิ่ม ${formatPointAmount(cancelled.pointAmount)} Point ให้ลูกค้าเพื่อชดเชย`:"ยกเลิกออเดอร์ API แล้ว",'success');closeMobileAdminEditor();return;
     }
     const deliveryValue=form.elements.deliveryMode.value==='download'
       ?window.OlafDownloadDelivery.serialize({url:form.elements.downloadUrl.value,label:form.elements.downloadLabel.value,note:form.elements.downloadNote.value})
@@ -4745,14 +4752,37 @@ async function cancelPendingSupplierOrder(orderId){
   if(error.code==='PGRST202'||String(error.message).includes('schema cache'))throw new Error('กรุณารันไฟล์ supabase-admin-cancel-supplier-v69.sql ในฐานข้อมูลก่อน');
   throw error;
  }
+ return {pointAmount:0};
+}
+async function cancelSupplierAdminOrder(order){
+ if(order?.supplierState==='blocked'&&order?.supplierErrorCode==='SUPPLIER_INSUFFICIENT_BALANCE'){
+  const {data,error}=await window.olafSupabase.rpc('admin_cancel_blocked_supplier_order',{p_order_id:order.id});
+  if(error){
+   if(String(error.message).includes('SUPPLIER_CANCEL_NOT_ELIGIBLE'))throw new Error('ยกเลิกไม่ได้: ออเดอร์ต้องติดขัดจากยอดคงเหลือ 499K ไม่พอ และยังไม่มีรายการส่งมอบจากต้นทาง');
+   if(error.code==='PGRST202'||String(error.message).includes('schema cache'))throw new Error('กรุณารันไฟล์ supabase-admin-cancel-blocked-supplier-v70.sql ในฐานข้อมูลก่อน');
+   throw error;
+  }
+  return {pointAmount:data?.alreadyCancelled===true?0:Number(data?.pointAmount??(Number(order.total)+Number(order.pointsRedeemedAmount||0)))||0};
+ }
+ return cancelPendingSupplierOrder(order.id);
 }
 async function deleteSelectedOrder() {
   if (!state.selectedOrderId) return;
   const orderId = state.selectedOrderId;
-  if (!(await adminConfirm(isSupplierAdminOrder(selectedOrder())?'ยกเลิกออเดอร์ API ที่ยังไม่ชำระนี้ใช่ไหม? จะปล่อยยอดจองในร้าน แต่ไม่สั่งคืนเงินหรือแก้สต็อกต้นทาง':"ยกเลิกออเดอร์นี้ใช่ไหม? ระบบจะคืนสต็อกถ้าออเดอร์ยังไม่เคยถูกยกเลิก"))) return;
+  const order=selectedOrder();
+  const supplierBlocked=isSupplierAdminOrder(order)&&order.supplierState==='blocked'&&order.supplierErrorCode==='SUPPLIER_INSUFFICIENT_BALANCE';
+  const confirmMessage=supplierBlocked
+    ?`ยกเลิกออเดอร์ ${order.orderNumber} เพราะยอดคงเหลือ 499K ไม่พอใช่ไหม? ระบบจะไม่คืนเงินหรือเพิ่ม Point อัตโนมัติ หลังยกเลิกให้เพิ่ม ${formatPointAmount(Number(order.total)+Number(order.pointsRedeemedAmount||0))} Point ให้ลูกค้าเอง เพื่อใช้สั่งซื้อใหม่`
+    :isSupplierAdminOrder(order)?'ยกเลิกออเดอร์ API ที่ยังไม่ชำระนี้ใช่ไหม? จะปล่อยยอดจองในร้าน แต่ไม่สั่งคืนเงินหรือแก้สต็อกต้นทาง':"ยกเลิกออเดอร์นี้ใช่ไหม? ระบบจะคืนสต็อกถ้าออเดอร์ยังไม่เคยถูกยกเลิก";
+  if (!(await adminConfirm(confirmMessage))) return;
 
   try {
-    if(isSupplierAdminOrder(selectedOrder()))await cancelPendingSupplierOrder(orderId);
+    if(isSupplierAdminOrder(order)){
+      const cancelled=await cancelSupplierAdminOrder(order);
+      await loadData();state.selectedOrderId=state.orders[0]?.id??null;renderAll();
+      const message=cancelled.pointAmount>0?`ยกเลิกแล้ว · อย่าลืมเพิ่ม ${formatPointAmount(cancelled.pointAmount)} Point ให้ลูกค้า`:"ยกเลิกออเดอร์เรียบร้อยแล้ว";
+      setStatus(message);showAdminToast(message,'success');closeMobileAdminEditor();return;
+    }
     else await window.OlafOrders.adminUpdateOrder({
       orderId,
       status: "cancelled",

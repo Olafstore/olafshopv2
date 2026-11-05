@@ -1222,6 +1222,9 @@
       deliveredAt: row.delivered_at || "",
       createdAt: row.created_at || "",
       updatedAt: row.updated_at || "",
+      supplierState: row.supplier_state || row.supplierState || "",
+      supplierErrorCode: row.supplier_error_code || row.supplierErrorCode || "",
+      supplierAttempts: Number(row.supplier_attempts ?? row.supplierAttempts ?? 0),
       items
     };
   }

@@ -4713,11 +4713,8 @@ async function saveOrderFromForm(event) {
   try {
     if(form.elements.status.value==='cancelled'&&isSupplierAdminOrder(selectedOrder())){
       const order=selectedOrder();
-      const isBalanceBlocked=order.supplierState==='blocked'&&order.supplierErrorCode==='SUPPLIER_INSUFFICIENT_BALANCE';
       const creditAmount=Number(order.total)+Number(order.pointsRedeemedAmount||0);
-      const confirmText=isBalanceBlocked
-        ?`ยืนยันยกเลิกออเดอร์ ${order.orderNumber} เพราะยอดคงเหลือ 499K ไม่พอ? ระบบจะไม่คืนเงินหรือเพิ่ม Point อัตโนมัติ หลังยกเลิกให้เพิ่ม ${formatPointAmount(creditAmount)} Point ให้ลูกค้าเอง`
-        :'ยืนยันยกเลิกออเดอร์ API ที่ยังไม่ชำระ? ระบบจะไม่คืนเงินหรือแก้สต็อกต้นทาง';
+      const confirmText=`ยืนยันยกเลิกออเดอร์ API ${order.orderNumber}? หากออเดอร์ติดขัดเพราะยอด 499K ไม่พอ ระบบจะไม่คืนเงินหรือเพิ่ม Point อัตโนมัติ หลังยกเลิกให้เพิ่ม ${formatPointAmount(creditAmount)} Point ให้ลูกค้าเอง`;
       if(!(await adminConfirm(confirmText)))return;
       const cancelled=await cancelSupplierAdminOrder(order);
       await loadData();state.selectedOrderId=orderId;renderAll();
@@ -4755,16 +4752,16 @@ async function cancelPendingSupplierOrder(orderId){
  return {pointAmount:0};
 }
 async function cancelSupplierAdminOrder(order){
- if(order?.supplierState==='blocked'&&order?.supplierErrorCode==='SUPPLIER_INSUFFICIENT_BALANCE'){
-  const {data,error}=await window.olafSupabase.rpc('admin_cancel_blocked_supplier_order',{p_order_id:order.id});
-  if(error){
-   if(String(error.message).includes('SUPPLIER_CANCEL_NOT_ELIGIBLE'))throw new Error('ยกเลิกไม่ได้: ออเดอร์ต้องติดขัดจากยอดคงเหลือ 499K ไม่พอ และยังไม่มีรายการส่งมอบจากต้นทาง');
-   if(error.code==='PGRST202'||String(error.message).includes('schema cache'))throw new Error('กรุณารันไฟล์ supabase-admin-cancel-blocked-supplier-v70.sql ในฐานข้อมูลก่อน');
-   throw error;
-  }
-  return {pointAmount:data?.alreadyCancelled===true?0:Number(data?.pointAmount??(Number(order.total)+Number(order.pointsRedeemedAmount||0)))||0};
+ const {data,error}=await window.olafSupabase.rpc('admin_cancel_blocked_supplier_order',{p_order_id:order.id});
+ if(error){
+  const message=String(error.message||'');
+  if(error.code==='PGRST202'||message.includes('schema cache'))throw new Error('กรุณารันไฟล์ supabase-admin-cancel-blocked-supplier-v70.sql ในฐานข้อมูลก่อน');
+  // Let the existing safe path handle unpaid orders. Paid or delivered orders
+  // that do not match the specific 499K balance failure remain blocked.
+  if(message.includes('SUPPLIER_CANCEL_NOT_ELIGIBLE'))return cancelPendingSupplierOrder(order.id);
+  throw error;
  }
- return cancelPendingSupplierOrder(order.id);
+ return {pointAmount:data?.alreadyCancelled===true?0:Number(data?.pointAmount??(Number(order.total)+Number(order.pointsRedeemedAmount||0)))||0};
 }
 async function deleteSelectedOrder() {
   if (!state.selectedOrderId) return;
@@ -4773,7 +4770,7 @@ async function deleteSelectedOrder() {
   const supplierBlocked=isSupplierAdminOrder(order)&&order.supplierState==='blocked'&&order.supplierErrorCode==='SUPPLIER_INSUFFICIENT_BALANCE';
   const confirmMessage=supplierBlocked
     ?`ยกเลิกออเดอร์ ${order.orderNumber} เพราะยอดคงเหลือ 499K ไม่พอใช่ไหม? ระบบจะไม่คืนเงินหรือเพิ่ม Point อัตโนมัติ หลังยกเลิกให้เพิ่ม ${formatPointAmount(Number(order.total)+Number(order.pointsRedeemedAmount||0))} Point ให้ลูกค้าเอง เพื่อใช้สั่งซื้อใหม่`
-    :isSupplierAdminOrder(order)?'ยกเลิกออเดอร์ API ที่ยังไม่ชำระนี้ใช่ไหม? จะปล่อยยอดจองในร้าน แต่ไม่สั่งคืนเงินหรือแก้สต็อกต้นทาง':"ยกเลิกออเดอร์นี้ใช่ไหม? ระบบจะคืนสต็อกถ้าออเดอร์ยังไม่เคยถูกยกเลิก";
+    :isSupplierAdminOrder(order)?`ยืนยันยกเลิกออเดอร์ API ${order.orderNumber} ใช่ไหม? หากออเดอร์ติดขัดเพราะยอด 499K ไม่พอ ระบบจะไม่คืนเงินหรือเพิ่ม Point อัตโนมัติ หลังยกเลิกให้เพิ่ม ${formatPointAmount(Number(order.total)+Number(order.pointsRedeemedAmount||0))} Point ให้ลูกค้าเอง` :"ยกเลิกออเดอร์นี้ใช่ไหม? ระบบจะคืนสต็อกถ้าออเดอร์ยังไม่เคยถูกยกเลิก";
   if (!(await adminConfirm(confirmMessage))) return;
 
   try {

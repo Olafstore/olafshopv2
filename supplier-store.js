@@ -10,7 +10,7 @@
     SUPPLIER_PRODUCT_UNAVAILABLE:'สินค้านี้ยังไม่เปิดขาย',IDEMPOTENCY_CONFLICT:'คำขอสั่งซื้อเดิมไม่ตรงกัน กรุณาโหลดออเดอร์ก่อนลองใหม่',
     SUPPLIER_FULFILLMENT_BUSY:'กำลังจัดส่ง กรุณารอสักครู่แล้วโหลดออเดอร์ใหม่',SUPPLIER_MANUAL_REVIEW_REQUIRED:'ออเดอร์นี้ต้องให้ร้านตรวจสอบ กรุณาติดต่อร้าน',
     VERIFIED_PAYMENT_REQUIRED:'ยังไม่มีผลยืนยันชำระเงินที่ถูกต้อง',DELIVERY_NOT_READY:'ยังส่งมอบไม่สำเร็จ กรุณาโหลดสถานะใหม่',
-    CODE_LIMIT_REACHED:'ใช้โควตา Steam Guard ครบแล้ว ระบบจะเปิดให้ขอใหม่เมื่อครบ 24 ชั่วโมง',GUARD_COOLDOWN:'ขอ Steam Guard ครบ 3 ครั้งแล้ว กรุณารอให้ครบ 24 ชั่วโมงก่อนขอใหม่',CODE_UNAVAILABLE:'บัญชีนี้ไม่รองรับ Steam Guard อัตโนมัติ',
+    CODE_LIMIT_REACHED:'ออเดอร์นี้ใช้โควตาขอ Steam Guard ครบแล้ว กรุณาติดต่อแอดมินเพื่อรับเลขยืนยัน',GUARD_COOLDOWN:'ขอ Steam Guard ครบ 3 ครั้งแล้ว กรุณารอให้หมดเวลานับถอยหลัง',CODE_UNAVAILABLE:'บัญชีนี้ไม่รองรับ Steam Guard อัตโนมัติ',
     ORDER_REFUNDED:'ออเดอร์นี้ถูกคืนเงินแล้ว',GUARD_WINDOW_CLOSED:'รอบ Steam Guard สิ้นสุดแล้ว กรุณากดเปิดรอบใหม่',
     GUARD_BUSY:'กำลังประมวลผล Steam Guard กรุณารออย่างน้อย 65 วินาที',RATE_LIMITED:'เรียกถี่เกินไป กรุณารอแล้วลองใหม่',
     SUPPLIER_RATE_LIMITED:'มีคำขอมาก กรุณารอหนึ่งนาทีแล้วลองใหม่',ORDER_NOT_FOUND:'ไม่พบออเดอร์ของคุณ',
@@ -168,17 +168,19 @@
     if(dialog.querySelector('[data-supplier-vault-retry]'))return;
     const retry=button('โหลดออเดอร์อีกครั้ง',()=>openInventory(orderId));retry.dataset.supplierVaultRetry='';retry.className='supplier-vault-retry';dialog.append(retry);
   }
-  function showGuardCooldown(section,seconds){
+  function showGuardCooldown(section,seconds,start){
     section.querySelector('[data-guard-cooldown]')?.remove();
     const status=el('div',undefined,'supplier-guard-cooldown');status.dataset.guardCooldown='';
     const heading=el('strong','ครบจำนวนการขอ Steam Guard แล้ว','supplier-guard-cooldown-title');
-    const description=el('span','สามารถขอรหัสใหม่ได้เมื่อหมดเวลารอ','supplier-guard-cooldown-description');
+    const description=el('span','ระบบกำลังพักการขอรหัสชั่วคราว','supplier-guard-cooldown-description');
     const clock=el('div',undefined,'supplier-guard-cooldown-clock');clock.setAttribute('aria-label','เวลาที่เหลือก่อนขอรหัสใหม่ได้');
     const units={};for(const [key,label] of [['hours','ชั่วโมง'],['minutes','นาที'],['seconds','วินาที']]){const item=el('span',undefined,'supplier-guard-time-unit');units[key]=el('strong','00');item.append(units[key],el('small',label));clock.append(item);}
-    status.append(el('div',undefined,'supplier-guard-cooldown-copy'));status.firstElementChild.append(heading,description);status.append(clock);
+    const contact=el('a','ติดต่อแอดมิน','supplier-guard-contact');contact.href='https://www.facebook.com/byOlafshop';contact.target='_blank';contact.rel='noopener noreferrer';contact.hidden=true;
+    status.append(el('div',undefined,'supplier-guard-cooldown-copy'));status.firstElementChild.append(heading,description);status.append(clock,contact);
     section.insertBefore(status,section.querySelector('[data-guard-start]'));
-    const until=Date.now()+Math.max(1,Number(seconds)||86400)*1000;
-    let timer=null;const update=()=>{const left=Math.max(0,Math.ceil((until-Date.now())/1000));units.hours.textContent=String(Math.floor(left/3600)).padStart(2,'0');units.minutes.textContent=String(Math.floor(left%3600/60)).padStart(2,'0');units.seconds.textContent=String(left%60).padStart(2,'0');if(!left){heading.textContent='ครบเวลารอแล้ว';description.textContent='สามารถกดรับ Steam Guard เพื่อขอรหัสใหม่ได้';status.classList.add('is-ready');if(timer)clearInterval(timer);}};
+    const duration=Math.max(0,Number(seconds)||0),until=Date.now()+duration*1000;
+    let timer=null;const update=()=>{const left=Math.max(0,Math.ceil((until-Date.now())/1000));units.hours.textContent=String(Math.floor(left/3600)).padStart(2,'0');units.minutes.textContent=String(Math.floor(left%3600/60)).padStart(2,'0');units.seconds.textContent=String(left%60).padStart(2,'0');if(!left){clock.hidden=true;heading.textContent='ครบเวลารอแล้ว';description.textContent='กรุณาติดต่อแอดมินเพื่อรับเลขยืนยัน';contact.hidden=false;status.classList.add('is-ready');if(timer)clearInterval(timer);}};
+    if(start){start.disabled=true;start.dataset.locked='true';}
     update();timer=setInterval(update,1000);
   }
   async function openInventory(orderId){
@@ -224,7 +226,7 @@
       const version=guardVersion;start.disabled=true;start.classList.add('is-loading');
       const loading=el('div',undefined,'supplier-guard-loading');loading.dataset.guardLoading='';const steam=vaultIcon('steam');steam.classList.add('supplier-guard-loading-icon');loading.append(steam,el('span','กำลังตรวจสอบและรับรหัส Steam Guard…'));section.append(loading);
       try{const result=await api('guard',{orderId:o.id,reason:'ลูกค้าขอ Steam Guard เพื่อเข้าสู่ระบบบัญชีที่ซื้อ'});if(version!==guardVersion||!dialog.open)return;loading.remove();showGuard(o,result,start,section,dialog);}
-      catch(e){loading.remove();if(e.code==='GUARD_COOLDOWN')showGuardCooldown(section,e.retryAfter);else notice(errors[e.code]||'ยังรับรหัสไม่ได้ กรุณาลองใหม่อีกครั้ง');}
+      catch(e){loading.remove();if(e.code==='GUARD_COOLDOWN')showGuardCooldown(section,e.retryAfter||86400,start);else if(e.code==='CODE_LIMIT_REACHED')showGuardCooldown(section,0,start);else notice(errors[e.code]||'ยังรับรหัสไม่ได้ กรุณาลองใหม่อีกครั้ง');}
       finally{if(start.isConnected){start.classList.remove('is-loading');start.disabled=start.dataset.locked==='true';}}
     });start.setAttribute('aria-label','รับรหัส Steam Guard');start.append(vaultIcon('steam'),el('span','รับ Steam Guard','supplier-guard-label'),vaultIcon('chevron'));start.dataset.guardStart='';section.append(start);
     const guardNote=el('p','หลังจากกดรับ Steam Guard ระบบจะแสดงรหัสครั้งล่าสุดเพิ่มเติมทันที กรุณาเก็บข้อมูลเป็นความลับ ไม่ควรเปิดเผยให้ผู้อื่น','supplier-vault-guard-note');guardNote.prepend(vaultIcon('info'));section.append(guardNote);dialog.append(section);

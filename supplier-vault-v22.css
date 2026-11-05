@@ -69,3 +69,7 @@ dialog.supplier-vault::backdrop{background:#020611d9;backdrop-filter:blur(10px)}
 @keyframes supplier-code-reveal{from{opacity:0;transform:translateY(8px);filter:blur(5px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
 @media(max-width:560px){.supplier-vault .supplier-guard-cooldown{align-items:stretch;flex-direction:column;gap:10px;padding:12px}.supplier-vault .supplier-guard-cooldown-clock{justify-content:center}.supplier-vault .supplier-guard-time-unit{flex:1;min-width:0}.supplier-vault .supplier-guard-cooldown-title{font-size:13px}}
 @media(prefers-reduced-motion:reduce){.supplier-vault .supplier-guard-loading,.supplier-vault .supplier-guard-loading-icon,.supplier-vault .supplier-guard-code,.supplier-vault .supplier-guard-cooldown{animation:none}}
+.supplier-vault .supplier-guard-contact{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:8px 14px;border:1px solid #e1ad48;border-radius:9px;background:linear-gradient(135deg,#745016,#4c3511);box-shadow:inset 0 1px #fff3,0 5px 14px #0003;color:#fff0c6;font-size:12px;font-weight:800;text-decoration:none;white-space:nowrap;transition:transform .18s ease,box-shadow .18s ease,background .18s ease}
+.supplier-vault .supplier-guard-contact:hover{transform:translateY(-1px);background:linear-gradient(135deg,#916719,#664811);box-shadow:0 0 16px #ffc34a55;color:#fff8e7;text-decoration:none}
+.supplier-vault .supplier-guard-contact[hidden]{display:none!important}
+@media(max-width:560px){.supplier-vault .supplier-guard-contact{width:100%}}

@@ -47,14 +47,14 @@
     }return result.data;
   }
   async function apiOrder(id){const s=await session();const r=await fetch('/api/admin-supplier?action=shop-order&orderId='+encodeURIComponent(id),{headers:{Authorization:'Bearer '+s.access_token},cache:'no-store',signal:AbortSignal.timeout(20000)});const j=await r.json().catch(()=>({}));if(!r.ok||!j.success||!j.data)throw Object.assign(new Error(),{code:j.code||'SUPPLIER_SERVICE_UNAVAILABLE'});return j.data;}
-  function img(url,alt,cls){const n=el('img',undefined,cls);n.src=url;n.alt=alt;n.loading='lazy';n.referrerPolicy='no-referrer';return n;}
+  function img(url,alt,cls,fallback){const n=el('img',undefined,cls);n.src=url;n.alt=alt;n.loading='lazy';n.referrerPolicy='no-referrer';let fallbackTried=false;n.addEventListener('error',()=>{if(!fallbackTried&&fallback&&fallback!==url){fallbackTried=true;n.src=fallback;}else n.remove();});return n;}
   function price(p){const box=el('div');if(p.compareAt)box.append(el('del',money(p.compareAt),'supplier-compare'));box.append(el('strong',money(p.price),'supplier-price'));return box;}
   function renderCatalog(){
     const q=$('supplier-search').value.trim().toLocaleLowerCase();const sort=$('supplier-sort')?.value||'newest';const grid=$('supplier-grid');grid.replaceChildren();
     const visible=products.filter(p=>(p.name+' '+p.genres.join(' ')).toLocaleLowerCase().includes(q));
     visible.sort((a,b)=>{const at=Date.parse(a.createdAt||'')||0,bt=Date.parse(b.createdAt||'')||0;return (sort==='oldest'?at-bt:bt-at)||a.name.localeCompare(b.name,'th');});
     for(const p of visible){
-      const card=el('article',undefined,'supplier-card');if(p.image)card.append(img(p.image,p.name));
+      const card=el('article',undefined,'supplier-card');if(p.image)card.append(img(p.image,p.name,undefined,p.imageFallback));
       const body=el('div',undefined,'supplier-card-body');body.append(el('h3',p.name),el('p',p.available?'Steam Offline':'สินค้าหมด'),price(p));
       body.append(button('ดูรายละเอียด',()=>showProduct(p)));card.append(body);grid.append(card);
     }
@@ -62,7 +62,7 @@
   }
   async function showProduct(p){
     try {await session();const q=await api('quote',{productId:p.id});p={...p,price:q.price,available:q.available};checkoutEnabled=true;}catch(e){if(e.code==='AUTH_REQUIRED'){location.href='login.html?return='+encodeURIComponent(location.pathname+location.search);return;}const d=e.diagnostics;notice((errors[e.code]||'ยังตรวจราคาล่าสุดไม่ได้ ['+(e.code||'NETWORK')+']')+(d?' · HTTP '+d.upstreamStatus+' / '+d.responseFormat+' / '+(d.reason||'unknown'):''));return;}
-    const box=$('supplier-detail-content');box.replaceChildren();if(p.image)box.append(img(p.image,p.name,'supplier-detail-image'));
+    const box=$('supplier-detail-content');box.replaceChildren();if(p.image)box.append(img(p.image,p.name,'supplier-detail-image',p.imageFallback));
     const title=el('h2',p.name);title.id='supplier-detail-title';box.append(title,el('p',p.genres.join(' · '),'supplier-tags'),price(p));
     box.append(el('p','บัญชี Steam สำหรับเล่นออฟไลน์ ไม่ใช่ CD Key ห้ามเปลี่ยนข้อมูลบัญชี และโปรดทำตามคู่มือที่ร้านแจ้ง'));
     if(p.denuvo)box.append(el('p','เกมนี้มี Denuvo: การเข้าเกมครั้งแรกจำกัดสิทธิ์ต่อวัน อาจต้องรอคิว 1–3 วัน โดยเฉพาะช่วงเกมเปิดตัว','supplier-warning'));

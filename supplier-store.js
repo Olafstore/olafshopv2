@@ -50,8 +50,10 @@
   function img(url,alt,cls){const n=el('img',undefined,cls);n.src=url;n.alt=alt;n.loading='lazy';n.referrerPolicy='no-referrer';return n;}
   function price(p){const box=el('div');if(p.compareAt)box.append(el('del',money(p.compareAt),'supplier-compare'));box.append(el('strong',money(p.price),'supplier-price'));return box;}
   function renderCatalog(){
-    const q=$('supplier-search').value.trim().toLocaleLowerCase();const grid=$('supplier-grid');grid.replaceChildren();
-    for(const p of products.filter(p=>(p.name+' '+p.genres.join(' ')).toLocaleLowerCase().includes(q))){
+    const q=$('supplier-search').value.trim().toLocaleLowerCase();const sort=$('supplier-sort')?.value||'newest';const grid=$('supplier-grid');grid.replaceChildren();
+    const visible=products.filter(p=>(p.name+' '+p.genres.join(' ')).toLocaleLowerCase().includes(q));
+    visible.sort((a,b)=>{const at=Date.parse(a.createdAt||'')||0,bt=Date.parse(b.createdAt||'')||0;return (sort==='oldest'?at-bt:bt-at)||a.name.localeCompare(b.name,'th');});
+    for(const p of visible){
       const card=el('article',undefined,'supplier-card');if(p.image)card.append(img(p.image,p.name));
       const body=el('div',undefined,'supplier-card-body');body.append(el('h3',p.name),el('p',p.available?'Steam Offline':'สินค้าหมด'),price(p));
       body.append(button('ดูรายละเอียด',()=>showProduct(p)));card.append(body);grid.append(card);
@@ -269,7 +271,7 @@
       },openOrder:async id=>{location.hash='orders';await renderOrder(await apiOrder(id));}};
     document.addEventListener('click',e=>{const control=e.target.closest('[data-supplier-order]');if(control){location.hash='orders';run(control,async()=>{await renderOrder(await apiOrder(control.dataset.supplierOrder));});}});
 
-    $('supplier-search')?.addEventListener('input',renderCatalog);$('supplier-refresh').addEventListener('click',e=>run(e.currentTarget,loadOrders));
+    $('supplier-search')?.addEventListener('input',renderCatalog);$('supplier-sort')?.addEventListener('change',renderCatalog);$('supplier-refresh').addEventListener('click',e=>run(e.currentTarget,loadOrders));
     document.querySelector('.supplier-close').addEventListener('click',()=>$('supplier-detail').close());
     document.addEventListener('visibilitychange',()=>{if(!document.hidden&&location.hash==='#inventory')loadOrders();});
     // pageshow also fires when the browser restores this page from its back/forward cache.

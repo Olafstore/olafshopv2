@@ -96,7 +96,7 @@
       const id=new URLSearchParams(location.search).get('order');
       if(id&&currentOrder?.id!==id&&location.hash!=='#inventory'){const o=rows.find(o=>o.id===id);if(o)await renderOrder(o);}return;
     }
-    box.replaceChildren();for(const o of rows){const row=el('article',undefined,'supplier-order-row'),text=el('div');text.append(el('strong',o.name),el('small',`${o.orderNumber} · ${money(o.price)} · ${labels[o.status]||o.status}`));
+    box.replaceChildren();for(const o of rows){const row=el('article',undefined,'supplier-order-row'),text=el('div');text.append(el('strong',o.name),el('small',`${o.orderNumber} · ${money(o.price)} · ${labels[o.status]||o.status}`),el('small',`สั่งซื้อ ${o.createdAt?new Date(o.createdAt).toLocaleString('th-TH'):'ไม่พบเวลา'}`));
       row.append(text,button('เปิดออเดอร์',()=>renderOrder(o)));box.append(row);}
     if(!rows.length)box.append(el('p','ยังไม่มีออเดอร์สินค้าอัตโนมัติ'));
     const id=new URLSearchParams(location.search).get('order');if(id&&currentOrder?.id!==id){const o=rows.find(o=>o.id===id);if(o)await renderOrder(o);}
@@ -122,7 +122,9 @@
       if(event.defaultPrevented)return;
     }
     if($('supplier-orders-section'))$('supplier-orders-section').hidden=false;
-    clearSecrets();currentOrder=o;const panel=$('supplier-order');panel.hidden=false;panel.replaceChildren(el('h2',o.name),el('p',o.orderNumber),el('strong',`${labels[o.status]||o.status} · ${money(o.total)}`));
+    clearSecrets();currentOrder=o;const panel=$('supplier-order');panel.hidden=false;panel.replaceChildren(el('h2',o.name),el('p',`เลขออเดอร์เว็บ: ${o.orderNumber||o.id}`),el('p',`เวลาสั่งซื้อ: ${o.createdAt?new Date(o.createdAt).toLocaleString('th-TH'):'ไม่พบเวลา'}`));
+    if(o.providerOrderNumber)panel.append(el('p',`เลขออเดอร์ 499K: ${o.providerOrderNumber}`));
+    panel.append(el('strong',`${labels[o.status]||o.status} · ${money(o.total)}`));
     const actions=el('div',undefined,'supplier-actions');actions.append(button('โหลดสถานะใหม่',()=>refreshOrder(o.id)));panel.append(actions);
     if(o.status==='awaiting_payment'){
       if(o.expiresAt)panel.append(el('p',`ชำระก่อน ${new Date(o.expiresAt).toLocaleString('th-TH')}`));
@@ -313,6 +315,19 @@
         const result=await api('publish',{confirmation:'PUBLISH_499K_OFFLINE'});notice(`เผยแพร่ ${result.published} รายการแล้ว`);
         const data=await api('catalog');products=data.products;checkoutEnabled=data.checkoutEnabled;renderCatalog();
       });publish.disabled=!(state.deliveryKeyReady&&state.liveKeyReady&&state.purchaseEnabled);admin.append(publish);
+      const ordersPanel=$('supplier-admin-orders');
+      try{
+        const apiOrders=await api('adminOrders');ordersPanel.hidden=false;ordersPanel.replaceChildren(el('h2','ประวัติออเดอร์ API จาก 499K'));
+        if(!apiOrders.length)ordersPanel.append(el('p','ยังไม่มีออเดอร์ API'));
+        for(const order of apiOrders){
+          const row=el('article',undefined,'supplier-order-row'),details=el('div');
+          details.append(el('strong',order.order_items?.[0]?.product_name||'สินค้า API'),
+            el('small',`เลขออเดอร์เว็บ: ${order.order_number||order.id}`),
+            el('small',`เลขออเดอร์ 499K: ${order.supplier_provider_order_no||'ยังไม่มี (รอการสั่งซื้อกับ 499K)'}`),
+            el('small',`เวลาสั่งซื้อ: ${order.created_at?new Date(order.created_at).toLocaleString('th-TH'):'ไม่พบเวลา'} · สถานะ: ${order.supplier_state||order.status}`));
+          row.append(details);ordersPanel.append(row);
+        }
+      }catch{ordersPanel.hidden=true;}
     }catch{/* Admin-only tools are not shown to customers or when runtime SQL is missing. */}
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();

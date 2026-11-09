@@ -5,22 +5,24 @@ import {syncSupplierCatalog} from './catalog-sync.js';
 import {getSteamMetadata,supplierSteamId,steamText} from '../steam-metadata.js';
 import {fetchOfflineCatalog} from './499k/client.js';
 
-const PUBLIC_PRODUCT_FIELDS='id,supplier_product_id,name,description,image,platform,region,stock,selling_price,full_price,denuvo,steam';
+const PUBLIC_PRODUCT_FIELDS='id,supplier_product_id,name,description,image,platform,region,stock,selling_price,full_price,denuvo,steam,supplier_created_at';
 const cleanText=value=>typeof value==='string'?value.replace(/<[^>]*>/g,'').slice(0,16000):'';
 const imageURL=value=>{try{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password?u.href:'';}catch{return '';}};
 export function publicSupplierProduct(row){
   const steamAppId=supplierSteamId(row);
   return {id:row.id,name:cleanText(row.name),description:cleanText(row.steam?.description_th || row.description || row.steam?.description),
     ageStatus:'unknown',ageRestricted:Number(row.steam?.required_age)>=18 || /18\s*\+|🔞|sexual content|nudity|adult only|เนื้อหาทางเพศ|โป๊เปลือย/i.test([row.name,...(Array.isArray(row.steam?.genres)?row.steam.genres:[])].join(' ')),
-    image:steamAppId?`https://olafshop.com/api/steam-app?appid=${steamAppId}&image=header`:imageURL(row.image),steamAppId:steamAppId?Number(steamAppId):null,platform:'steam',region:cleanText(row.region),available:row.stock>0,stock:Math.max(0,Number(row.stock)||0),
+    image:steamAppId?`https://olafshop.com/api/steam-app?appid=${steamAppId}&image=header`:imageURL(row.image),imageFallback:imageURL(row.image),steamAppId:steamAppId?Number(steamAppId):null,platform:'steam',region:cleanText(row.region),available:row.stock>0,stock:Math.max(0,Number(row.stock)||0),
     price:Number(row.selling_price),compareAt:Number(row.full_price)>Number(row.selling_price)?Number(row.full_price):null,
+    createdAt:row.supplier_created_at||'',
     denuvo:row.denuvo===true,genres:Array.isArray(row.steam?.genres)?row.steam.genres.filter(v=>typeof v==='string').slice(0,12).map(cleanText):[],
     screenshots:Array.isArray(row.steam?.screenshots)?row.steam.screenshots.slice(0,8).map(imageURL).filter(Boolean):[],
     requirements:steamText(row.steam?.pc_requirements?.minimum),recommendedRequirements:steamText(row.steam?.pc_requirements?.recommended)};
 }
 const safeOrder=(s,o)=>({id:s.order_id,name:s.product_name,image:imageURL(s.product_image),price:Number(s.selling_price),
   state:s.state,status:o.status,paymentStatus:o.payment_status,orderNumber:o.order_number,paymentMethod:o.payment_method,
-  total:Number(o.total),pointsRedeemedAmount:Number(o.points_redeemed_amount||0),expiresAt:o.expires_at,createdAt:s.created_at,hasSlip:Boolean(o.payment_slip_path),
+  total:Number(o.total),pointsRedeemedAmount:Number(o.points_redeemed_amount||0),expiresAt:o.expires_at,createdAt:s.created_at,
+  providerOrderNumber:s.provider_order_no||'',hasSlip:Boolean(o.payment_slip_path),
   needsSupport:s.state==='blocked'||s.state==='uncertain',canReceive:s.state==='delivered'&&o.payment_status==='verified'&&o.status==='delivered'});
 
 export function createSupplierShop({env=process.env,db=createShopDb({env}),client=create499kFulfillmentClient({env}),sync=catalog=>syncSupplierCatalog({env,db,catalog}),steam=getSteamMetadata}={}){
@@ -125,7 +127,7 @@ export function createSupplierShop({env=process.env,db=createShopDb({env}),clien
       const map=new Map(orders.map(o=>[o.id,o]));return rows.filter(r=>map.has(r.order_id)).map(r=>safeOrder(r,map.get(r.order_id)));
     },
     async adminOrders(){
-      const checkouts=await db.select('supplier_checkouts',{select:'order_id,product_id,supplier_product_id,product_name,product_image,selling_price,created_at',order:'created_at.desc',limit:'500'});
+      const checkouts=await db.select('supplier_checkouts',{select:'order_id,product_id,supplier_product_id,product_name,product_image,selling_price,state,error_code,attempts,provider_order_no,created_at',order:'created_at.desc',limit:'500'});
       const orderIds=checkouts.map(row=>row.order_id).filter(uuid);
       if(!orderIds.length)return [];
       const rows=await db.select('orders',{select:'id,order_number,user_id,customer_name,customer_email,status,payment_status,payment_method,subtotal,total,discount_amount,points_redeemed_amount,payment_verified_at,expires_at,delivery_note,delivered_at,created_at,updated_at,checkout_replaced_at',id:`in.(${orderIds.join(',')})`,limit:'500'});
@@ -134,7 +136,9 @@ export function createSupplierShop({env=process.env,db=createShopDb({env}),clien
         const order=ordersById.get(checkout.order_id);
         if(!order||order.checkout_replaced_at)return [];
         const price=Number(checkout.selling_price)||0;
-        return [{...order,order_items:[{id:`api-${order.id}`,order_id:order.id,product_id:`supplier-${checkout.supplier_product_id}`,
+        return [{...order,supplier_state:checkout.state,supplier_error_code:checkout.error_code,supplier_attempts:Number(checkout.attempts)||0,
+          supplier_provider_order_no:checkout.provider_order_no||'',
+          order_items:[{id:`api-${order.id}`,order_id:order.id,product_id:`supplier-${checkout.supplier_product_id}`,
           product_name:checkout.product_name||'สินค้า API',product_image_url:imageURL(checkout.product_image),unit_price:price,quantity:1,
           line_total:price,category:'api',created_at:checkout.created_at}]}];
       });
@@ -175,12 +179,13 @@ export function createSupplierShop({env=process.env,db=createShopDb({env}),clien
       if(reason!==undefined&&(typeof reason!=='string'||[...reason.trim()].length<5||[...reason.trim()].length>500))throw new ShopError('INVALID_GUARD_REASON',400);
       await limit('supplier-read');
       const lease=await db.rpc('server_supplier_guard_begin',{p_order_id:orderId,p_user_id:userId,p_new_round:reason!==undefined});
+      if(lease?.blocked){const error=new ShopError('GUARD_COOLDOWN',429);error.retryAfter=Number(lease.retryAfterSeconds)||86400;throw error;}
       try{
         const result=await client.steamGuard({providerOrderNo:s.provider_order_no,reason});
-        await db.rpc('server_supplier_guard_finish',{p_order_id:orderId,p_token:lease.token,p_window_seconds:result.window.expires_in_sec});
+        await db.rpc('server_supplier_guard_finish',{p_order_id:orderId,p_token:lease.token,p_window_seconds:result.window.expires_in_sec,p_request_count:result.code_requests.used});
         return result;
       }catch(error){
-        await db.rpc('server_supplier_guard_finish',{p_order_id:orderId,p_token:lease.token,p_window_seconds:null}).catch(()=>{});
+        await db.rpc('server_supplier_guard_finish',{p_order_id:orderId,p_token:lease.token,p_window_seconds:null,p_request_count:error?.code==='CODE_LIMIT_REACHED'?3:null}).catch(()=>{});
         throw error;
       }
     },

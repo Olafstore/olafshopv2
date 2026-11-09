@@ -5,3 +5,5 @@
 #catalog #supplier-sort{min-width:142px;padding:9px 34px 9px 12px;border:1px solid #385d82;border-radius:9px;background:linear-gradient(145deg,#152a45,#0d1b30);color:#e7f2ff;font-size:13px;box-shadow:inset 0 1px #ffffff0b}
 #catalog #supplier-sort:focus-visible{border-color:#62baff;box-shadow:0 0 0 3px #31a7ff26}
 @media(max-width:560px){#catalog .supplier-catalog-tools{width:100%;justify-content:stretch;gap:10px}#catalog .supplier-catalog-tools label:first-child{flex:1 1 100%;width:100%}#catalog #supplier-search{width:100%;flex:1;min-width:0}#catalog .supplier-sort-control{flex:1 1 100%;justify-content:space-between;width:100%}#catalog #supplier-sort{flex:1;max-width:65%}}
+
+#supplier-admin-orders h2{margin-top:0}.supplier-order-row small{line-height:1.5}

@@ -2658,6 +2658,16 @@
       align-items: center;
     }
 
+    .profile-page .inventory-card-api-meta {
+      display: grid;
+      gap: 2px;
+      color: #93a8c4;
+      font-size: 0.68rem;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+      font-variant-numeric: tabular-nums;
+    }
+
     .profile-page .inventory-card-order {
       color: #7f8ca5;
       font-size: 0.70rem;
@@ -4041,6 +4051,8 @@
               ${row.packageTitle ? `<span>•</span><span>${escape(row.packageTitle)}</span>` : ''}
             </div>
 
+            ${row.supplierOrderId ? `<div class="inventory-card-api-meta"><span>เลขเว็บ: ${escape(row.orderNumber || '-')}</span><span>เลข 499K: ${escape(row.providerOrderNumber || 'รอเลขจากต้นทาง')}</span><span>เวลาสั่งซื้อ: ${escape(formatInventoryDate(row.createdAt))}</span></div>` : ''}
+
             <div class="inventory-card-note">${escape(previewText)}</div>
 
             <div class="inventory-card-footer">
@@ -4067,6 +4079,7 @@
         return [
           row.productName,
           row.orderNumber,
+          row.providerOrderNumber,
           row.productId,
           row.platform,
           row.typeLabel,

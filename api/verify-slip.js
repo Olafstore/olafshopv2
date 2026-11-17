@@ -6,7 +6,7 @@ import {fulfillSupplierAfterPayment} from '../lib/suppliers/shop-service.js';
 
 const RDCW_ENDPOINT = "https://suba.rdcw.co.th/v2/inquiry";
 const PAYMENT_SLIP_BUCKET = "payment-slips";
-const PAYMENT_CONTACT_URL = "https://www.facebook.com/byOlafshop";
+const PAYMENT_CONTACT_URL = "https://discord.gg/6axb2QbDHN";
 const MAX_SLIP_BYTES = 5 * 1024 * 1024;
 const MAX_IMAGE_PIXELS = 25_000_000;
 

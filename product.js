@@ -1306,7 +1306,7 @@ function getLocalizedPlatformLabel(link = {}) {
 
 function productPlatformLinks(product = {}) {
   if(product.supplierProduct)return [
-    {label:'ติดต่อร้าน',url:'https://www.facebook.com/byOlafshop',icon:'store',lockLabel:true},
+    {label:'ติดต่อร้าน',url:'https://discord.gg/6axb2QbDHN',icon:'store',lockLabel:true},
     {label:'คู่มือ',url:STEAM_OFFLINE_GUIDE_URL,icon:'book-open-check',lockLabel:true}
   ];
   if (String(product.category || "").toLowerCase() === "steam-account") {
@@ -1329,7 +1329,7 @@ function productPlatformLinks(product = {}) {
     return [
       {
         label: "Contace",
-        url: "https://www.facebook.com/byOlafshop",
+        url: "https://discord.gg/6axb2QbDHN",
         icon: "store",
         lockLabel: true
       },
@@ -1776,7 +1776,7 @@ const STEAM_OFFLINE_GUIDE_URL = "https://olaf-shop.gitbook.io/manual-olaf-shop";
 const STEAM_OFFLINE_CONDITIONS_URL = "https://olaf-shop.gitbook.io/manual-olaf-shop/undefined/undefined";
 const STEAM_KEY_GUIDE_URL = "https://olaf-shop.gitbook.io/manual-olaf-shop/undefined/key-steam";
 const STEAM_ACCOUNT_GUIDE_URL = "https://olaf-shop.gitbook.io/manual-olaf-shop/undefined/1";
-const OFFLINE_SUPPORT_PAGE_URL = "https://www.facebook.com/byOlafshop";
+const OFFLINE_SUPPORT_PAGE_URL = "https://discord.gg/6axb2QbDHN";
 
 function rockstarUsageAccordion(product) {
   if (!isRockstarProduct(product)) return "";

@@ -113,7 +113,7 @@
     { href: "manual.html", label: "คู่มือ", icon: "book-open", match: ["manual.html"] },
     { href: "point-topup.html", label: "เติมเงิน", icon: "coins", match: ["point-topup.html"] },
     { href: "free-random.html", label: "สุ่มเกม", icon: "dices", match: ["free-random.html"] },
-    { href: "https://www.facebook.com/byOlafshop", label: "ติดต่อเรา", icon: "messages-square", external: true }
+    { href: "https://discord.gg/6axb2QbDHN", label: "ติดต่อเรา", icon: "messages-square", external: true }
   ];
 
   function createDisplayTextCleaner() {

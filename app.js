@@ -2007,7 +2007,7 @@ function renderLicenseCardsWidget() {
                 <ul>
                   ${card.items.map((item) => `<li><i data-lucide="check"></i>${item}</li>`).join("")}
                 </ul>
-                <a href="https://www.facebook.com/byOlafshop" target="_blank" rel="noopener noreferrer">สั่งซื้อที่แอดมิน</a>
+                <a href="https://discord.gg/6axb2QbDHN" target="_blank" rel="noopener noreferrer">สั่งซื้อที่แอดมิน</a>
                 <small class="license-ready-note"><i data-lucide="shield-check"></i>พร้อมส่งทันที</small>
               </article>
             `

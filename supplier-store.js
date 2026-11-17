@@ -177,7 +177,7 @@
     const description=el('span','ระบบกำลังพักการขอรหัสชั่วคราว','supplier-guard-cooldown-description');
     const clock=el('div',undefined,'supplier-guard-cooldown-clock');clock.setAttribute('aria-label','เวลาที่เหลือก่อนขอรหัสใหม่ได้');
     const units={};for(const [key,label] of [['hours','ชั่วโมง'],['minutes','นาที'],['seconds','วินาที']]){const item=el('span',undefined,'supplier-guard-time-unit');units[key]=el('strong','00');item.append(units[key],el('small',label));clock.append(item);}
-    const contact=el('a','ติดต่อแอดมิน','supplier-guard-contact');contact.href='https://www.facebook.com/byOlafshop';contact.target='_blank';contact.rel='noopener noreferrer';contact.hidden=true;
+    const contact=el('a','ติดต่อแอดมิน','supplier-guard-contact');contact.href='https://discord.gg/6axb2QbDHN';contact.target='_blank';contact.rel='noopener noreferrer';contact.hidden=true;
     status.append(el('div',undefined,'supplier-guard-cooldown-copy'));status.firstElementChild.append(heading,description);status.append(clock,contact);
     section.insertBefore(status,section.querySelector('[data-guard-start]'));
     const duration=Math.max(0,Number(seconds)||0),until=Date.now()+duration*1000;
